@@ -1,0 +1,6 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="Container" style="flex-grow: 1; min-width: auto; position: relative; top: auto; height: 130px; width: 100%; left: auto; background-color: rgb(137, 129, 129); align-self: center; justify-content: space-around; margin-top: 5px; margin-right: 5px; margin-bottom: 5px; margin-left: 5px;">
+        <ui:VisualElement name="BookIcon" style="flex-grow: 1; width: 90%; height: 90%; align-self: center; -unity-background-scale-mode: scale-to-fit; background-color: rgb(161, 161, 161); background-size: contain;"/>
+        <ui:Label text="Label" name="PriceLabel"/>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5dfd1b6cf1994b23897452e9898d86e, type: 3}
+  m_Name: MainBookDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::BookDatabase
+  allBooks:
+  - {fileID: 11400000, guid: ed9bf5734e20b495db0fcc914270c46d, type: 2}
+  - {fileID: 11400000, guid: 1acb5eec4e58e49f2a3747cb0c3e63fa, type: 2}
+  - {fileID: 11400000, guid: 34b7a3453d9cd4399971cd334f989af9, type: 2}
+  - {fileID: 11400000, guid: 028b41f45f18a4051b434ef8075762e9, type: 2}
+  - {fileID: 11400000, guid: 87953df12d90b4ce6bffc335fe05a4ff, type: 2}

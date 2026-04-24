@@ -1,0 +1,46 @@
+.screen-overlay {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0.85);
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.header-container {
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.title-text {
+    font-size: 60px;
+    color: #FFD700; /* Gold */
+    -unity-font-style: bold;
+}
+
+.stats-row {
+    flex-direction: row;
+    margin-top: 10px;
+}
+
+.stat-text {
+    font-size: 24px;
+    color: white;
+    margin: 0 20px;
+}
+
+/* Налаштування сітки для карток */
+.loot-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    height: 400px;
+    margin: 20px 0;
+}
+
+.hint-text {
+    font-size: 18px;
+    color: #AAAAAA;
+    margin-top: 20px;
+}

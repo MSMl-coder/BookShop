@@ -1,0 +1,42 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/InventoryStyles.uss?fileID=7433441132597879392&amp;guid=c4b090d74adb3410c961284aa44ef032&amp;type=3#InventoryStyles"/>
+    <Style src="project://database/Assets/UI/Styles/EndOfDayStyles.uss?fileID=7433441132597879392&amp;guid=384e909f6790e4ccab68ea6ec3752a9e&amp;type=3#EndOfDayStyles"/>
+    <ui:VisualElement name="EndDayPanel" picking-mode="Ignore" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; display: none;">
+        <ui:VisualElement name="Header" picking-mode="Ignore" style="align-items: center; margin-bottom: 50px;">
+            <ui:Label text="ДЕНЬ ЗАВЕРШЕНО" name="Title" style="font-size: 60px; color: rgb(255, 215, 0); -unity-font-style: bold;"/>
+            <ui:VisualElement name="Stats" style="flex-direction: row; margin-top: 10px;">
+                <ui:Label text="Продано книг: 0" name="StatBooks" style="font-size: 24px; color: rgb(255, 255, 255); margin-left: 20px; margin-right: 20px;"/>
+                <ui:Label text="Заробіток: $0" name="StatMoney" style="font-size: 24px; color: rgb(255, 255, 255); margin-left: 20px; margin-right: 20px;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="LootContainer" style="flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: center; width: 1772px; height: 400px; margin-right: 10px; margin-left: 10px; padding-right: 0; flex-grow: 0;"/>
+        <ui:Label text="Оберіть 3 нагороди, щоб почати наступний день" picking-mode="Ignore" style="font-size: 18px; color: rgb(170, 170, 170); margin-top: 20px;"/>
+    </ui:VisualElement>
+    <ui:VisualElement name="LeftPanel" picking-mode="Ignore" style="flex-grow: 1; position: absolute; height: 686px; width: 498px; top: 222px; background-color: rgba(0, 0, 0, 0.78); display: none;">
+        <ui:VisualElement name="InventoryPanel" picking-mode="Ignore" style="flex-grow: 2; width: 492px; display: flex; background-color: rgb(152, 148, 148); height: 100%; left: 0; flex-direction: column;">
+            <ui:Label text="Label" name="Header" style="flex-direction: row; height: 66px; width: auto;">
+                <ui:Button text="Genre" name="BtnSortGenre" style="height: 41px; width: 136px;"/>
+                <ui:Button text="Author" name="BtnSortAuthor"/>
+                <ui:Button text="Price" name="BtnSortPrice"/>
+                <ui:Button text="TITLE" name="BtnSortTitle" style="height: 37px; width: 140px;"/>
+            </ui:Label>
+            <ui:ScrollView name="InventoryGrid" style="height: auto; width: 477px; flex-grow: 1; flex-wrap: wrap; bottom: auto; top: auto; left: auto; right: auto; flex-direction: row; position: relative; background-size: contain; align-items: stretch; align-content: stretch; justify-content: space-evenly; align-self: stretch;"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="RightPanel" picking-mode="Ignore" style="flex-grow: 2; flex-shrink: 1; position: absolute; height: 583px; width: 450px; top: 229px; left: 1836px; background-color: rgb(211, 211, 211); display: none; flex-direction: column; align-self: stretch; align-items: stretch; justify-content: flex-start;">
+        <ui:VisualElement name="CabinetPanel" picking-mode="Ignore" style="flex-grow: 2; position: relative; height: auto; width: auto; top: auto; left: auto; flex-direction: column; flex-wrap: nowrap; right: auto; bottom: auto; display: flex;">
+            <ui:ScrollView name="CabinetList" style="width: 407px; height: 212px; flex-direction: column; flex-grow: 1; flex-wrap: wrap; position: absolute; top: 22px; left: 17px; background-color: rgb(161, 153, 153); background-size: contain; align-items: stretch; align-content: stretch; margin-top: 5px; margin-right: 5px; margin-bottom: 5px; margin-left: 5px; bottom: auto; flex-basis: 50px; align-self: stretch; justify-content: space-evenly;">
+                <ui:VisualElement name="ShelfList" style="flex-grow: 1;"/>
+                <ui:Label text="Оберіть шафу" style="align-items: center; -unity-text-align: upper-center; font-size: 22px; width: 168px;"/>
+            </ui:ScrollView>
+            <ui:ScrollView name="ShelfList" style="height: 300px; width: 421px; flex-grow: 2; flex-wrap: wrap; bottom: auto; top: 260px; left: 14px; right: auto; flex-direction: column; position: absolute; background-color: rgb(130, 124, 124); align-items: flex-start; display: flex; flex-basis: 50px; align-self: stretch; align-content: stretch;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="Footer" picking-mode="Ignore" style="flex-grow: 1; position: absolute; height: 140px; width: 84px; top: 275px; left: -102px; background-color: rgb(130, 123, 123); flex-direction: column; justify-content: center; align-self: flex-start; align-items: stretch; bottom: auto; align-content: flex-start;">
+            <ui:Button text="&gt;" name="BtnPushOne"/>
+            <ui:Button text="&gt;&gt;" name="BtnPushAll"/>
+            <ui:Button text="&lt;" name="BtnPopOne"/>
+            <ui:Button text="&lt;&lt;" name="BtnPopAll"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:Button text="BtnOpenInventory" name="BtnOpenInventory" style="height: 30px; width: 162px; position: absolute; top: auto; left: auto; bottom: 0; right: auto;"/>
+</ui:UXML>

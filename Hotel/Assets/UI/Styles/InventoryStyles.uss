@@ -1,0 +1,27 @@
+/* Налаштування картки книги */
+.book-card {
+    width: 100px;
+    height: 140px;
+    background-color: #2b2b2b;
+    border-radius: 10px;
+    margin: 8px;
+    padding: 10px;
+    border-width: 2px;
+    border-color: #444;
+    transition-duration: 0.15s;
+}
+
+/* Ефект наведення */
+.book-card:hover {
+    scale: 1.1;
+    border-color: #ffcc00;
+    background-color: #383838;
+}
+
+/* Цінник */
+#PriceLabel {
+    -unity-font-style: bold;
+    color: #ffcc00;
+    -unity-text-align: lower-center;
+    font-size: 14px;
+}
