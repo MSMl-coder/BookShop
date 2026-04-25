@@ -84,6 +84,12 @@ public class FurnitureSlot : MonoBehaviour
                 BookInstance b = booksToRestore[bookIndex];
                 BookTemplate bt = BookDatabase.Instance.GetBook(b.templateID);
                 
+                if (bt == null || bt.containerPrefab == null)
+                {
+                    InventoryManager.Instance.AddExistingBook(b);
+                    bookIndex++;
+                    continue;
+                }
                 if (shelf.CanFitBook(bt.containerPrefab))
                 {
                     shelf.PlaceBook(b, bt.containerPrefab);

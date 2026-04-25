@@ -11,6 +11,8 @@ public class BookDatabase : ScriptableObject
     public void Initialize()
     {
         Instance = this;
+        if (_cache != null && _cache.Count > 0) return; // вже ініціалізовано
+        _cache = new Dictionary<string, BookTemplate>();
         _cache.Clear();
         foreach (var book in allBooks)
         {

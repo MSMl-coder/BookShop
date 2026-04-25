@@ -63,8 +63,9 @@ public class DebugGameController : MonoBehaviour
         if (InventoryManager.Instance != null && testBook != null)
         {
             // Використовуємо .name як ID, якщо спеціального поля немає
-            InventoryManager.Instance.AddBook(testBook.name);
-            Debug.Log($"[Debug] Додано книгу: {testBook.name}");
+            InventoryManager.Instance.AddBook(testBook.bookID);
+
+            Debug.Log($"[Debug] Додано книгу: {testBook.bookID}");
         }
     }
 

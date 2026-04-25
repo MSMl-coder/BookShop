@@ -61,7 +61,11 @@ public class ShopUIManager : MonoBehaviour
         root.Q<Button>("BtnOpenInventory")?.RegisterCallback<ClickEvent>(evt => ToggleInventory());
 
         // Підписки на менеджери
-        InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnInventoryChanged += RefreshInventory;
+        else
+             Debug.LogError("[ShopUI] InventoryManager not ready in OnEnable!");
+
         
         if (GameLoopManager.Instance != null)
             GameLoopManager.Instance.OnStateChanged += HandleGameStateChanged;

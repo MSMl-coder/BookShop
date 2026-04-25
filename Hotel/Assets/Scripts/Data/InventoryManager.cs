@@ -138,6 +138,11 @@ public class InventoryManager : MonoBehaviour
                 return _ownedBooks.OrderBy(b => database.GetBook(b.templateID)?.author ?? "").ToList();
             case SortType.ByPrice:
                 return _ownedBooks.OrderByDescending(b => database.GetBook(b.templateID)?.sellPrice ?? 0).ToList();
+  
+            case SortType.ByRarity:
+                return _ownedBooks.OrderByDescending(b => (int)(database.GetBook(b.templateID)?.rarity ?? 0)).ToList();
+            case SortType.ByGenre:
+                return _ownedBooks.OrderBy(b => (int)(database.GetBook(b.templateID)?.genre ?? 0)).ToList();
             default:
                 return new List<BookInstance>(_ownedBooks);
         }
