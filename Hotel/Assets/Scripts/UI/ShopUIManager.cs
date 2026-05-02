@@ -283,24 +283,24 @@ public void OpenCabinetUI(Cabinet cabinet)
         if (data != null) InventoryManager.Instance.AddExistingBook(data);
     }
     private void PopAllFromSelected() 
-{ 
-    if (_selectedShelf == null) return;
+    { 
+        if (_selectedShelf == null) return;
 
-    // Створюємо тимчасову змінну для перевірки
-    BookInstance lastPoppedBook;
-    
-    // Поки метод TakeLastBook() повертає книгу (не null), додаємо її в інвентар
-    do 
-    {
-        lastPoppedBook = _selectedShelf.TakeLastBook();
-        if (lastPoppedBook != null)
+        // Створюємо тимчасову змінну для перевірки
+        BookInstance lastPoppedBook;
+        
+        // Поки метод TakeLastBook() повертає книгу (не null), додаємо її в інвентар
+        do 
         {
-            InventoryManager.Instance.AddExistingBook(lastPoppedBook);
-        }
-    } while (lastPoppedBook != null);
+            lastPoppedBook = _selectedShelf.TakeLastBook();
+            if (lastPoppedBook != null)
+            {
+                InventoryManager.Instance.AddExistingBook(lastPoppedBook);
+            }
+        } while (lastPoppedBook != null);
 
-    Debug.Log("[UI] Всі книги з полиці перенесено в інвентар.");
-}
+        Debug.Log("[UI] Всі книги з полиці перенесено в інвентар.");
+    }
     #endregion
 
     private void OnDisable()

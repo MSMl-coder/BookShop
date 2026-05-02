@@ -14,7 +14,7 @@ public class InventoryTest : MonoBehaviour
         // Чекаємо один кадр або викликаємо після ініціалізації бази
         if (addAllOnStart)
         {
-            AddEveryBookToInventory();
+        //    AddEveryBookToInventory();
         }
     }
 
@@ -25,7 +25,7 @@ public class InventoryTest : MonoBehaviour
         // Натисніть 'A', щоб додати ВСІ книги з бази в інвентар
         if (Keyboard.current.aKey.wasPressedThisFrame)
         {
-            AddEveryBookToInventory();
+        //    AddEveryBookToInventory();
         }
 
         // Клавіша 'P' — виставити ОДНУ книгу на полицю (Кнопка [>])
@@ -44,7 +44,7 @@ public class InventoryTest : MonoBehaviour
     /// <summary>
     /// Проходить по всій базі даних і додає кожну книгу в інвентар.
     /// </summary>
-    public void AddEveryBookToInventory()
+ /*   public void AddEveryBookToInventory()
     {
         if (BookDatabase.Instance == null || BookDatabase.Instance.allBooks == null)
         {
@@ -65,5 +65,7 @@ public class InventoryTest : MonoBehaviour
         }
 
         Debug.Log($"[Test] Додано по {countPerBook} примірників кожної книги.");
+    
     }
+    */
 }
