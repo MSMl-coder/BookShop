@@ -20,11 +20,14 @@ public class CameraController : MonoBehaviour
     [SerializeField] private float zoomSpeed = 6f;
     [SerializeField] private float smoothTime = 0.15f;
 
+    [Header("Tilt By Zoom")]
+    [SerializeField] private float tiltAtMinZoom = 60f; // Кут X при мінімальному зумі
+    [SerializeField] private float tiltAtMaxZoom = 30f; // Кут X при максимальному зумі
+
     [Header("Rotation (Right Click)")]
     [SerializeField] private float rotationSpeed = 60f;
 
     private float _rotationY;
-    private float _fixedTiltX;
     private float _targetSize;
     private float _currentSize;
     private float _zoomVelocity;
@@ -34,15 +37,14 @@ public class CameraController : MonoBehaviour
     {
         if (mainCamera == null) mainCamera = GetComponent<Camera>();
         
-        // 1. Налаштовуємо початкові кути на основі того, як камера стоїть у Scene
-        _fixedTiltX = transform.eulerAngles.x;
+        // Зберігаємо початковий кут Y
         _rotationY = transform.eulerAngles.y;
         
-        // 2. Налаштовуємо початковий зум
+        // Налаштовуємо початковий зум
         _currentSize = mainCamera.orthographicSize;
         _targetSize = _currentSize;
 
-        // 3. Якщо ціль не призначена — створюємо її
+        // Якщо ціль не призначена — створюємо її
         if (target == null)
         {
             GameObject go = new GameObject("CameraTarget_Auto");
@@ -70,7 +72,6 @@ public class CameraController : MonoBehaviour
         var keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        // Зчитуємо WASD
         Vector2 input = new Vector2(
             (keyboard.dKey.isPressed ? 1 : 0) - (keyboard.aKey.isPressed ? 1 : 0),
             (keyboard.wKey.isPressed ? 1 : 0) - (keyboard.sKey.isPressed ? 1 : 0)
@@ -78,7 +79,6 @@ public class CameraController : MonoBehaviour
 
         if (input.sqrMagnitude > 0.01f)
         {
-            // Рух відносно погляду камери
             Vector3 forward = transform.forward;
             forward.y = 0;
             forward.Normalize();
@@ -90,14 +90,12 @@ public class CameraController : MonoBehaviour
             Vector3 moveDir = (forward * input.y + right * input.x).normalized;
             Vector3 potentialPosition = target.position + moveDir * moveSpeed * Time.deltaTime;
 
-            // Перевірка, чи є під нами підлога (Floor Snapping)
             SnapTargetToFloor(potentialPosition);
         }
     }
 
     private void SnapTargetToFloor(Vector3 pos)
     {
-        // Стріляємо зверху вниз
         Ray ray = new Ray(pos + Vector3.up * 50f, Vector3.down);
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, floorLayer))
         {
@@ -105,7 +103,6 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            // Якщо підлоги немає — ми просто не змінюємо target.position (блокування руху)
             Debug.DrawRay(pos + Vector3.up * 5f, Vector3.down * 10f, Color.red);
         }
     }
@@ -127,7 +124,6 @@ public class CameraController : MonoBehaviour
         var mouse = Mouse.current;
         if (mouse == null) return;
 
-        // Блокуємо зум, якщо мишка над UI Toolkit або старим UI
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             return;
 
@@ -142,10 +138,20 @@ public class CameraController : MonoBehaviour
         mainCamera.orthographicSize = _currentSize;
     }
 
+    /// <summary>
+    /// Повертає поточний кут X (нахил) лінійно між tiltAtMinZoom та tiltAtMaxZoom
+    /// залежно від поточного розміру ортографічної камери.
+    /// </summary>
+    private float GetCurrentTiltX()
+    {
+        float t = Mathf.InverseLerp(minSize, maxSize, _currentSize);
+        return Mathf.Lerp(tiltAtMinZoom, tiltAtMaxZoom, t);
+    }
+
     private void ApplyFinalTransform()
     {
-        // Розраховуємо позицію камери як орбіту навколо Target
-        Quaternion rotation = Quaternion.Euler(_fixedTiltX, _rotationY, 0);
+        float tiltX = GetCurrentTiltX();
+        Quaternion rotation = Quaternion.Euler(tiltX, _rotationY, 0);
         Vector3 position = target.position - (rotation * Vector3.forward * CAMERA_DISTANCE);
 
         transform.rotation = rotation;

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: a6b65ee0873a211469e8617d15614ce8
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 289060
+  packageName: Basic Chandelier
+  packageVersion: 1.0
+  assetPath: Assets/Chandelier/Prefab/Chandelier.prefab
+  uploadId: 674196

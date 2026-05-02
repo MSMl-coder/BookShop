@@ -64,7 +64,7 @@ Material:
     - _Shadows_Contrast: 0.81
     - _Shadows_Size: 1.42
     m_Colors:
-    - _Base_Color: {r: 0.6415094, g: 0.40175793, b: 0.18458524, a: 0}
+    - _Base_Color: {r: 0.5188679, g: 0.28152412, b: 0.070977226, a: 0}
     - _Highlight_Color: {r: 0.6320754, g: 0.42455578, b: 0.20572266, a: 0}
     - _Outline_Color: {r: 0.21698111, g: 0.14337449, b: 0.0501513, a: 1}
     - _Shadows_Color: {r: 0.3490566, g: 0.22921894, b: 0.103729084, a: 0}
