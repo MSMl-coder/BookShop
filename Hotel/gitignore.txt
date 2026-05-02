@@ -73,3 +73,20 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Гейм-дизайнерські асети та бінарні файли
+*.prefab
+*.blend
+*.blend1
+*.fbx
+*.obj
+
+# Зображення та текстури
+*.png
+*.jpg
+*.jpeg
+*.tga
+*.psd
+*.tiff
+*.exr
+*.hdr
