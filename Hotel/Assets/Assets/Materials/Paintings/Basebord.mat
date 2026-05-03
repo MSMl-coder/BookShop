@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Wall 1
+  m_Name: Basebord
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -130,8 +130,8 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.37254903, g: 0.42745098, b: 0.42352942, a: 1}
-    - _Color: {r: 0.372549, g: 0.42745095, b: 0.4235294, a: 1}
+    - _BaseColor: {r: 0.1981132, g: 0.15391888, b: 0.13363296, a: 1}
+    - _Color: {r: 0.19811317, g: 0.15391883, b: 0.13363293, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

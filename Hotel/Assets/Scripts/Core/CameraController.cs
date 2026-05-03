@@ -59,7 +59,7 @@ public class CameraController : MonoBehaviour
 
     void LateUpdate()
     {
-        if (target == null) return;
+        if (target == null) return; 
 
         HandleMovement();
         HandleRotation();
