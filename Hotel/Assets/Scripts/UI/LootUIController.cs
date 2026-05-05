@@ -93,10 +93,10 @@ public class LootUIController : MonoBehaviour
         var moneyLabel = _screenRoot.Q<Label>("StatMoney");
 
         if (booksLabel != null) 
-            booksLabel.text = $"Продано книг: {EconomyManager.Instance.booksSoldToday}";
+            booksLabel.text = $"Продано книг: {EconomyManager.Instance.BooksSoldToday}";
         
         if (moneyLabel != null) 
-            moneyLabel.text = $"Заробіток: ${EconomyManager.Instance.moneyEarnedToday}";
+            moneyLabel.text = $"Заробіток: ${EconomyManager.Instance.MoneyEarnedToday}";
 
         // Генеруємо картки
         RefreshLootGrid();

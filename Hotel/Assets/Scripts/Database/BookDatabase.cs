@@ -1,36 +1,52 @@
+// Assets/Scripts/Database/BookDatabase.cs
 using UnityEngine;
 using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "BookDatabase", menuName = "Bookstore/Database")]
 public class BookDatabase : ScriptableObject
 {
-    public static BookDatabase Instance;
-    public List<BookTemplate> allBooks;
-    private Dictionary<string, BookTemplate> _cache = new Dictionary<string, BookTemplate>();
+    // ВИПРАВЛЕНО: Instance тепер керується BookDatabaseLoader,
+    // а не самим SO
+    public static BookDatabase Instance { get; private set; }
+
+    public List<BookTemplate> allBooks = new List<BookTemplate>();
+
+    private Dictionary<string, BookTemplate> _cache;
+    private bool _initialized = false;
 
     public void Initialize()
     {
+        if (_initialized) return;
+
         Instance = this;
-        if (_cache != null && _cache.Count > 0) return; // вже ініціалізовано
         _cache = new Dictionary<string, BookTemplate>();
-        _cache.Clear();
+
         foreach (var book in allBooks)
         {
-            if (book != null && !string.IsNullOrEmpty(book.bookID))
-            {
-                if (!_cache.ContainsKey(book.bookID))
-                {
-                    _cache.Add(book.bookID, book);
-                }
-            }
+            if (book == null || string.IsNullOrEmpty(book.bookID)) continue;
+
+            if (!_cache.ContainsKey(book.bookID))
+                _cache.Add(book.bookID, book);
+            else
+                Debug.LogWarning($"[Database] Duplicate bookID: {book.bookID}");
         }
-        Debug.Log($"[Database] Ініціалізовано. Книг у базі: {_cache.Count}");
+
+        _initialized = true;
+        Debug.Log($"[Database] Initialized. Books: {_cache.Count}");
     }
 
     public BookTemplate GetBook(string id)
     {
-        if (_cache.Count == 0) Initialize();
-        _cache.TryGetValue(id, out var book);
+        if (!_initialized) Initialize();
+        if (string.IsNullOrEmpty(id)) return null;
+
+        _cache.TryGetValue(id, out BookTemplate book);
         return book;
+    }
+
+    public bool HasBook(string id)
+    {
+        if (!_initialized) Initialize();
+        return !string.IsNullOrEmpty(id) && _cache.ContainsKey(id);
     }
 }

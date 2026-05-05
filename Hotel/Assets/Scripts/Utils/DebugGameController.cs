@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
+
+
 /// <summary>
 /// Central debug controller for testing all game systems.
 /// Hotkeys active only in Editor / Development builds.
@@ -54,10 +56,10 @@ public class DebugGameController : MonoBehaviour
         if (!enableHotkeys) return;
         if (Keyboard.current == null) return;
 
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        HandleHotkeys();
-#endif
-    }
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            HandleHotkeys();
+    #endif
+        }
 
     // ═══════════════════════════════════════════════════════════════
     #endregion
@@ -136,8 +138,8 @@ public class DebugGameController : MonoBehaviour
         Debug.Log(
             $"[Debug] 📊 Economy Status:\n" +
             $"  Balance       : ${EconomyManager.Instance.Money}\n" +
-            $"  Books Sold    : {EconomyManager.Instance.booksSoldToday}\n" +
-            $"  Earned Today  : ${EconomyManager.Instance.moneyEarnedToday}"
+            $"  Books Sold    : {EconomyManager.Instance.BooksSoldToday}\n" +
+            $"  Earned Today  : ${EconomyManager.Instance.MoneyEarnedToday}"
         );
     }
 
@@ -178,7 +180,7 @@ public class DebugGameController : MonoBehaviour
     public void ForceEndDay()
     {
         if (!CheckManager(GameLoopManager.Instance, "GameLoopManager")) return;
-        GameLoopManager.Instance.TestEndDay();
+        GameLoopManager.Instance.EndWorkDay();
         Debug.Log($"[Debug] 🌙 Day {GameLoopManager.Instance.CurrentDay} force-ended.");
     }
 
@@ -616,6 +618,24 @@ public class DebugGameControllerEditor : Editor
         }
         GUI.backgroundColor = Color.white;
     }
+
+    // Додати до DebugGameController.cs
+    [ContextMenu("Test Save")]
+    public void TestSave()
+    {
+        GameStateSerializer.Instance?.QuickSave();
+        Debug.Log("[Debug] Manual save triggered.");
+    }
+
+    [ContextMenu("Test Load")]  
+    public void TestLoad()
+    {
+        SaveData data = SaveSystem.Load(0);
+        if (data != null)
+            GameStateSerializer.Instance?.ApplySaveData(data);
+    }
+
+    
 }
 #endif
 
