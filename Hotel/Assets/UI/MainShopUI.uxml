@@ -12,7 +12,7 @@
         <ui:VisualElement name="LootContainer" style="flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: center; width: 1772px; height: 400px; margin-right: 10px; margin-left: 10px; padding-right: 0; flex-grow: 0;"/>
         <ui:Label text="Оберіть 3 нагороди, щоб почати наступний день" picking-mode="Ignore" style="font-size: 18px; color: rgb(170, 170, 170); margin-top: 20px;"/>
     </ui:VisualElement>
-    <ui:VisualElement name="LeftPanel" picking-mode="Ignore" style="flex-grow: 1; position: absolute; height: 686px; width: 498px; top: 222px; background-color: rgba(0, 0, 0, 0.78); display: none;">
+    <ui:VisualElement name="LeftPanel" picking-mode="Ignore" style="flex-grow: 1; position: absolute; height: 686px; width: 498px; top: 222px; background-color: rgba(0, 0, 0, 0.78); display: flex;">
         <ui:VisualElement name="InventoryPanel" picking-mode="Ignore" style="flex-grow: 2; width: 492px; display: flex; background-color: rgb(152, 148, 148); height: 100%; left: 0; flex-direction: column;">
             <ui:Label text="Label" name="Header" style="flex-direction: row; height: 66px; width: auto;">
                 <ui:Button text="Genre" name="BtnSortGenre" style="height: 41px; width: 136px;"/>
@@ -23,7 +23,7 @@
             <ui:ScrollView name="InventoryGrid" style="height: auto; width: 477px; flex-grow: 1; flex-wrap: wrap; bottom: auto; top: auto; left: auto; right: auto; flex-direction: row; position: relative; background-size: contain; align-items: stretch; align-content: stretch; justify-content: space-evenly; align-self: stretch;"/>
         </ui:VisualElement>
     </ui:VisualElement>
-    <ui:VisualElement name="RightPanel" picking-mode="Ignore" style="flex-grow: 2; flex-shrink: 1; position: absolute; height: 583px; width: 450px; top: 229px; left: 1836px; background-color: rgb(211, 211, 211); display: none; flex-direction: column; align-self: stretch; align-items: stretch; justify-content: flex-start;">
+    <ui:VisualElement name="RightPanel" picking-mode="Ignore" style="flex-grow: 2; flex-shrink: 1; position: absolute; height: 583px; width: 450px; top: 229px; left: 1836px; background-color: rgb(211, 211, 211); display: flex; flex-direction: column; align-self: stretch; align-items: stretch; justify-content: flex-start;">
         <ui:VisualElement name="CabinetPanel" picking-mode="Ignore" style="flex-grow: 2; position: relative; height: auto; width: auto; top: auto; left: auto; flex-direction: column; flex-wrap: nowrap; right: auto; bottom: auto; display: flex;">
             <ui:ScrollView name="CabinetList" style="width: 407px; height: 212px; flex-direction: column; flex-grow: 1; flex-wrap: wrap; position: absolute; top: 22px; left: 17px; background-color: rgb(161, 153, 153); background-size: contain; align-items: stretch; align-content: stretch; margin-top: 5px; margin-right: 5px; margin-bottom: 5px; margin-left: 5px; bottom: auto; flex-basis: 50px; align-self: stretch; justify-content: space-evenly;">
                 <ui:VisualElement name="ShelfList" style="flex-grow: 1;"/>
@@ -39,20 +39,8 @@
         </ui:VisualElement>
     </ui:VisualElement>
     <ui:Button text="BtnOpenInventory" name="BtnOpenInventory" style="height: 30px; width: 162px; position: absolute; top: auto; left: auto; bottom: 0; right: auto;"/>
-
-    <!-- Tutorial Bubble -->
-    <ui:VisualElement name="TutorialBubble" 
-        style="position:absolute; bottom:120px; left:50%; 
-            translate:-50% 0; width:600px;
-            background-color:rgba(20,15,10,0.95);
-            border-radius:12px; padding:20px; display:none;">
-        <ui:Label name="TutorialMessage" 
-            text="Tutorial text here"
-            style="color:white; font-size:18px; 
-                white-space:normal; margin-bottom:15px;"/>
-        <ui:Button name="TutorialOK" text="Зрозуміло!"
-            style="align-self:flex-end; width:150px; height:40px;"/>
+    <ui:VisualElement name="TutorialBubble" style="position: absolute; bottom: 120px; left: 50%; translate: -50% 0; width: 600px; background-color: rgba(20, 15, 10, 0.95); border-radius: 12px; padding: 20px; display: none;">
+        <ui:Label name="TutorialMessage" text="Tutorial text here" style="color: white; font-size: 18px; white-space: normal; margin-bottom: 15px;"/>
+        <ui:Button name="TutorialOK" text="Зрозуміло!" style="align-self: flex-end; width: 150px; height: 40px;"/>
     </ui:VisualElement>
-
-    
 </ui:UXML>

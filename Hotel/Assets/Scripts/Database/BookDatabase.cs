@@ -49,4 +49,22 @@ public class BookDatabase : ScriptableObject
         if (!_initialized) Initialize();
         return !string.IsNullOrEmpty(id) && _cache.ContainsKey(id);
     }
+
+    private void OnDisable()
+    {
+        // Скидаємо стан бази при виході з Play Mode, 
+        // щоб наступний запуск ініціалізував її наново
+        _initialized = false;
+        
+        if (_cache != null)
+        {
+            _cache.Clear();
+        }
+
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+    
 }
