@@ -9,5 +9,7 @@ public class BookInstance
     {
         this.templateID = templateID;
         this.instanceID = System.Guid.NewGuid().ToString();
+
+        
     }
 }

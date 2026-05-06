@@ -1,0 +1,294 @@
+/* =====================================================
+   SaveLoadStyles.uss
+   Екран збереження / завантаження
+   ===================================================== */
+
+/* ── Overlay ── */
+.saveload-overlay {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    background-color: rgba(4, 2, 0, 0.78);
+    align-items: center;
+    justify-content: center;
+}
+
+.saveload-overlay.hidden { display: none; }
+
+/* ── Модал ── */
+.saveload-modal {
+    width: 480px;
+    background-color: rgba(12, 7, 3, 0.99);
+    border-color: rgba(184, 134, 11, 0.45);
+    border-width: 1px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+.saveload-modal__bar {
+    height: 4px;
+    background-color: rgb(184, 134, 11);
+}
+
+/* ── Шапка ── */
+.saveload-modal__header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 12px;
+    border-bottom-color: rgba(184, 134, 11, 0.2);
+    border-bottom-width: 1px;
+}
+
+.saveload-modal__title {
+    font-size: 18px;
+    color: rgb(212, 160, 23);
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+}
+
+/* ── Вкладки Save / Load ── */
+.saveload-tabs {
+    flex-direction: row;
+    padding: 10px 16px 0;
+    border-bottom-color: rgba(184, 134, 11, 0.15);
+    border-bottom-width: 1px;
+}
+
+.saveload-tab {
+    padding-top: 6px;
+    padding-bottom: 8px;
+    padding-left: 18px;
+    padding-right: 18px;
+    background-color: rgba(0,0,0,0);
+    border-color: rgba(0,0,0,0);
+    border-width: 0;
+    border-bottom-color: rgba(0,0,0,0);
+    border-bottom-width: 2px;
+    color: rgb(100, 70, 45);
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: link;
+    transition-duration: 0.15s;
+    margin-right: 4px;
+}
+
+.saveload-tab:hover { color: rgb(212, 160, 23); }
+
+.saveload-tab.active {
+    color: rgb(240, 192, 64);
+    border-bottom-color: rgb(212, 160, 23);
+    border-bottom-width: 2px;
+}
+
+/* ── Слоти ── */
+.saveload-slots {
+    flex-direction: column;
+    padding: 14px 16px;
+    gap: 8px;
+}
+
+.save-slot {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 7px;
+    border-color: rgba(184, 134, 11, 0.18);
+    border-width: 1px;
+    background-color: rgba(255,255,255,0.02);
+    cursor: link;
+    transition-duration: 0.12s;
+}
+
+.save-slot:hover {
+    background-color: rgba(184, 134, 11, 0.08);
+    border-color: rgba(184, 134, 11, 0.4);
+}
+
+.save-slot.selected {
+    background-color: rgba(184, 134, 11, 0.16);
+    border-color: rgba(184, 134, 11, 0.65);
+}
+
+.save-slot.empty { opacity: 0.55; }
+
+/* Номер слоту */
+.save-slot__num {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: rgba(184, 134, 11, 0.12);
+    border-color: rgba(184, 134, 11, 0.3);
+    border-width: 1px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.save-slot__num-label {
+    font-size: 14px;
+    color: rgb(184, 134, 11);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* Інфо */
+.save-slot__info { flex-grow: 1; flex-direction: column; }
+
+.save-slot__name {
+    font-size: 13px;
+    color: rgb(212, 160, 23);
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+}
+
+.save-slot.empty .save-slot__name { color: rgb(80, 60, 40); }
+
+.save-slot__date {
+    font-size: 10px;
+    color: rgb(100, 70, 45);
+    -unity-font-style: italic;
+}
+
+/* Кнопка дії на слоті */
+.save-slot__btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    background-color: rgba(184, 134, 11, 0.1);
+    border-color: rgba(184, 134, 11, 0.3);
+    border-width: 1px;
+    color: rgb(184, 134, 11);
+    font-size: 14px;
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
+    cursor: link;
+    transition-duration: 0.12s;
+}
+
+.save-slot__btn:hover {
+    background-color: rgba(184, 134, 11, 0.28);
+    border-color: rgb(240, 192, 64);
+    color: rgb(240, 192, 64);
+    scale: 1.08;
+}
+
+/* Кнопка видалення — червонувата */
+.save-slot__del {
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    background-color: rgba(200, 50, 30, 0.08);
+    border-color: rgba(200, 50, 30, 0.25);
+    border-width: 1px;
+    color: rgb(180, 80, 60);
+    font-size: 11px;
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
+    cursor: link;
+    transition-duration: 0.12s;
+}
+
+.save-slot__del:hover {
+    background-color: rgba(200, 50, 30, 0.2);
+    border-color: rgb(220, 80, 60);
+    color: rgb(240, 100, 80);
+    scale: 1.08;
+}
+
+/* ── Підтвердження (overlay всередині модала) ── */
+.saveload-confirm {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    background-color: rgba(8, 4, 1, 0.88);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    border-radius: 10px;
+}
+
+.saveload-confirm.hidden { display: none; }
+
+.saveload-confirm__text {
+    font-size: 14px;
+    color: rgb(212, 160, 23);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.saveload-confirm__sub {
+    font-size: 11px;
+    color: rgb(100, 70, 45);
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+}
+
+.saveload-confirm__btns {
+    flex-direction: row;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+/* ── Футер ── */
+.saveload-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px 14px;
+    border-top-color: rgba(184, 134, 11, 0.15);
+    border-top-width: 1px;
+}
+
+.saveload-hint {
+    font-size: 10px;
+    color: rgb(80, 60, 40);
+    -unity-font-style: italic;
+}
+
+.saveload-close-btn {
+    padding: 7px 18px;
+    background-color: rgba(255,255,255,0.03);
+    border-color: rgba(130, 95, 65, 0.35);
+    border-width: 1px;
+    border-radius: 6px;
+    color: rgb(100, 70, 45);
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: link;
+    transition-duration: 0.12s;
+}
+
+.saveload-close-btn:hover {
+    background-color: rgba(100,60,30,0.2);
+    color: rgb(160, 110, 70);
+}
+
+.saveload-action-btn {
+    padding: 9px 22px;
+    background-color: rgba(140, 100, 10, 0.85);
+    border-color: rgba(240, 192, 64, 0.6);
+    border-width: 1px;
+    border-radius: 6px;
+    color: rgb(242, 232, 208);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    cursor: link;
+    transition-duration: 0.12s;
+}
+
+.saveload-action-btn:hover {
+    background-color: rgba(212, 160, 23, 0.7);
+    border-color: rgb(240, 192, 64);
+    scale: 1.02;
+}
+
+.saveload-action-btn:disabled { opacity: 0.35; scale: 1; }
+
+.saveload-action-btn.danger {
+    background-color: rgba(120, 30, 15, 0.8);
+    border-color: rgba(220, 70, 50, 0.55);
+    color: rgb(255, 180, 160);
+}

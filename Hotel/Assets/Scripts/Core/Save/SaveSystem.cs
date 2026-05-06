@@ -1,83 +1,106 @@
+// Assets/Scripts/Core/Save/SaveSystem.cs
+// API відповідає GameStateSerializer:
+//   SaveSystem.Save(data)        ← GameStateSerializer.QuickSave() викликає це
+//   SaveSystem.Load(slot)        → SaveData
+//   SaveSystem.SaveExists(slot)  → bool (MainMenuUI вже це використовує)
 using UnityEngine;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+using System;
 
-// Статична утиліта збереження — не MonoBehaviour навмисно
 public static class SaveSystem
 {
-    private static readonly string SAVE_PATH =
-        Path.Combine(Application.persistentDataPath, "save_slot_{0}.dat");
+    private const string KeyPrefix   = "save_slot_";
+    private const string QuickKey    = "save_quick";     // автозбереження
+    private const string DateFormat  = "yyyy-MM-dd HH:mm";
+    public  const int    SlotCount   = 3;
 
-    private const string SAVE_VERSION = "1.0";
+    // ── Автозбереження (GameStateSerializer.QuickSave викликає цей метод) ──
 
-    // --- Save ---
-    public static bool Save(SaveData data, int slot = 0)
+    /// GameStateSerializer.QuickSave() → SaveSystem.Save(data)
+    /// Зберігає в quick-save слот та оновлює останній використаний слот
+    public static void Save(SaveData data)
     {
-        try
-        {
-            data.saveDate = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-            data.saveVersion = SAVE_VERSION;
+        if (data == null) return;
+        StampMeta(data);
 
-            string path = string.Format(SAVE_PATH, slot);
-            BinaryFormatter formatter = new BinaryFormatter();
+        // Quick save (завжди)
+        string json = JsonUtility.ToJson(data, prettyPrint: false);
+        PlayerPrefs.SetString(QuickKey, json);
 
-            using (FileStream stream = new FileStream(path, FileMode.Create))
-                formatter.Serialize(stream, data);
+        // Якщо slotIndex вказано — зберігаємо туди також
+        if (data.slotIndex >= 0 && data.slotIndex < SlotCount)
+            PlayerPrefs.SetString(KeyPrefix + data.slotIndex, json);
 
-            Debug.Log($"[SaveSystem] Saved to slot {slot}: {path}");
-            return true;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[SaveSystem] Save failed: {e.Message}");
-            return false;
-        }
+        PlayerPrefs.Save();
+        Debug.Log($"[SaveSystem] Збережено: {data.saveName} (слот {data.slotIndex})");
     }
 
-    // --- Load ---
-    public static SaveData Load(int slot = 0)
-    {
-        string path = string.Format(SAVE_PATH, slot);
+    // ── Ручне збереження в конкретний слот ──────────────────────────────
 
-        if (!File.Exists(path))
+    /// UI викликає Save(slot) — збирає дані через GameStateSerializer і зберігає
+    public static void SaveToSlot(int slot)
+    {
+        var data = GameStateSerializer.Instance?.CollectSaveData() ?? new SaveData();
+        data.slotIndex = slot;
+        StampMeta(data);
+
+        string json = JsonUtility.ToJson(data, prettyPrint: false);
+        PlayerPrefs.SetString(KeyPrefix + slot, json);
+        PlayerPrefs.SetString(QuickKey, json);
+        PlayerPrefs.Save();
+        Debug.Log($"[SaveSystem] Збережено в слот {slot}: {data.saveName}");
+    }
+
+    // ── Завантаження ──────────────────────────────────────────────────────
+
+    public static SaveData Load(int slot)
+    {
+        string key = KeyPrefix + slot;
+        if (!PlayerPrefs.HasKey(key))
         {
-            Debug.Log($"[SaveSystem] No save found at slot {slot}. Returning new game.");
+            Debug.LogWarning($"[SaveSystem] Слот {slot} порожній.");
             return null;
         }
-
-        try
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
-            using (FileStream stream = new FileStream(path, FileMode.Open))
-            {
-                SaveData data = (SaveData)formatter.Deserialize(stream);
-
-                // Version check
-                if (data.saveVersion != SAVE_VERSION)
-                    Debug.LogWarning($"[SaveSystem] Save version mismatch: {data.saveVersion} vs {SAVE_VERSION}");
-
-                Debug.Log($"[SaveSystem] Loaded slot {slot}. Day: {data.currentDay}");
-                return data;
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[SaveSystem] Load failed: {e.Message}");
-            return null;
-        }
+        var data = JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(key));
+        Debug.Log($"[SaveSystem] Завантажено слот {slot}: {data?.saveName}");
+        return data;
     }
 
-    // --- Delete ---
-    public static void Delete(int slot = 0)
+    public static SaveData Peek(int slot) => Load(slot);
+
+    public static SaveData LoadQuick()
     {
-        string path = string.Format(SAVE_PATH, slot);
-        if (File.Exists(path))
-        {
-            File.Delete(path);
-            Debug.Log($"[SaveSystem] Deleted save slot {slot}");
-        }
+        if (!PlayerPrefs.HasKey(QuickKey)) return null;
+        return JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(QuickKey));
     }
 
-    public static bool SaveExists(int slot = 0) =>
-        File.Exists(string.Format(SAVE_PATH, slot));
+    // ── Видалення ─────────────────────────────────────────────────────────
+
+    public static void Delete(int slot)
+    {
+        PlayerPrefs.DeleteKey(KeyPrefix + slot);
+        PlayerPrefs.Save();
+        Debug.Log($"[SaveSystem] Слот {slot} видалено.");
+    }
+
+    // ── Перевірка ─────────────────────────────────────────────────────────
+
+    public static bool SaveExists(int slot) =>
+        PlayerPrefs.HasKey(KeyPrefix + slot);
+
+    public static bool QuickSaveExists() =>
+        PlayerPrefs.HasKey(QuickKey);
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+
+    private static void StampMeta(SaveData data)
+    {
+        data.saveDateTime = DateTime.Now.ToString(DateFormat);
+        if (string.IsNullOrEmpty(data.saveName))
+            data.saveName = $"День {data.currentDay} · {data.money:N0} грн";
+    }
+
+    internal static void Save(int v)
+    {
+        throw new NotImplementedException();
+    }
 }

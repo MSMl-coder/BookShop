@@ -1,0 +1,443 @@
+/* =====================================================
+   DecorationStyles.uss
+   Меню декорування магазину
+   ===================================================== */
+
+/* ══════════════════════════════════════════════════════
+   DECORATION PANEL
+   ══════════════════════════════════════════════════════ */
+
+.decoration-panel {
+    position: absolute;
+    left: 50%;
+    top: 56px;
+    bottom: 50px;
+    translate: -50% 0;
+
+    width: 680px;
+    background-color: rgba(12, 7, 3, 0.98);
+    border-color: rgba(184, 134, 11, 0.35);
+    border-width: 1px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ── Шапка ── */
+.deco-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 16px;
+    border-bottom-color: rgba(184, 134, 11, 0.2);
+    border-bottom-width: 1px;
+}
+
+.deco-header__left {
+    flex-direction: column;
+}
+
+.deco-title {
+    color: rgb(212, 160, 23);
+    font-size: 18px;
+    -unity-font-style: bold;
+    letter-spacing: 5px;
+}
+
+.deco-subtitle {
+    font-size: 10px;
+    color: rgb(100, 70, 45);
+    -unity-font-style: italic;
+    letter-spacing: 1px;
+    margin-top: 2px;
+}
+
+.deco-close-btn {
+    /* Перевизначає btn-icon для кнопки закриття */
+    color: rgb(130, 95, 65);
+}
+
+.deco-close-btn:hover {
+    color: rgb(240, 192, 64);
+}
+
+/* ── Рядок фільтрів ── */
+.deco-filter-row {
+    flex-direction: row;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-bottom-color: rgba(184, 134, 11, 0.15);
+    border-bottom-width: 1px;
+}
+
+.deco-filter-btn {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: rgba(184, 134, 11, 0.22);
+    border-width: 1px;
+    border-radius: 12px;
+    color: rgb(100, 70, 45);
+    font-size: 11px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 14px;
+    padding-right: 14px;
+    margin-right: 6px;
+    letter-spacing: 1px;
+    transition-duration: 0.12s;
+}
+
+.deco-filter-btn:hover {
+    border-color: rgba(212, 160, 23, 0.5);
+    color: rgb(212, 160, 23);
+}
+
+.deco-filter-btn.active {
+    background-color: rgba(184, 134, 11, 0.2);
+    border-color: rgb(240, 192, 64);
+    color: rgb(240, 192, 64);
+}
+
+/* ── Тіло: сітка + деталі ── */
+.deco-body {
+    flex-direction: row;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════════
+   СІТКА ПРЕДМЕТІВ
+   ══════════════════════════════════════════════════════ */
+
+.deco-grid {
+    flex-grow: 1;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 6px;
+}
+
+/* USS для content-container ScrollView — грід 3 колонки */
+.deco-grid > #unity-content-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+}
+
+/* ══════════════════════════════════════════════════════
+   КАРТКА ПРЕДМЕТА (FurnitureItemCard.uxml)
+   ══════════════════════════════════════════════════════ */
+
+.furniture-card {
+    width: 100px;
+    height: 134px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 6px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(184, 134, 11, 0.2);
+    border-width: 1px;
+    flex-direction: column;
+    overflow: hidden;
+    transition-duration: 0.15s;
+}
+
+.furniture-card:hover {
+    border-color: rgba(184, 134, 11, 0.6);
+    background-color: rgba(184, 134, 11, 0.08);
+    translate: 0 -2px;
+}
+
+.furniture-card:active {
+    translate: 0 0;
+    scale: 0.97;
+}
+
+/* Розміщений у сцені — золота рамка */
+.furniture-card.placed {
+    border-color: rgb(212, 160, 23);
+    border-width: 2px;
+    background-color: rgba(184, 134, 11, 0.12);
+}
+
+/* Заблокований — сірий, не реагує на hover яскраво */
+.furniture-card.locked {
+    border-color: rgba(255, 255, 255, 0.06);
+    background-color: rgba(255, 255, 255, 0.02);
+    opacity: 0.55;
+}
+
+.furniture-card.locked:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.04);
+    translate: 0 0;
+}
+
+/* Обрана картка */
+.furniture-card.selected {
+    border-color: rgb(240, 192, 64);
+    border-width: 2px;
+    background-color: rgba(184, 134, 11, 0.18);
+}
+
+/* ── Іконка ── */
+.furniture-card__icon {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(80, 55, 20, 0.25);
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+/* Замочок поверх іконки */
+.furniture-card__lock {
+    font-size: 20px;
+    position: absolute;
+    /* центрування */
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    -unity-text-align: middle-center;
+    display: none; /* показується тільки для .locked */
+}
+
+.furniture-card.locked .furniture-card__lock {
+    display: flex;
+}
+
+/* ── Назва ── */
+.furniture-card__name {
+    font-size: 10px;
+    color: rgb(200, 180, 140);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    padding-top: 4px;
+    padding-bottom: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+    -unity-font-style: bold;
+}
+
+.furniture-card.locked .furniture-card__name {
+    color: rgb(80, 65, 50);
+}
+
+/* ── Бонус-badge ── */
+.furniture-card__bonus-badge {
+    align-items: center;
+    padding-bottom: 3px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.furniture-card__bonus-text {
+    font-size: 8px;
+    color: rgb(130, 95, 65);
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+/* ── Статус у футері ── */
+.furniture-card__footer {
+    padding-top: 3px;
+    padding-bottom: 4px;
+    background-color: rgba(0, 0, 0, 0.3);
+    align-items: center;
+}
+
+.furniture-card__status {
+    font-size: 9px;
+    -unity-text-align: middle-center;
+    letter-spacing: 1px;
+}
+
+/* Текст статусу залежно від стану */
+.furniture-card .furniture-card__status          { color: rgb(80, 60, 35); }
+.furniture-card.placed .furniture-card__status   { color: rgb(212, 160, 23); }
+.furniture-card.locked .furniture-card__status   { color: rgb(70, 55, 40); }
+.furniture-card.selected .furniture-card__status { color: rgb(240, 192, 64); }
+
+/* ══════════════════════════════════════════════════════
+   ДЕТАЛІ (права панель)
+   ══════════════════════════════════════════════════════ */
+
+.deco-detail {
+    width: 200px;
+    border-left-color: rgba(184, 134, 11, 0.2);
+    border-left-width: 1px;
+    flex-direction: column;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+/* ── Заглушка ── */
+.deco-detail__empty {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.deco-detail__empty-icon {
+    font-size: 36px;
+    opacity: 0.25;
+    margin-bottom: 10px;
+}
+
+.deco-detail__empty-text {
+    font-size: 11px;
+    color: rgb(80, 60, 40);
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+}
+
+/* ── Контент ── */
+.deco-detail__content {
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.deco-detail__content.hidden {
+    display: none;
+}
+
+/* Велика іконка */
+.deco-detail__icon {
+    width: 80px;
+    height: 80px;
+    align-self: center;
+    background-color: rgba(80, 55, 20, 0.3);
+    border-color: rgba(184, 134, 11, 0.3);
+    border-width: 1px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.deco-detail__name {
+    font-size: 14px;
+    color: rgb(212, 160, 23);
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 4px;
+}
+
+.deco-detail__class {
+    font-size: 9px;
+    color: rgb(100, 70, 45);
+    letter-spacing: 2px;
+    -unity-font-style: italic;
+    margin-bottom: 8px;
+}
+
+.deco-detail__divider {
+    height: 1px;
+    background-color: rgba(184, 134, 11, 0.18);
+    margin-top: 8px;
+    margin-bottom: 10px;
+}
+
+.deco-detail__section-label {
+    font-size: 8px;
+    color: rgb(100, 70, 45);
+    letter-spacing: 2px;
+    -unity-font-style: italic;
+    margin-bottom: 4px;
+}
+
+/* ── Бонус ── */
+.deco-detail__bonus-block {
+    margin-bottom: 10px;
+}
+
+.deco-detail__bonus {
+    font-size: 12px;
+    color: rgb(212, 160, 23);
+    white-space: normal;
+    -unity-font-style: italic;
+}
+
+/* ── Unlock condition ── */
+.deco-detail__unlock-block {
+    margin-bottom: 10px;
+}
+
+.deco-detail__unlock-block.hidden { display: none; }
+
+.deco-detail__unlock {
+    font-size: 11px;
+    color: rgb(130, 95, 65);
+    white-space: normal;
+    -unity-font-style: italic;
+}
+
+/* ── Набір ── */
+.deco-detail__set-block {
+    margin-bottom: 10px;
+}
+
+.deco-detail__set-block.hidden { display: none; }
+
+.deco-detail__set-name {
+    font-size: 12px;
+    color: rgb(180, 130, 40);
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+    white-space: normal;
+}
+
+/* Прогрес набору: кружечки N/total */
+.deco-detail__set-progress {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.set-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+.set-dot.collected { background-color: rgb(212, 160, 23); }
+.set-dot.missing   { background-color: rgba(184, 134, 11, 0.2); border-color: rgba(184,134,11,0.3); border-width:1px; }
+
+/* ── Кнопка дії ── */
+.deco-action-btn {
+    margin-top: auto;   /* штовхаємо вниз */
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+.deco-action-btn.remove {
+    background-color: rgba(100, 30, 20, 0.6);
+    border-color: rgba(200, 60, 40, 0.5);
+    color: rgb(220, 100, 80);
+}
+
+.deco-action-btn.remove:hover {
+    background-color: rgba(160, 50, 30, 0.7);
+    border-color: rgb(220, 80, 60);
+    color: rgb(255, 140, 110);
+}
+
+.deco-action-btn:disabled {
+    opacity: 0.35;
+}

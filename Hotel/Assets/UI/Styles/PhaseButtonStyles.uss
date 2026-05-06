@@ -1,0 +1,428 @@
+/* =====================================================
+   PhaseButtonStyles.uss
+   Phase control widget + Upgrade Slot modal
+   ===================================================== */
+
+/* ══════════════════════════════════════════════════════
+   PHASE WIDGET — центр знизу над nav-bar
+   ══════════════════════════════════════════════════════ */
+
+.phase-widget {
+    position: absolute;
+    bottom: 58px;
+    left: 50%;
+    translate: -50% 0;
+
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+
+    background-color: rgba(8, 4, 1, 0.96);
+    border-color: rgba(184, 134, 11, 0.35);
+    border-width: 1px;
+    border-radius: 22px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/* Індикатор поточного стану */
+.phase-indicator {
+    flex-direction: column;
+    align-items: center;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.phase-indicator__dots {
+    flex-direction: row;
+    gap: 5px;
+    margin-bottom: 3px;
+}
+
+.phase-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 4px;
+    background-color: rgba(184, 134, 11, 0.2);
+    border-color: rgba(184, 134, 11, 0.3);
+    border-width: 1px;
+    transition-duration: 0.3s;
+}
+
+.phase-dot.active {
+    background-color: rgb(212, 160, 23);
+    border-color: rgb(240, 192, 64);
+    width: 18px; /* розтягується для активної */
+}
+
+.phase-dot.done {
+    background-color: rgba(184, 134, 11, 0.5);
+    border-color: rgba(184, 134, 11, 0.6);
+}
+
+.phase-indicator__label {
+    font-size: 8px;
+    color: rgb(100, 70, 45);
+    letter-spacing: 2px;
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+}
+
+/* Розділювач */
+.phase-widget__sep {
+    width: 1px;
+    height: 28px;
+    background-color: rgba(184, 134, 11, 0.2);
+}
+
+/* Головна кнопка дії */
+.phase-main-btn {
+    height: 38px;
+    border-radius: 19px;
+    border-width: 1px;
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    padding-left: 20px;
+    padding-right: 20px;
+    transition-duration: 0.18s;
+}
+
+/* Стан: Відкрити магазин (Preparation → WorkDay) */
+.phase-main-btn.open-shop {
+    background-color: rgba(100, 160, 60, 0.85);
+    border-color: rgba(140, 210, 80, 0.7);
+    color: rgb(220, 255, 180);
+}
+
+.phase-main-btn.open-shop:hover {
+    background-color: rgba(120, 190, 70, 0.95);
+    border-color: rgb(160, 230, 90);
+    scale: 1.03;
+}
+
+/* Стан: Завершити день (WorkDay → LootPhase) */
+.phase-main-btn.end-day {
+    background-color: rgba(160, 80, 20, 0.85);
+    border-color: rgba(220, 120, 40, 0.7);
+    color: rgb(255, 220, 160);
+}
+
+.phase-main-btn.end-day:hover {
+    background-color: rgba(190, 100, 25, 0.95);
+    border-color: rgb(240, 140, 50);
+    scale: 1.03;
+}
+
+/* Стан: недоступна (LootPhase) */
+.phase-main-btn.inactive {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(100, 70, 45, 0.3);
+    color: rgb(80, 60, 40);
+    opacity: 0.6;
+}
+
+.phase-main-btn:active {
+    scale: 0.97;
+}
+
+/* Таймер/лічильник (опціонально) */
+.phase-timer {
+    font-size: 10px;
+    color: rgb(100, 70, 45);
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+    min-width: 36px;
+}
+
+/* ══════════════════════════════════════════════════════
+   UPGRADE SLOT MODAL — центр екрана
+   ══════════════════════════════════════════════════════ */
+
+/* Overlay backdrop */
+.upgrade-overlay {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    background-color: rgba(4, 2, 0, 0.72);
+    align-items: center;
+    justify-content: center;
+}
+
+.upgrade-overlay.hidden {
+    display: none;
+}
+
+/* Основне вікно */
+.upgrade-modal {
+    width: 520px;
+    background-color: rgba(12, 7, 3, 0.99);
+    border-color: rgba(184, 134, 11, 0.45);
+    border-width: 1px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+/* Золота лінія зверху */
+.upgrade-modal__top-bar {
+    height: 4px;
+    background-color: rgb(184, 134, 11);
+}
+
+/* Шапка */
+.upgrade-modal__header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    padding-bottom: 12px;
+    padding-left: 22px;
+    padding-right: 18px;
+    border-bottom-color: rgba(184, 134, 11, 0.2);
+    border-bottom-width: 1px;
+}
+
+.upgrade-modal__title {
+    font-size: 18px;
+    color: rgb(212, 160, 23);
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+}
+
+.upgrade-modal__slot-name {
+    font-size: 10px;
+    color: rgb(100, 70, 45);
+    -unity-font-style: italic;
+    letter-spacing: 1px;
+    margin-top: 3px;
+}
+
+/* Тіло: поточна + опції */
+.upgrade-modal__body {
+    flex-direction: row;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    padding-left: 18px;
+    padding-right: 18px;
+    gap: 14px;
+}
+
+/* Поточний предмет */
+.upgrade-current {
+    width: 130px;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(184, 134, 11, 0.06);
+    border-color: rgba(184, 134, 11, 0.2);
+    border-width: 1px;
+    border-radius: 8px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.upgrade-current__label {
+    font-size: 8px;
+    color: rgb(100, 70, 45);
+    letter-spacing: 2px;
+    -unity-font-style: italic;
+    margin-bottom: 10px;
+}
+
+.upgrade-current__icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    background-color: rgba(80, 50, 15, 0.4);
+    border-color: rgba(184, 134, 11, 0.25);
+    border-width: 1px;
+    margin-bottom: 8px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.upgrade-current__name {
+    font-size: 12px;
+    color: rgb(180, 150, 100);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 4px;
+}
+
+.upgrade-current__class {
+    font-size: 8px;
+    color: rgb(100, 70, 45);
+    letter-spacing: 1px;
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+}
+
+/* Стрілка між поточним і опціями */
+.upgrade-arrow {
+    font-size: 22px;
+    color: rgba(184, 134, 11, 0.5);
+    align-self: center;
+    margin-top: -12px;
+}
+
+/* Список опцій */
+.upgrade-options {
+    flex-grow: 1;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.upgrade-options__label {
+    font-size: 8px;
+    color: rgb(100, 70, 45);
+    letter-spacing: 2px;
+    -unity-font-style: italic;
+    margin-bottom: 4px;
+}
+
+/* Одна опція апгрейду */
+.upgrade-option {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 6px;
+    border-color: rgba(184, 134, 11, 0.18);
+    border-width: 1px;
+    background-color: rgba(255, 255, 255, 0.02);
+    cursor: link;
+    transition-duration: 0.12s;
+}
+
+.upgrade-option:hover {
+    background-color: rgba(184, 134, 11, 0.1);
+    border-color: rgba(184, 134, 11, 0.45);
+}
+
+.upgrade-option.selected {
+    background-color: rgba(184, 134, 11, 0.18);
+    border-color: rgba(184, 134, 11, 0.7);
+}
+
+.upgrade-option.cant-afford {
+    opacity: 0.45;
+}
+
+/* Іконка в опції */
+.upgrade-option__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    background-color: rgba(80, 50, 15, 0.4);
+    border-color: rgba(184, 134, 11, 0.2);
+    border-width: 1px;
+    flex-shrink: 0;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.upgrade-option__info {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.upgrade-option__name {
+    font-size: 12px;
+    color: rgb(212, 160, 23);
+    -unity-font-style: bold;
+    margin-bottom: 2px;
+}
+
+.upgrade-option.selected .upgrade-option__name {
+    color: rgb(240, 192, 64);
+}
+
+.upgrade-option__bonus {
+    font-size: 10px;
+    color: rgb(100, 70, 45);
+    -unity-font-style: italic;
+    white-space: normal;
+}
+
+/* Ціна */
+.upgrade-option__price {
+    font-size: 14px;
+    color: rgb(212, 160, 23);
+    -unity-font-style: bold;
+    flex-shrink: 0;
+}
+
+.upgrade-option.cant-afford .upgrade-option__price {
+    color: rgb(180, 60, 40);
+}
+
+/* Футер з кнопками */
+.upgrade-modal__footer {
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 12px;
+    padding-bottom: 16px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-top-color: rgba(184, 134, 11, 0.18);
+    border-top-width: 1px;
+}
+
+.upgrade-cancel-btn {
+    padding-top: 9px;
+    padding-bottom: 9px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(130, 95, 65, 0.35);
+    border-width: 1px;
+    border-radius: 6px;
+    color: rgb(100, 70, 45);
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: link;
+    transition-duration: 0.12s;
+}
+
+.upgrade-cancel-btn:hover {
+    background-color: rgba(100, 60, 30, 0.2);
+    color: rgb(160, 110, 70);
+}
+
+.upgrade-confirm-btn {
+    padding-top: 9px;
+    padding-bottom: 9px;
+    padding-left: 24px;
+    padding-right: 24px;
+    background-color: rgba(140, 100, 10, 0.85);
+    border-color: rgba(240, 192, 64, 0.6);
+    border-width: 1px;
+    border-radius: 6px;
+    color: rgb(242, 232, 208);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    cursor: link;
+    transition-duration: 0.12s;
+}
+
+.upgrade-confirm-btn:hover {
+    background-color: rgba(212, 160, 23, 0.7);
+    border-color: rgb(240, 192, 64);
+    scale: 1.02;
+}
+
+.upgrade-confirm-btn:active {
+    scale: 0.97;
+}
+
+.upgrade-confirm-btn:disabled {
+    opacity: 0.35;
+    scale: 1;
+}

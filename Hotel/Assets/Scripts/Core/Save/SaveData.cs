@@ -1,44 +1,45 @@
+// Assets/Scripts/Core/Save/SaveData.cs
+// Поля відповідають GameStateSerializer.CollectSaveData() / ApplySaveData()
 using System;
 using System.Collections.Generic;
 
-// Весь стан гри в одному серіалізованому класі
 [Serializable]
 public class SaveData
 {
-    // Meta
-    public string saveVersion = "1.0";
-    public string saveDate;
-    public float totalPlayTime;
+    // ── UI мета (для відображення в слотах) ──────────
+    public int    slotIndex;
+    public string saveName;       // "День 5 · 2 450 грн"
+    public string saveDateTime;   // "2025-01-15 18:42"
+    public string version = "1.0";
 
-    // Economy
-    public int money;
-    public int currentDay;
-    public float totalDebt; // Кредит за приміщення
+    // ── Прогрес ──────────────────────────────────────
+    public int   currentDay     = 1;
+    public int   money          = 500;   // EconomyManager.Money
+    public float totalPlayTime  = 0f;    // накопичений час
+    public int   gameStateIndex = 0;     // (int)GameState
 
-    // Inventory
-    public List<string> inventoryBookIDs = new List<string>(); // templateID
-    public List<string> inventoryInstanceIDs = new List<string>();
+    // ── Інвентар книг ─────────────────────────────────
+    // GameStateSerializer додає обидва списки паралельно:
+    //   inventoryBookIDs[i]     → templateID  (тип книги)
+    //   inventoryInstanceIDs[i] → instanceID  (унікальний екземпляр)
+    public List<string> inventoryBookIDs      = new();
+    public List<string> inventoryInstanceIDs  = new();
 
-    // Shelves: Key = shelfInstanceID, Value = список instanceID книг
-    public List<ShelfSaveEntry> placedBooks = new List<ShelfSaveEntry>();
+    // ── Книги на полицях ──────────────────────────────
+    // GameStateSerializer → shelf.CollectSaveData() → ShelfSaveEntry
+    public List<ShelfSaveEntry> placedBooks = new();
 
-    // Unlocks
-    public List<string> unlockedFurnitureIDs = new List<string>();
-    public List<string> unlockedZoneNames = new List<string>();
-
-    // Game Loop
-    public int gameStateIndex; // (int)GameState
-
-    // Settings (зберігаємо окремо, але можна тут)
-    public float masterVolume = 1f;
-    public float musicVolume = 0.8f;
-    public int qualityLevel = 2;
+    // ── Меблі ─────────────────────────────────────────
+    // inventoryManager.GetAllUnlockedFurniture() → f.furnitureID
+    public List<string> unlockedFurnitureIDs = new();
 }
 
 [Serializable]
 public class ShelfSaveEntry
 {
-    public string shelfID;        // Унікальний ID полиці в сцені
-    public List<string> templateIDs = new List<string>();
-    public List<string> instanceIDs = new List<string>();
+    public string cabinetName;
+    public int    shelfIndex;
+    // shelf.CollectSaveData() заповнює templateIDs
+    public List<string> templateIDs = new();
+    internal object instanceIDs;
 }

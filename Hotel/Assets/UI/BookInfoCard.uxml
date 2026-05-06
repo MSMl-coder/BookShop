@@ -1,0 +1,77 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         editor-extension-mode="False">
+
+    <Style src="project://database/Assets/UI/Styles/BookshopTheme.uss"/>
+    <Style src="project://database/Assets/UI/Styles/BookInfoCardStyles.uss"/>
+
+    <!--
+        BookInfoCard — "бібліотечна картка" що висувається з правого краю.
+        Показується при hover на будь-яку книгу в інвентарі або на полиці.
+        Керується через ShopUIManager.ShowBookInfo() / HideBookInfo().
+    -->
+    <ui:VisualElement name="BookInfoCard" class="book-info-card hidden" picking-mode="Ignore">
+
+        <!-- Верхня кольорова смуга (колір залежить від жанру — задається з C#) -->
+        <ui:VisualElement name="InfoCardGenreBar" class="info-card__genre-bar"/>
+
+        <!-- Шапка: назва + рідкість -->
+        <ui:VisualElement class="info-card__header">
+            <ui:Label name="InfoCardTitle"  text="Назва книги" class="info-card__title"/>
+            <ui:Label name="InfoCardRarity" text="Common"      class="info-card__rarity common"/>
+        </ui:VisualElement>
+
+        <!-- Роздільник у стилі старих карток -->
+        <ui:VisualElement class="info-card__divider"/>
+
+        <!-- Мета-блок: автор + рік -->
+        <ui:VisualElement class="info-card__meta-row">
+            <ui:VisualElement class="info-card__meta-item">
+                <ui:Label text="АВТОР" class="info-card__meta-label"/>
+                <ui:Label name="InfoCardAuthor" text="—" class="info-card__meta-value"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="info-card__meta-item">
+                <ui:Label text="РІК" class="info-card__meta-label"/>
+                <ui:Label name="InfoCardYear" text="—" class="info-card__meta-value"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Жанр -->
+        <ui:VisualElement class="info-card__meta-row">
+            <ui:VisualElement class="info-card__meta-item" style="flex-grow: 1;">
+                <ui:Label text="ЖАНР" class="info-card__meta-label"/>
+                <ui:Label name="InfoCardGenre" text="—" class="info-card__meta-value"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Роздільник -->
+        <ui:VisualElement class="info-card__divider"/>
+
+        <!-- Ціна + кнопка "Продати" -->
+        <ui:VisualElement class="info-card__footer">
+            <ui:VisualElement class="info-card__price-block">
+                <ui:Label text="ЦІНА" class="info-card__meta-label"/>
+                <ui:Label name="InfoCardPrice" text="—" class="info-card__price"/>
+            </ui:VisualElement>
+            <ui:Button name="InfoCardSellBtn" text="ПРОДАТИ" class="info-card__sell-btn btn-primary"/>
+        </ui:VisualElement>
+
+        <!-- Опис (якщо є) -->
+        <ui:VisualElement name="InfoCardDescBlock" class="info-card__desc-block">
+            <ui:Label name="InfoCardDesc" text="" class="info-card__desc"/>
+        </ui:VisualElement>
+
+        <!-- Трейти книги (НЕСЛУХНЯНІСТЬ тощо) -->
+        <ui:VisualElement name="InfoCardTraits" class="info-card__traits">
+            <!-- Динамічно заповнюється з C# -->
+        </ui:VisualElement>
+
+        <!-- Прапор колекції -->
+        <ui:VisualElement name="InfoCardCollectionBlock" class="info-card__collection hidden">
+            <ui:Label text="📚" class="info-card__collection-icon"/>
+            <ui:Label name="InfoCardCollectionName" text="" class="info-card__collection-name"/>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+
+</ui:UXML>

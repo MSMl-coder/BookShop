@@ -1,0 +1,37 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         editor-extension-mode="False">
+
+    <Style src="project://database/Assets/UI/Styles/DecorationStyles.uss"/>
+
+    <!--
+        FurnitureItemCard — картка одного предмета декору/меблів.
+        Стани (задаються через AddToClassList у C#):
+          .locked   — недоступний (сірий, з замочком)
+          .placed   — розміщений у світі (золота рамка)
+          .selected — обраний для розміщення
+    -->
+    <ui:VisualElement name="FurnitureCard" class="furniture-card" picking-mode="Position">
+
+        <!-- Іконка предмета -->
+        <ui:VisualElement name="FurnitureIcon" class="furniture-card__icon">
+            <!-- Замочок — видимий тільки в стані .locked -->
+            <ui:Label name="LockIcon" text="🔒" class="furniture-card__lock"/>
+        </ui:VisualElement>
+
+        <!-- Назва -->
+        <ui:Label name="FurnitureName" text="Назва" class="furniture-card__name"/>
+
+        <!-- Бонус (якщо є) -->
+        <ui:VisualElement name="BonusBadge" class="furniture-card__bonus-badge">
+            <ui:Label name="BonusText" text="" class="furniture-card__bonus-text"/>
+        </ui:VisualElement>
+
+        <!-- Статус: розміщено / ціна -->
+        <ui:VisualElement class="furniture-card__footer">
+            <ui:Label name="FurnitureStatus" text="" class="furniture-card__status"/>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+
+</ui:UXML>

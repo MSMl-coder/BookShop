@@ -11,6 +11,7 @@ public class EconomyManager : MonoBehaviour
 
     // Поточний баланс — приватний, доступ через публічний геттер
     private int _currentMoney;
+    
 
     // Статистика поточного дня
     public int BooksSoldToday { get; private set; }
@@ -33,6 +34,7 @@ public class EconomyManager : MonoBehaviour
     {
         _currentMoney = Mathf.Max(0, amount);
         OnMoneyChanged?.Invoke(_currentMoney);
+        
     }
 
     public void AddMoney(int amount)

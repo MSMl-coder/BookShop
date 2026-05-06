@@ -1,4 +1,6 @@
 // Assets/Scripts/Data/Loot/LootManager.cs
+// ОНОВЛЕНО: додано public PicksRemaining, CanPick;
+//           прибрано прямий виклик ChangeState — тепер це робить LootPanelUI через GameLoopManager.StartNewDay()
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +11,15 @@ public class LootManager : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private List<LootCardTemplate> allAvailableCards;
-    [SerializeField] private int cardsToDraw = 5;
+    [SerializeField] private int cardsToDraw   = 5;
     [SerializeField] private int maxPicksPerDay = 3;
 
-    private List<LootCardTemplate> _currentDailyPool = new List<LootCardTemplate>();
+    private List<LootCardTemplate> _currentDailyPool = new();
     private int _picksRemaining = 0;
 
-    // ВИПРАВЛЕНО: флаг щоб відрізнити "пул не згенерований" від "пул порожній"
-    private bool _poolGenerated = false;
+    // ── Public ──
+    public int  PicksRemaining => _picksRemaining;
+    public bool CanPick        => _picksRemaining > 0;
 
     private void Awake()
     {
@@ -36,84 +39,76 @@ public class LootManager : MonoBehaviour
             GameLoopManager.Instance.OnStateChanged -= HandleStateChange;
     }
 
+    // ─────────────────────────────────────────────
+
     private void HandleStateChange(GameState state)
     {
         if (state == GameState.LootPhase)
             GenerateLootPool();
+        else if (state == GameState.Preparation)
+            _currentDailyPool.Clear(); // чистимо після нового дня
     }
 
-    // ВИПРАВЛЕНО: GetCurrentPool не генерує пул як side effect
     public List<LootCardTemplate> GetCurrentPool()
     {
-        if (!_poolGenerated)
-            Debug.LogWarning("[LootManager] Pool not generated yet. Call happens before LootPhase?");
-
-        return new List<LootCardTemplate>(_currentDailyPool);
+        if (_currentDailyPool == null || _currentDailyPool.Count == 0)
+            GenerateLootPool();
+        return _currentDailyPool;
     }
-
-    public int PicksRemaining => _picksRemaining;
-    public bool CanPick => _picksRemaining > 0;
 
     private void GenerateLootPool()
     {
         if (allAvailableCards == null || allAvailableCards.Count == 0)
         {
-            Debug.LogError("[LootManager] allAvailableCards is empty!");
+            Debug.LogError("[LootManager] allAvailableCards порожній!");
             return;
         }
 
         _picksRemaining = maxPicksPerDay;
+
         _currentDailyPool = allAvailableCards
             .OrderBy(_ => Random.value)
             .Take(cardsToDraw)
             .ToList();
 
-        _poolGenerated = true;
-        Debug.Log($"[LootManager] Pool generated: {_currentDailyPool.Count} cards. Picks: {_picksRemaining}");
+        Debug.Log($"[LootManager] Пул: {_currentDailyPool.Count} карток, виборів: {_picksRemaining}");
     }
 
     public void SelectCard(LootCardTemplate card)
     {
         if (!CanPick)
         {
-            Debug.LogWarning("[LootManager] No picks remaining!");
-            return;
-        }
-
-        if (!_currentDailyPool.Contains(card))
-        {
-            Debug.LogWarning("[LootManager] Card not in current pool!");
+            Debug.LogWarning("[LootManager] Ліміт виборів вичерпано.");
             return;
         }
 
         ApplyCardEffect(card);
-        _currentDailyPool.Remove(card);
         _picksRemaining--;
 
-        Debug.Log($"[LootManager] Card selected: {card.cardName}. Picks left: {_picksRemaining}");
+        Debug.Log($"[LootManager] Обрано: {card.cardName}. Залишилось: {_picksRemaining}");
 
-        if (_picksRemaining <= 0)
-        {
-            _poolGenerated = false;
-            GameLoopManager.Instance?.ChangeState(GameState.Preparation);
-        }
+        // ВАЖЛИВО: НЕ викликаємо ChangeState тут.
+        // LootPanelUI перевіряє CanPick після виклику і сам викликає GameLoopManager.StartNewDay().
     }
 
     private void ApplyCardEffect(LootCardTemplate card)
     {
+        if (card == null) return;
+
         switch (card.type)
         {
             case LootCardType.FurnitureUpgrade:
-                if (card.furniturePayload != null)
-                    InventoryManager.Instance?.UnlockFurniture(card.furniturePayload);
+                if (InventoryManager.Instance != null && card.furniturePayload != null)
+                    InventoryManager.Instance.UnlockFurniture(card.furniturePayload);
                 break;
 
             case LootCardType.MoneyBonus:
-                EconomyManager.Instance?.AddMoney(card.moneyPayload);
+                if (EconomyManager.Instance != null)
+                    EconomyManager.Instance.AddMoney(card.moneyPayload);
                 break;
 
             case LootCardType.BookPack:
-                Debug.Log("[LootManager] BookPack effect not yet implemented.");
+                Debug.Log("[LootManager] BookPack — не реалізовано.");
                 break;
         }
     }

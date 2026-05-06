@@ -1,5 +1,6 @@
 /* =====================================================
-   HUDStyles.uss
+   HUDStyles.uss — ОНОВЛЕНО
+   Додано: .hud-chip (використовується в MainShopUI.uxml)
    ===================================================== */
 
 /* ── Top Bar ── */
@@ -17,6 +18,22 @@
     background-color: rgba(10, 5, 2, 0.95);
     border-bottom-color: rgba(184, 134, 11, 0.3);
     border-bottom-width: 1px;
+}
+
+/* ── hud-chip: універсальна капсула в HUD ── */
+/* Використовується в MainShopUI.uxml замість .hud-clock / .hud-wallet */
+.hud-chip {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(184, 134, 11, 0.1);
+    border-color: rgba(184, 134, 11, 0.28);
+    border-width: 1px;
+    border-radius: 18px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 14px;
+    padding-right: 14px;
+    margin-right: 8px;
 }
 
 /* ── Clock Widget ── */
@@ -107,6 +124,7 @@
     height: 5px;
     background-color: rgb(212, 160, 23);
     border-radius: 3px;
+    transition-duration: 0.4s;
 }
 
 .hud-prestige__value {

@@ -1,3 +1,5 @@
+// Assets/Scripts/UI/PlayerInteraction.cs
+// ОНОВЛЕНО: розкоментовано OpenUpgradeMenu → тепер викликає UpgradeSlotUI.Instance.Open()
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
@@ -6,7 +8,7 @@ public class PlayerInteraction : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private Camera mainCamera;
-    [SerializeField] private LayerMask interactionLayer; // Виберіть тут Furniture
+    [SerializeField] private LayerMask interactionLayer;
     [SerializeField] private float interactionDistance = 20f;
 
     private ShopUIManager _uiManager;
@@ -24,10 +26,9 @@ public class PlayerInteraction : MonoBehaviour
 
         if (mouse.leftButton.wasPressedThisFrame)
         {
-            // Перевірка на клік по UI
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
-                Debug.Log("[Interaction] Клік ігнорується: миша над інтерфейсом.");
+                Debug.Log("[Interaction] Клік ігнорується: миша над UI.");
                 return;
             }
 
@@ -38,35 +39,35 @@ public class PlayerInteraction : MonoBehaviour
     private void HandleRaycast(Vector2 mousePosition)
     {
         Ray ray = mainCamera.ScreenPointToRay(mousePosition);
-        RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, interactionDistance, interactionLayer))
+        if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance, interactionLayer))
+            return;
+
+        GameState currentState = GameLoopManager.Instance.CurrentState;
+        Debug.Log($"[Interaction] Клік по: {hit.collider.name}. Стан: {currentState}");
+
+        // ── 1. Слот меблів → апгрейд (тільки у Preparation) ──
+        FurnitureSlot slot = hit.collider.GetComponentInParent<FurnitureSlot>();
+        if (slot != null && currentState == GameState.Preparation)
         {
-            GameState currentState = GameLoopManager.Instance.CurrentState;
-            Debug.Log($"[Interaction] Клік по: {hit.collider.name}. Стан гри: {currentState}");
+            Debug.Log($"[Interaction] Відкриваємо апгрейд для: {slot.name}");
+            UpgradeSlotUI.Instance?.Open(slot);  // ← РОЗКОМЕНТОВАНО
+            return;
+        }
 
-            // 1. Спроба знайти Слот (для апгрейдів)
-            FurnitureSlot slot = hit.collider.GetComponentInParent<FurnitureSlot>();
-            if (slot != null && currentState == GameState.Preparation)
+        // ── 2. Шафа → інвентар ──
+        Cabinet cabinet = hit.collider.GetComponentInParent<Cabinet>();
+        if (cabinet != null)
+        {
+            if (currentState == GameState.Preparation ||
+                currentState == GameState.WorkDay     ||
+                currentState == GameState.LootPhase)
             {
-                Debug.Log($"[Interaction] Відкриваємо апгрейд для: {slot.name}");
-                // _uiManager.OpenUpgradeMenu(slot); 
-                return; // Виходимо, щоб не спрацював клік по шафі одночасно
+                _uiManager?.OpenCabinetUI(cabinet);
             }
-
-            // 2. Спроба знайти Шафу (для книг)
-            Cabinet cabinet = hit.collider.GetComponentInParent<Cabinet>();
-            if (cabinet != null)
+            else
             {
-                // Дозволяємо відкривати шафу у робочий день АБО під час вибору луту
-                if (currentState == GameState.Preparation ||  currentState == GameState.WorkDay || currentState == GameState.LootPhase)
-                {
-                    _uiManager.OpenCabinetUI(cabinet);
-                }
-                else
-                {
-                    Debug.Log($"[Interaction] Шафа знайдена, але стан {currentState} не дозволяє її відкрити.");
-                }
+                Debug.Log($"[Interaction] Стан {currentState} не дозволяє відкрити шафу.");
             }
         }
     }
