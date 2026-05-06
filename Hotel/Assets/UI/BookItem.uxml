@@ -1,9 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd"
          editor-extension-mode="False">
+
     <Style src="project://database/Assets/UI/Styles/InventoryStyles.uss"/>
-    <ui:VisualElement name="BookCard" class="book-card">
+
+    <ui:VisualElement name="BookCard" class="book-card" picking-mode="Position">
         <ui:VisualElement name="BookSpine" class="book-spine"/>
         <ui:VisualElement name="BookCover" class="book-cover">
             <ui:VisualElement name="BookIcon" class="book-icon"/>
@@ -14,4 +15,5 @@
         </ui:VisualElement>
         <ui:VisualElement name="RarityDot" class="rarity-dot common"/>
     </ui:VisualElement>
+
 </ui:UXML>
