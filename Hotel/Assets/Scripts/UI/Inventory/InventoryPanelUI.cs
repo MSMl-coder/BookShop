@@ -44,7 +44,7 @@ public class InventoryPanelUI : MonoBehaviour
         if (_countLabel != null)
             _countLabel.text = $"{books.Count} книг";
 
-        foreach (var book in books)
+  /*      foreach (var book in books)
         {
             if (bookItemTemplate == null) break;
             var item = new InventoryItemUI(
@@ -55,7 +55,7 @@ public class InventoryPanelUI : MonoBehaviour
             );
             if (item.Root != null) _grid.Add(item.Root);
         }
-    }
+  */  }
 
     private void SetSort(SortType sort, string btnName, VisualElement root)
     {
