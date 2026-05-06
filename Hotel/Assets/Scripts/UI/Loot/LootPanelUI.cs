@@ -3,128 +3,201 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 
+/// Керує екраном кінця дня та loot-картками.
+/// FIX 1: switch expression (type => ...) замінено на класичний switch statement
+///         Причина: Unity може не підтримувати C# 8 switch expressions
+///         залежно від .NET target у Player Settings
+/// FIX 2: назви елементів відповідають реальному LootCardItem.uxml:
+///         CardName, CardIcon, CardDescription, PickButton
 public class LootPanelUI : MonoBehaviour
 {
     [SerializeField] private UIDocument      uiDocument;
     [SerializeField] private VisualTreeAsset cardTemplate;
 
-    private VisualElement _container;
+    private VisualElement _endDayPanel;
+    private VisualElement _lootContainer;
     private Label _statBooks;
     private Label _statMoney;
-    private Label _statVisitors;
     private Label _picksLabel;
     private Label _subtitle;
 
-
-   private static void SetLabel(VisualElement root, string name, string text)
-        => root.Q<Label>(name)?label.text = "...";
-
     private void OnEnable()
     {
-        var root     = uiDocument.rootVisualElement;
-        _container   = root.Q<VisualElement>("LootContainer");
-        _statBooks   = root.Q<Label>("StatBooks");
-        _statMoney   = root.Q<Label>("StatMoney");
-        _statVisitors = root.Q<Label>("StatVisitors");
-        _picksLabel  = root.Q<Label>("PicksLabel");
-        _subtitle    = root.Q<Label>("EndDaySubtitle");
+        if (uiDocument == null) return;
+        var root = uiDocument.rootVisualElement;
+
+        _endDayPanel   = root.Q<VisualElement>("EndDayPanel");
+        _lootContainer = root.Q<VisualElement>("LootContainer");
+        _statBooks     = root.Q<Label>("StatBooks");
+        _statMoney     = root.Q<Label>("StatMoney");
+        _picksLabel    = root.Q<Label>("PicksLabel");
+        _subtitle      = root.Q<Label>("EndDaySubtitle");
+
+        if (GameLoopManager.Instance != null)
+            GameLoopManager.Instance.OnStateChanged += HandleStateChanged;
     }
+
+    private void OnDisable()
+    {
+        if (GameLoopManager.Instance != null)
+            GameLoopManager.Instance.OnStateChanged -= HandleStateChanged;
+    }
+
+    private void HandleStateChanged(GameState state)
+    {
+        if (state == GameState.LootPhase) Show();
+        else Hide();
+    }
+
+    // ── Public ──
 
     public void Show()
     {
+        if (_endDayPanel != null)
+        {
+            _endDayPanel.style.display = DisplayStyle.Flex;
+            _endDayPanel.pickingMode   = PickingMode.Position;
+        }
         UpdateStats();
         BuildCards();
     }
 
+    public void Hide()
+    {
+        if (_endDayPanel != null)
+        {
+            _endDayPanel.style.display = DisplayStyle.None;
+            _endDayPanel.pickingMode   = PickingMode.Ignore;
+        }
+    }
+
+    // ── Stats ──
+
     private void UpdateStats()
     {
-        if (EconomyManager.Instance == null) return;
+        int day = (GameLoopManager.Instance != null) ? GameLoopManager.Instance.CurrentDay : 1;
+        if (_subtitle  != null) _subtitle.text = "День " + day;
 
-        if (_statBooks   != null) _statBooks.text    = EconomyManager.Instance.BooksSoldToday.ToString();
-        if (_statMoney   != null) _statMoney.text    = $"{EconomyManager.Instance.MoneyEarnedToday:F0} грн";
-        if (_subtitle    != null) _subtitle.text     = $"День {GameLoopManager.Instance?.CurrentDay ?? 1}";
+        if (_statBooks != null)
+            _statBooks.text = (EconomyManager.Instance != null)
+                ? EconomyManager.Instance.BooksSoldToday.ToString()
+                : "0";
+
+        if (_statMoney != null)
+            _statMoney.text = (EconomyManager.Instance != null)
+                ? EconomyManager.Instance.MoneyEarnedToday.ToString("F0") + " грн"
+                : "0 грн";
+
         UpdatePicksLabel();
     }
 
     private void UpdatePicksLabel()
     {
-        if (_picksLabel != null && LootManager.Instance != null)
-            _picksLabel.text = $"Виборів залишилось: {LootManager.Instance.PicksRemaining}";
+        if (_picksLabel == null) return;
+        int picks = (LootManager.Instance != null) ? LootManager.Instance.PicksRemaining : 0;
+        _picksLabel.text = "Виборів залишилось: " + picks;
     }
+
+    // ── Cards ──
 
     private void BuildCards()
     {
-        if (_container == null || cardTemplate == null) return;
-        _container.Clear();
+        if (_lootContainer == null || cardTemplate == null) return;
+        _lootContainer.Clear();
 
-        List<LootCardTemplate> cards = LootManager.Instance?.GetCurrentPool();
+        List<LootCardTemplate> cards = null;
+        if (LootManager.Instance != null)
+            cards = LootManager.Instance.GetCurrentPool();
+
         if (cards == null || cards.Count == 0)
         {
             Debug.LogWarning("[LootPanelUI] Пул карток порожній.");
             return;
         }
 
-        foreach (var card in cards)
+        foreach (LootCardTemplate card in cards)
         {
-            VisualElement cardUI = cardTemplate.Instantiate().ElementAt(0);
+            VisualElement cardEl = cardTemplate.Instantiate().ElementAt(0);
 
-            // Заповнення назв з LootCardItem.uxml
-            SetLabel(cardUI, "CardIcon", GetCardIcon(card.type));
-            SetLabel(cardUI, "CardName", card.cardName);
-            SetLabel(cardUI, "CardDesc", card.description);
-            SetLabel(cardUI, "CardType", GetCardTypeName(card.type));
+            // Назви відповідають реальному LootCardItem.uxml
+            SetLabel(cardEl, "CardName",        card.cardName);
+            SetLabel(cardEl, "CardDescription", card.description);
 
-            var costLabel = cardUI.Q<Label>("CardCost");
-            if (costLabel != null)
+            // Іконка
+            if (card.icon != null)
             {
-                costLabel.text = card.cost <= 0 ? "БЕЗКОШТОВНО" : $"{card.cost} грн";
-                if (card.cost <= 0) costLabel.AddToClassList("free");
-                else costLabel.RemoveFromClassList("free");
+                VisualElement iconEl = cardEl.Q<VisualElement>("CardIcon");
+                if (iconEl != null)
+                    iconEl.style.backgroundImage = new StyleBackground(card.icon);
             }
 
             // Золота картка
-            if (card.isGold) cardUI.AddToClassList("gold");
+            if (card.isGold)
+                cardEl.AddToClassList("gold");
 
-            var pickBtn = cardUI.Q<Button>("PickButton");
+            // Кнопка вибору
+            Button pickBtn = cardEl.Q<Button>("PickButton");
             if (pickBtn != null)
             {
-                bool canAfford = EconomyManager.Instance?.Money >= card.cost;
-                bool canPick   = LootManager.Instance?.CanPick ?? false;
-                pickBtn.SetEnabled(canAfford && canPick);
+                int money   = (EconomyManager.Instance != null) ? EconomyManager.Instance.Money : 0;
+                bool canPay  = (card.cost <= 0) || (money >= card.cost);
+                bool canPick = (LootManager.Instance != null) && LootManager.Instance.CanPick;
+
+                pickBtn.SetEnabled(canPay && canPick);
+
+                if (!canPay && card.cost > 0)
+                    pickBtn.text = "Мало коштів";
+                else
+                    pickBtn.text = "ОБРАТИ";
 
                 LootCardTemplate captured = card;
-                pickBtn.clicked += () => OnCardPicked(captured);
+                pickBtn.clicked += delegate { OnCardPicked(captured); };
             }
 
-            _container.Add(cardUI);
+            _lootContainer.Add(cardEl);
         }
     }
 
     private void OnCardPicked(LootCardTemplate card)
     {
-        if (EconomyManager.Instance?.SpendMoney(card.cost) != true && card.cost > 0) return;
+        bool paid = false;
+        if (card.cost <= 0)
+        {
+            paid = true;
+        }
+        else if (EconomyManager.Instance != null)
+        {
+            paid = EconomyManager.Instance.SpendMoney(card.cost);
+        }
 
-        LootManager.Instance?.SelectCard(card);
-        UpdatePicksLabel();
-        BuildCards(); // Перебудовуємо після вибору
+        if (!paid) return;
+
+        if (LootManager.Instance != null)
+            LootManager.Instance.SelectCard(card);
+
+        UpdateStats();
+        BuildCards();
     }
 
-    private static string GetCardIcon(LootCardType type) => type switch
-    {
-        LootCardType.FurnitureUpgrade => "🪑",
-        LootCardType.MoneyBonus       => "💰",
-        LootCardType.BookPack         => "📚",
-       // LootCardType.PrestigeBonus    => "⭐",
-        _ => "🎁"
-    };
+    // ── Helpers ──
 
-    private static string GetCardTypeName(LootCardType type) => type switch
+    // ВИПРАВЛЕНО: класичний switch statement замість switch expression (=>)
+    // Switch expression синтаксис "type switch { X => Y }" потребує C# 8.0
+    // і викликав помилки CS1003 "':' expected" та CS1525 "Invalid expression term ';'"
+    private static string GetCardTypeName(LootCardType type)
     {
-        LootCardType.FurnitureUpgrade => "МЕБЛІ",
-        LootCardType.MoneyBonus       => "МОНЕТИ",
-        LootCardType.BookPack         => "КНИГИ",
-     //   LootCardType.PrestigeBonus    => "ПРЕСТИЖ",
-        _ => "БОНУС"
-    };
+        switch (type)
+        {
+            case LootCardType.FurnitureUpgrade: return "МЕБЛІ";
+            case LootCardType.MoneyBonus:       return "МОНЕТИ";
+            case LootCardType.BookPack:         return "КНИГИ";
+            default:                            return "БОНУС";
+        }
+    }
 
+    private static void SetLabel(VisualElement root, string elementName, string text)
+    {
+        Label label = root.Q<Label>(elementName);
+        if (label != null) label.text = text;
+    }
 }
