@@ -8,6 +8,7 @@ public class TutorialStep : ScriptableObject
     public string highlightTarget;  // Ім'я UI елемента для підсвічування
     public TutorialTrigger trigger; // Коли показувати
     public bool blockInput = false; // Чи блокувати ввід до виконання
+    public string icon = "📖";
 }
 
 public enum TutorialTrigger

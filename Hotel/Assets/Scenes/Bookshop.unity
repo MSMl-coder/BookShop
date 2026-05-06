@@ -602,12 +602,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 54528873}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.5464, y: 1.08699, z: -0.04056}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1050338995}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &54528875
 MonoBehaviour:
@@ -4954,7 +4954,6 @@ Transform:
   - {fileID: 1221136246}
   - {fileID: 1956696707}
   - {fileID: 1832033275}
-  - {fileID: 54528874}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1081955907 stripped
@@ -5091,10 +5090,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopUIManager
   uiDocument: {fileID: 1118481608}
-  inventoryPanel: {fileID: 0}
-  cabinetPanel: {fileID: 0}
-  lootPanel: {fileID: 0}
-  settingsPanel: {fileID: 0}
+  bookItemTemplate: {fileID: 9197481963319205126, guid: 1814433bc6ee242fea49493af7886191, type: 3}
+  lootCardTemplate: {fileID: 9197481963319205126, guid: b963a6b6831f54f929ab3e35624c4e9f, type: 3}
 --- !u!114 &1118481608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5170,8 +5167,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c6a325b659784ea58018f390d3c4a03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LootPanelUI
-  uiDocument: {fileID: 0}
-  cardTemplate: {fileID: 0}
+  uiDocument: {fileID: 1118481608}
+  cardTemplate: {fileID: 9197481963319205126, guid: b963a6b6831f54f929ab3e35624c4e9f, type: 3}
 --- !u!114 &1118481613
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6546,11 +6543,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1336246676651107513, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.23400003
+      value: -0.234
       objectReference: {fileID: 0}
     - target: {fileID: 1336246676651107513, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.0009999963
+      value: -0.062
       objectReference: {fileID: 0}
     - target: {fileID: 1472910286825071198, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_Layer
@@ -8793,7 +8790,7 @@ MonoBehaviour:
   moneyToAdd: 1000
   targetState: 0
   testBook: {fileID: 0}
-  bookCountToAdd: 20
+  bookCountToAdd: 1
   targetShelf: {fileID: 0}
   targetCabinet: {fileID: 0}
   lootCardIndex: 0
@@ -9530,8 +9527,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2096972898}
-  - component: {fileID: 2096972897}
   - component: {fileID: 2096972899}
+  - component: {fileID: 2096972897}
   m_Layer: 0
   m_Name: Bootstrap
   m_TagString: Untagged
@@ -10567,6 +10564,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 2096972898}
+  - {fileID: 54528874}
   - {fileID: 1050338995}
   - {fileID: 1243145967}
   - {fileID: 1294574533}
