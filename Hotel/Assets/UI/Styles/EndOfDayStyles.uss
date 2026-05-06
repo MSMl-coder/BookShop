@@ -1,46 +1,257 @@
-.screen-overlay {
-    flex-grow: 1;
-    background-color: rgba(0, 0, 0, 0.85);
+/* =====================================================
+   EndOfDayStyles.uss
+   ===================================================== */
+
+/* ── Full Screen Overlay ── */
+.end-day-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(8, 4, 1, 0.93);
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    display: none;
 }
 
-.header-container {
+/* ── Title Block ── */
+.end-day-title-block {
     align-items: center;
-    margin-bottom: 50px;
+    margin-bottom: 36px;
 }
 
-.title-text {
-    font-size: 60px;
-    color: #FFD700; /* Gold */
+.end-day-title {
+    font-size: 52px;
+    color: rgb(240, 192, 64);
+    -unity-font-style: bold;
+    letter-spacing: 8px;
+    margin-bottom: 4px;
+}
+
+.end-day-subtitle {
+    font-size: 13px;
+    color: rgb(100, 70, 45);
+    -unity-font-style: italic;
+    letter-spacing: 4px;
+}
+
+/* ── Stats Row ── */
+.end-day-stats {
+    flex-direction: row;
+    margin-bottom: 40px;
+}
+
+.stat-chip {
+    background-color: rgba(184, 134, 11, 0.1);
+    border-color: rgba(184, 134, 11, 0.3);
+    border-width: 1px;
+    border-radius: 18px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 24px;
+    padding-right: 24px;
+    margin-left: 8px;
+    margin-right: 8px;
+    align-items: center;
+}
+
+.stat-chip__label {
+    font-size: 9px;
+    color: rgb(100, 70, 45);
+    letter-spacing: 3px;
+    -unity-font-style: italic;
+    margin-bottom: 4px;
+}
+
+.stat-chip__value {
+    font-size: 24px;
+    color: rgb(240, 192, 64);
     -unity-font-style: bold;
 }
 
-.stats-row {
+/* ── Loot Cards Row ── */
+.loot-cards-row {
     flex-direction: row;
-    margin-top: 10px;
-}
-
-.stat-text {
-    font-size: 24px;
-    color: white;
-    margin: 0 20px;
-}
-
-/* Налаштування сітки для карток */
-.loot-grid {
-    flex-direction: row;
-    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
-    width: 90%;
-    height: 400px;
-    margin: 20px 0;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
 }
 
-.hint-text {
+/* ══════════════════════════════════════
+   LootCardItem.uxml — стилі картки
+   ══════════════════════════════════════ */
+
+.loot-card {
+    width: 210px;
+    min-height: 340px;
+    margin-left: 10px;
+    margin-right: 10px;
+    border-radius: 10px;
+    background-color: rgba(18, 10, 4, 0.97);
+    border-color: rgba(184, 134, 11, 0.3);
+    border-width: 1px;
+    flex-direction: column;
+    overflow: hidden;
+    transition-duration: 0.2s;
+}
+
+.loot-card:hover {
+    border-color: rgb(240, 192, 64);
+    translate: 0 -5px;
+}
+
+/* Золота рамка для особливих карток */
+.loot-card.gold {
+    border-color: rgb(240, 210, 50);
+    border-width: 2px;
+    background-color: rgba(30, 18, 4, 0.99);
+}
+
+/* Верхня кольорова смуга */
+.loot-card__top-bar {
+    height: 7px;
+    background-color: rgb(184, 134, 11);
+}
+
+.loot-card.gold .loot-card__top-bar {
+    background-color: rgb(240, 210, 50);
+}
+
+/* Зона іконки */
+.loot-card__icon-area {
+    height: 140px;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(184, 134, 11, 0.06);
+    border-bottom-color: rgba(184, 134, 11, 0.12);
+    border-bottom-width: 1px;
+}
+
+.loot-card__icon {
+    font-size: 48px;
+}
+
+/* Тип картки — badge у правому верхньому куті */
+.loot-card__type-badge {
+    position: absolute;
+    top: 18px;
+    right: 10px;
+    background-color: rgba(184, 134, 11, 0.22);
+    border-radius: 8px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+.loot-card__type-text {
+    font-size: 9px;
+    color: rgb(212, 160, 23);
+    letter-spacing: 1px;
+}
+
+/* Тіло картки */
+.loot-card__body {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 16px;
+    padding-right: 16px;
+    flex-grow: 1;
+}
+
+.loot-card__name {
+    color: rgb(212, 160, 23);
+    font-size: 16px;
+    -unity-font-style: bold;
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.loot-card.gold .loot-card__name {
+    color: rgb(240, 210, 50);
+}
+
+.loot-card__desc {
+    color: rgb(100, 70, 45);
+    font-size: 12px;
+    -unity-font-style: italic;
+    white-space: normal;
+}
+
+/* Footer картки */
+.loot-card__footer {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-top-color: rgba(184, 134, 11, 0.18);
+    border-top-width: 1px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.loot-card__cost {
     font-size: 18px;
-    color: #AAAAAA;
-    margin-top: 20px;
+    color: rgb(240, 192, 64);
+    -unity-font-style: bold;
+}
+
+.loot-card__cost.free {
+    color: rgb(76, 175, 80);
+}
+
+.loot-card__pick-btn {
+    background-color: rgba(140, 100, 10, 0.85);
+    border-color: rgba(240, 192, 64, 0.6);
+    border-width: 1px;
+    border-radius: 6px;
+    color: rgb(10, 5, 2);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 16px;
+    padding-right: 16px;
+    transition-duration: 0.12s;
+}
+
+.loot-card__pick-btn:hover {
+    background-color: rgb(212, 160, 23);
+    scale: 1.04;
+}
+
+.loot-card__pick-btn:active {
+    scale: 0.97;
+}
+
+.loot-card__pick-btn:disabled {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: rgb(60, 40, 25);
+    opacity: 0.5;
+}
+
+/* ── Hint text ── */
+.end-day-hint {
+    font-size: 13px;
+    color: rgb(80, 55, 35);
+    -unity-font-style: italic;
+    letter-spacing: 1px;
+}
+
+/* ── Picks Remaining ── */
+.picks-remaining {
+    font-size: 15px;
+    color: rgb(130, 95, 65);
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.picks-remaining__number {
+    color: rgb(240, 192, 64);
+    -unity-font-style: bold;
 }

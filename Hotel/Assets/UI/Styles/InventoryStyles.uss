@@ -1,27 +1,187 @@
-/* Налаштування картки книги */
+/* =====================================================
+   InventoryStyles.uss
+   ===================================================== */
+
+/* ── Inventory Panel ── */
+.inventory-panel {
+    position: absolute;
+    left: 0;
+    top: 56px;
+    bottom: 50px;
+    width: 360px;
+    background-color: rgba(12, 7, 3, 0.97);
+    border-right-color: rgba(184, 134, 11, 0.28);
+    border-right-width: 1px;
+    flex-direction: column;
+}
+
+/* ── Header ── */
+.inventory-header {
+    padding-top: 14px;
+    padding-bottom: 10px;
+    padding-left: 18px;
+    padding-right: 18px;
+    border-bottom-color: rgba(184, 134, 11, 0.18);
+    border-bottom-width: 1px;
+}
+
+.inventory-title {
+    color: rgb(212, 160, 23);
+    font-size: 17px;
+    -unity-font-style: bold;
+    letter-spacing: 4px;
+    margin-bottom: 6px;
+}
+
+.inventory-count {
+    font-size: 11px;
+    color: rgb(100, 70, 45);
+    -unity-font-style: italic;
+    margin-bottom: 10px;
+}
+
+/* ── Sort Tabs Row ── */
+.sort-tabs-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.sort-tab {
+    background-color: rgba(0, 0, 0, 0);
+    border-color: rgba(184, 134, 11, 0.22);
+    border-width: 1px;
+    border-radius: 12px;
+    color: rgb(100, 70, 45);
+    font-size: 11px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-right: 5px;
+    margin-bottom: 4px;
+    transition-duration: 0.12s;
+}
+
+.sort-tab:hover {
+    border-color: rgba(212, 160, 23, 0.5);
+    color: rgb(212, 160, 23);
+}
+
+.sort-tab.active {
+    background-color: rgba(184, 134, 11, 0.2);
+    border-color: rgb(240, 192, 64);
+    color: rgb(240, 192, 64);
+}
+
+/* ── Book Grid ── */
+.inventory-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    flex-grow: 1;
+    align-content: flex-start;
+}
+
+/* ══════════════════════════════════════
+   BookItem.uxml — стилі картки книги
+   ══════════════════════════════════════ */
+
 .book-card {
-    width: 100px;
-    height: 140px;
-    background-color: #2b2b2b;
-    border-radius: 10px;
-    margin: 8px;
-    padding: 10px;
-    border-width: 2px;
-    border-color: #444;
+    width: 88px;
+    height: 126px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border-radius: 5px 5px 3px 3px;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(184, 134, 11, 0.18);
+    border-width: 1px;
+    flex-direction: column;
+    overflow: hidden;
     transition-duration: 0.15s;
 }
 
-/* Ефект наведення */
 .book-card:hover {
-    scale: 1.1;
-    border-color: #ffcc00;
-    background-color: #383838;
+    border-color: rgb(240, 192, 64);
+    background-color: rgba(184, 134, 11, 0.1);
+    translate: 0 -3px;
 }
 
-/* Цінник */
-#PriceLabel {
-    -unity-font-style: bold;
-    color: #ffcc00;
-    -unity-text-align: lower-center;
-    font-size: 14px;
+.book-card:active {
+    translate: 0 0;
+    scale: 0.97;
 }
+
+/* Корінець книги (вертикальна смуга зліва) */
+.book-spine {
+    width: 5px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* Обкладинка — іконка */
+.book-cover {
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(80, 45, 15, 0.3);
+}
+
+.book-icon {
+    width: 70%;
+    height: 70%;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.book-icon-label {
+    font-size: 8px;
+    color: rgba(212, 160, 23, 0.55);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+/* Нижня плашка: ціна */
+.book-footer {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
+    background-color: rgba(0, 0, 0, 0.38);
+}
+
+.book-price-label {
+    font-size: 11px;
+    color: rgb(240, 192, 64);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* Точка рідкості (верхній правий кут) */
+.rarity-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 3px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.rarity-dot.common    { background-color: rgb(158, 158, 158); }
+.rarity-dot.uncommon  { background-color: rgb(76,  175, 80);  }
+.rarity-dot.rare      { background-color: rgb(33,  150, 243); }
+.rarity-dot.epic      { background-color: rgb(156, 39,  176); }
+.rarity-dot.legendary { background-color: rgb(255, 152, 0);   }

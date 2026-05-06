@@ -4,62 +4,65 @@ using UnityEngine.UIElements;
 
 public class InventoryPanelUI : MonoBehaviour
 {
-    [SerializeField] private UIDocument uiDocument;
-    [SerializeField] private VisualTreeAsset bookItemTemplate;
+    [SerializeField] private UIDocument       uiDocument;
+    [SerializeField] private VisualTreeAsset  bookItemTemplate;
 
-    private VisualElement _panel;
     private ScrollView _grid;
-    public bool IsVisible { get; private set; }
+    private Label      _countLabel;
+    private SortType   _currentSort = SortType.ByTitle;
 
     private void OnEnable()
     {
         var root = uiDocument.rootVisualElement;
-        _panel = root.Q<VisualElement>("InventoryPanel");
-        _grid  = root.Q<ScrollView>("InventoryGrid");
+        _grid       = root.Q<ScrollView>("InventoryGrid");
+        _countLabel = root.Q<Label>("InvCount");
 
-        // Кнопки сортування
-        root.Q<Button>("BtnSortTitle") ?.RegisterCallback<ClickEvent>(_ => Refresh(SortType.ByTitle));
-        root.Q<Button>("BtnSortAuthor")?.RegisterCallback<ClickEvent>(_ => Refresh(SortType.ByAuthor));
-        root.Q<Button>("BtnSortPrice") ?.RegisterCallback<ClickEvent>(_ => Refresh(SortType.ByPrice));
-        root.Q<Button>("BtnSortGenre") ?.RegisterCallback<ClickEvent>(_ => Refresh(SortType.ByGenre));
+        root.Q<Button>("BtnSortTitle") ?.RegisterCallback<ClickEvent>(_ => SetSort(SortType.ByTitle,  "BtnSortTitle",  root));
+        root.Q<Button>("BtnSortAuthor")?.RegisterCallback<ClickEvent>(_ => SetSort(SortType.ByAuthor, "BtnSortAuthor", root));
+        root.Q<Button>("BtnSortPrice") ?.RegisterCallback<ClickEvent>(_ => SetSort(SortType.ByPrice,  "BtnSortPrice",  root));
+        root.Q<Button>("BtnSortGenre") ?.RegisterCallback<ClickEvent>(_ => SetSort(SortType.ByGenre,  "BtnSortGenre",  root));
+        root.Q<Button>("BtnSortRarity")?.RegisterCallback<ClickEvent>(_ => SetSort(SortType.ByRarity, "BtnSortRarity", root));
 
         if (InventoryManager.Instance != null)
-            InventoryManager.Instance.OnInventoryChanged += () => Refresh(SortType.ByTitle);
-
-        Hide();
+            InventoryManager.Instance.OnInventoryChanged += Refresh;
     }
 
     private void OnDisable()
     {
         if (InventoryManager.Instance != null)
-            InventoryManager.Instance.OnInventoryChanged -= () => Refresh(SortType.ByTitle);
+            InventoryManager.Instance.OnInventoryChanged -= Refresh;
     }
 
-    public void Show()
+    public void Refresh()
     {
-        IsVisible = true;
-        if (_panel != null) _panel.style.display = DisplayStyle.Flex;
-        Refresh(SortType.ByTitle);
-    }
-
-    public void Hide()
-    {
-        IsVisible = false;
-        if (_panel != null) _panel.style.display = DisplayStyle.None;
-    }
-
-    private void Refresh(SortType sort)
-    {
-        if (_grid == null || !IsVisible) return;
+        if (_grid == null) return;
         _grid.Clear();
 
-        var books = InventoryManager.Instance?.GetSortedInventory(sort);
+        var books = InventoryManager.Instance?.GetSortedInventory(_currentSort);
         if (books == null) return;
+
+        if (_countLabel != null)
+            _countLabel.text = $"{books.Count} книг";
 
         foreach (var book in books)
         {
-            var item = new InventoryItemUI(book, bookItemTemplate);
+            if (bookItemTemplate == null) break;
+            var item = new InventoryItemUI(
+                book,
+                bookItemTemplate,
+                onHoverEnter: t => ShopUIManager.Instance?.ShowBookInfo(t),
+                onHoverExit:  () => ShopUIManager.Instance?.HideBookInfo()
+            );
             if (item.Root != null) _grid.Add(item.Root);
         }
+    }
+
+    private void SetSort(SortType sort, string btnName, VisualElement root)
+    {
+        _currentSort = sort;
+        foreach (var b in new[]{"BtnSortTitle","BtnSortAuthor","BtnSortPrice","BtnSortGenre","BtnSortRarity"})
+            root.Q<Button>(b)?.RemoveFromClassList("active");
+        root.Q<Button>(btnName)?.AddToClassList("active");
+        Refresh();
     }
 }

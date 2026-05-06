@@ -1,0 +1,191 @@
+/* =====================================================
+   HUDStyles.uss
+   ===================================================== */
+
+/* ── Top Bar ── */
+.hud-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: rgba(10, 5, 2, 0.95);
+    border-bottom-color: rgba(184, 134, 11, 0.3);
+    border-bottom-width: 1px;
+}
+
+/* ── Clock Widget ── */
+.hud-clock {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(184, 134, 11, 0.1);
+    border-color: rgba(184, 134, 11, 0.28);
+    border-width: 1px;
+    border-radius: 18px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.hud-clock__day {
+    color: rgb(240, 192, 64);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-right: 8px;
+}
+
+.hud-clock__phase {
+    color: rgb(130, 95, 65);
+    font-size: 10px;
+    letter-spacing: 2px;
+    -unity-font-style: italic;
+}
+
+/* ── Wallet ── */
+.hud-wallet {
+    flex-direction: row;
+    align-items: center;
+    background-color: rgba(184, 134, 11, 0.1);
+    border-color: rgba(184, 134, 11, 0.28);
+    border-width: 1px;
+    border-radius: 18px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.hud-wallet__icon {
+    font-size: 16px;
+    margin-right: 6px;
+    color: rgb(184, 134, 11);
+}
+
+.hud-wallet__amount {
+    color: rgb(240, 192, 64);
+    font-size: 18px;
+    -unity-font-style: bold;
+}
+
+.hud-wallet__currency {
+    color: rgb(130, 95, 65);
+    font-size: 11px;
+    margin-left: 4px;
+    margin-top: 5px;
+}
+
+/* ── Prestige ── */
+.hud-prestige {
+    flex-direction: column;
+    align-items: center;
+    min-width: 150px;
+}
+
+.hud-prestige__label {
+    font-size: 9px;
+    color: rgb(100, 70, 45);
+    letter-spacing: 3px;
+    -unity-font-style: italic;
+    margin-bottom: 4px;
+}
+
+.hud-prestige__bar-bg {
+    width: 130px;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.07);
+    border-radius: 3px;
+}
+
+.hud-prestige__bar-fill {
+    height: 5px;
+    background-color: rgb(212, 160, 23);
+    border-radius: 3px;
+}
+
+.hud-prestige__value {
+    font-size: 10px;
+    color: rgb(212, 160, 23);
+    margin-top: 3px;
+}
+
+/* ── Action Buttons (Bottom Right) ── */
+.hud-actions {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.hud-action-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 26px;
+    background-color: rgba(10, 5, 2, 0.94);
+    border-color: rgba(184, 134, 11, 0.4);
+    border-width: 1px;
+    margin-bottom: 10px;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    transition-duration: 0.15s;
+}
+
+.hud-action-btn:hover {
+    background-color: rgba(184, 134, 11, 0.2);
+    border-color: rgb(240, 192, 64);
+    scale: 1.08;
+}
+
+.hud-action-btn:active {
+    scale: 0.95;
+}
+
+/* ── Bottom Nav Bar ── */
+.hud-nav {
+    position: absolute;
+    bottom: 0;
+    left: 360px;
+    right: 280px;
+    height: 50px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(10, 5, 2, 0.94);
+    border-top-color: rgba(184, 134, 11, 0.28);
+    border-top-width: 1px;
+}
+
+.hud-nav-tab {
+    height: 34px;
+    padding-left: 16px;
+    padding-right: 16px;
+    border-radius: 17px;
+    border-color: rgba(184, 134, 11, 0.2);
+    border-width: 1px;
+    background-color: rgba(0, 0, 0, 0);
+    color: rgb(100, 70, 45);
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-left: 4px;
+    margin-right: 4px;
+    transition-duration: 0.15s;
+}
+
+.hud-nav-tab:hover {
+    border-color: rgba(212, 160, 23, 0.5);
+    color: rgb(212, 160, 23);
+}
+
+.hud-nav-tab.active {
+    background-color: rgba(184, 134, 11, 0.18);
+    border-color: rgb(240, 192, 64);
+    color: rgb(240, 192, 64);
+}

@@ -1,8 +1,23 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
-    <ui:VisualElement picking-mode="Ignore" class="card-root" style="background-color: rgb(140, 139, 132); margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; height: 450px;">
-        <ui:Label text="Назва нагороди" name="CardName" class="card-name" style="height: 58px; align-self: stretch; background-color: rgb(101, 114, 130); font-size: 31px; -unity-text-align: middle-center; letter-spacing: 4px; -unity-text-auto-size: none; -unity-text-generator: advanced; -unity-font-style: bold;"/>
-        <ui:VisualElement name="CardIcon" class="card-icon" style="height: 215px; width: auto; background-color: rgb(156, 156, 156); margin-top: 4px; margin-right: 2px; margin-bottom: 4px; margin-left: 1px;"/>
-        <ui:Label text="Опис бонусу" name="CardDescription" class="card-desc" style="height: 123px; background-color: rgb(152, 142, 142);"/>
-        <ui:Button text="ОБРАТИ" name="PickButton" class="pick-button" style="bottom: 0; align-items: center;"/>
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Styles/EndOfDayStyles.uss"/>
+    <ui:VisualElement name="LootCard" class="loot-card">
+        <ui:VisualElement name="TopBar" class="loot-card__top-bar"/>
+        <ui:VisualElement name="IconArea" class="loot-card__icon-area" style="position:relative;">
+            <ui:Label name="CardIcon" text="📚" class="loot-card__icon"/>
+            <ui:VisualElement name="TypeBadge" class="loot-card__type-badge">
+                <ui:Label name="CardType" text="БОНУС" class="loot-card__type-text"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="loot-card__body">
+            <ui:Label name="CardName" text="Назва картки"  class="loot-card__name"/>
+            <ui:Label name="CardDesc" text="Опис бонусу."  class="loot-card__desc"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="loot-card__footer">
+            <ui:Label  name="CardCost"   text="0 грн"  class="loot-card__cost free"/>
+            <ui:Button name="PickButton" text="ОБРАТИ" class="loot-card__pick-btn"/>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

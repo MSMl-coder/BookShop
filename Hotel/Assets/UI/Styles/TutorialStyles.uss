@@ -1,0 +1,62 @@
+/* =====================================================
+   TutorialStyles.uss
+   ===================================================== */
+
+.tutorial-bubble {
+    position: absolute;
+    bottom: 60px;
+    left: 380px;
+    right: 300px;
+    background-color: rgba(12, 7, 3, 0.97);
+    border-color: rgba(184, 134, 11, 0.4);
+    border-width: 1px;
+    border-radius: 10px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 18px;
+    padding-right: 18px;
+    flex-direction: row;
+    align-items: center;
+    display: none;
+}
+
+.tutorial-bubble__icon {
+    font-size: 28px;
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+
+.tutorial-bubble__text {
+    font-size: 13px;
+    color: rgb(210, 190, 160);
+    -unity-font-style: italic;
+    white-space: normal;
+    flex-grow: 1;
+}
+
+.tutorial-bubble__text .highlight {
+    color: rgb(240, 192, 64);
+    -unity-font-style: bold;
+}
+
+.tutorial-ok-btn {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    padding-left: 18px;
+    padding-right: 18px;
+    background-color: rgba(140, 100, 10, 0.8);
+    border-color: rgba(240, 192, 64, 0.5);
+    border-width: 1px;
+    border-radius: 6px;
+    color: rgb(242, 232, 208);
+    font-size: 12px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    margin-left: 14px;
+    transition-duration: 0.12s;
+}
+
+.tutorial-ok-btn:hover {
+    background-color: rgba(212, 160, 23, 0.6);
+}

@@ -1,46 +1,153 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Styles/InventoryStyles.uss?fileID=7433441132597879392&amp;guid=c4b090d74adb3410c961284aa44ef032&amp;type=3#InventoryStyles"/>
-    <Style src="project://database/Assets/UI/Styles/EndOfDayStyles.uss?fileID=7433441132597879392&amp;guid=384e909f6790e4ccab68ea6ec3752a9e&amp;type=3#EndOfDayStyles"/>
-    <ui:VisualElement name="EndDayPanel" picking-mode="Ignore" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0.85); align-items: center; justify-content: center; display: none;">
-        <ui:VisualElement name="Header" picking-mode="Ignore" style="align-items: center; margin-bottom: 50px;">
-            <ui:Label text="ДЕНЬ ЗАВЕРШЕНО" name="Title" style="font-size: 60px; color: rgb(255, 215, 0); -unity-font-style: bold;"/>
-            <ui:VisualElement name="Stats" style="flex-direction: row; margin-top: 10px;">
-                <ui:Label text="Продано книг: 0" name="StatBooks" style="font-size: 24px; color: rgb(255, 255, 255); margin-left: 20px; margin-right: 20px;"/>
-                <ui:Label text="Заробіток: $0" name="StatMoney" style="font-size: 24px; color: rgb(255, 255, 255); margin-left: 20px; margin-right: 20px;"/>
+<ui:UXML xmlns:ui="UnityEngine.UIElements"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd"
+         editor-extension-mode="False">
+
+    <Style src="project://database/Assets/UI/Styles/BookshopTheme.uss"/>
+    <Style src="project://database/Assets/UI/Styles/HUDStyles.uss"/>
+    <Style src="project://database/Assets/UI/Styles/InventoryStyles.uss"/>
+    <Style src="project://database/Assets/UI/Styles/CabinetStyles.uss"/>
+    <Style src="project://database/Assets/UI/Styles/EndOfDayStyles.uss"/>
+    <Style src="project://database/Assets/UI/Styles/TutorialStyles.uss"/>
+
+    <ui:VisualElement name="Root" style="flex-grow:1; position:absolute; top:0; left:0; right:0; bottom:0;">
+
+        <!-- HUD TOP BAR -->
+        <ui:VisualElement name="HUDBar" class="hud-bar">
+            <ui:VisualElement name="HUDLeft" style="flex-direction:row; align-items:center;">
+                <ui:VisualElement name="ClockWidget" class="hud-clock" style="margin-right:12px;">
+                    <ui:Label name="DayLabel"   text="ДЕНЬ 1"     class="hud-clock__day"/>
+                    <ui:Label name="PhaseLabel" text="ПІДГОТОВКА" class="hud-clock__phase"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="WalletWidget" class="hud-wallet">
+                    <ui:Label text="💰" class="hud-wallet__icon"/>
+                    <ui:Label name="MoneyLabel"    text="500"   class="hud-wallet__amount"/>
+                    <ui:Label name="CurrencyLabel" text="грн"  class="hud-wallet__currency"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="PrestigeWidget" class="hud-prestige">
+                <ui:Label text="ПРЕСТИЖ" class="hud-prestige__label"/>
+                <ui:VisualElement class="hud-prestige__bar-bg">
+                    <ui:VisualElement name="PrestigeBarFill" class="hud-prestige__bar-fill" style="width:30%;"/>
+                </ui:VisualElement>
+                <ui:Label name="PrestigeValue" text="120 / 1000" class="hud-prestige__value"/>
+            </ui:VisualElement>
+
+            <ui:Button name="BtnSettings" text="⚙" class="btn-icon"/>
+        </ui:VisualElement>
+
+        <!-- INVENTORY PANEL (left) -->
+        <ui:VisualElement name="InventoryPanel" class="inventory-panel" style="display:none;">
+            <ui:VisualElement class="inventory-header">
+                <ui:Label text="ІНВЕНТАР" class="inventory-title"/>
+                <ui:Label name="InvCount" text="0 книг" class="inventory-count"/>
+                <ui:VisualElement class="sort-tabs-row">
+                    <ui:Button name="BtnSortTitle"  text="Назва"    class="sort-tab active"/>
+                    <ui:Button name="BtnSortAuthor" text="Автор"    class="sort-tab"/>
+                    <ui:Button name="BtnSortPrice"  text="Ціна"     class="sort-tab"/>
+                    <ui:Button name="BtnSortGenre"  text="Жанр"     class="sort-tab"/>
+                    <ui:Button name="BtnSortRarity" text="Рідкість" class="sort-tab"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="InventoryGrid" class="inventory-grid" mode="Vertical"/>
+        </ui:VisualElement>
+
+        <!-- CABINET PANEL (right) -->
+        <ui:VisualElement name="CabinetPanel" class="cabinet-panel" style="display:none;">
+            <ui:VisualElement class="cabinet-header">
+                <ui:Label text="ШАФИ" class="cabinet-title"/>
+                <ui:Label name="CabZoneLabel" text="Торговий зал" class="cabinet-zone-label"/>
+            </ui:VisualElement>
+
+            <ui:Label text="ШАФИ" class="panel-section-label"/>
+            <ui:ScrollView name="CabinetList" class="cabinet-list" mode="Vertical"/>
+
+            <ui:Label text="ПОЛИЦІ" class="panel-section-label"/>
+            <ui:ScrollView name="ShelfList" class="shelf-list" mode="Vertical"/>
+
+            <ui:Label name="SelectedShelfLabel" text="Оберіть шафу та полицю" class="selected-shelf-label"/>
+
+            <ui:VisualElement name="TransferRow" class="transfer-row">
+                <ui:Button name="BtnPushOne" text="›" class="transfer-btn push" tooltip="Покласти одну книгу"/>
+                <ui:Button name="BtnPushAll" text="»" class="transfer-btn push" tooltip="Покласти всі книги"/>
+                <ui:Button name="BtnPopOne"  text="‹" class="transfer-btn pop"  tooltip="Забрати одну книгу"/>
+                <ui:Button name="BtnPopAll"  text="«" class="transfer-btn pop"  tooltip="Забрати всі книги"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="LootContainer" style="flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: center; width: 1772px; height: 400px; margin-right: 10px; margin-left: 10px; padding-right: 0; flex-grow: 0;"/>
-        <ui:Label text="Оберіть 3 нагороди, щоб почати наступний день" picking-mode="Ignore" style="font-size: 18px; color: rgb(170, 170, 170); margin-top: 20px;"/>
-    </ui:VisualElement>
-    <ui:VisualElement name="LeftPanel" picking-mode="Ignore" style="flex-grow: 1; position: absolute; height: 686px; width: 498px; top: 222px; background-color: rgba(0, 0, 0, 0.78); display: flex;">
-        <ui:VisualElement name="InventoryPanel" picking-mode="Ignore" style="flex-grow: 2; width: 492px; display: flex; background-color: rgb(152, 148, 148); height: 100%; left: 0; flex-direction: column;">
-            <ui:Label text="Label" name="Header" style="flex-direction: row; height: 66px; width: auto;">
-                <ui:Button text="Genre" name="BtnSortGenre" style="height: 41px; width: 136px;"/>
-                <ui:Button text="Author" name="BtnSortAuthor"/>
-                <ui:Button text="Price" name="BtnSortPrice"/>
-                <ui:Button text="TITLE" name="BtnSortTitle" style="height: 37px; width: 140px;"/>
-            </ui:Label>
-            <ui:ScrollView name="InventoryGrid" style="height: auto; width: 477px; flex-grow: 1; flex-wrap: wrap; bottom: auto; top: auto; left: auto; right: auto; flex-direction: row; position: relative; background-size: contain; align-items: stretch; align-content: stretch; justify-content: space-evenly; align-self: stretch;"/>
+
+        <!-- BOOK INFO CARD (hover) -->
+        <ui:VisualElement name="BookInfoCard" class="book-info-card">
+            <ui:Label name="BiTitle"  text="Назва книги" class="book-info-card__title"/>
+            <ui:Label name="BiAuthor" text="Автор"       class="book-info-card__author"/>
+            <ui:VisualElement class="book-info-card__divider"/>
+            <ui:VisualElement class="book-info-card__row">
+                <ui:Label text="Рік"      class="book-info-card__key"/>
+                <ui:Label name="BiYear"   text="—" class="book-info-card__value"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="book-info-card__row">
+                <ui:Label text="Жанр"     class="book-info-card__key"/>
+                <ui:Label name="BiGenre"  text="—" class="book-info-card__value"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="book-info-card__row">
+                <ui:Label text="Рідкість"  class="book-info-card__key"/>
+                <ui:Label name="BiRarity"  text="—" class="book-info-card__value book-info-card__rarity"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="book-info-card__row">
+                <ui:Label text="Розмір"   class="book-info-card__key"/>
+                <ui:Label name="BiSize"   text="—" class="book-info-card__value"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="book-info-card__divider"/>
+            <ui:Label name="BiPrice" text="— грн" class="book-info-card__price"/>
         </ui:VisualElement>
-    </ui:VisualElement>
-    <ui:VisualElement name="RightPanel" picking-mode="Ignore" style="flex-grow: 2; flex-shrink: 1; position: absolute; height: 583px; width: 450px; top: 229px; left: 1836px; background-color: rgb(211, 211, 211); display: flex; flex-direction: column; align-self: stretch; align-items: stretch; justify-content: flex-start;">
-        <ui:VisualElement name="CabinetPanel" picking-mode="Ignore" style="flex-grow: 2; position: relative; height: auto; width: auto; top: auto; left: auto; flex-direction: column; flex-wrap: nowrap; right: auto; bottom: auto; display: flex;">
-            <ui:ScrollView name="CabinetList" style="width: 407px; height: 212px; flex-direction: column; flex-grow: 1; flex-wrap: wrap; position: absolute; top: 22px; left: 17px; background-color: rgb(161, 153, 153); background-size: contain; align-items: stretch; align-content: stretch; margin-top: 5px; margin-right: 5px; margin-bottom: 5px; margin-left: 5px; bottom: auto; flex-basis: 50px; align-self: stretch; justify-content: space-evenly;">
-                <ui:VisualElement name="ShelfList" style="flex-grow: 1;"/>
-                <ui:Label text="Оберіть шафу" style="align-items: center; -unity-text-align: upper-center; font-size: 22px; width: 168px;"/>
-            </ui:ScrollView>
-            <ui:ScrollView name="ShelfList" style="height: 300px; width: 421px; flex-grow: 2; flex-wrap: wrap; bottom: auto; top: 260px; left: 14px; right: auto; flex-direction: column; position: absolute; background-color: rgb(130, 124, 124); align-items: flex-start; display: flex; flex-basis: 50px; align-self: stretch; align-content: stretch;"/>
+
+        <!-- END OF DAY PANEL -->
+        <ui:VisualElement name="EndDayPanel" class="end-day-panel" picking-mode="Ignore">
+            <ui:VisualElement class="end-day-title-block">
+                <ui:Label name="EndDayTitle"    text="ДЕНЬ ЗАВЕРШЕНО" class="end-day-title"/>
+                <ui:Label name="EndDaySubtitle" text="День 1"         class="end-day-subtitle"/>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="end-day-stats">
+                <ui:VisualElement class="stat-chip">
+                    <ui:Label text="ПРОДАНО КНИГ"      class="stat-chip__label"/>
+                    <ui:Label name="StatBooks" text="0" class="stat-chip__value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="stat-chip">
+                    <ui:Label text="ЗАРОБЛЕНО"               class="stat-chip__label"/>
+                    <ui:Label name="StatMoney" text="0 грн"   class="stat-chip__value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="stat-chip">
+                    <ui:Label text="ВІДВІДУВАЧІВ"            class="stat-chip__label"/>
+                    <ui:Label name="StatVisitors" text="0"    class="stat-chip__value"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:Label name="PicksLabel" text="Виборів залишилось: 3" class="picks-remaining"/>
+            <ui:VisualElement name="LootContainer" class="loot-cards-row"/>
+            <ui:Label text="Оберіть нагороди та розпочніть новий день" class="end-day-hint"/>
         </ui:VisualElement>
-        <ui:VisualElement name="Footer" picking-mode="Ignore" style="flex-grow: 1; position: absolute; height: 140px; width: 84px; top: 275px; left: -102px; background-color: rgb(130, 123, 123); flex-direction: column; justify-content: center; align-self: flex-start; align-items: stretch; bottom: auto; align-content: flex-start;">
-            <ui:Button text="&gt;" name="BtnPushOne"/>
-            <ui:Button text="&gt;&gt;" name="BtnPushAll"/>
-            <ui:Button text="&lt;" name="BtnPopOne"/>
-            <ui:Button text="&lt;&lt;" name="BtnPopAll"/>
+
+        <!-- TUTORIAL BUBBLE -->
+        <ui:VisualElement name="TutorialBubble" class="tutorial-bubble">
+            <ui:Label name="TutorialIcon" text="📖"                       class="tutorial-bubble__icon"/>
+            <ui:Label name="TutorialText" text="Підказка з'явиться тут." class="tutorial-bubble__text"/>
+            <ui:Button name="TutorialOkBtn" text="Зрозуміло!"             class="tutorial-ok-btn"/>
         </ui:VisualElement>
-    </ui:VisualElement>
-    <ui:Button text="BtnOpenInventory" name="BtnOpenInventory" style="height: 30px; width: 162px; position: absolute; top: auto; left: auto; bottom: 0; right: auto;"/>
-    <ui:VisualElement name="TutorialBubble" style="position: absolute; bottom: 120px; left: 50%; translate: -50% 0; width: 600px; background-color: rgba(20, 15, 10, 0.95); border-radius: 12px; padding: 20px; display: none;">
-        <ui:Label name="TutorialMessage" text="Tutorial text here" style="color: white; font-size: 18px; white-space: normal; margin-bottom: 15px;"/>
-        <ui:Button name="TutorialOK" text="Зрозуміло!" style="align-self: flex-end; width: 150px; height: 40px;"/>
+
+        <!-- HUD QUICK ACTIONS -->
+        <ui:VisualElement name="HUDActions" class="hud-actions">
+            <ui:Button name="BtnOpenInventory" text="📦" class="hud-action-btn" tooltip="Інвентар"/>
+            <ui:Button name="BtnOpenJournal"   text="📋" class="hud-action-btn" tooltip="Щоденник"/>
+        </ui:VisualElement>
+
+        <!-- HUD BOTTOM NAV -->
+        <ui:VisualElement name="HUDNav" class="hud-nav">
+            <ui:Button name="NavTabShop"        text="Крамниця"   class="hud-nav-tab active"/>
+            <ui:Button name="NavTabCatalog"     text="Каталог"    class="hud-nav-tab"/>
+            <ui:Button name="NavTabOrders"      text="Замовлення" class="hud-nav-tab"/>
+            <ui:Button name="NavTabCollections" text="Колекції"   class="hud-nav-tab"/>
+        </ui:VisualElement>
+
     </ui:VisualElement>
 </ui:UXML>
