@@ -116,7 +116,7 @@ Transform:
   m_GameObject: {fileID: 1472910286825071198}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.276, y: 0.008, z: -0.001}
+  m_LocalPosition: {x: -0.295, y: 0.008, z: -0.057}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -246,10 +246,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1336246676651107513}
-  bookRotation: {x: 0, y: 90, z: -90}
+  bookRotation: {x: 0, y: 90, z: 0}
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  defaultBookThickness: 0.03
 --- !u!1 &2824776042596458914
 GameObject:
   m_ObjectHideFlags: 0
@@ -407,10 +408,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 5872626022262727018}
-  bookRotation: {x: 0, y: 90, z: -90}
+  bookRotation: {x: 0, y: 90, z: 0}
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  defaultBookThickness: 0.03
 --- !u!1 &4077622065862479675
 GameObject:
   m_ObjectHideFlags: 0
@@ -666,10 +668,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1753508096901234169}
-  bookRotation: {x: 0, y: 90, z: -90}
+  bookRotation: {x: 0, y: 90, z: 0}
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  defaultBookThickness: 0.03
 --- !u!1 &7337486132078831180
 GameObject:
   m_ObjectHideFlags: 0
@@ -738,10 +741,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 7273818939359199731}
-  bookRotation: {x: 0, y: 90, z: -90}
+  bookRotation: {x: 0, y: 90, z: 0}
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  defaultBookThickness: 0.03
 --- !u!1 &7461461496185991650
 GameObject:
   m_ObjectHideFlags: 0
@@ -810,10 +814,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1202182138659578297}
-  bookRotation: {x: 0, y: 90, z: -90}
+  bookRotation: {x: 0, y: 90, z: 0}
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  defaultBookThickness: 0.03
 --- !u!1 &7786597280050946986
 GameObject:
   m_ObjectHideFlags: 0
@@ -882,10 +887,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1953779816340297385}
-  bookRotation: {x: 0, y: 90, z: -90}
+  bookRotation: {x: 0, y: 90, z: 0}
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  defaultBookThickness: 0.03
 --- !u!1 &8693502380842732427
 GameObject:
   m_ObjectHideFlags: 0

@@ -1367,9 +1367,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
-  fillIndicatorPrefab: {fileID: 0}
-  freeColor: {r: 0, g: 1, b: 0, a: 0.3}
-  fullColor: {r: 1, g: 0, b: 0, a: 0.3}
+  defaultBookThickness: 0.03
 --- !u!4 &231563884
 Transform:
   m_ObjectHideFlags: 0
@@ -6109,7 +6107,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1202182138659578297, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.481
+      value: -0.486
       objectReference: {fileID: 0}
     - target: {fileID: 1202182138659578297, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6129,7 +6127,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1336246676651107513, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.48099992
+      value: -0.48599988
       objectReference: {fileID: 0}
     - target: {fileID: 1336246676651107513, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6137,7 +6135,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1753508096901234169, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.48099992
+      value: -0.48599988
       objectReference: {fileID: 0}
     - target: {fileID: 1753508096901234169, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6145,7 +6143,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1953779816340297385, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.48099992
+      value: -0.48599988
       objectReference: {fileID: 0}
     - target: {fileID: 1953779816340297385, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6179,6 +6177,10 @@ PrefabInstance:
       propertyPath: m_Size.z
       value: 0.18
       objectReference: {fileID: 0}
+    - target: {fileID: 3042976856771591145, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
+      propertyPath: shelves.Array.size
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3520096820941986693, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.523
@@ -6201,7 +6203,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5872626022262727018, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.48099992
+      value: -0.48599988
       objectReference: {fileID: 0}
     - target: {fileID: 5872626022262727018, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8063,6 +8065,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8c9ccd9bee8554ba6a87b98752bd30e6, type: 3}
+--- !u!1001 &1690915268
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -3.847
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.594
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 7.255
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.6983528
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.71575373
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 91.41
+      objectReference: {fileID: 0}
+    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7792499953618239303, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+      propertyPath: m_Name
+      value: Book001
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
 --- !u!4 &1706251564 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
@@ -8780,9 +8839,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
-  fillIndicatorPrefab: {fileID: 0}
-  freeColor: {r: 0, g: 1, b: 0, a: 0.3}
-  fullColor: {r: 1, g: 0, b: 0, a: 0.3}
+  defaultBookThickness: 0.03
 --- !u!4 &1886625124
 Transform:
   m_ObjectHideFlags: 0
@@ -9839,9 +9896,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
-  fillIndicatorPrefab: {fileID: 0}
-  freeColor: {r: 0, g: 1, b: 0, a: 0.3}
-  fullColor: {r: 1, g: 0, b: 0, a: 0.3}
+  defaultBookThickness: 0.03
 --- !u!1 &569678460276451043
 GameObject:
   m_ObjectHideFlags: 0
@@ -10156,9 +10211,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
-  fillIndicatorPrefab: {fileID: 0}
-  freeColor: {r: 0, g: 1, b: 0, a: 0.3}
-  fullColor: {r: 1, g: 0, b: 0, a: 0.3}
+  defaultBookThickness: 0.03
 --- !u!65 &4072209821757666254
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10469,9 +10522,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
-  fillIndicatorPrefab: {fileID: 0}
-  freeColor: {r: 0, g: 1, b: 0, a: 0.3}
-  fullColor: {r: 1, g: 0, b: 0, a: 0.3}
+  defaultBookThickness: 0.03
 --- !u!4 &8896160596416831404
 Transform:
   m_ObjectHideFlags: 0
@@ -10526,3 +10577,4 @@ SceneRoots:
   - {fileID: 378780437}
   - {fileID: 1728985064}
   - {fileID: 856370434}
+  - {fileID: 1690915268}
