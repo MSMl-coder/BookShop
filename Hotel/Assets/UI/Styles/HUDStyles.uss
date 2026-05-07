@@ -1,9 +1,8 @@
 /* =====================================================
-   HUDStyles.uss — ОНОВЛЕНО
-   Додано: .hud-chip (використовується в MainShopUI.uxml)
+   HUDStyles.uss — PAPER ARCHIVE
    ===================================================== */
 
-/* ── Top Bar ── */
+/* Top bar — оливкова смуга як стіл */
 .hud-bar {
     position: absolute;
     top: 0;
@@ -13,127 +12,119 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding-left: 20px;
-    padding-right: 20px;
-    background-color: rgba(10, 5, 2, 0.95);
-    border-bottom-color: rgba(184, 134, 11, 0.3);
+    padding-left: 18px;
+    padding-right: 18px;
+    background-color: rgb(77, 82, 64);
+    border-bottom-color: rgb(40, 45, 30);
     border-bottom-width: 1px;
 }
 
-/* ── hud-chip: універсальна капсула в HUD ── */
-/* Використовується в MainShopUI.uxml замість .hud-clock / .hud-wallet */
+/* HUD chip — паперова мітка */
 .hud-chip {
     flex-direction: row;
     align-items: center;
-    background-color: rgba(184, 134, 11, 0.1);
-    border-color: rgba(184, 134, 11, 0.28);
+    background-color: rgb(240, 226, 184);
+    border-color: rgb(26, 26, 26);
     border-width: 1px;
-    border-radius: 18px;
     padding-top: 5px;
     padding-bottom: 5px;
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: 12px;
+    padding-right: 12px;
     margin-right: 8px;
+    rotate: -0.3deg;
 }
 
-/* ── Clock Widget ── */
-.hud-clock {
-    flex-direction: row;
-    align-items: center;
-    background-color: rgba(184, 134, 11, 0.1);
-    border-color: rgba(184, 134, 11, 0.28);
-    border-width: 1px;
-    border-radius: 18px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 14px;
-    padding-right: 14px;
-}
-
+/* ── Clock ── */
 .hud-clock__day {
-    color: rgb(240, 192, 64);
-    font-size: 14px;
+    color: rgb(26, 26, 26);
+    font-size: 13px;
     -unity-font-style: bold;
     letter-spacing: 2px;
     margin-right: 8px;
 }
 
 .hud-clock__phase {
-    color: rgb(130, 95, 65);
-    font-size: 10px;
+    color: rgb(106, 74, 26);
+    font-size: 9px;
     letter-spacing: 2px;
-    -unity-font-style: italic;
 }
 
 /* ── Wallet ── */
-.hud-wallet {
-    flex-direction: row;
-    align-items: center;
-    background-color: rgba(184, 134, 11, 0.1);
-    border-color: rgba(184, 134, 11, 0.28);
-    border-width: 1px;
-    border-radius: 18px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 14px;
-    padding-right: 14px;
-}
-
 .hud-wallet__icon {
-    font-size: 16px;
+    font-size: 13px;
     margin-right: 6px;
-    color: rgb(184, 134, 11);
-}
-
-.hud-wallet__amount {
-    color: rgb(240, 192, 64);
-    font-size: 18px;
+    color: rgb(26, 74, 26);
     -unity-font-style: bold;
 }
 
-.hud-wallet__currency {
-    color: rgb(130, 95, 65);
-    font-size: 11px;
-    margin-left: 4px;
-    margin-top: 5px;
+.hud-wallet__amount {
+    color: rgb(26, 26, 26);
+    font-size: 15px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
 }
 
-/* ── Prestige ── */
+.hud-wallet__currency {
+    color: rgb(106, 74, 26);
+    font-size: 9px;
+    margin-left: 4px;
+    margin-top: 4px;
+    letter-spacing: 1px;
+}
+
+/* ── Prestige — як машинописний прогрес ── */
 .hud-prestige {
     flex-direction: column;
     align-items: center;
-    min-width: 150px;
+    min-width: 140px;
 }
 
 .hud-prestige__label {
-    font-size: 9px;
-    color: rgb(100, 70, 45);
+    font-size: 8px;
+    color: rgb(244, 234, 208);
     letter-spacing: 3px;
-    -unity-font-style: italic;
     margin-bottom: 4px;
 }
 
 .hud-prestige__bar-bg {
     width: 130px;
     height: 5px;
-    background-color: rgba(255, 255, 255, 0.07);
-    border-radius: 3px;
+    background-color: rgb(40, 45, 30);
+    border-radius: 0;
+    border-color: rgb(26, 26, 26);
+    border-width: 1px;
 }
 
 .hud-prestige__bar-fill {
     height: 5px;
-    background-color: rgb(212, 160, 23);
-    border-radius: 3px;
+    background-color: rgb(200, 64, 48);
     transition-duration: 0.4s;
 }
 
 .hud-prestige__value {
-    font-size: 10px;
-    color: rgb(212, 160, 23);
+    font-size: 9px;
+    color: rgb(244, 234, 208);
     margin-top: 3px;
+    letter-spacing: 1px;
 }
 
-/* ── Action Buttons (Bottom Right) ── */
+/* ── Червоний штамп замість золотого індикатора ── */
+.hud-stamp-confidential {
+    border-color: rgb(200, 64, 48);
+    border-width: 2px;
+    color: rgb(200, 64, 48);
+    background-color: rgba(0, 0, 0, 0);
+    -unity-font-style: bold;
+    font-size: 9px;
+    letter-spacing: 3px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+    rotate: 2deg;
+}
+
+/* ── Action buttons — паперові теги з мотузкою ── */
 .hud-actions {
     position: absolute;
     bottom: 20px;
@@ -143,30 +134,31 @@
 }
 
 .hud-action-btn {
-    width: 52px;
-    height: 52px;
-    border-radius: 26px;
-    background-color: rgba(10, 5, 2, 0.94);
-    border-color: rgba(184, 134, 11, 0.4);
+    width: 46px;
+    height: 46px;
+    border-radius: 3px;
+    background-color: rgb(244, 234, 208);
+    border-color: rgb(26, 26, 26);
     border-width: 1px;
     margin-bottom: 10px;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 18px;
+    color: rgb(26, 26, 26);
     transition-duration: 0.15s;
+    rotate: -2deg;
 }
 
 .hud-action-btn:hover {
-    background-color: rgba(184, 134, 11, 0.2);
-    border-color: rgb(240, 192, 64);
-    scale: 1.08;
+    background-color: rgb(216, 180, 120);
+    border-color: rgb(106, 74, 26);
+    scale: 1.06;
+    rotate: 0deg;
 }
 
-.hud-action-btn:active {
-    scale: 0.95;
-}
+.hud-action-btn:active { scale: 0.95; }
 
-/* ── Bottom Nav Bar ── */
+/* ── Bottom Nav — бежева смужка ── */
 .hud-nav {
     position: absolute;
     bottom: 0;
@@ -176,34 +168,33 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    background-color: rgba(10, 5, 2, 0.94);
-    border-top-color: rgba(184, 134, 11, 0.28);
+    background-color: rgb(77, 82, 64);
+    border-top-color: rgb(40, 45, 30);
     border-top-width: 1px;
 }
 
 .hud-nav-tab {
-    height: 34px;
-    padding-left: 16px;
-    padding-right: 16px;
-    border-radius: 17px;
-    border-color: rgba(184, 134, 11, 0.2);
+    height: 30px;
+    padding-left: 14px;
+    padding-right: 14px;
+    border-color: rgb(244, 234, 208);
     border-width: 1px;
     background-color: rgba(0, 0, 0, 0);
-    color: rgb(100, 70, 45);
-    font-size: 12px;
-    letter-spacing: 1px;
+    color: rgb(244, 234, 208);
+    font-size: 11px;
+    letter-spacing: 2px;
     margin-left: 4px;
     margin-right: 4px;
     transition-duration: 0.15s;
 }
 
 .hud-nav-tab:hover {
-    border-color: rgba(212, 160, 23, 0.5);
-    color: rgb(212, 160, 23);
+    background-color: rgba(244, 234, 208, 0.15);
 }
 
 .hud-nav-tab.active {
-    background-color: rgba(184, 134, 11, 0.18);
-    border-color: rgb(240, 192, 64);
-    color: rgb(240, 192, 64);
+    background-color: rgb(244, 234, 208);
+    border-color: rgb(244, 234, 208);
+    color: rgb(26, 26, 26);
+    -unity-font-style: bold;
 }

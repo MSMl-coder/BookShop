@@ -8,8 +8,8 @@ public class BookTemplate : ScriptableObject
     public string bookID;
     public string title;
     public string author;
-    public BookEnums.BookGenre genre;
-    public BookEnums.BookRarity rarity;
+    public  BookGenre genre;
+    public BookRarity rarity;
 
     [Header("Smart ID Data")]
     public int writingYear = 2024;

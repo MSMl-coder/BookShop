@@ -12,16 +12,16 @@ public class InventoryItemUI
     private readonly BookTemplate _template;
 
     // Кольори корінців за жанром
-    private static readonly System.Collections.Generic.Dictionary<BookEnums.BookGenre, Color>
-        SpineColors = new System.Collections.Generic.Dictionary<BookEnums.BookGenre, Color>
+    private static readonly System.Collections.Generic.Dictionary<BookGenre, Color>
+        SpineColors = new System.Collections.Generic.Dictionary<BookGenre, Color>
     {
-        { BookEnums.BookGenre.Fantasy,    new Color(0.31f, 0.33f, 0.75f) },
-        { BookEnums.BookGenre.Horror,     new Color(0.55f, 0.10f, 0.10f) },
-        { BookEnums.BookGenre.Mystery,    new Color(0.25f, 0.25f, 0.35f) },
-        { BookEnums.BookGenre.Classic,    new Color(0.47f, 0.28f, 0.10f) },
-        { BookEnums.BookGenre.SciFi,      new Color(0.10f, 0.40f, 0.55f) },
-        { BookEnums.BookGenre.Biography,  new Color(0.30f, 0.50f, 0.25f) },
-        { BookEnums.BookGenre.Academic,   new Color(0.55f, 0.45f, 0.15f) },
+        { BookGenre.Fantasy,    new Color(0.31f, 0.33f, 0.75f) },
+        { BookGenre.Horror,     new Color(0.55f, 0.10f, 0.10f) },
+        { BookGenre.Mystery,    new Color(0.25f, 0.25f, 0.35f) },
+        { BookGenre.Classic,    new Color(0.47f, 0.28f, 0.10f) },
+        { BookGenre.SciFi,      new Color(0.10f, 0.40f, 0.55f) },
+        { BookGenre.Biography,  new Color(0.30f, 0.50f, 0.25f) },
+        { BookGenre.Academic,   new Color(0.55f, 0.45f, 0.15f) },
     };
 
     public event Action<BookInstance, BookTemplate> OnClicked;

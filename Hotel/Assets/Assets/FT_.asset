@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ede310f2f1c9a47b0a3a04701e3a7692, type: 3}
   m_Name: FT_
   m_EditorClassIdentifier: Assembly-CSharp::FurnitureTemplate
-  furnitureID: 
-  furnitureName: 
+  furnitureID: 1
+  furnitureName: 1
   furnitureClass: 0
-  prefab: {fileID: 0}
+  prefab: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
   icon: {fileID: 0}
   basePrice: 100
   setID: 
   bonusDescription: 
   unlockCondition: 
-  unlockedByDefault: 0
+  unlockedByDefault: 1

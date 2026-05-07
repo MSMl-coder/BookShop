@@ -39,16 +39,16 @@ public class BookInfoCardController : MonoBehaviour
     private bool _isVisible = false;
 
     // ── Genre bar CSS classes ──
-    private static readonly Dictionary<BookEnums.BookGenre, string> GenreBarClasses
-        = new Dictionary<BookEnums.BookGenre, string>
+    private static readonly Dictionary<BookGenre, string> GenreBarClasses
+        = new Dictionary<BookGenre, string>
     {
-        { BookEnums.BookGenre.Fantasy,   "fantasy"   },
-        { BookEnums.BookGenre.Horror,    "horror"    },
-        { BookEnums.BookGenre.Mystery,   "mystery"   },
-        { BookEnums.BookGenre.Classic,   "classic"   },
-        { BookEnums.BookGenre.SciFi,     "scifi"     },
-        { BookEnums.BookGenre.Biography, "biography" },
-        { BookEnums.BookGenre.Academic,  "academic"  },
+        { BookGenre.Fantasy,   "fantasy"   },
+        { BookGenre.Horror,    "horror"    },
+        {  BookGenre.Mystery,   "mystery"   },
+        { BookGenre.Classic,   "classic"   },
+        { BookGenre.SciFi,     "scifi"     },
+        { BookGenre.Biography, "biography" },
+        { BookGenre.Academic,  "academic"  },
     };
 
     // ── Rarity badge classes ──
@@ -308,25 +308,25 @@ public class BookInfoCardController : MonoBehaviour
     #region Helpers
     // ───────────────────────────────────────────
 
-    private static string GetRarityUkrainian(BookEnums.BookRarity rarity) => rarity switch
+    private static string GetRarityUkrainian(BookRarity rarity) => rarity switch
     {
-        BookEnums.BookRarity.Common    => "ЗВИЧАЙНА",
-        BookEnums.BookRarity.Uncommon  => "НЕЗВИЧАЙНА",
-        BookEnums.BookRarity.Rare      => "РІДКІСНА",
-        BookEnums.BookRarity.Epic      => "ЕПІЧНА",
-        BookEnums.BookRarity.Legendary => "ЛЕГЕНДАРНА",
+        BookRarity.Common    => "ЗВИЧАЙНА",
+        BookRarity.Uncommon  => "НЕZВИЧАЙНА",
+        BookRarity.Rare      => "РІДКІСНА",
+        BookRarity.Epic      => "ЕПІЧНА",
+        BookRarity.Legendary => "ЛЕГЕНДАРНА",
         _                              => rarity.ToString().ToUpper()
     };
 
-    private static string GetGenreUkrainian(BookEnums.BookGenre genre) => genre switch
+    private static string GetGenreUkrainian(BookGenre genre) => genre switch
     {
-        BookEnums.BookGenre.Fantasy   => "Фентезі",
-        BookEnums.BookGenre.Horror    => "Жахи",
-        BookEnums.BookGenre.Mystery   => "Детектив",
-        BookEnums.BookGenre.Classic   => "Класика",
-        BookEnums.BookGenre.SciFi     => "Наукова фантастика",
-        BookEnums.BookGenre.Biography => "Біографія",
-        BookEnums.BookGenre.Academic  => "Академічна",
+        BookGenre.Fantasy   => "Фентезі",
+        BookGenre.Horror    => "Жахи",
+        BookGenre.Mystery   => "Детектив",
+        BookGenre.Classic   => "Класика",
+        BookGenre.SciFi     => "Наукова фантастика",
+        BookGenre.Biography => "Біографія",
+        BookGenre.Academic  => "Академічна",
         _                             => genre.ToString()
     };
 

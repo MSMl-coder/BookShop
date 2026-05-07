@@ -3,15 +3,15 @@ using UnityEngine;
 // Scans a shelf for a book matching genre and budget
 public class ShelfScanner : MonoBehaviour
 {
-    // Returns first matching BookTemplate found on shelf, or null
-   public BookTemplate FindBookOnShelf(Shelf shelf, BookEnums.BookGenre genre, float maxBudget)
+    // ВИПРАВЛЕНО: перевірка shelf == null тепер виконується ПЕРШОЮ
+    // Раніше shelf.ZoneType зверталось до shelf до null-перевірки — NullReferenceException
+    public BookTemplate FindBookOnShelf(Shelf shelf,  BookGenre genre, float maxBudget)
     {
-    // NPC не може купити книгу з Book Club зони
-    if (shelf.ZoneType != ShopZoneType.Storefront) return null;
-
         if (shelf == null) return null;
 
-        // Get all BookWorldItems on this shelf
+        // NPC не може купити книгу з Book Club зони
+        if (shelf.ZoneType != ShopZoneType.Storefront) return null;
+
         var bookItems = shelf.GetComponentsInChildren<BookWorldItem>();
 
         foreach (var item in bookItems)

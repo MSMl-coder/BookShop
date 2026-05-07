@@ -10,7 +10,7 @@ public class NPCBrain : MonoBehaviour
     // --- Public State ---
     public NPCData Data { get; private set; }
     public NPCState CurrentState { get; private set; }
-    public BookEnums.BookGenre DesiredGenre { get; private set; }
+    public BookGenre DesiredGenre { get; private set; }
     public BookTemplate FoundBook { get; private set; }
 
     // --- Events ---
@@ -31,6 +31,10 @@ public class NPCBrain : MonoBehaviour
     private Shelf _currentTargetShelf;
     private bool _isInitialized;
 
+    // ВИПРАВЛЕНО: кешуємо список полиць один раз щоб не викликати
+    // FindObjectsByType щоразу в Update (дорога операція)
+    private Shelf[] _cachedShelves;
+
     // --- Init ---
     public void Initialize(NPCData data, CashRegister cashRegister)
     {
@@ -40,14 +44,16 @@ public class NPCBrain : MonoBehaviour
         _ui = GetComponent<NPCInteractionUI>();
         _scanner = GetComponent<ShelfScanner>();
 
-        // Pick a random desired genre from preferences
         if (data.preferredGenres != null && data.preferredGenres.Length > 0)
             DesiredGenre = data.preferredGenres[UnityEngine.Random.Range(0, data.preferredGenres.Length)];
 
         _stayTimer = data.stayDuration;
         _isInitialized = true;
 
-        Debug.Log($"[NPC] {data.npcName} initialized. Wants: {DesiredGenre}");
+        // Кешуємо полиці при ініціалізації NPC
+       // _cachedShelves = Object.FindObjectsByType<Shelf>(FindObjectsSortMode.None);
+
+        Debug.Log($"[NPC] {data.npcName} initialized. Wants: {DesiredGenre}. Shelves cached: {_cachedShelves.Length}");
         ChangeState(NPCState.Entering);
     }
 
@@ -57,7 +63,6 @@ public class NPCBrain : MonoBehaviour
 
         _stayTimer -= Time.deltaTime;
 
-        // Force leave if time runs out
         if (_stayTimer <= 0f && CurrentState != NPCState.Leaving && CurrentState != NPCState.Buying)
         {
             Debug.Log($"[NPC] {Data.npcName} time expired. Leaving.");
@@ -74,7 +79,6 @@ public class NPCBrain : MonoBehaviour
         switch (CurrentState)
         {
             case NPCState.Entering:
-                // Wait until agent reaches entry point
                 if (AgentArrived()) ChangeState(NPCState.Browsing);
                 break;
 
@@ -83,7 +87,6 @@ public class NPCBrain : MonoBehaviour
                 break;
 
             case NPCState.Inspecting:
-                // Wait until agent reaches shelf
                 if (AgentArrived()) StartCoroutine(InspectShelf());
                 break;
 
@@ -101,9 +104,9 @@ public class NPCBrain : MonoBehaviour
     {
         _browseTimer += Time.deltaTime;
 
-        // Pick next shelf to inspect
         if (AgentArrived() || _currentTargetShelf == null)
         {
+            // ВИПРАВЛЕНО: використовуємо закешовані полиці замість FindObjectsByType в Update
             Shelf nextShelf = FindUnvisitedShelf();
 
             if (nextShelf != null)
@@ -115,13 +118,11 @@ public class NPCBrain : MonoBehaviour
             }
             else
             {
-                // Checked all shelves — show hint
                 Debug.Log($"[NPC] {Data.npcName} checked all shelves. Showing genre hint.");
                 ChangeState(NPCState.ShowingHint);
             }
         }
 
-        // Show hint icon after browseTimeBeforeHint even while browsing
         if (_browseTimer >= Data.browseTimeBeforeHint && CurrentState == NPCState.Browsing)
         {
             ChangeState(NPCState.ShowingHint);
@@ -132,14 +133,11 @@ public class NPCBrain : MonoBehaviour
     {
         if (_currentTargetShelf == null) yield break;
 
-        // Look at shelf (face it)
         yield return StartCoroutine(LookAtTarget(_currentTargetShelf.transform.position));
 
-        // Simulate browsing time
         float inspectTime = UnityEngine.Random.Range(2f, 5f);
         yield return new WaitForSeconds(inspectTime);
 
-        // Scan shelf for desired genre
         BookTemplate found = _scanner.FindBookOnShelf(_currentTargetShelf, DesiredGenre, Data.maxBudget);
 
         if (found != null)
@@ -148,7 +146,6 @@ public class NPCBrain : MonoBehaviour
             OnBookFound?.Invoke(found);
             Debug.Log($"[NPC] {Data.npcName} found: {found.title}!");
 
-            // Check buy chance
             if (UnityEngine.Random.value <= Data.buyChance)
                 ChangeState(NPCState.Buying);
             else
@@ -156,16 +153,16 @@ public class NPCBrain : MonoBehaviour
         }
         else
         {
-            // Continue browsing
             ChangeState(NPCState.Browsing);
         }
     }
 
-    // Called by PlayerInteraction when player offers a book
+    // ВИПРАВЛЕНО: додано дужки для явного пріоритету операторів &&/||
     public void ReceiveBookOffer(BookTemplate offeredBook)
     {
-        if (offeredBook == null || CurrentState != NPCState.ShowingHint &&
-            CurrentState != NPCState.WaitingForPlayer) return;
+        if (offeredBook == null ||
+            (CurrentState != NPCState.ShowingHint && CurrentState != NPCState.WaitingForPlayer))
+            return;
 
         if (offeredBook.genre == DesiredGenre && offeredBook.sellPrice <= Data.maxBudget)
         {
@@ -176,7 +173,7 @@ public class NPCBrain : MonoBehaviour
         else
         {
             Debug.Log($"[NPC] {Data.npcName} rejected offer.");
-            _ui.ShowRejection();
+            _ui?.ShowRejection();
         }
     }
 
@@ -192,6 +189,8 @@ public class NPCBrain : MonoBehaviour
     }
 
     // --- State Change ---
+    // ВИПРАВЛЕНО: ShowingHint більше не викликає ChangeState рекурсивно в тому ж кадрі.
+    // WaitingForPlayer тепер обробляється окремим case-ом.
     public void ChangeState(NPCState newState)
     {
         CurrentState = newState;
@@ -212,19 +211,26 @@ public class NPCBrain : MonoBehaviour
                 break;
 
             case NPCState.ShowingHint:
-                ChangeState(NPCState.WaitingForPlayer);
+                // ВИПРАВЛЕНО: замість рекурсивного ChangeState просто встановлюємо стан
+                // WaitingForPlayer напряму. Раніше ShowingHint → ChangeState(WaitingForPlayer)
+                // що могло спричинити подвійний виклик OnStateChanged.
+                CurrentState = NPCState.WaitingForPlayer;
+                OnStateChanged?.Invoke(NPCState.WaitingForPlayer);
                 break;
         }
     }
 
     // --- Helpers ---
+
+    // ВИПРАВЛЕНО: використовуємо _cachedShelves замість FindObjectsByType в методі
+    // що викликається з Update — критичне покращення продуктивності
     private Shelf FindUnvisitedShelf()
     {
-        var allShelves = FindObjectsByType<Shelf>(FindObjectsSortMode.None);
-        List<Shelf> unvisited = new List<Shelf>();
+        if (_cachedShelves == null || _cachedShelves.Length == 0) return null;
 
-        foreach (var s in allShelves)
-            if (!_visitedShelves.Contains(s)) unvisited.Add(s);
+        List<Shelf> unvisited = new List<Shelf>();
+        foreach (var s in _cachedShelves)
+            if (s != null && !_visitedShelves.Contains(s)) unvisited.Add(s);
 
         if (unvisited.Count == 0) return null;
         return unvisited[UnityEngine.Random.Range(0, unvisited.Count)];

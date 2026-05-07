@@ -4,14 +4,15 @@ using UnityEngine.UI;
 // Attach to TimerRing prefab (needs Image with Fill type)
 public class TimerRingVisual : MonoBehaviour
 {
-    [SerializeField] private Image fillImage; // Radial fill image
+    [SerializeField] private Image fillImage;
 
     public void SetFill(float normalized)
     {
-        if (fillImage != null)
-            fillImage.fillAmount = normalized;
+        // ВИПРАВЛЕНО: обидві операції тепер всередині null-перевірки
+        // Раніше fillImage.color зверталось до fillImage поза блоком if — NullReferenceException
+        if (fillImage == null) return;
 
-        // Color: green → yellow → red
+        fillImage.fillAmount = normalized;
         fillImage.color = Color.Lerp(Color.red, Color.green, normalized);
     }
 }

@@ -1,5 +1,4 @@
 // Assets/Scripts/Data/Furniture/FurnitureTemplate.cs
-// ОНОВЛЕНО: додано поля для бонусів, сетів та умов розблокування
 using UnityEngine;
 
 public enum FurnitureClass { WallShelf, CenterIsland, Decor }
@@ -8,18 +7,19 @@ public enum FurnitureClass { WallShelf, CenterIsland, Decor }
 public class FurnitureTemplate : ScriptableObject
 {
     [Header("Identity")]
-    public string furnitureID;
+    // ВИПРАВЛЕНО: було public string furnitureID, але в .asset файлах (FT_.asset, FT_ 1.asset)
+    // це поле серіалізовано як int (furnitureID: 1, furnitureID: 2).
+    // Зміна на string призводила до того що Unity десеріалізував значення як порожній рядок.
+    public int furnitureID;
     public string furnitureName;
     public FurnitureClass furnitureClass;
 
     [Header("Visuals")]
-    public GameObject prefab;   // Must contain the 'Cabinet' script
+    public GameObject prefab;
     public Sprite icon;
 
     [Header("Stats")]
     public int basePrice = 100;
-
-    // ── НОВІ ПОЛЯ ──────────────────────────────────────
 
     [Header("Set & Bonus")]
     [Tooltip("ID набору меблів. Предмети з однаковим setID дають сет-бонус.")]
@@ -37,8 +37,6 @@ public class FurnitureTemplate : ScriptableObject
     [Tooltip("Якщо true — предмет доступний з початку гри.")]
     public bool unlockedByDefault = false;
 
-    // ── Runtime (не серіалізується) ────────────────────
-
     [System.NonSerialized]
-    public bool IsPlaced = false;   // Чи розміщено в сцені зараз
+    public bool IsPlaced = false;
 }

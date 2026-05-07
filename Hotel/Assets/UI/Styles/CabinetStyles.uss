@@ -1,52 +1,53 @@
 /* =====================================================
-   CabinetStyles.uss
-   Стилі для CabinetPanel: список шаф, полиць, transfer-кнопки
+   CabinetStyles.uss — PAPER ARCHIVE
+   Шафи та полиці як архівна картотека
    ===================================================== */
 
-/* ── Cabinet Panel ── */
+/* Cabinet panel — manila folder з right side */
 .cabinet-panel {
     position: absolute;
     right: 0;
     top: 56px;
     bottom: 50px;
     width: 280px;
-    background-color: rgba(12, 7, 3, 0.97);
-    border-left-color: rgba(184, 134, 11, 0.28);
-    border-left-width: 1px;
+    background-color: rgb(216, 180, 120);
+    border-left-color: rgb(138, 112, 64);
+    border-left-width: 2px;
     flex-direction: column;
 }
 
-/* ── Panel Header ── */
+/* Header */
 .cabinet-header {
     padding-top: 14px;
     padding-bottom: 10px;
     padding-left: 18px;
     padding-right: 18px;
-    border-bottom-color: rgba(184, 134, 11, 0.18);
-    border-bottom-width: 1px;
+    border-bottom-color: rgb(26, 26, 26);
+    border-bottom-width: 2px;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
 }
 
 .cabinet-title {
-    color: rgb(212, 160, 23);
-    font-size: 17px;
+    color: rgb(26, 26, 26);
+    font-size: 16px;
     -unity-font-style: bold;
-    letter-spacing: 4px;
+    letter-spacing: 5px;
 }
 
 .cabinet-zone-label {
-    font-size: 10px;
-    color: rgb(100, 70, 45);
-    -unity-font-style: italic;
+    font-size: 9px;
+    color: rgb(106, 74, 26);
     letter-spacing: 1px;
+    -unity-font-style: italic;
+    margin-top: 2px;
 }
 
-/* ── Section divider label ── */
+/* Section label — "— SHELVES —" */
 .section-label {
     font-size: 9px;
-    color: rgb(100, 70, 45);
+    color: rgb(106, 74, 26);
     letter-spacing: 3px;
     -unity-font-style: italic;
     padding-top: 10px;
@@ -55,10 +56,10 @@
     padding-right: 18px;
 }
 
-/* ── Cabinet List (ScrollView) ── */
+/* Cabinet list */
 .cabinet-list {
     max-height: 160px;
-    border-bottom-color: rgba(184, 134, 11, 0.15);
+    border-bottom-color: rgb(138, 112, 64);
     border-bottom-width: 1px;
     padding-top: 4px;
     padding-bottom: 4px;
@@ -66,7 +67,7 @@
     padding-right: 8px;
 }
 
-/* ── Cabinet Item ── */
+/* Cabinet item — рядок registry */
 .cabinet-item {
     flex-direction: row;
     align-items: center;
@@ -75,43 +76,41 @@
     padding-bottom: 8px;
     padding-left: 12px;
     padding-right: 12px;
-    border-radius: 5px;
-    border-color: rgba(184, 134, 11, 0.1);
+    background-color: rgb(244, 234, 208);
+    border-color: rgb(138, 112, 64);
     border-width: 1px;
-    margin-bottom: 3px;
+    border-radius: 1px;
+    margin-bottom: 4px;
     transition-duration: 0.12s;
 }
 
 .cabinet-item:hover {
-    background-color: rgba(184, 134, 11, 0.1);
-    border-color: rgba(184, 134, 11, 0.3);
-    cursor: link;
+    background-color: rgb(248, 240, 218);
+    border-color: rgb(26, 26, 26);
 }
 
 .cabinet-item.selected {
-    background-color: rgba(184, 134, 11, 0.2);
-    border-color: rgba(184, 134, 11, 0.55);
+    background-color: rgb(240, 226, 184);
+    border-color: rgb(26, 26, 26);
+    border-width: 2px;
 }
 
 .cabinet-item__name {
-    color: rgb(220, 205, 174);
-    font-size: 13px;
+    color: rgb(26, 26, 26);
+    font-size: 12px;
     -unity-font-style: bold;
+    letter-spacing: 1px;
     flex-grow: 1;
 }
 
-.cabinet-item.selected .cabinet-item__name {
-    color: rgb(240, 192, 64);
-}
-
 .cabinet-item__count {
-    font-size: 10px;
-    color: rgb(100, 70, 45);
-    -unity-font-style: italic;
+    font-size: 9px;
+    color: rgb(106, 74, 26);
+    letter-spacing: 1px;
     margin-left: 6px;
 }
 
-/* ── Shelf List (ScrollView) ── */
+/* Shelf list */
 .shelf-list {
     flex-grow: 1;
     padding-top: 4px;
@@ -120,87 +119,85 @@
     padding-right: 8px;
 }
 
-/* ── Shelf Item ── */
+/* Shelf item — як рядок з табельного журналу */
 .shelf-item {
     flex-direction: row;
     align-items: center;
-    padding-top: 7px;
-    padding-bottom: 7px;
+    padding-top: 6px;
+    padding-bottom: 6px;
     padding-left: 10px;
     padding-right: 10px;
-    border-radius: 5px;
-    border-color: rgba(184, 134, 11, 0.08);
+    background-color: rgb(240, 226, 184);
+    border-color: rgb(138, 112, 64);
     border-width: 1px;
+    border-radius: 1px;
     margin-bottom: 3px;
     transition-duration: 0.12s;
 }
 
 .shelf-item:hover {
-    background-color: rgba(184, 134, 11, 0.1);
-    border-color: rgba(184, 134, 11, 0.28);
-    cursor: link;
+    background-color: rgb(244, 234, 208);
+    border-color: rgb(26, 26, 26);
 }
 
 .shelf-item.selected {
-    background-color: rgba(184, 134, 11, 0.18);
-    border-color: rgba(184, 134, 11, 0.5);
+    background-color: rgb(244, 234, 208);
+    border-color: rgb(26, 26, 26);
+    border-width: 2px;
 }
 
 .shelf-item__name {
-    color: rgb(180, 160, 130);
-    font-size: 12px;
+    color: rgb(26, 26, 26);
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
     min-width: 70px;
 }
 
-.shelf-item.selected .shelf-item__name {
-    color: rgb(240, 192, 64);
-}
-
-/* ── Fill Bar ── */
+/* Fill bar — машинописні крапки прогресу */
 .shelf-fill-bg {
     flex-grow: 1;
     height: 4px;
-    background-color: rgba(255, 255, 255, 0.07);
-    border-radius: 2px;
+    background-color: rgb(216, 200, 152);
+    border-color: rgb(26, 26, 26);
+    border-width: 1px;
     margin-left: 8px;
     margin-right: 8px;
 }
 
 .shelf-fill-bar {
     height: 4px;
-    background-color: rgb(184, 134, 11);
-    border-radius: 2px;
+    background-color: rgb(26, 26, 26);
     transition-duration: 0.3s;
 }
 
-/* Заповнена полиця — червона підсказка */
 .shelf-fill-bar.full {
-    background-color: rgb(200, 60, 40);
+    background-color: rgb(200, 64, 48);
 }
 
 .shelf-item__count {
-    font-size: 10px;
-    color: rgb(100, 70, 45);
-    -unity-font-style: italic;
-    min-width: 40px;
+    font-size: 9px;
+    color: rgb(106, 74, 26);
+    letter-spacing: 1px;
+    min-width: 36px;
     -unity-text-align: middle-right;
 }
 
-/* ── Selected Shelf Label ── */
+/* Selected shelf label — як підпис унизу картки */
 .selected-shelf-label {
-    font-size: 11px;
-    color: rgb(130, 95, 65);
+    font-size: 10px;
+    color: rgb(58, 42, 26);
     -unity-font-style: italic;
     padding-top: 6px;
     padding-bottom: 6px;
     padding-left: 18px;
     padding-right: 18px;
-    border-top-color: rgba(184, 134, 11, 0.18);
+    border-top-color: rgb(138, 112, 64);
     border-top-width: 1px;
     white-space: normal;
 }
 
-/* ── Transfer Row ── */
+/* Transfer row — кнопки перенесення */
 .transfer-row {
     flex-direction: row;
     align-items: center;
@@ -209,56 +206,49 @@
     padding-bottom: 14px;
     padding-left: 12px;
     padding-right: 12px;
-    border-top-color: rgba(184, 134, 11, 0.2);
+    border-top-color: rgb(26, 26, 26);
     border-top-width: 1px;
+    background-color: rgb(216, 200, 152);
 }
 
 .transfer-btn {
-    width: 44px;
-    height: 36px;
-    border-radius: 5px;
-    font-size: 18px;
+    width: 42px;
+    height: 32px;
+    border-radius: 2px;
+    font-size: 16px;
     -unity-font-style: bold;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 3px;
+    margin-right: 3px;
     -unity-text-align: middle-center;
     transition-duration: 0.12s;
+    border-width: 1px;
 }
 
-/* › » — покласти на полицю (золото) */
 .transfer-btn.push {
-    background-color: rgba(184, 134, 11, 0.15);
-    border-color: rgba(184, 134, 11, 0.4);
-    border-width: 1px;
-    color: rgb(212, 160, 23);
+    background-color: rgb(200, 64, 48);
+    border-color: rgb(160, 40, 32);
+    color: rgb(244, 234, 208);
 }
 
 .transfer-btn.push:hover {
-    background-color: rgba(184, 134, 11, 0.3);
-    border-color: rgb(240, 192, 64);
-    color: rgb(240, 192, 64);
+    background-color: rgb(220, 76, 56);
     scale: 1.06;
 }
 
-/* ‹ « — забрати з полиці (тьмяно) */
 .transfer-btn.pop {
-    background-color: rgba(255, 255, 255, 0.04);
-    border-color: rgba(130, 95, 65, 0.35);
-    border-width: 1px;
-    color: rgb(130, 95, 65);
+    background-color: rgb(244, 234, 208);
+    border-color: rgb(26, 26, 26);
+    color: rgb(26, 26, 26);
 }
 
 .transfer-btn.pop:hover {
-    background-color: rgba(200, 100, 40, 0.15);
-    border-color: rgba(200, 130, 60, 0.55);
-    color: rgb(200, 160, 80);
+    background-color: rgb(216, 180, 120);
     scale: 1.06;
 }
 
-.transfer-btn:active {
-    scale: 0.95;
-}
+.transfer-btn:active { scale: 0.95; }
 
 .transfer-btn:disabled {
-    opacity: 0.35;
+    opacity: 0.4;
+    background-color: rgb(180, 165, 130);
 }

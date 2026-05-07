@@ -27,7 +27,6 @@ public class Shelf : MonoBehaviour
     [Tooltip("Товщина книги за замовчуванням якщо MeshFilter не знайдено у prefab")]
     [SerializeField] private float defaultBookThickness = 0.03f;
 
-    // Список розміщених візуальних об'єктів книг
     private List<GameObject> _placedBookVisuals = new List<GameObject>();
 
     // ──────────────────────────────────────────────────────────
@@ -51,7 +50,6 @@ public class Shelf : MonoBehaviour
     #region Публічний API
     // ──────────────────────────────────────────────────────────
 
-    /// Перевіряє чи поміститься книга на полицю
     public bool CanFitBook(GameObject bookPrefab)
     {
         if (bookPrefab == null) return false;
@@ -63,7 +61,6 @@ public class Shelf : MonoBehaviour
         return (usedWidth + bookThickness + spacingOffset) <= worldShelfWidth;
     }
 
-    /// Розміщує книгу на полиці
     public void PlaceBook(BookInstance instance, GameObject prefab)
     {
         if (prefab == null)
@@ -88,8 +85,7 @@ public class Shelf : MonoBehaviour
         var worldItem = newBookObj.AddComponent<BookWorldItem>();
         worldItem.instance    = instance;
         worldItem.parentShelf = this;
-        // Генеруємо tilt ОДИН РАЗ при розміщенні — не перераховуємо щоразу
-        worldItem.savedTilt = Random.Range(-maxRandomTilt, maxRandomTilt);
+        worldItem.savedTilt   = Random.Range(-maxRandomTilt, maxRandomTilt);
 
         _placedBookVisuals.Add(newBookObj);
         RefreshPositions();
@@ -98,12 +94,10 @@ public class Shelf : MonoBehaviour
             StartCoroutine(AnimateBookEntry(newBookObj));
     }
 
-    /// Забирає останню книгу з полиці та повертає її дані
     public BookInstance TakeLastBook()
     {
         if (_placedBookVisuals.Count == 0) return null;
 
-        // Прибираємо null-entries що могли залишитись
         _placedBookVisuals.RemoveAll(b => b == null);
         if (_placedBookVisuals.Count == 0) return null;
 
@@ -131,23 +125,19 @@ public class Shelf : MonoBehaviour
     #region Розміри та ширина полиці
     // ──────────────────────────────────────────────────────────
 
-    /// Повертає повну світову ширину полиці (з урахуванням масштабу)
-    /// Використовується в CanFitBook та Debug
     public float GetShelfWorldWidth()
     {
         BoxCollider col = GetComponent<BoxCollider>();
         if (col == null)
         {
             Debug.LogWarning($"[Shelf] GetShelfWorldWidth: BoxCollider не знайдено на {gameObject.name}");
-            return 1f; // безпечне значення за замовчуванням
+            return 1f;
         }
         return col.size.x * transform.lossyScale.x;
     }
 
-    /// Повертає кількість книг на полиці
     public int GetBookCount() => _placedBookVisuals.Count;
 
-    /// Повертає тип зони (Storefront / BookClub / Storage)
     public ShopZoneType ZoneType
     {
         get
@@ -157,7 +147,6 @@ public class Shelf : MonoBehaviour
         }
     }
 
-    /// Скільки місця зайнято (у світових одиницях)
     public float GetTotalUsedWidth()
     {
         if (startPoint == null) return 0f;
@@ -173,10 +162,8 @@ public class Shelf : MonoBehaviour
         return total;
     }
 
-    /// Скільки вільного місця залишилось
     public float GetFreeWidth() => GetShelfWorldWidth() - GetTotalUsedWidth();
 
-    /// Заповненість полиці від 0 до 1
     public float GetFillRatio()
     {
         float shelfWidth = GetShelfWorldWidth();
@@ -190,7 +177,7 @@ public class Shelf : MonoBehaviour
     #region Збереження / Завантаження
     // ──────────────────────────────────────────────────────────
 
-    /// Збирає дані полиці для серіалізації
+    /// ВИПРАВЛЕНО: entry.instanceIDs тепер List<string>, а не object
     public ShelfSaveEntry CollectSaveData()
     {
         var entry = new ShelfSaveEntry();
@@ -203,7 +190,7 @@ public class Shelf : MonoBehaviour
             if (item?.instance == null) continue;
 
             entry.templateIDs.Add(item.instance.templateID);
-            entry.instanceIDs.Add(item.instance.instanceID);
+            entry.instanceIDs.Add(item.instance.instanceID); // тепер List<string>
         }
         return entry;
     }
@@ -214,7 +201,6 @@ public class Shelf : MonoBehaviour
     #region Розташування (Layout)
     // ──────────────────────────────────────────────────────────
 
-    /// Перераховує позиції всіх книг на полиці
     public void RefreshPositions()
     {
         if (startPoint == null) return;
@@ -233,7 +219,6 @@ public class Shelf : MonoBehaviour
 
             bookObj.transform.localPosition = new Vector3(localX, localY, 0f);
 
-            // Tilt береться зі збереженого значення — не генеруємо щоразу
             BookWorldItem item = bookObj.GetComponent<BookWorldItem>();
             float tilt = item != null ? item.savedTilt : 0f;
             bookObj.transform.localRotation =
@@ -249,35 +234,26 @@ public class Shelf : MonoBehaviour
     #region Приватні допоміжні методи
     // ──────────────────────────────────────────────────────────
 
-    /// Безпечне отримання товщини з PREFAB-об'єкта.
-    /// Ніколи не кидає NullReferenceException.
-    /// Порядок пошуку: MeshFilter(self) → MeshFilter(children) → Renderer → default
     private float GetPrefabThickness(GameObject prefab)
     {
         if (prefab == null) return defaultBookThickness;
 
-        // 1. MeshFilter безпосередньо на об'єкті
         MeshFilter mf = prefab.GetComponent<MeshFilter>();
-
-        // 2. MeshFilter у дочірніх (includeInactive = true для вимкнених)
         if (mf == null)
             mf = prefab.GetComponentInChildren<MeshFilter>(includeInactive: true);
 
         if (mf != null && mf.sharedMesh != null)
             return mf.sharedMesh.bounds.size.z * prefab.transform.localScale.z;
 
-        // 3. Renderer як запасний варіант
         Renderer rend = prefab.GetComponentInChildren<Renderer>(includeInactive: true);
         if (rend != null && rend.bounds.size.z > 0.001f)
             return rend.bounds.size.z;
 
-        // 4. Дефолтне значення — не крашимо
         Debug.LogWarning($"[Shelf] GetPrefabThickness: MeshFilter/Renderer не знайдено у '{prefab.name}'. " +
                          $"Використовую defaultBookThickness={defaultBookThickness}m.");
         return defaultBookThickness;
     }
 
-    /// Товщина вже ІНСТАНЦІЙОВАНОГО об'єкта (для RefreshPositions)
     private float GetRuntimeThickness(GameObject bookObj, Vector3 parentScale)
     {
         if (bookObj == null) return defaultBookThickness;
@@ -292,7 +268,6 @@ public class Shelf : MonoBehaviour
         return defaultBookThickness;
     }
 
-    /// Вирівнює книгу по нижньому краю полиці
     private float GetBottomAlignedY(GameObject bookObj)
     {
         if (bookObj == null) return 0f;
@@ -307,7 +282,6 @@ public class Shelf : MonoBehaviour
         return 0f;
     }
 
-    /// Встановлює масштаб об'єкта компенсуючи lossy scale батька
     private void ResetToWorldScale(Transform target, Vector3 targetWorldScale)
     {
         if (target == null || target.parent == null) return;
@@ -320,7 +294,6 @@ public class Shelf : MonoBehaviour
         );
     }
 
-    /// Анімація появи книги (росте з нуля до повного розміру)
     private IEnumerator AnimateBookEntry(GameObject book)
     {
         if (book == null) yield break;
@@ -348,6 +321,8 @@ public class Shelf : MonoBehaviour
     #region Gizmos (Editor debug)
     // ──────────────────────────────────────────────────────────
 
+    // ВИПРАВЛЕНО: UnityEditor.Handles.Label обгорнуто в #if UNITY_EDITOR
+    // інакше збірка в релізі падає з помилкою компіляції
     private void OnDrawGizmosSelected()
     {
         if (startPoint == null) return;
@@ -355,22 +330,21 @@ public class Shelf : MonoBehaviour
         float shelfWidth = GetShelfWorldWidth();
         float usedWidth  = GetTotalUsedWidth();
 
-        // Зелена лінія — вільне місце
         Vector3 freeStart = startPoint.position + (-startPoint.right * usedWidth);
         Vector3 freeEnd   = startPoint.position + (-startPoint.right * shelfWidth);
         Gizmos.color = Color.green;
         Gizmos.DrawLine(freeStart, freeEnd);
 
-        // Червона лінія — зайняте місце
         Gizmos.color = Color.red;
         Gizmos.DrawLine(startPoint.position, freeStart);
 
-        // Мітка заповненості
+#if UNITY_EDITOR
         float pct = shelfWidth > 0 ? (usedWidth / shelfWidth * 100f) : 0f;
         UnityEditor.Handles.Label(
             startPoint.position + Vector3.up * 0.15f,
             $"{GetBookCount()} books | {pct:F0}%"
         );
+#endif
     }
 
     #endregion

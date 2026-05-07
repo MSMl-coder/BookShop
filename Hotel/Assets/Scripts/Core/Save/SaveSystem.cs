@@ -1,32 +1,24 @@
 // Assets/Scripts/Core/Save/SaveSystem.cs
-// API відповідає GameStateSerializer:
-//   SaveSystem.Save(data)        ← GameStateSerializer.QuickSave() викликає це
-//   SaveSystem.Load(slot)        → SaveData
-//   SaveSystem.SaveExists(slot)  → bool (MainMenuUI вже це використовує)
 using UnityEngine;
 using System;
 
 public static class SaveSystem
 {
-    private const string KeyPrefix   = "save_slot_";
-    private const string QuickKey    = "save_quick";     // автозбереження
-    private const string DateFormat  = "yyyy-MM-dd HH:mm";
-    public  const int    SlotCount   = 3;
+    private const string KeyPrefix  = "save_slot_";
+    private const string QuickKey   = "save_quick";
+    private const string DateFormat = "yyyy-MM-dd HH:mm";
+    public  const int    SlotCount  = 3;
 
-    // ── Автозбереження (GameStateSerializer.QuickSave викликає цей метод) ──
+    // ── Автозбереження ──────────────────────────────────────────────────────
 
-    /// GameStateSerializer.QuickSave() → SaveSystem.Save(data)
-    /// Зберігає в quick-save слот та оновлює останній використаний слот
     public static void Save(SaveData data)
     {
         if (data == null) return;
         StampMeta(data);
 
-        // Quick save (завжди)
         string json = JsonUtility.ToJson(data, prettyPrint: false);
         PlayerPrefs.SetString(QuickKey, json);
 
-        // Якщо slotIndex вказано — зберігаємо туди також
         if (data.slotIndex >= 0 && data.slotIndex < SlotCount)
             PlayerPrefs.SetString(KeyPrefix + data.slotIndex, json);
 
@@ -34,9 +26,8 @@ public static class SaveSystem
         Debug.Log($"[SaveSystem] Збережено: {data.saveName} (слот {data.slotIndex})");
     }
 
-    // ── Ручне збереження в конкретний слот ──────────────────────────────
+    // ── Ручне збереження в конкретний слот ──────────────────────────────────
 
-    /// UI викликає Save(slot) — збирає дані через GameStateSerializer і зберігає
     public static void SaveToSlot(int slot)
     {
         var data = GameStateSerializer.Instance?.CollectSaveData() ?? new SaveData();
@@ -50,7 +41,7 @@ public static class SaveSystem
         Debug.Log($"[SaveSystem] Збережено в слот {slot}: {data.saveName}");
     }
 
-    // ── Завантаження ──────────────────────────────────────────────────────
+    // ── Завантаження ─────────────────────────────────────────────────────────
 
     public static SaveData Load(int slot)
     {
@@ -73,7 +64,7 @@ public static class SaveSystem
         return JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(QuickKey));
     }
 
-    // ── Видалення ─────────────────────────────────────────────────────────
+    // ── Видалення ────────────────────────────────────────────────────────────
 
     public static void Delete(int slot)
     {
@@ -82,7 +73,7 @@ public static class SaveSystem
         Debug.Log($"[SaveSystem] Слот {slot} видалено.");
     }
 
-    // ── Перевірка ─────────────────────────────────────────────────────────
+    // ── Перевірка ────────────────────────────────────────────────────────────
 
     public static bool SaveExists(int slot) =>
         PlayerPrefs.HasKey(KeyPrefix + slot);
@@ -90,7 +81,7 @@ public static class SaveSystem
     public static bool QuickSaveExists() =>
         PlayerPrefs.HasKey(QuickKey);
 
-    // ── Helpers ───────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static void StampMeta(SaveData data)
     {
@@ -99,8 +90,6 @@ public static class SaveSystem
             data.saveName = $"День {data.currentDay} · {data.money:N0} грн";
     }
 
-    internal static void Save(int v)
-    {
-        throw new NotImplementedException();
-    }
+    // ВИПРАВЛЕНО: видалено метод Save(int v) що кидав NotImplementedException
+    // Він ніде не використовувався і міг спричинити краш при випадковому виклику
 }

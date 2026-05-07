@@ -11,7 +11,7 @@
 
 
     <Style src=".../SaveLoadStyles.uss"/>
-
+    <Style src="project://database/Assets/UI/Styles/DecorStickers.uss"/>
 
 
 
@@ -39,6 +39,40 @@
                 <ui:Button name="BtnSettings" text="⚙" class="btn-icon"/>
             </ui:VisualElement>
         </ui:VisualElement>
+
+    <ui:VisualElement name="DecorStickers" class="decor-stickers" picking-mode="Ignore">
+
+            <!-- Бібліотечна картка з номером — правий верх -->
+            <ui:VisualElement name="StickerLibCard" class="sticker-library-card" picking-mode="Ignore">
+                <ui:Label text="CARD No." class="sticker-library-card__lbl"/>
+                <ui:Label text="52460"    class="sticker-library-card__num"/>
+                <ui:Label text="VALID THRU 30.06.25" class="sticker-library-card__foot"/>
+            </ui:VisualElement>
+
+            <!-- CONFIDENTIAL штамп — лівий верх -->
+            <ui:Label name="StickerConfidential" text="CONFIDENTIAL"
+                class="sticker-confidential" picking-mode="Ignore"/>
+
+            <!-- REGISTERED штамп — над nav -->
+            <ui:VisualElement name="StickerRegistered" class="sticker-registered" picking-mode="Ignore">
+                <ui:Label text="REGISTERED" class="sticker-registered__label"/>
+                <ui:Label text="No. 2840"   class="sticker-registered__num"/>
+            </ui:VisualElement>
+
+            <!-- Flight tag — правий бік -->
+            <ui:VisualElement name="StickerFlightTag" class="sticker-flight-tag" picking-mode="Ignore">
+                <ui:Label text="FLIGHT" class="sticker-flight-tag__lbl"/>
+                <ui:Label text="P-152"  class="sticker-flight-tag__val"/>
+            </ui:VisualElement>
+
+            <!-- Велика "А" як на референсі -->
+            <ui:Label name="StickerRankLetter" text="A"
+                class="sticker-rank-letter" picking-mode="Ignore"/>
+
+        </ui:VisualElement>
+
+
+
         <ui:VisualElement name="InventoryPanel" picking-mode="Position" class="inventory-panel" style="display: none;">
             <ui:VisualElement class="inventory-header">
                 <ui:Label text="ІНВЕНТАР" class="inventory-title"/>

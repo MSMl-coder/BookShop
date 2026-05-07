@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-// Spawns NPCs during WorkDay phase
 public class NPCSpawner : MonoBehaviour
 {
     public static NPCSpawner Instance { get; private set; }
@@ -96,7 +95,6 @@ public class NPCSpawner : MonoBehaviour
             return;
         }
 
-        // Pick random NPC type
         NPCData data = availableNPCTypes[Random.Range(0, availableNPCTypes.Count)];
         if (data.prefab == null) return;
 
@@ -110,6 +108,12 @@ public class NPCSpawner : MonoBehaviour
             return;
         }
 
+        // ВИПРАВЛЕНО: Tutorial trigger спрацьовує для ПЕРШОГО NPC (_currentNPCCount == 0)
+        // Раніше умова була == 1, але _currentNPCCount++ виконується ПІСЛЯ перевірки,
+        // тому для першого NPC лічильник ще == 0, а не 1 — trigger ніколи не спрацьовував
+        if (_currentNPCCount == 0)
+            TutorialManager.Instance?.TryTrigger(TutorialTrigger.OnFirstSale);
+
         brain.Initialize(data, cashRegister);
         brain.OnNPCLeft += () => _currentNPCCount--;
         brain.OnStateChanged += state =>
@@ -117,10 +121,6 @@ public class NPCSpawner : MonoBehaviour
             if (state == NPCState.Buying)
                 cashRegister.JoinQueue(brain);
         };
-
-        // Tutorial
-        if (_currentNPCCount == 1) // Перший NPC
-            TutorialManager.Instance?.TryTrigger(TutorialTrigger.OnFirstSale);
 
         _currentNPCCount++;
         Debug.Log($"[Spawner] Spawned {data.npcName}. Total NPCs: {_currentNPCCount}");

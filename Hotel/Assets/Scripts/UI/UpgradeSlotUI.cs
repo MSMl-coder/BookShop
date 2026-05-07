@@ -5,22 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// Модальне вікно апгрейду шафи (UpgradeOverlay у MainShopUI.uxml).
-///
-/// Відкривається з PlayerInteraction при кліку на FurnitureSlot
-/// у стані GameState.Preparation.
-///
-/// UNITY SETUP:
-///   1. Компонент на тому ж GameObject що ShopUIManager.
-///   2. UIDocument — той самий MainShopUI.
-///   3. У PlayerInteraction.HandleRaycast розкоментувати виклик:
-///      UpgradeSlotUI.Instance?.Open(slot);
 public class UpgradeSlotUI : MonoBehaviour
 {
     public static UpgradeSlotUI Instance { get; private set; }
 
     [SerializeField] private UIDocument uiDocument;
 
-    // ── Elements ──
     private VisualElement _overlay;
     private Label         _slotNameLabel;
     private VisualElement _currentIcon;
@@ -31,13 +21,11 @@ public class UpgradeSlotUI : MonoBehaviour
     private Button        _cancelBtn;
     private Button        _closeBtn;
 
-    // ── State ──
     private FurnitureSlot     _targetSlot;
     private FurnitureTemplate _selectedTemplate;
     private List<FurnitureTemplate> _availableOptions = new();
 
-    // Назви класів українською
-    private static readonly System.Collections.Generic.Dictionary<FurnitureClass, string> ClassNames = new()
+    private static readonly Dictionary<FurnitureClass, string> ClassNames = new()
     {
         { FurnitureClass.WallShelf,    "НАСТІННА ПОЛИЦЯ" },
         { FurnitureClass.CenterIsland, "ОСТРІВНИЙ СТЕНД" },
@@ -75,7 +63,6 @@ public class UpgradeSlotUI : MonoBehaviour
         _cancelBtn ?.RegisterCallback<ClickEvent>(_ => Close());
         _closeBtn  ?.RegisterCallback<ClickEvent>(_ => Close());
 
-        // Клік на backdrop закриває модал
         _overlay.RegisterCallback<ClickEvent>(evt =>
         {
             if (evt.target == _overlay) Close();
@@ -88,15 +75,12 @@ public class UpgradeSlotUI : MonoBehaviour
     #region Public API
     // ─────────────────────────────────────────────
 
-    /// Відкрити меню для вказаного слота
     public void Open(FurnitureSlot slot)
     {
         if (slot == null || _overlay == null) return;
 
-        _targetSlot      = slot;
+        _targetSlot       = slot;
         _selectedTemplate = null;
-
-        // Збираємо доступні апгрейди: розблоковані + того ж класу
         _availableOptions = GetOptionsForSlot(slot);
 
         FillCurrentInfo(slot);
@@ -104,11 +88,9 @@ public class UpgradeSlotUI : MonoBehaviour
         UpdateConfirmButton();
 
         _overlay.RemoveFromClassList("hidden");
-
         Debug.Log($"[UpgradeUI] Відкрито для слота: {slot.name}, опцій: {_availableOptions.Count}");
     }
 
-    /// Закрити модал
     public void Close()
     {
         _overlay?.AddToClassList("hidden");
@@ -124,29 +106,27 @@ public class UpgradeSlotUI : MonoBehaviour
 
     private void FillCurrentInfo(FurnitureSlot slot)
     {
-        // Назва слота
         if (_slotNameLabel != null)
             _slotNameLabel.text = slot.name;
 
-        // Поточний шаблон через рефлексію (currentTemplate — SerializeField, не public)
-        var currentField = typeof(FurnitureSlot).GetField("currentTemplate",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var current = currentField?.GetValue(slot) as FurnitureTemplate;
+        // ВИПРАВЛЕНО: замість рефлексії використовуємо публічний геттер CurrentTemplate
+        // Раніше: typeof(FurnitureSlot).GetField("currentTemplate", NonPublic|Instance) — крихко і повільно
+        var current = slot.CurrentTemplate;
 
         if (current != null)
         {
             if (_currentIcon != null && current.icon != null)
                 _currentIcon.style.backgroundImage = new StyleBackground(current.icon);
 
-            if (_currentName != null) _currentName.text = current.furnitureName;
+            if (_currentName != null)  _currentName.text  = current.furnitureName;
             if (_currentClass != null)
                 _currentClass.text = ClassNames.TryGetValue(current.furnitureClass, out var cn) ? cn : "";
         }
         else
         {
-            if (_currentName != null) _currentName.text  = "Порожньо";
-            if (_currentClass != null) _currentClass.text =
-                ClassNames.TryGetValue(slot.allowedClass, out var cn) ? cn : "";
+            if (_currentName  != null) _currentName.text  = "Порожньо";
+            if (_currentClass != null)
+                _currentClass.text = ClassNames.TryGetValue(slot.allowedClass, out var cn) ? cn : "";
         }
     }
 
@@ -160,7 +140,7 @@ public class UpgradeSlotUI : MonoBehaviour
         if (_availableOptions.Count == 0)
         {
             var emptyLabel = new Label("Немає доступних апгрейдів.\nРозблокуйте меблі в Декорі.");
-            emptyLabel.style.color     = new StyleColor(new Color(0.6f, 0.45f, 0.3f));
+            emptyLabel.style.color     = new StyleColor(new UnityEngine.Color(0.6f, 0.45f, 0.3f));
             emptyLabel.style.fontSize  = 12;
             emptyLabel.style.unityFontStyleAndWeight = FontStyle.Italic;
             emptyLabel.style.whiteSpace = WhiteSpace.Normal;
@@ -185,14 +165,12 @@ public class UpgradeSlotUI : MonoBehaviour
         if (!canAfford) row.AddToClassList("cant-afford");
         if (tmpl == _selectedTemplate) row.AddToClassList("selected");
 
-        // Іконка
         var icon = new VisualElement();
         icon.AddToClassList("upgrade-option__icon");
         if (tmpl.icon != null)
             icon.style.backgroundImage = new StyleBackground(tmpl.icon);
         row.Add(icon);
 
-        // Інфо
         var info = new VisualElement();
         info.AddToClassList("upgrade-option__info");
 
@@ -200,23 +178,21 @@ public class UpgradeSlotUI : MonoBehaviour
         nameL.AddToClassList("upgrade-option__name");
         info.Add(nameL);
 
-        // Бонус з нового поля (якщо є) або заглушка
-        string bonusText = GetBonusText(tmpl);
-        if (!string.IsNullOrEmpty(bonusText))
+        // ВИПРАВЛЕНО: замість рефлексії для читання bonusDescription — читаємо напряму
+        // bonusDescription є public полем у виправленому FurnitureTemplate
+        if (!string.IsNullOrEmpty(tmpl.bonusDescription))
         {
-            var bonusL = new Label(bonusText);
+            var bonusL = new Label(tmpl.bonusDescription);
             bonusL.AddToClassList("upgrade-option__bonus");
             info.Add(bonusL);
         }
 
         row.Add(info);
 
-        // Ціна
         var priceL = new Label($"{tmpl.basePrice} ₴");
         priceL.AddToClassList("upgrade-option__price");
         row.Add(priceL);
 
-        // Клік
         FurnitureTemplate captured = tmpl;
         row.RegisterCallback<ClickEvent>(_ =>
         {
@@ -230,8 +206,6 @@ public class UpgradeSlotUI : MonoBehaviour
     private void SelectOption(FurnitureTemplate tmpl)
     {
         _selectedTemplate = tmpl;
-
-        // Перебудовуємо список щоб оновити selected-клас
         BuildOptionsList();
         UpdateConfirmButton();
     }
@@ -273,10 +247,7 @@ public class UpgradeSlotUI : MonoBehaviour
         }
 
         _targetSlot.UpgradeFurniture(_selectedTemplate);
-
-        Debug.Log($"[UpgradeUI] Апгрейд виконано: {_selectedTemplate.furnitureName} " +
-                  $"за {_selectedTemplate.basePrice} ₴");
-
+        Debug.Log($"[UpgradeUI] Апгрейд: {_selectedTemplate.furnitureName} за {_selectedTemplate.basePrice} ₴");
         Close();
     }
 
@@ -286,28 +257,16 @@ public class UpgradeSlotUI : MonoBehaviour
     #region Helpers
     // ─────────────────────────────────────────────
 
-    /// Повертає розблоковані меблі відповідного класу (крім вже встановленого)
     private List<FurnitureTemplate> GetOptionsForSlot(FurnitureSlot slot)
     {
         if (InventoryManager.Instance == null) return new List<FurnitureTemplate>();
 
         var unlocked = InventoryManager.Instance.GetUnlockedFurnitureByClass(slot.allowedClass);
 
-        // Виключаємо поточний шаблон щоб не пропонувати встановити те саме
-        var currentField = typeof(FurnitureSlot).GetField("currentTemplate",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-        var current = currentField?.GetValue(slot) as FurnitureTemplate;
+        // ВИПРАВЛЕНО: замість рефлексії для читання currentTemplate — використовуємо геттер
+        var current = slot.CurrentTemplate;
 
         return unlocked.Where(f => f != current).ToList();
-    }
-
-    /// Безпечно читає bonusDescription з FurnitureTemplate
-    /// (поле додано нашим патчем — може не бути в оригінальному файлі)
-    private static string GetBonusText(FurnitureTemplate tmpl)
-    {
-        var field = typeof(FurnitureTemplate).GetField("bonusDescription",
-            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-        return field?.GetValue(tmpl) as string ?? "";
     }
 
     #endregion

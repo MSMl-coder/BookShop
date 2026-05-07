@@ -1,5 +1,6 @@
 /* =====================================================
-   TutorialStyles.uss
+   TutorialStyles.uss — PAPER ARCHIVE
+   Tutorial як post-it / службова записка
    ===================================================== */
 
 .tutorial-bubble {
@@ -7,35 +8,39 @@
     bottom: 60px;
     left: 380px;
     right: 300px;
-    background-color: rgba(12, 7, 3, 0.97);
-    border-color: rgba(184, 134, 11, 0.4);
+
+    background-color: rgb(240, 226, 184);
+    border-color: rgb(26, 26, 26);
     border-width: 1px;
-    border-radius: 10px;
-    padding-top: 14px;
-    padding-bottom: 14px;
-    padding-left: 18px;
-    padding-right: 18px;
+    border-radius: 2px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
     flex-direction: row;
     align-items: center;
+    rotate: -1deg;
+
     display: none;
 }
 
 .tutorial-bubble__icon {
-    font-size: 28px;
-    margin-right: 14px;
+    font-size: 24px;
+    color: rgb(200, 64, 48);
+    margin-right: 12px;
     flex-shrink: 0;
 }
 
 .tutorial-bubble__text {
-    font-size: 13px;
-    color: rgb(210, 190, 160);
-    -unity-font-style: italic;
+    font-size: 12px;
+    color: rgb(26, 26, 26);
     white-space: normal;
     flex-grow: 1;
+    letter-spacing: 1px;
 }
 
 .tutorial-bubble__text .highlight {
-    color: rgb(240, 192, 64);
+    color: rgb(200, 64, 48);
     -unity-font-style: bold;
 }
 
@@ -44,19 +49,20 @@
     padding-bottom: 7px;
     padding-left: 18px;
     padding-right: 18px;
-    background-color: rgba(140, 100, 10, 0.8);
-    border-color: rgba(240, 192, 64, 0.5);
+    background-color: rgb(200, 64, 48);
+    border-color: rgb(160, 40, 32);
     border-width: 1px;
-    border-radius: 6px;
-    color: rgb(242, 232, 208);
-    font-size: 12px;
+    border-radius: 2px;
+    color: rgb(244, 234, 208);
+    font-size: 11px;
     -unity-font-style: bold;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     flex-shrink: 0;
     margin-left: 14px;
     transition-duration: 0.12s;
 }
 
 .tutorial-ok-btn:hover {
-    background-color: rgba(212, 160, 23, 0.6);
+    background-color: rgb(220, 76, 56);
+    scale: 1.02;
 }

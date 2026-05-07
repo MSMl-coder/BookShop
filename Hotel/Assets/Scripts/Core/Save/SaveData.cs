@@ -14,23 +14,18 @@ public class SaveData
 
     // ── Прогрес ──────────────────────────────────────
     public int   currentDay     = 1;
-    public int   money          = 500;   // EconomyManager.Money
-    public float totalPlayTime  = 0f;    // накопичений час
-    public int   gameStateIndex = 0;     // (int)GameState
+    public int   money          = 500;
+    public float totalPlayTime  = 0f;
+    public int   gameStateIndex = 0;
 
     // ── Інвентар книг ─────────────────────────────────
-    // GameStateSerializer додає обидва списки паралельно:
-    //   inventoryBookIDs[i]     → templateID  (тип книги)
-    //   inventoryInstanceIDs[i] → instanceID  (унікальний екземпляр)
     public List<string> inventoryBookIDs      = new();
     public List<string> inventoryInstanceIDs  = new();
 
     // ── Книги на полицях ──────────────────────────────
-    // GameStateSerializer → shelf.CollectSaveData() → ShelfSaveEntry
     public List<ShelfSaveEntry> placedBooks = new();
 
     // ── Меблі ─────────────────────────────────────────
-    // inventoryManager.GetAllUnlockedFurniture() → f.furnitureID
     public List<string> unlockedFurnitureIDs = new();
 }
 
@@ -39,7 +34,10 @@ public class ShelfSaveEntry
 {
     public string cabinetName;
     public int    shelfIndex;
-    // shelf.CollectSaveData() заповнює templateIDs
-    public List<string> templateIDs = new();
-    internal object instanceIDs;
+    public string shelfID;  // використовується ShelfRestorer
+
+    // ВИПРАВЛЕНО: було "internal object instanceIDs" — не серіалізується JsonUtility
+    // Тепер обидва списки є public List<string> і серіалізуються коректно
+    public List<string> templateIDs  = new();
+    public List<string> instanceIDs  = new();
 }

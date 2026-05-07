@@ -20,7 +20,7 @@ public class NPCData : ScriptableObject
     public float maxBudget = 50f;
 
     [Header("Preferences")]
-    public BookEnums.BookGenre[] preferredGenres;
+    public BookGenre[] preferredGenres;
 
     [Header("Browse Settings")]
     [Tooltip("Time spent browsing before showing genre hint icon")]

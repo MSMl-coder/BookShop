@@ -23,28 +23,28 @@ public class NPCWorldUI : MonoBehaviour
     private NPCBrain _brain;
     private Camera _mainCamera;
  
-    private static readonly System.Collections.Generic.Dictionary<BookEnums.BookGenre, string>
-        GenreUkrainianNames = new System.Collections.Generic.Dictionary<BookEnums.BookGenre, string>
+    private static readonly System.Collections.Generic.Dictionary<BookGenre, string>
+        GenreUkrainianNames = new System.Collections.Generic.Dictionary<BookGenre, string>
     {
-        { BookEnums.BookGenre.Fantasy,   "⚔️ Фентезі"       },
-        { BookEnums.BookGenre.Horror,    "💀 Жахи"           },
-        { BookEnums.BookGenre.Mystery,   "🔍 Детектив"       },
-        { BookEnums.BookGenre.Classic,   "📜 Класика"        },
-        { BookEnums.BookGenre.SciFi,     "🚀 Наукова фантастика" },
-        { BookEnums.BookGenre.Biography, "👤 Біографія"      },
-        { BookEnums.BookGenre.Academic,  "🎓 Академічна"     },
+        { BookGenre.Fantasy,   "⚔️ Фентезі"       },
+        { BookGenre.Horror,    "💀 Жахи"           },
+        { BookGenre.Mystery,   "🔍 Детектив"       },
+        { BookGenre.Classic,   "📜 Класика"        },
+        { BookGenre.SciFi,     "🚀 Наукова фантастика" },
+        { BookGenre.Biography, "👤 Біографія"      },
+        { BookGenre.Academic,  "🎓 Академічна"     },
     };
  
-    private static readonly System.Collections.Generic.Dictionary<BookEnums.BookGenre, string>
-        GenreThoughts = new System.Collections.Generic.Dictionary<BookEnums.BookGenre, string>
+    private static readonly System.Collections.Generic.Dictionary<BookGenre, string>
+        GenreThoughts = new System.Collections.Generic.Dictionary<BookGenre, string>
     {
-        { BookEnums.BookGenre.Fantasy,   "Шукаю щось чарівне..." },
-        { BookEnums.BookGenre.Horror,    "Маєш щось моторошне?"  },
-        { BookEnums.BookGenre.Mystery,   "Хочу загадку..."       },
-        { BookEnums.BookGenre.Classic,   "Класика потрібна."     },
-        { BookEnums.BookGenre.SciFi,     "Майбутнє цікавить..."  },
-        { BookEnums.BookGenre.Biography, "Шукаю чиюсь історію." },
-        { BookEnums.BookGenre.Academic,  "Є наукова праця?"      },
+        { BookGenre.Fantasy,   "Шукаю щось чарівне..." },
+        { BookGenre.Horror,    "Маєш щось моторошне?"  },
+        { BookGenre.Mystery,   "Хочу загадку..."       },
+        { BookGenre.Classic,   "Класика потрібна."     },
+        { BookGenre.SciFi,     "Майбутнє цікавить..."  },
+        { BookGenre.Biography, "Шукаю чиюсь історію." },
+        { BookGenre.Academic,  "Є наукова праця?"      },
     };
  
     // --- Unity Lifecycle ---
@@ -149,7 +149,7 @@ public class NPCWorldUI : MonoBehaviour
  
     // --- Genre Chip ---
  
-    private void ShowGenreChip(BookEnums.BookGenre genre)
+    private void ShowGenreChip(BookGenre genre)
     {
         if (genreChip != null) genreChip.SetActive(true);
  

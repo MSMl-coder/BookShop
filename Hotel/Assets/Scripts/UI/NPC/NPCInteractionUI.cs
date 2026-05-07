@@ -107,7 +107,7 @@ public class NPCInteractionUI : MonoBehaviour
         _thoughtBubble.GetComponent<ThoughtBubbleVisual>()?.SetText(text);
     }
 
-    private void SpawnGenreIcon(BookEnums.BookGenre genre)
+    private void SpawnGenreIcon(BookGenre genre)
     {
         if (genreIconPrefab == null) return;
         _genreIcon = Instantiate(genreIconPrefab);
@@ -142,22 +142,22 @@ public class NPCInteractionUI : MonoBehaviour
         obj.transform.Rotate(0, 180f, 0);
     }
 
-    private string GetGenreThought(BookEnums.BookGenre genre)
+    private string GetGenreThought(BookGenre genre)
     {
         return genre switch
         {
-            BookEnums.BookGenre.Fantasy  => "Шукаю фентезі...",
-            BookEnums.BookGenre.Horror   => "Маєш щось моторошне?",
-            BookEnums.BookGenre.Mystery  => "Детективи є?",
-            BookEnums.BookGenre.Classic  => "Класика потрібна.",
-            BookEnums.BookGenre.SciFi    => "Наукова фантастика?",
-            BookEnums.BookGenre.Biography => "Біографії шукаю.",
-            BookEnums.BookGenre.Academic => "Наукова праця.",
+            BookGenre.Fantasy  => "Шукаю фентезі...",
+            BookGenre.Horror   => "Маєш щось моторошне?",
+            BookGenre.Mystery  => "Детективи є?",
+            BookGenre.Classic  => "Класика потрібна.",
+            BookGenre.SciFi    => "Наукова фантастика?",
+            BookGenre.Biography => "Біографії шукаю.",
+            BookGenre.Academic => "Наукова праця.",
             _ => "Щось шукаю..."
         };
     }
 
-    private Sprite GetIconForGenre(BookEnums.BookGenre genre)
+    private Sprite GetIconForGenre(BookGenre genre)
     {
         foreach (var entry in genreIcons)
             if (entry.genre == genre) return entry.icon;
@@ -169,6 +169,6 @@ public class NPCInteractionUI : MonoBehaviour
 [System.Serializable]
 public class GenreIconEntry
 {
-    public BookEnums.BookGenre genre;
+    public BookGenre genre;
     public Sprite icon;
 }
