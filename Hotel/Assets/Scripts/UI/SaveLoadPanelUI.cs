@@ -1,8 +1,5 @@
 // Assets/Scripts/UI/SaveLoad/SaveLoadPanelUI.cs
-// Використовує:
-//   GameStateSerializer.Instance.CollectSaveData() → для збереження
-//   GameStateSerializer.Instance.ApplySaveData(data) → для відновлення
-//   SaveSystem.SaveToSlot(slot) / Load(slot) / Delete(slot)
+// ВИПРАВЛЕНО CS0079: ?.clicked += → if-guard (C# 9 не підтримує null-conditional на events)
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,7 +11,6 @@ public class SaveLoadPanelUI : MonoBehaviour
 
     [SerializeField] private UIDocument uiDocument;
 
-    // ── Elements ──────────────────────────────────────
     private VisualElement _overlay;
     private Label         _titleLabel;
     private Button        _tabSave, _tabLoad;
@@ -23,13 +19,11 @@ public class SaveLoadPanelUI : MonoBehaviour
 
     private SlotRow[] _slots = new SlotRow[SaveSystem.SlotCount];
 
-    // Confirm
     private VisualElement _confirmOverlay;
     private Label         _confirmText, _confirmSub;
     private Button        _confirmYes, _confirmNo;
     private System.Action _pendingAction;
 
-    // ── State ─────────────────────────────────────────
     private SaveLoadMode _mode = SaveLoadMode.Save;
 
     private void Awake()
@@ -57,9 +51,12 @@ public class SaveLoadPanelUI : MonoBehaviour
         _confirmYes     = root.Q<Button>("ConfirmYes");
         _confirmNo      = root.Q<Button>("ConfirmNo");
 
-        if (_overlay == null) { Debug.LogWarning("[SaveLoadUI] 'SaveLoadOverlay' не знайдено."); return; }
+        if (_overlay == null)
+        {
+            Debug.LogWarning("[SaveLoadUI] 'SaveLoadOverlay' не знайдено.");
+            return;
+        }
 
-        // Слоти
         for (int i = 0; i < SaveSystem.SlotCount; i++)
         {
             int idx = i;
@@ -77,16 +74,28 @@ public class SaveLoadPanelUI : MonoBehaviour
 
         _tabSave?.RegisterCallback<ClickEvent>(_ => SetMode(SaveLoadMode.Save));
         _tabLoad?.RegisterCallback<ClickEvent>(_ => SetMode(SaveLoadMode.Load));
-        _closeX?.clicked  += Close;
-        _closeBtn?.clicked += Close;
 
-        _overlay.RegisterCallback<ClickEvent>(e => { if (e.target == _overlay) Close(); });
+        // ВИПРАВЛЕНО: if-guard замість ?.clicked +=
+        if (_closeX   != null) _closeX.clicked   += Close;
+        if (_closeBtn != null) _closeBtn.clicked  += Close;
+
+        _overlay.RegisterCallback<ClickEvent>(e =>
+        {
+            if (e.target == _overlay) Close();
+        });
 
         _confirmYes?.RegisterCallback<ClickEvent>(_ => { _pendingAction?.Invoke(); HideConfirm(); });
         _confirmNo ?.RegisterCallback<ClickEvent>(_ => HideConfirm());
 
         _overlay.AddToClassList("hidden");
         _confirmOverlay?.AddToClassList("hidden");
+    }
+
+    private void OnDisable()
+    {
+        // Відписуємось щоб уникнути memory leak
+        if (_closeX   != null) _closeX.clicked   -= Close;
+        if (_closeBtn != null) _closeBtn.clicked  -= Close;
     }
 
     // ─────────────────────────────────────────────────
@@ -118,7 +127,8 @@ public class SaveLoadPanelUI : MonoBehaviour
         _mode = mode;
         bool isSave = mode == SaveLoadMode.Save;
 
-        if (_titleLabel != null) _titleLabel.text = isSave ? "ЗБЕРЕЖЕННЯ" : "ЗАВАНТАЖЕННЯ";
+        if (_titleLabel != null)
+            _titleLabel.text = isSave ? "ЗБЕРЕЖЕННЯ" : "ЗАВАНТАЖЕННЯ";
 
         _tabSave?.EnableInClassList("active", isSave);
         _tabLoad?.EnableInClassList("active", !isSave);
@@ -168,29 +178,21 @@ public class SaveLoadPanelUI : MonoBehaviour
     private void DoSave(int idx)
     {
         if (SaveSystem.SaveExists(idx))
-        {
-            AskConfirm(
-                $"Перезаписати слот {idx + 1}?",
-                "Поточне збереження буде втрачено.",
-                () => ExecuteSave(idx)
-            );
-        }
+            AskConfirm($"Перезаписати слот {idx + 1}?",
+                       "Поточне збереження буде втрачено.",
+                       () => ExecuteSave(idx));
         else
-        {
             ExecuteSave(idx);
-        }
     }
 
     private void ExecuteSave(int idx)
     {
-        // Використовуємо GameStateSerializer якщо є, інакше прямо
         if (GameStateSerializer.Instance != null)
         {
             var data = GameStateSerializer.Instance.CollectSaveData();
             data.slotIndex = idx;
-            // Формуємо назву для UI
-            data.saveName = $"День {data.currentDay} · {data.money:N0} грн";
-            SaveSystem.Save(data);  // GameStateSerializer.QuickSave() теж викликає це
+            data.saveName  = $"День {data.currentDay} · {data.money:N0} грн";
+            SaveSystem.Save(data);
         }
         else
         {
@@ -203,27 +205,23 @@ public class SaveLoadPanelUI : MonoBehaviour
     private void DoLoad(int idx)
     {
         if (!SaveSystem.SaveExists(idx)) return;
-        AskConfirm(
-            $"Завантажити слот {idx + 1}?",
-            "Незбережені зміни будуть втрачені.",
-            () =>
-            {
-                var data = SaveSystem.Load(idx);
-                if (GameStateSerializer.Instance != null)
-                    GameStateSerializer.Instance.ApplySaveData(data);
-                Close();
-                Hint("Завантажено!");
-            }
-        );
+        AskConfirm($"Завантажити слот {idx + 1}?",
+                   "Незбережені зміни будуть втрачені.",
+                   () =>
+                   {
+                       var data = SaveSystem.Load(idx);
+                       if (GameStateSerializer.Instance != null)
+                           GameStateSerializer.Instance.ApplySaveData(data);
+                       Close();
+                       Hint("Завантажено!");
+                   });
     }
 
     private void AskDelete(int idx)
     {
-        AskConfirm(
-            $"Видалити слот {idx + 1}?",
-            "Цю дію не можна скасувати.",
-            () => { SaveSystem.Delete(idx); RefreshSlots(); Hint("Видалено."); }
-        );
+        AskConfirm($"Видалити слот {idx + 1}?",
+                   "Цю дію не можна скасувати.",
+                   () => { SaveSystem.Delete(idx); RefreshSlots(); Hint("Видалено."); });
     }
 
     #endregion

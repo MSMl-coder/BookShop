@@ -3,19 +3,14 @@
     <Style src="project://database/Assets/UI/Styles/HUDStyles.uss?fileID=7433441132597879392&amp;guid=dedc834fd79aa4fbe98881ee50fec159&amp;type=3#HUDStyles"/>
     <Style src="project://database/Assets/UI/Styles/InventoryStyles.uss?fileID=7433441132597879392&amp;guid=c4b090d74adb3410c961284aa44ef032&amp;type=3#InventoryStyles"/>
     <Style src="project://database/Assets/UI/Styles/CabinetStyles.uss?fileID=7433441132597879392&amp;guid=e1f373e9a78fe46a993a3b05c43e1ab1&amp;type=3#CabinetStyles"/>
-
-
-
-    <Style src="project://database/Assets/UI/Styles/DecorationStyles.uss"/>
-    <Style src="project://database/Assets/UI/Styles/PhaseButtonStyles.uss"/>
-
-
-    <Style src=".../SaveLoadStyles.uss"/>
-    <Style src="project://database/Assets/UI/Styles/DecorStickers.uss"/>
-
-
-
-    <ui:VisualElement name="Root" picking-mode="Ignore" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+    <Style src="project://database/Assets/UI/Styles/BookInfoCardStyles.uss?fileID=7433441132597879392&amp;guid=546b6a8bc175440acb27b01e7d326b4e&amp;type=3#BookInfoCardStyles"/>
+    <Style src="project://database/Assets/UI/Styles/DecorationStyles.uss?fileID=7433441132597879392&amp;guid=149d2757f709443ecb4a8b77fe396ff3&amp;type=3#DecorationStyles"/>
+    <Style src="project://database/Assets/UI/Styles/PhaseButtonStyles.uss?fileID=7433441132597879392&amp;guid=18c8e793729644bda8b465ef93c05f9a&amp;type=3#PhaseButtonStyles"/>
+    <Style src="project://database/Assets/UI/Styles/EndOfDayStyles.uss?fileID=7433441132597879392&amp;guid=384e909f6790e4ccab68ea6ec3752a9e&amp;type=3#EndOfDayStyles"/>
+    <Style src="project://database/Assets/UI/Styles/SaveLoadStyles.uss?fileID=7433441132597879392&amp;guid=64a8a976d19544175b073a432df30816&amp;type=3#SaveLoadStyles"/>
+    <Style src="project://database/Assets/UI/Styles/TutorialStyles.uss?fileID=7433441132597879392&amp;guid=5b5e3206bddca4b2a84a3897e1ecab6a&amp;type=3#TutorialStyles"/>
+    <Style src="project://database/Assets/UI/Styles/DecorStickers.uss?fileID=7433441132597879392&amp;guid=00c8fe60b80644583ade971403fca434&amp;type=3#DecorStickers"/>
+    <ui:VisualElement name="Root" picking-mode="Ignore" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; flex-direction: column;">
         <ui:VisualElement name="HUDBar" picking-mode="Position" class="hud-bar">
             <ui:VisualElement style="flex-direction: row; align-items: center;">
                 <ui:VisualElement class="hud-chip">
@@ -23,7 +18,7 @@
                     <ui:Label name="PhaseLabel" text="ПІДГОТОВКА" class="hud-clock__phase"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="hud-chip">
-                    <ui:Label text="💰" class="hud-wallet__icon"/>
+                    <ui:Label text="₴" class="hud-wallet__icon"/>
                     <ui:Label name="MoneyLabel" text="500" class="hud-wallet__amount"/>
                     <ui:Label name="CurrencyLabel" text="грн" class="hud-wallet__currency"/>
                 </ui:VisualElement>
@@ -33,46 +28,23 @@
                 <ui:VisualElement class="hud-prestige__bar-bg">
                     <ui:VisualElement name="PrestigeBarFill" class="hud-prestige__bar-fill" style="width: 12%;"/>
                 </ui:VisualElement>
-                <ui:Label name="PrestigeValue" text="120 / 1000" class="hud-prestige__value"/>
+                <ui:Label name="PrestigeValue" text="0 / 1000" class="hud-prestige__value"/>
             </ui:VisualElement>
-            <ui:VisualElement style="flex-direction: row;">
+            <ui:VisualElement style="flex-direction: row; align-items: center;">
                 <ui:Button name="BtnSettings" text="⚙" class="btn-icon"/>
             </ui:VisualElement>
         </ui:VisualElement>
-
-    <ui:VisualElement name="DecorStickers" class="decor-stickers" picking-mode="Ignore">
-
-            <!-- Бібліотечна картка з номером — правий верх -->
-            <ui:VisualElement name="StickerLibCard" class="sticker-library-card" picking-mode="Ignore">
-                <ui:Label text="CARD No." class="sticker-library-card__lbl"/>
-                <ui:Label text="52460"    class="sticker-library-card__num"/>
-                <ui:Label text="VALID THRU 30.06.25" class="sticker-library-card__foot"/>
-            </ui:VisualElement>
-
-            <!-- CONFIDENTIAL штамп — лівий верх -->
-            <ui:Label name="StickerConfidential" text="CONFIDENTIAL"
-                class="sticker-confidential" picking-mode="Ignore"/>
-
-            <!-- REGISTERED штамп — над nav -->
-            <ui:VisualElement name="StickerRegistered" class="sticker-registered" picking-mode="Ignore">
+        <ui:VisualElement name="DecorStickers" picking-mode="Ignore" class="decor-stickers">
+            <ui:Label name="StickerConfidential" text="CONFIDENTIAL" picking-mode="Ignore" class="sticker-confidential" style="display: none;"/>
+            <ui:VisualElement name="StickerRegistered" picking-mode="Ignore" class="sticker-registered" style="display: none;">
                 <ui:Label text="REGISTERED" class="sticker-registered__label"/>
-                <ui:Label text="No. 2840"   class="sticker-registered__num"/>
+                <ui:Label text="No. 2840" class="sticker-registered__num"/>
             </ui:VisualElement>
-
-            <!-- Flight tag — правий бік -->
-            <ui:VisualElement name="StickerFlightTag" class="sticker-flight-tag" picking-mode="Ignore">
+            <ui:VisualElement name="StickerFlightTag" picking-mode="Ignore" class="sticker-flight-tag" style="display: none;">
                 <ui:Label text="FLIGHT" class="sticker-flight-tag__lbl"/>
-                <ui:Label text="P-152"  class="sticker-flight-tag__val"/>
+                <ui:Label text="P-152" class="sticker-flight-tag__val"/>
             </ui:VisualElement>
-
-            <!-- Велика "А" як на референсі -->
-            <ui:Label name="StickerRankLetter" text="A"
-                class="sticker-rank-letter" picking-mode="Ignore"/>
-
         </ui:VisualElement>
-
-
-
         <ui:VisualElement name="InventoryPanel" picking-mode="Position" class="inventory-panel" style="display: none;">
             <ui:VisualElement class="inventory-header">
                 <ui:Label text="ІНВЕНТАР" class="inventory-title"/>
@@ -87,45 +59,66 @@
             </ui:VisualElement>
             <ui:ScrollView name="InventoryGrid" mode="Vertical" horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Auto" mouse-wheel-scroll-size="60" touch-scroll-type="Elastic" picking-mode="Position" class="inventory-grid"/>
         </ui:VisualElement>
-        <ui:VisualElement name="CabinetPanel" picking-mode="Position" class="cabinet-panel" style="display: none; height: 770px; position: absolute; top: 298px; left: 1693px; width: 351px; background-color: rgb(84, 77, 77);">
-            <ui:VisualElement class="cabinet-header" style="background-color: rgb(152, 131, 131); -unity-font-style: bold; -unity-text-align: upper-center;">
-                <ui:Label text="ШАФИ" class="cabinet-title"/>
-                <ui:Label name="CabZoneLabel" text="Торговий зал" class="cabinet-zone-label"/>
+        <ui:VisualElement name="CabinetPanel" picking-mode="Position" class="cabinet-panel" style="display: none;">
+            <ui:VisualElement class="cabinet-header">
+                <ui:VisualElement>
+                    <ui:Label text="ШАФИ" class="cabinet-title"/>
+                    <ui:Label name="CabZoneLabel" text="Торговий зал" class="cabinet-zone-label"/>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:Label text="ШАФИ В МАГАЗИНІ" name="Label" class="section-label" style="align-items: auto; -unity-text-align: upper-center; -unity-font-style: bold;"/>
-            <ui:ScrollView name="CabinetList" mode="Vertical" horizontal-scroller-visibility="Hidden" mouse-wheel-scroll-size="40" picking-mode="Position" class="cabinet-list" style="height: 140px; -unity-background-image-tint-color: rgb(197, 197, 197);"/>
-            <ui:Label text="ПОЛИЦІ" class="section-label" style="-unity-text-align: upper-center; -unity-font-style: bold; -unity-text-outline-width: 0;"/>
-            <ui:ScrollView name="ShelfList" mode="Vertical" horizontal-scroller-visibility="Hidden" mouse-wheel-scroll-size="40" picking-mode="Position" class="shelf-list" style="height: 252px;"/>
-            <ui:Label name="SelectedShelfLabel" text="Оберіть полицю" class="selected-shelf-label" style="height: 89px;"/>
-            <ui:VisualElement name="TransferRow" class="transfer-row" style="bottom: 0;">
+            <ui:Label text="ШАФИ В МАГАЗИНІ" class="section-label"/>
+            <ui:ScrollView name="CabinetList" mode="Vertical" horizontal-scroller-visibility="Hidden" mouse-wheel-scroll-size="40" picking-mode="Position" class="cabinet-list"/>
+            <ui:Label text="ПОЛИЦІ" class="section-label"/>
+            <ui:ScrollView name="ShelfList" mode="Vertical" horizontal-scroller-visibility="Hidden" mouse-wheel-scroll-size="40" picking-mode="Position" class="shelf-list"/>
+            <ui:Label name="SelectedShelfLabel" text="Оберіть полицю" class="selected-shelf-label"/>
+            <ui:VisualElement name="TransferRow" class="transfer-row">
                 <ui:Button name="BtnPushOne" text="›" tooltip="Покласти одну книгу" class="transfer-btn push"/>
                 <ui:Button name="BtnPushAll" text="»" tooltip="Покласти всі" class="transfer-btn push"/>
                 <ui:Button name="BtnPopOne" text="‹" tooltip="Забрати одну" class="transfer-btn pop"/>
                 <ui:Button name="BtnPopAll" text="«" tooltip="Забрати всі" class="transfer-btn pop"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="HUDActions" picking-mode="Ignore" class="hud-actions">
-            <ui:Button name="BtnOpenInventory" text="📦" tooltip="Інвентар" class="hud-action-btn"/>
-            <ui:Button name="BtnOpenJournal" text="📋" tooltip="Щоденник" class="hud-action-btn"/>
-            <ui:Button name="BtnOpenDecoration" text="🪑" class="hud-action-btn"
-    tooltip="Декор магазину"/>
+        <ui:VisualElement name="BookInfoCard" picking-mode="Ignore" class="book-info-card hidden">
+            <ui:VisualElement name="InfoCardGenreBar" class="info-card__genre-bar"/>
+            <ui:VisualElement class="info-card__header">
+                <ui:Label name="InfoCardTitle" text="Назва книги" class="info-card__title"/>
+                <ui:Label name="InfoCardRarity" text="ЗВИЧАЙНА" class="info-card__rarity common"/>
+            </ui:VisualElement>
+            <ui:VisualElement class="info-card__divider"/>
+            <ui:VisualElement class="info-card__meta-row">
+                <ui:VisualElement class="info-card__meta-item">
+                    <ui:Label text="АВТОР" class="info-card__meta-label"/>
+                    <ui:Label name="InfoCardAuthor" text="—" class="info-card__meta-value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="info-card__meta-item">
+                    <ui:Label text="РІК" class="info-card__meta-label"/>
+                    <ui:Label name="InfoCardYear" text="—" class="info-card__meta-value"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="info-card__meta-row">
+                <ui:VisualElement class="info-card__meta-item" style="flex-grow: 1;">
+                    <ui:Label text="ЖАНР" class="info-card__meta-label"/>
+                    <ui:Label name="InfoCardGenre" text="—" class="info-card__meta-value"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="info-card__divider"/>
+            <ui:VisualElement class="info-card__footer">
+                <ui:VisualElement class="info-card__price-block">
+                    <ui:Label text="ЦІНА" class="info-card__meta-label"/>
+                    <ui:Label name="InfoCardPrice" text="—" class="info-card__price"/>
+                </ui:VisualElement>
+                <ui:Button name="InfoCardSellBtn" text="ПРОДАТИ" class="info-card__sell-btn"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="InfoCardDescBlock" class="info-card__desc-block">
+                <ui:Label name="InfoCardDesc" text="" class="info-card__desc"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="InfoCardTraits" class="info-card__traits"/>
+            <ui:VisualElement name="InfoCardCollectionBlock" class="info-card__collection hidden">
+                <ui:Label text="📚" class="info-card__collection-icon"/>
+                <ui:Label name="InfoCardCollectionName" text="" class="info-card__collection-name"/>
+            </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="HUDNav" picking-mode="Position" class="hud-nav">
-            <ui:Button name="NavTabShop" text="Крамниця" class="hud-nav-tab active"/>
-            <ui:Button name="NavTabCatalog" text="Каталог" class="hud-nav-tab"/>
-            <ui:Button name="NavTabOrders" text="Замовлення" class="hud-nav-tab"/>
-            <ui:Button name="NavTabCollections" text="Колекції" class="hud-nav-tab"/>
-        </ui:VisualElement>
-
-
-         
-
-
-
-
-        <ui:VisualElement name="DecorationPanel" class="decoration-panel" picking-mode="Position"
-            style="display: none;">
-        
+        <ui:VisualElement name="DecorationPanel" picking-mode="Position" class="decoration-panel" style="display: none;">
             <ui:VisualElement class="deco-header">
                 <ui:VisualElement class="deco-header__left">
                     <ui:Label text="ДЕКОР" class="deco-title"/>
@@ -133,71 +126,45 @@
                 </ui:VisualElement>
                 <ui:Button name="BtnCloseDecoration" text="✕" class="deco-close-btn btn-icon"/>
             </ui:VisualElement>
-        
             <ui:VisualElement class="deco-filter-row">
-                <ui:Button name="DecoFilterAll"    text="Всі"    class="deco-filter-btn active"/>
-                <ui:Button name="DecoFilterShelf"  text="Полиці" class="deco-filter-btn"/>
+                <ui:Button name="DecoFilterAll" text="Всі" class="deco-filter-btn active"/>
+                <ui:Button name="DecoFilterShelf" text="Полиці" class="deco-filter-btn"/>
                 <ui:Button name="DecoFilterIsland" text="Острів" class="deco-filter-btn"/>
-                <ui:Button name="DecoFilterDecor"  text="Декор"  class="deco-filter-btn"/>
+                <ui:Button name="DecoFilterDecor" text="Декор" class="deco-filter-btn"/>
                 <ui:Button name="DecoFilterPlaced" text="В залі" class="deco-filter-btn"/>
             </ui:VisualElement>
-        
             <ui:VisualElement class="deco-body">
-        
-                <ui:ScrollView name="DecoGrid"
-                    class="deco-grid"
-                    mode="Vertical"
-                    horizontal-scroller-visibility="Hidden"
-                    vertical-scroller-visibility="Auto"
-                    mouse-wheel-scroll-size="60"
-                    picking-mode="Position"/>
-        
+                <ui:ScrollView name="DecoGrid" mode="Vertical" horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Auto" mouse-wheel-scroll-size="60" picking-mode="Position" class="deco-grid"/>
                 <ui:VisualElement name="DecoDetailPanel" class="deco-detail">
                     <ui:VisualElement name="DecoDetailEmpty" class="deco-detail__empty">
                         <ui:Label text="🪑" class="deco-detail__empty-icon"/>
                         <ui:Label text="Оберіть предмет" class="deco-detail__empty-text"/>
                     </ui:VisualElement>
-        
                     <ui:VisualElement name="DecoDetailContent" class="deco-detail__content hidden">
                         <ui:VisualElement name="DecoDetailIcon" class="deco-detail__icon"/>
-                        <ui:Label name="DecoDetailName"  text="" class="deco-detail__name"/>
+                        <ui:Label name="DecoDetailName" text="" class="deco-detail__name"/>
                         <ui:Label name="DecoDetailClass" text="" class="deco-detail__class"/>
                         <ui:VisualElement class="deco-detail__divider"/>
-        
                         <ui:VisualElement name="DecoDetailBonusBlock" class="deco-detail__bonus-block">
                             <ui:Label text="БОНУС" class="deco-detail__section-label"/>
                             <ui:Label name="DecoDetailBonus" text="" class="deco-detail__bonus"/>
                         </ui:VisualElement>
-        
                         <ui:VisualElement name="DecoDetailUnlockBlock" class="deco-detail__unlock-block hidden">
                             <ui:Label text="ЯК ОТРИМАТИ" class="deco-detail__section-label"/>
                             <ui:Label name="DecoDetailUnlock" text="" class="deco-detail__unlock"/>
                         </ui:VisualElement>
-        
                         <ui:VisualElement name="DecoDetailSetBlock" class="deco-detail__set-block hidden">
                             <ui:Label text="НАБІР" class="deco-detail__section-label"/>
                             <ui:Label name="DecoDetailSetName" text="" class="deco-detail__set-name"/>
                             <ui:VisualElement name="DecoSetProgress" class="deco-detail__set-progress"/>
                         </ui:VisualElement>
-        
                         <ui:VisualElement class="deco-detail__divider"/>
-                        <ui:Button name="DecoActionBtn" text="РОЗМІСТИТИ" class="deco-action-btn btn-primary"/>
+                        <ui:Button name="DecoActionBtn" text="РОЗМІСТИТИ" class="deco-action-btn btn-stamp"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-        
             </ui:VisualElement>
-        
         </ui:VisualElement>
-
-
-
-        <!-- ══════════════════════════════════════════════
-            PHASE WIDGET — центр над nav-bar
-            Відображення поточного стану + кнопка переходу
-            ══════════════════════════════════════════════ -->
-        <ui:VisualElement name="PhaseWidget" class="phase-widget" picking-mode="Position">
-
-            <!-- Три крапки-стани -->
+        <ui:VisualElement name="PhaseWidget" picking-mode="Position" class="phase-widget">
             <ui:VisualElement class="phase-indicator">
                 <ui:VisualElement class="phase-indicator__dots">
                     <ui:VisualElement name="PhaseDot0" class="phase-dot active"/>
@@ -206,175 +173,133 @@
                 </ui:VisualElement>
                 <ui:Label name="PhaseIndicatorLabel" text="ПІДГОТОВКА" class="phase-indicator__label"/>
             </ui:VisualElement>
-
             <ui:VisualElement class="phase-widget__sep"/>
-
-            <!-- Кнопка переходу -->
             <ui:Button name="PhaseMainBtn" text="ВІДКРИТИ МАГАЗИН" class="phase-main-btn open-shop"/>
-
             <ui:VisualElement class="phase-widget__sep"/>
-
-            <!-- Таймер / лічильник (опціонально) -->
             <ui:Label name="PhaseTimer" text="" class="phase-timer"/>
-
         </ui:VisualElement>
-
-        <!-- ══════════════════════════════════════════════
-            UPGRADE MODAL — overlay поверх усього
-            Відкривається при кліку на FurnitureSlot
-            у стані Preparation
-            ══════════════════════════════════════════════ -->
-        <ui:VisualElement name="UpgradeOverlay" class="upgrade-overlay hidden" picking-mode="Position">
-
-            <ui:VisualElement class="upgrade-modal" picking-mode="Position">
-
+        <ui:VisualElement name="HUDActions" picking-mode="Ignore" class="hud-actions">
+            <ui:Button name="BtnOpenInventory" text="📦" tooltip="Інвентар" class="hud-action-btn"/>
+            <ui:Button name="BtnOpenDecoration" text="🪑" tooltip="Декор магазину" class="hud-action-btn"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="HUDNav" picking-mode="Position" class="hud-nav" style="left: 836px; right: 797px; bottom: 0;">
+            <ui:Button name="NavTabShop" text="Крамниця" class="hud-nav-tab active"/>
+            <ui:Button name="NavTabCatalog" text="Каталог" class="hud-nav-tab"/>
+            <ui:Button name="NavTabOrders" text="Замовлення" class="hud-nav-tab"/>
+            <ui:Button name="NavTabCollections" text="Колекції" class="hud-nav-tab"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="UpgradeOverlay" picking-mode="Position" class="upgrade-overlay hidden">
+            <ui:VisualElement picking-mode="Position" class="upgrade-modal">
                 <ui:VisualElement class="upgrade-modal__top-bar"/>
-
                 <ui:VisualElement class="upgrade-modal__header">
                     <ui:VisualElement>
                         <ui:Label text="АПГРЕЙД" class="upgrade-modal__title"/>
-                        <ui:Label name="UpgradeSlotName" text="Слот A" class="upgrade-modal__slot-name"/>
+                        <ui:Label name="UpgradeSlotName" text="" class="upgrade-modal__slot-name"/>
                     </ui:VisualElement>
                     <ui:Button name="UpgradeBtnClose" text="✕" class="btn-icon"/>
                 </ui:VisualElement>
-
                 <ui:VisualElement class="upgrade-modal__body">
-
-                    <!-- Поточна шафа -->
                     <ui:VisualElement class="upgrade-current">
                         <ui:Label text="ЗАРАЗ" class="upgrade-current__label"/>
                         <ui:VisualElement name="UpgradeCurrentIcon" class="upgrade-current__icon"/>
-                        <ui:Label name="UpgradeCurrentName"  text="—" class="upgrade-current__name"/>
-                        <ui:Label name="UpgradeCurrentClass" text=""  class="upgrade-current__class"/>
+                        <ui:Label name="UpgradeCurrentName" text="—" class="upgrade-current__name"/>
+                        <ui:Label name="UpgradeCurrentClass" text="" class="upgrade-current__class"/>
                     </ui:VisualElement>
-
-                    <!-- Стрілка -->
                     <ui:Label text="→" class="upgrade-arrow"/>
-
-                    <!-- Список варіантів -->
                     <ui:VisualElement class="upgrade-options">
                         <ui:Label text="ДОСТУПНІ АПГРЕЙДИ" class="upgrade-options__label"/>
-                        <!-- Динамічно заповнюється з C# -->
-                        <ui:ScrollView name="UpgradeOptionsList"
-                            mode="Vertical"
-                            horizontal-scroller-visibility="Hidden"
-                            vertical-scroller-visibility="Auto"
-                            mouse-wheel-scroll-size="40"
-                            style="max-height: 240px;"/>
+                        <ui:ScrollView name="UpgradeOptionsList" mode="Vertical" horizontal-scroller-visibility="Hidden" vertical-scroller-visibility="Auto" mouse-wheel-scroll-size="40" style="max-height: 240px;"/>
                     </ui:VisualElement>
-
                 </ui:VisualElement>
-
-                <!-- Футер -->
                 <ui:VisualElement class="upgrade-modal__footer">
-                    <ui:Button name="UpgradeBtnCancel"  text="СКАСУВАТИ" class="upgrade-cancel-btn"/>
+                    <ui:Button name="UpgradeBtnCancel" text="СКАСУВАТИ" class="upgrade-cancel-btn"/>
                     <ui:Button name="UpgradeBtnConfirm" text="ВСТАНОВИТИ" class="upgrade-confirm-btn"/>
                 </ui:VisualElement>
-
             </ui:VisualElement>
-
         </ui:VisualElement>
-
-
-
-
-        <ui:UXML xmlns:ui="UnityEngine.UIElements"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         editor-extension-mode="False">
-
-    <Style src="project://database/Assets/UI/Styles/BookshopTheme.uss"/>
-    <Style src="project://database/Assets/UI/Styles/SaveLoadStyles.uss"/>
-
-            <!--
-                SaveLoadPanel — overlay модал збереження/завантаження.
-                Відкривається кнопкою ⚙ або з меню паузи.
-                Вставити у MainShopUI.uxml перед закриттям Root.
-            -->
-            <ui:VisualElement name="SaveLoadOverlay" class="saveload-overlay hidden" picking-mode="Position">
-
-                <ui:VisualElement class="saveload-modal" picking-mode="Position" style="position:relative;">
-
-                    <ui:VisualElement class="saveload-modal__bar"/>
-
-                    <!-- Шапка -->
-                    <ui:VisualElement class="saveload-modal__header">
-                        <ui:Label name="SaveLoadTitle" text="ЗБЕРЕЖЕННЯ" class="saveload-modal__title"/>
-                        <ui:Button name="SaveLoadCloseX" text="✕" class="btn-icon"/>
-                    </ui:VisualElement>
-
-                    <!-- Вкладки -->
-                    <ui:VisualElement class="saveload-tabs">
-                        <ui:Button name="TabSave" text="ЗБЕРЕГТИ" class="saveload-tab active"/>
-                        <ui:Button name="TabLoad" text="ЗАВАНТАЖИТИ" class="saveload-tab"/>
-                    </ui:VisualElement>
-
-                    <!-- Слоти -->
-                    <ui:VisualElement name="SaveLoadSlots" class="saveload-slots">
-
-                        <!-- Слот 0 -->
-                        <ui:VisualElement name="Slot0" class="save-slot">
-                            <ui:VisualElement class="save-slot__num">
-                                <ui:Label text="1" class="save-slot__num-label"/>
-                            </ui:VisualElement>
-                            <ui:VisualElement class="save-slot__info">
-                                <ui:Label name="Slot0Name" text="Порожній слот" class="save-slot__name"/>
-                                <ui:Label name="Slot0Date" text=""              class="save-slot__date"/>
-                            </ui:VisualElement>
-                            <ui:Button name="Slot0Del" text="✕" class="save-slot__del" style="display:none;"/>
-                            <ui:Button name="Slot0Btn" text="💾" class="save-slot__btn"/>
-                        </ui:VisualElement>
-
-                        <!-- Слот 1 -->
-                        <ui:VisualElement name="Slot1" class="save-slot">
-                            <ui:VisualElement class="save-slot__num">
-                                <ui:Label text="2" class="save-slot__num-label"/>
-                            </ui:VisualElement>
-                            <ui:VisualElement class="save-slot__info">
-                                <ui:Label name="Slot1Name" text="Порожній слот" class="save-slot__name"/>
-                                <ui:Label name="Slot1Date" text=""              class="save-slot__date"/>
-                            </ui:VisualElement>
-                            <ui:Button name="Slot1Del" text="✕" class="save-slot__del" style="display:none;"/>
-                            <ui:Button name="Slot1Btn" text="💾" class="save-slot__btn"/>
-                        </ui:VisualElement>
-
-                        <!-- Слот 2 -->
-                        <ui:VisualElement name="Slot2" class="save-slot">
-                            <ui:VisualElement class="save-slot__num">
-                                <ui:Label text="3" class="save-slot__num-label"/>
-                            </ui:VisualElement>
-                            <ui:VisualElement class="save-slot__info">
-                                <ui:Label name="Slot2Name" text="Порожній слот" class="save-slot__name"/>
-                                <ui:Label name="Slot2Date" text=""              class="save-slot__date"/>
-                            </ui:VisualElement>
-                            <ui:Button name="Slot2Del" text="✕" class="save-slot__del" style="display:none;"/>
-                            <ui:Button name="Slot2Btn" text="💾" class="save-slot__btn"/>
-                        </ui:VisualElement>
-
-                    </ui:VisualElement>
-
-                    <!-- Футер -->
-                    <ui:VisualElement class="saveload-footer">
-                        <ui:Label name="SaveLoadHint" text="Оберіть слот" class="saveload-hint"/>
-                        <ui:Button name="SaveLoadClose" text="ЗАКРИТИ" class="saveload-close-btn"/>
-                    </ui:VisualElement>
-
-                    <!-- Підтвердження перезапису/видалення (поверх слотів) -->
-                    <ui:VisualElement name="ConfirmOverlay" class="saveload-confirm hidden">
-                        <ui:Label name="ConfirmText" text=""          class="saveload-confirm__text"/>
-                        <ui:Label name="ConfirmSub"  text=""          class="saveload-confirm__sub"/>
-                        <ui:VisualElement class="saveload-confirm__btns">
-                            <ui:Button name="ConfirmYes" text="ТАК"      class="saveload-action-btn danger"/>
-                            <ui:Button name="ConfirmNo"  text="СКАСУВАТИ" class="saveload-close-btn"/>
-                        </ui:VisualElement>
-                    </ui:VisualElement>
-
-                </ui:VisualElement>
-
+        <ui:VisualElement name="EndDayPanel" picking-mode="Position" class="end-day-panel" style="display: none;">
+            <ui:VisualElement class="end-day-title-block">
+                <ui:Label text="КІНЕЦЬ ДНЯ" class="end-day-title"/>
+                <ui:Label name="EndDaySubtitle" text="День 1" class="end-day-subtitle"/>
             </ui:VisualElement>
-
-        </ui:UXML>
-
-
-
+            <ui:Label name="PicksLabel" text="Виборів залишилось: 3" class="picks-remaining"/>
+            <ui:VisualElement class="end-day-stats">
+                <ui:VisualElement class="stat-chip">
+                    <ui:Label text="ПРОДАНО" class="stat-chip__label"/>
+                    <ui:Label name="StatBooks" text="0" class="stat-chip__value"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="stat-chip">
+                    <ui:Label text="ЗАРОБЛЕНО" class="stat-chip__label"/>
+                    <ui:Label name="StatMoney" text="0 грн" class="stat-chip__value"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="LootContainer" class="loot-cards-row"/>
+            <ui:Button name="BtnSkipLoot" text="ПРОПУСТИТИ НАГОРОДИ" class="btn-paper" style="margin-top: 16px;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="SaveLoadOverlay" picking-mode="Position" class="saveload-overlay hidden">
+            <ui:VisualElement picking-mode="Position" class="saveload-modal" style="position: relative;">
+                <ui:VisualElement class="saveload-modal__bar"/>
+                <ui:VisualElement class="saveload-modal__header">
+                    <ui:Label name="SaveLoadTitle" text="ЗБЕРЕЖЕННЯ" class="saveload-modal__title"/>
+                    <ui:Button name="SaveLoadCloseX" text="✕" class="btn-icon"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="saveload-tabs">
+                    <ui:Button name="TabSave" text="ЗБЕРЕГТИ" class="saveload-tab active"/>
+                    <ui:Button name="TabLoad" text="ЗАВАНТАЖИТИ" class="saveload-tab"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="SaveLoadSlots" class="saveload-slots">
+                    <ui:VisualElement name="Slot0" class="save-slot empty">
+                        <ui:VisualElement class="save-slot__num">
+                            <ui:Label text="1" class="save-slot__num-label"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="save-slot__info">
+                            <ui:Label name="Slot0Name" text="Порожній слот" class="save-slot__name"/>
+                            <ui:Label name="Slot0Date" text="" class="save-slot__date"/>
+                        </ui:VisualElement>
+                        <ui:Button name="Slot0Del" text="✕" class="save-slot__del" style="display: none;"/>
+                        <ui:Button name="Slot0Btn" text="💾" class="save-slot__btn"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Slot1" class="save-slot empty">
+                        <ui:VisualElement class="save-slot__num">
+                            <ui:Label text="2" class="save-slot__num-label"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="save-slot__info">
+                            <ui:Label name="Slot1Name" text="Порожній слот" class="save-slot__name"/>
+                            <ui:Label name="Slot1Date" text="" class="save-slot__date"/>
+                        </ui:VisualElement>
+                        <ui:Button name="Slot1Del" text="✕" class="save-slot__del" style="display: none;"/>
+                        <ui:Button name="Slot1Btn" text="💾" class="save-slot__btn"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="Slot2" class="save-slot empty">
+                        <ui:VisualElement class="save-slot__num">
+                            <ui:Label text="3" class="save-slot__num-label"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="save-slot__info">
+                            <ui:Label name="Slot2Name" text="Порожній слот" class="save-slot__name"/>
+                            <ui:Label name="Slot2Date" text="" class="save-slot__date"/>
+                        </ui:VisualElement>
+                        <ui:Button name="Slot2Del" text="✕" class="save-slot__del" style="display: none;"/>
+                        <ui:Button name="Slot2Btn" text="💾" class="save-slot__btn"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="saveload-footer">
+                    <ui:Label name="SaveLoadHint" text="Оберіть слот" class="saveload-hint"/>
+                    <ui:Button name="SaveLoadClose" text="ЗАКРИТИ" class="saveload-close-btn"/>
+                </ui:VisualElement>
+                <ui:VisualElement name="ConfirmOverlay" class="saveload-confirm hidden">
+                    <ui:Label name="ConfirmText" text="" class="saveload-confirm__text"/>
+                    <ui:Label name="ConfirmSub" text="" class="saveload-confirm__sub"/>
+                    <ui:VisualElement class="saveload-confirm__btns">
+                        <ui:Button name="ConfirmYes" text="ТАК" class="saveload-action-btn danger"/>
+                        <ui:Button name="ConfirmNo" text="СКАСУВАТИ" class="saveload-close-btn"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="TutorialBubble" picking-mode="Position" class="tutorial-bubble">
+            <ui:Label text="💡" class="tutorial-bubble__icon"/>
+            <ui:Label name="TutorialMessage" text="" class="tutorial-bubble__text"/>
+            <ui:Button name="TutorialOK" text="ЗРОЗУМІЛО" class="tutorial-ok-btn"/>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
