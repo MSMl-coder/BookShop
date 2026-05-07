@@ -51,8 +51,8 @@ public class NPCBrain : MonoBehaviour
         _isInitialized = true;
 
         // Кешуємо полиці при ініціалізації NPC
-       // _cachedShelves = Object.FindObjectsByType<Shelf>(FindObjectsSortMode.None);
-
+        
+        _cachedShelves = FindObjectsByType<Shelf>(FindObjectsSortMode.None);
         Debug.Log($"[NPC] {data.npcName} initialized. Wants: {DesiredGenre}. Shelves cached: {_cachedShelves.Length}");
         ChangeState(NPCState.Entering);
     }

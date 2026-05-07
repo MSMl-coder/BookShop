@@ -214,9 +214,10 @@ public class UpgradeSlotUI : MonoBehaviour
     {
         if (_confirmBtn == null) return;
 
-        bool hasSelection = _selectedTemplate != null;
-        bool canAfford    = hasSelection &&
-                            (EconomyManager.Instance?.Money ?? 0) >= _selectedTemplate.basePrice;
+                bool hasSelection = _selectedTemplate != null;
+                bool canAfford    = hasSelection &&
+                        (EconomyManager.Instance?.Money ?? 0) >= 
+                        _selectedTemplate.basePrice;  // ← Краш якщо hasSelection=false!
 
         _confirmBtn.SetEnabled(hasSelection && canAfford);
 

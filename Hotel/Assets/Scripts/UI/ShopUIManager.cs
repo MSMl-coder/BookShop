@@ -295,10 +295,12 @@ public class ShopUIManager : MonoBehaviour
         _inventoryGrid.Clear();
 
         var books = InventoryManager.Instance?.GetSortedInventory(_currentSort);
-        if (books == null) return;
-
-        if (_invCountLabel != null)
-            _invCountLabel.text = $"{books.Count} книг";
+         if (books == null || books.Count == 0)
+        {
+            if (_invCountLabel != null)
+                _invCountLabel.text = "0 книг";
+            return;
+        }
 
         if (bookItemTemplate == null)
         {
