@@ -65,6 +65,11 @@ public class EconomyManager : MonoBehaviour
 
     public void RecordBookSold(float price)
     {
+        if (GameLoopManager.Instance?.CurrentState != GameState.WorkDay)
+        {
+            Debug.LogWarning("[Economy] RecordBookSold called outside WorkDay — ignored.");
+            return;
+        }
         BooksSoldToday++;
         AddMoney(Mathf.RoundToInt(price));
         TutorialManager.Instance?.TryTrigger(TutorialTrigger.OnFirstSale);

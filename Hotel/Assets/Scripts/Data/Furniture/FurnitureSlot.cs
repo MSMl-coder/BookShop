@@ -35,7 +35,7 @@ public class FurnitureSlot : MonoBehaviour
             Destroy(_currentCabinetInstance.gameObject);
 
         SpawnCabinet(newTemplate);
-        RestoreBooks(savedBooks);
+       // RestoreBooks(savedBooks);
 
         Debug.Log($"[Slot] Upgraded to {newTemplate.furnitureName}");
     }
@@ -66,7 +66,7 @@ public class FurnitureSlot : MonoBehaviour
         return books;
     }
 
-    private void RestoreBooks(List<BookInstance> books)
+   /* private void RestoreBooks(List<BookInstance> books)
     {
         if (_currentCabinetInstance == null || books.Count == 0) return;
 
@@ -78,4 +78,5 @@ public class FurnitureSlot : MonoBehaviour
             break;
         }
     }
+    */
 }

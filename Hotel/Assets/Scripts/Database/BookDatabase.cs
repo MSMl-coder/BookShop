@@ -52,19 +52,13 @@ public class BookDatabase : ScriptableObject
 
     private void OnDisable()
     {
-        // Скидаємо стан бази при виході з Play Mode, 
-        // щоб наступний запуск ініціалізував її наново
-        _initialized = false;
-        
-        if (_cache != null)
-        {
-            _cache.Clear();
+        #if UNITY_EDITOR
+    //         Skip reset during normal gameplay — only reset on domain reload
+            if (UnityEditor.EditorApplication.isPlaying) return;
+        #endif
+            _initialized = false;
+            _cache?.Clear();
+            if (Instance == this) Instance = null;
         }
-
-        if (Instance == this)
-        {
-            Instance = null;
-        }
-    }
     
 }

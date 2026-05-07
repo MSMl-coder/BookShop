@@ -55,7 +55,7 @@ public class GameStateSerializer : MonoBehaviour
         data.unlockedFurnitureIDs.Clear();
         var unlocked = inventoryManager.GetAllUnlockedFurniture();
         foreach (var f in unlocked)
-            data.unlockedFurnitureIDs.Add(f.furnitureID);
+           data.unlockedFurnitureIDs.Add(f.furnitureID.ToString());
 
         // Game state
         data.gameStateIndex = (int)gameLoopManager.CurrentState;

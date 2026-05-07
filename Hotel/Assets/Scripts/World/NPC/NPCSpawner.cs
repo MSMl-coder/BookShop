@@ -23,6 +23,7 @@ public class NPCSpawner : MonoBehaviour
 
     private int _currentNPCCount = 0;
     private bool _isSpawning = false;
+    private bool _firstNPCSpawned = false;
 
     private void Awake()
     {
@@ -111,8 +112,12 @@ public class NPCSpawner : MonoBehaviour
         // ВИПРАВЛЕНО: Tutorial trigger спрацьовує для ПЕРШОГО NPC (_currentNPCCount == 0)
         // Раніше умова була == 1, але _currentNPCCount++ виконується ПІСЛЯ перевірки,
         // тому для першого NPC лічильник ще == 0, а не 1 — trigger ніколи не спрацьовував
-        if (_currentNPCCount == 0)
+        if (!_firstNPCSpawned)
+        {
+            _firstNPCSpawned = true;
             TutorialManager.Instance?.TryTrigger(TutorialTrigger.OnFirstSale);
+            }
+            
 
         brain.Initialize(data, cashRegister);
         brain.OnNPCLeft += () => _currentNPCCount--;

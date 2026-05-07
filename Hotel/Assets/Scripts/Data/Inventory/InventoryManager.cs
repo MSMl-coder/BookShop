@@ -92,23 +92,28 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-    public void PushAllToShelf(Shelf targetShelf)
+       public void PushAllToShelf(Shelf targetShelf)
     {
-        if (targetShelf == null) return;
-        if (!ValidateDatabase()) return;
-
-        // Snapshot щоб уникнути модифікації колекції під час ітерації
+        if (targetShelf == null || !ValidateDatabase()) return;
+// 
         var snapshot = new List<BookInstance>(_ownedBooks);
-
+        bool anyMoved = false;
+ 
         foreach (var book in snapshot)
         {
             BookTemplate template = database.GetBook(book.templateID);
             if (template?.containerPrefab == null) continue;
-
             if (!targetShelf.CanFitBook(template.containerPrefab)) break;
-
-            targetShelf.PlaceBook(book, template.containerPrefab);
-            RemoveBook(book);
+  
+            targetShelf.PlaceBookSilent(book, template.containerPrefab);
+            _ownedBooks.Remove(book); // remove directly, no per-book event
+            anyMoved = true;
+        }
+ 
+        if (anyMoved)
+        {
+            targetShelf.CommitLayout();       // single layout pass
+            OnInventoryChanged?.Invoke();     // single UI refresh
         }
     }
 

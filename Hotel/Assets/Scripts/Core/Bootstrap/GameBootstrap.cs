@@ -1,23 +1,19 @@
 using UnityEngine;
 
-// Перший скрипт що запускається в ігровій сцені
-// Вирішує: завантажити сейв чи почати нову гру
 public class GameBootstrap : MonoBehaviour
 {
     [SerializeField] private GameStateSerializer serializer;
 
-    private void Awake()
+    private void Start()
     {
-        // Перевірка наявності всіх критичних систем
+        // FIX: assertions moved to Start() — all Awake() have completed by now,
+        // including BookDatabaseLoader.Awake() which sets BookDatabase.Instance.
         Debug.Assert(GameLoopManager.Instance != null, "GameLoopManager missing!");
         Debug.Assert(EconomyManager.Instance != null, "EconomyManager missing!");
         Debug.Assert(InventoryManager.Instance != null, "InventoryManager missing!");
         Debug.Assert(BookDatabase.Instance != null, "BookDatabase missing!");
-    }
-    private void Start()
-    {
-        bool isNewGame = PlayerPrefs.GetInt("IsNewGame", 1) == 1;
 
+        bool isNewGame = PlayerPrefs.GetInt("IsNewGame", 1) == 1;
         if (isNewGame)
         {
             Debug.Log("[Bootstrap] Starting new game.");

@@ -125,13 +125,21 @@ public class LootPanelUI : MonoBehaviour
         _lootContainer.Clear();
 
         var cards = LootManager.Instance?.GetCurrentPool();
-        if (cards == null || cards.Count == 0)
+
+        
+       /* if (cards == null || cards.Count == 0)
         {
             Debug.Log("[LootPanelUI] Немає карток у пулі. Починаємо новий день.");
             GameLoopManager.Instance?.StartNewDay();
             return;
         }
-
+*/
+    if (cards == null || cards.Count == 0)
+        {
+            Debug.Log("[LootPanelUI] Empty pool — deferring StartNewDay.");
+            StartCoroutine(DeferredStartNewDay());
+            return;
+   }
         bool canPick = LootManager.Instance?.CanPick ?? false;
 
         foreach (var card in cards)
@@ -176,7 +184,11 @@ public class LootPanelUI : MonoBehaviour
 
         UpdatePicksLabel();
     }
-
+    private System.Collections.IEnumerator DeferredStartNewDay()
+    {
+        yield return null; // wait one frame for UI to settle
+        GameLoopManager.Instance?.StartNewDay();
+    }
     private void OnCardPicked(LootCardTemplate card)
     {
         if (card.cost > 0)
