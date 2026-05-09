@@ -21,18 +21,16 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Facade001 1
-  m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: a3609c16edc4246e39f51fc0ad9fdb8e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _SPECULAR_SETUP
+  m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: _Highlight_Color
@@ -64,6 +62,10 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -117,6 +119,7 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
+    - _FadeAlpha: 0.009
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -130,6 +133,7 @@ Material:
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
+    - _Rotation: 0
     - _SampleGI: 0
     - _Shadows_Contrast: 1.11
     - _Shadows_Size: 0.96
@@ -138,6 +142,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
+    - _StripeCount: 0
     - _Surface: 0
     - _WorkflowMode: 0
     - _XRMotionVectorsPass: 1
@@ -146,10 +151,14 @@ Material:
     - _BaseColor: {r: 0.4962175, g: 0.5943396, b: 0.5873309, a: 1}
     - _Base_Color: {r: 0.37254903, g: 0.42745098, b: 0.42352942, a: 0}
     - _Color: {r: 0.49621743, g: 0.5943396, b: 0.5873309, a: 1}
+    - _Color1: {r: 0.49803922, g: 0.59607846, b: 0.5882353, a: 1}
+    - _Color2: {r: 0.49803922, g: 0.59607846, b: 0.5882353, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Highlight_Color: {r: 0.16862746, g: 0.22745098, b: 0.23529412, a: 0}
+    - _Offset: {r: 0, g: 0, b: 0, a: 0}
     - _Outline_Color: {r: 0.23584908, g: 0.23584908, b: 0.23584908, a: 1}
     - _Shadows_Color: {r: 0.26174796, g: 0.3207547, b: 0.31653994, a: 0}
     - _SpecColor: {r: 0.49803922, g: 0.59607846, b: 0.5882353, a: 1}
+    - _Tiling: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

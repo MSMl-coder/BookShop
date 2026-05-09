@@ -1,15 +1,9 @@
-// Assets/Scripts/UI/HUD/HudTagController.cs
-//
-// Керує трьома зонами нового HUD:
-//   1. Бірка з грошима (+ flip → рівень/клуб)
-//   2. Бірка рівня/престижу (опціонально — variant 2)
-//   3. Конверт із картками фаз (NOTES-стиль)
-//   4. Рядок бонусів угорі
-//
-// UNITY SETUP:
-//   • Додай на той самий GameObject що і UIDocument (MainShopUI)
-//   • Призначи [SerializeField] uiDocument і tagData
-//   • Переконайся що UXML містить елементи за іменами нижче
+// Assets/Scripts/UI/HudTagController.cs
+// ВИПРАВЛЕНО:
+//   1. Пошук елементів всередині ui:Instance ("HudTagInstance")
+//   2. Коректна підписка на flip без ref (closure-based)
+//   3. Додано null-guard у всіх зверненнях до _phaseCard
+//   4. Сумісний з PhaseWidgetController (не дублює GameLoop-виклики)
 
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -19,13 +13,16 @@ using System.Collections.Generic;
 public class HudTagController : MonoBehaviour
 {
     // ── Inspector ────────────────────────────────────────────────
-    [SerializeField] private UIDocument    uiDocument;
-    [SerializeField] private ShopTagData   tagData;
-    [SerializeField] private bool          showPrestigeTag = true; // Variant 2
+    [SerializeField] private UIDocument  uiDocument;
+    [SerializeField] private ShopTagData tagData;
+    [SerializeField] private bool        showPrestigeTag = true;
 
     // ── Cached elements ──────────────────────────────────────────
 
-    // Tag A — money/day
+    // Коренева точка пошуку — сам інстанс HudTag
+    private VisualElement _hudRoot;
+
+    // Tag A
     private VisualElement _tagAFlipper;
     private Label         _tagAAmount;
     private Label         _tagADay;
@@ -34,7 +31,8 @@ public class HudTagController : MonoBehaviour
     private Label         _tagABackClubStars;
     private Label         _tagABackClubMembers;
 
-    // Tag B — level/prestige (variant 2)
+    // Tag B
+    private VisualElement _tagBAssembly;
     private VisualElement _tagBFlipper;
     private Label         _tagBLevel;
     private Label         _tagBRank;
@@ -44,7 +42,7 @@ public class HudTagController : MonoBehaviour
     private Label         _tagBBackNextInfo;
 
     // Phase envelope
-    private VisualElement _phaseCard;        // активна картка
+    private VisualElement _phaseCard;
     private Label         _phaseCardName;
     private Label         _phaseCardStep;
     private Label         _phaseCardStamp;
@@ -54,9 +52,9 @@ public class HudTagController : MonoBehaviour
     private VisualElement _bonusStrip;
 
     // ── State ────────────────────────────────────────────────────
-    private bool  _tagAFlipped;
-    private bool  _tagBFlipped;
-    private bool  _phaseAnimating;
+    private bool _tagAFlipped;
+    private bool _tagBFlipped;
+    private bool _phaseAnimating;
 
     private static readonly string[] PhaseNames   = { "ПІДГОТОВКА", "ТОРГІВЛЯ", "НАГОРОДИ" };
     private static readonly string[] PhaseSteps   = { "1 з 3",      "2 з 3",    "3 з 3"   };
@@ -67,19 +65,23 @@ public class HudTagController : MonoBehaviour
 
     private void OnEnable()
     {
-        var root = uiDocument?.rootVisualElement;
-        if (root == null) return;
+        var docRoot = uiDocument?.rootVisualElement;
+        if (docRoot == null) return;
 
-        CacheElements(root);
+        // HudTag вставлений як ui:Instance → шукаємо його контейнер
+        // Unity створює VisualElement з ім'ям, що вказане в name="" атрибуті Instance
+        _hudRoot = docRoot.Q<VisualElement>("HudTagInstance");
+
+        // Якщо Instance не знайдено — спробуємо шукати HudTagRoot напряму
+        // (на випадок коли HudTag підключений як окремий UIDocument)
+        if (_hudRoot == null)
+            _hudRoot = docRoot.Q<VisualElement>("HudTagRoot") ?? docRoot;
+
+        CacheElements();
         InitTagData();
+        BindClicks();
 
         // Events
-        SubscribeTagFlip(root, "TagAFlipper", ref _tagAFlipped);
-        SubscribeTagFlip(root, "TagBFlipper", ref _tagBFlipped);
-        root.Q<VisualElement>("PhaseEnvelope")?.RegisterCallback<ClickEvent>(_ => CyclePhase());
-        _phaseCard?.RegisterCallback<ClickEvent>(_ => CyclePhase());
-
-        // Managers
         if (EconomyManager.Instance != null)
             EconomyManager.Instance.OnMoneyChanged += UpdateMoney;
         if (GameLoopManager.Instance != null)
@@ -90,15 +92,15 @@ public class HudTagController : MonoBehaviour
         if (BonusManager.Instance != null)
             BonusManager.Instance.OnBonusesChanged += RebuildBonusStrip;
 
-        // Initial state
+        // Initial
         UpdateMoney(EconomyManager.Instance?.Money ?? 0);
         UpdateDay(GameLoopManager.Instance?.CurrentDay ?? 1);
         UpdatePhase(GameLoopManager.Instance?.CurrentState ?? GameState.Preparation);
-        RebuildBonusStrip(BonusManager.Instance?.GetBonuses() ?? new List<ActiveBonus>());
-        UpdatePrestigeTag(
-            ClubPrestigeCalculator.Instance?.CurrentPrestige ?? 0,
-            1000
-        );
+
+        var bonuses = BonusManager.Instance?.GetBonuses() ?? new List<ActiveBonus>();
+        RebuildBonusStrip(bonuses);
+
+        UpdatePrestigeTag(ClubPrestigeCalculator.Instance?.CurrentPrestige ?? 0, 1000);
     }
 
     private void OnDisable()
@@ -116,66 +118,85 @@ public class HudTagController : MonoBehaviour
 
     // ── Cache ────────────────────────────────────────────────────
 
-    private void CacheElements(VisualElement root)
+    private void CacheElements()
     {
+        if (_hudRoot == null) return;
+
         // Tag A
-        _tagAFlipper          = root.Q<VisualElement>("TagAFlipper");
-        _tagAAmount           = root.Q<Label>("TagAAmount");
-        _tagADay              = root.Q<Label>("TagADay");
-        _tagABackLevel        = root.Q<Label>("TagABackLevel");
-        _tagABackRank         = root.Q<Label>("TagABackRank");
-        _tagABackClubStars    = root.Q<Label>("TagABackClubStars");
-        _tagABackClubMembers  = root.Q<Label>("TagABackClubMembers");
+        _tagAFlipper         = _hudRoot.Q<VisualElement>("TagAFlipper");
+        _tagAAmount          = _hudRoot.Q<Label>("TagAAmount");
+        _tagADay             = _hudRoot.Q<Label>("TagADay");
+        _tagABackLevel       = _hudRoot.Q<Label>("TagABackLevel");
+        _tagABackRank        = _hudRoot.Q<Label>("TagABackRank");
+        _tagABackClubStars   = _hudRoot.Q<Label>("TagABackClubStars");
+        _tagABackClubMembers = _hudRoot.Q<Label>("TagABackClubMembers");
 
         // Tag B
-        _tagBFlipper    = root.Q<VisualElement>("TagBFlipper");
-        _tagBLevel      = root.Q<Label>("TagBLevel");
-        _tagBRank       = root.Q<Label>("TagBRank");
-        _tagBBarFill    = root.Q<VisualElement>("TagBBarFill");
-        _tagBBarMin     = root.Q<Label>("TagBBarMin");
-        _tagBBarMax     = root.Q<Label>("TagBBarMax");
-        _tagBBackNextInfo = root.Q<Label>("TagBBackNextInfo");
+        _tagBAssembly   = _hudRoot.Q<VisualElement>("TagBAssembly");
+        _tagBFlipper    = _hudRoot.Q<VisualElement>("TagBFlipper");
+        _tagBLevel      = _hudRoot.Q<Label>("TagBLevel");
+        _tagBRank       = _hudRoot.Q<Label>("TagBRank");
+        _tagBBarFill    = _hudRoot.Q<VisualElement>("TagBBarFill");
+        _tagBBarMin     = _hudRoot.Q<Label>("TagBBarMin");
+        _tagBBarMax     = _hudRoot.Q<Label>("TagBBarMax");
+        _tagBBackNextInfo = _hudRoot.Q<Label>("TagBBackNextInfo");
 
-        // Phase card
-        _phaseCard      = root.Q<VisualElement>("PhaseCardActive");
-        _phaseCardName  = root.Q<Label>("PhaseCardName");
-        _phaseCardStep  = root.Q<Label>("PhaseCardStep");
-        _phaseCardStamp = root.Q<Label>("PhaseCardStamp");
-        _phaseDot0      = root.Q<VisualElement>("PhaseDot0");
-        _phaseDot1      = root.Q<VisualElement>("PhaseDot1");
-        _phaseDot2      = root.Q<VisualElement>("PhaseDot2");
+        // Phase
+        _phaseCard      = _hudRoot.Q<VisualElement>("PhaseCardActive");
+        _phaseCardName  = _hudRoot.Q<Label>("PhaseCardName");
+        _phaseCardStep  = _hudRoot.Q<Label>("PhaseCardStep");
+        _phaseCardStamp = _hudRoot.Q<Label>("PhaseCardStamp");
+        _phaseDot0      = _hudRoot.Q<VisualElement>("PhaseDot0");
+        _phaseDot1      = _hudRoot.Q<VisualElement>("PhaseDot1");
+        _phaseDot2      = _hudRoot.Q<VisualElement>("PhaseDot2");
 
         // Bonus
-        _bonusStrip = root.Q<VisualElement>("BonusStrip");
+        _bonusStrip = _hudRoot.Q<VisualElement>("BonusStrip");
 
-        // Show/hide tag B
- //       if (_tagBFlipper != null)
- //           _tagBFlipper.parent?.style.display =
- //               showPrestigeTag ? DisplayStyle.Flex : DisplayStyle.None;
+        // Tag B visibility
+        if (_tagBAssembly != null)
+            _tagBAssembly.style.display = showPrestigeTag ? DisplayStyle.Flex : DisplayStyle.None;
+
+        // Debug
+        if (_tagAFlipper == null) Debug.LogWarning("[HudTag] TagAFlipper не знайдено");
+        if (_phaseCard   == null) Debug.LogWarning("[HudTag] PhaseCardActive не знайдено");
+        if (_bonusStrip  == null) Debug.LogWarning("[HudTag] BonusStrip не знайдено");
     }
 
     private void InitTagData()
     {
         if (tagData == null) return;
-        // статичні написи бірки
-        SetText(root: null, "TagABrand",    tagData.shopName);
-        SetText(root: null, "TagASeries",   tagData.shopSubtitle);
+        var brand  = _hudRoot?.Q<Label>("TagABrand");
+        var series = _hudRoot?.Q<Label>("TagASeries");
+        if (brand  != null) brand.text  = tagData.shopName;
+        if (series != null) series.text = tagData.shopSubtitle;
     }
 
-    // ── Tag flip ─────────────────────────────────────────────────
+    // ── Click / Flip ─────────────────────────────────────────────
 
-    private void SubscribeTagFlip(VisualElement root, string name, ref bool flipped)
+    private void BindClicks()
     {
-        bool localFlipped = flipped; // capture
-        var flipper = root.Q<VisualElement>(name);
-        if (flipper == null) return;
+        // Tag A flip
+        if (_tagAFlipper != null)
+            _tagAFlipper.RegisterCallback<ClickEvent>(_ =>
+            {
+                _tagAFlipped = !_tagAFlipped;
+                _tagAFlipper.EnableInClassList("flipped", _tagAFlipped);
+            });
 
-        flipper.RegisterCallback<ClickEvent>(_ =>
-        {
-            localFlipped = !localFlipped;
-            if (localFlipped) flipper.AddToClassList("flipped");
-            else              flipper.RemoveFromClassList("flipped");
-        });
+        // Tag B flip
+        if (_tagBFlipper != null)
+            _tagBFlipper.RegisterCallback<ClickEvent>(_ =>
+            {
+                _tagBFlipped = !_tagBFlipped;
+                _tagBFlipper.EnableInClassList("flipped", _tagBFlipped);
+            });
+
+        // Phase envelope click
+        var envelope = _hudRoot?.Q<VisualElement>("PhaseEnvelope");
+        envelope?.RegisterCallback<ClickEvent>(_ => TryAdvancePhase());
+
+        _phaseCard?.RegisterCallback<ClickEvent>(_ => TryAdvancePhase());
     }
 
     // ── Money / Day ──────────────────────────────────────────────
@@ -192,93 +213,52 @@ public class HudTagController : MonoBehaviour
             _tagADay.text = day.ToString();
     }
 
-    // ── Prestige tag ─────────────────────────────────────────────
-
-    public void UpdatePrestigeTag(int current, int max)
-    {
-        if (tagData == null) return;
-
-        var lvl  = tagData.GetLevelForPrestige(current);
-        var next = tagData.GetNextLevel(lvl.level);
-
-        if (_tagBLevel  != null) _tagBLevel.text = lvl.level.ToString("D2");
-        if (_tagBRank   != null) _tagBRank.text  = lvl.rankName.ToUpper();
-        if (_tagBBarMin != null) _tagBBarMin.text = current.ToString();
-        if (_tagBBarMax != null) _tagBBarMax.text = max.ToString();
-
-        if (_tagBBarFill != null)
-        {
-            float pct = max > 0 ? Mathf.Clamp01((float)current / max) * 100f : 0f;
-            _tagBBarFill.style.width = Length.Percent(pct);
-        }
-
-        // Зворотній бік Tag B
-        if (_tagBBackNextInfo != null && next != null)
-            _tagBBackNextInfo.text =
-                $"До {RomanNumeral(next.level)} рівня: {next.prestigeRequired - current} ★\n" +
-                $"Наступний: {next.rankName}";
-
-        // Зворотній бік Tag A
-        if (_tagABackLevel != null) _tagABackLevel.text = RomanNumeral(lvl.level);
-        if (_tagABackRank  != null) _tagABackRank.text  = lvl.rankName;
-    }
-
-    // ── Club ─────────────────────────────────────────────────────
-
-    public void UpdateClub(int stars, int members, bool founded)
-    {
-        if (_tagABackClubStars != null)
-            _tagABackClubStars.text = founded
-                ? new string('★', stars) + new string('☆', Mathf.Max(0, 5 - stars))
-                : "— не засновано —";
-
-        if (_tagABackClubMembers != null)
-            _tagABackClubMembers.text = founded ? members.ToString() : "";
-    }
-
-    // ── Phase card animation ─────────────────────────────────────
+    // ── Phase ────────────────────────────────────────────────────
 
     private void UpdatePhase(GameState state)
     {
-        // Миттєво без анімації (при старті або зміні ззовні без кліку)
+        // Застосовуємо одразу без анімації при зовнішній зміні
         ApplyPhaseData((int)state);
     }
 
-    private void CyclePhase()
+    /// Клік по конверту: просить GameLoopManager перейти до наступного стану
+    /// (не дублює PhaseWidgetController — просто запускає офіційний перехід)
+    private void TryAdvancePhase()
     {
         if (_phaseAnimating) return;
 
-        // Визначаємо наступний стан
-        int current = GameLoopManager.Instance != null
-            ? (int)GameLoopManager.Instance.CurrentState
-            : 0;
-        int next = (current + 1) % 3;
+        var loop = GameLoopManager.Instance;
+        if (loop == null) return;
 
-        // В реальній грі — викликаємо GameLoopManager
-        // (тут лише анімація; логіку фази запускає PhaseWidgetController)
-        StartCoroutine(AnimatePhaseTransition(next));
+        switch (loop.CurrentState)
+        {
+            case GameState.Preparation:
+                loop.StartWorkDay();
+                break;
+            case GameState.WorkDay:
+                loop.EndWorkDay();
+                break;
+            // LootPhase — натискання на конверт нічого не робить,
+            // щоб не конфліктувати з LootPanelUI
+        }
     }
 
     private IEnumerator AnimatePhaseTransition(int nextIdx)
     {
         _phaseAnimating = true;
 
-        // 1. Слайд картки вниз в конверт
         if (_phaseCard != null)
         {
             _phaseCard.AddToClassList("phase-card--hiding");
             yield return new WaitForSeconds(0.4f);
         }
 
-        // 2. Оновлюємо дані
         ApplyPhaseData(nextIdx);
 
-        // 3. Слайд нової картки вгору з конверту
         if (_phaseCard != null)
         {
             _phaseCard.RemoveFromClassList("phase-card--hiding");
             _phaseCard.AddToClassList("phase-card--entering");
-            // Форсуємо рефлоу
             yield return null;
             _phaseCard.RemoveFromClassList("phase-card--entering");
             _phaseCard.AddToClassList("phase-card--show");
@@ -319,6 +299,48 @@ public class HudTagController : MonoBehaviour
         }
     }
 
+    // ── Prestige ─────────────────────────────────────────────────
+
+    public void UpdatePrestigeTag(int current, int max)
+    {
+        if (tagData == null) return;
+
+        var lvl  = tagData.GetLevelForPrestige(current);
+        var next = tagData.GetNextLevel(lvl.level);
+
+        if (_tagBLevel  != null) _tagBLevel.text = RomanNumeral(lvl.level);
+        if (_tagBRank   != null) _tagBRank.text  = lvl.rankName.ToUpper();
+        if (_tagBBarMin != null) _tagBBarMin.text = current.ToString();
+        if (_tagBBarMax != null) _tagBBarMax.text = max.ToString();
+
+        if (_tagBBarFill != null)
+        {
+            float pct = max > 0 ? Mathf.Clamp01((float)current / max) * 100f : 0f;
+            _tagBBarFill.style.width = Length.Percent(pct);
+        }
+
+        if (_tagBBackNextInfo != null && next != null)
+            _tagBBackNextInfo.text =
+                $"До {RomanNumeral(next.level)} рівня: {next.prestigeRequired - current} ★\n" +
+                $"Наступний: {next.rankName}";
+
+        if (_tagABackLevel != null) _tagABackLevel.text = RomanNumeral(lvl.level);
+        if (_tagABackRank  != null) _tagABackRank.text  = lvl.rankName;
+    }
+
+    // ── Club ─────────────────────────────────────────────────────
+
+    public void UpdateClub(int stars, int members, bool founded)
+    {
+        if (_tagABackClubStars != null)
+            _tagABackClubStars.text = founded
+                ? new string('★', stars) + new string('☆', Mathf.Max(0, 5 - stars))
+                : "— не засновано —";
+
+        if (_tagABackClubMembers != null)
+            _tagABackClubMembers.text = founded ? members.ToString() : "";
+    }
+
     // ── Bonus strip ──────────────────────────────────────────────
 
     private void RebuildBonusStrip(IReadOnlyList<ActiveBonus> bonuses)
@@ -335,12 +357,10 @@ public class HudTagController : MonoBehaviour
         var item = new VisualElement();
         item.AddToClassList("bonus-item");
 
-        // Мотузка
         var str = new VisualElement();
         str.AddToClassList("bonus-string");
         item.Add(str);
 
-        // Тіло бірки
         var body = new VisualElement();
         body.AddToClassList("bonus-body");
         body.AddToClassList($"bonus-body--{bonus.shape.ToString().ToLower()}");
@@ -350,18 +370,14 @@ public class HudTagController : MonoBehaviour
         hole.AddToClassList("bonus-hole");
         body.Add(hole);
 
-        var lbl = new Label(bonus.label);
-        lbl.AddToClassList("bonus-label");
-        body.Add(lbl);
+        body.Add(new Label(bonus.label) { name = "bonus-lbl" });
+        body.Q<Label>("bonus-lbl")?.AddToClassList("bonus-label");
 
-        var val = new Label(bonus.value);
-        val.AddToClassList("bonus-value");
-        body.Add(val);
+        body.Add(new Label(bonus.value) { name = "bonus-val" });
+        body.Q<Label>("bonus-val")?.AddToClassList("bonus-value");
 
-        // Тултіп при наведенні
         var tooltip = BuildTooltip(bonus.tooltipTitle, bonus.tooltipBody);
         body.Add(tooltip);
-
         body.RegisterCallback<MouseEnterEvent>(_ => tooltip.style.display = DisplayStyle.Flex);
         body.RegisterCallback<MouseLeaveEvent>(_ => tooltip.style.display = DisplayStyle.None);
 
@@ -386,9 +402,9 @@ public class HudTagController : MonoBehaviour
         {
             var row = new VisualElement();
             row.AddToClassList("hud-tooltip__row");
-            var lineLbl = new Label(line);
-            lineLbl.AddToClassList("hud-tooltip__line");
-            row.Add(lineLbl);
+            var l = new Label(line);
+            l.AddToClassList("hud-tooltip__line");
+            row.Add(l);
             inner.Add(row);
         }
 
@@ -403,10 +419,4 @@ public class HudTagController : MonoBehaviour
         1 => "I", 2 => "II", 3 => "III", 4 => "IV", 5 => "V",
         _ => n.ToString()
     };
-
-    private void SetText(VisualElement root, string name, string text)
-    {
-        var el = (root ?? uiDocument?.rootVisualElement)?.Q<Label>(name);
-        if (el != null) el.text = text;
-    }
 }

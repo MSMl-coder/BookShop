@@ -1,46 +1,24 @@
 /* ================================================================
-   Assets/UI/USS/HudTag.uss
-   Стилі для нового HUD: бірки (tag), конверт (envelope), бонуси,
-   тултіпи, печатки (stamp)
+   Assets/UI/Styles/HudTag.uss  — PAPER ARCHIVE (збільшений HUD)
+   ================================================================ */
 
-   Шрифти (призначити в Unity Inspector на кожен Label):
-     Special Elite  → --font-special-elite (реєструється через панель fonts у проекті)
-     IM Fell English → --font-im-fell
-
-   Кольори:
-     --blue:   #185FA5
-     --green:  #2A6A2A
-     --paper:  #F4EAD0
-     --ink:    #1A1208
-================================================================ */
-
-/* ── Variables (USS Custom Properties) ── */
 :root {
-    --color-paper:       rgb(244, 234, 208);
-    --color-paper2:      rgb(224, 204, 152);
-    --color-paper3:      rgb(200, 176, 112);
-    --color-ink:         rgb(26, 18, 8);
-    --color-ink-brown:   rgb(106, 74, 26);
-    --color-env:         rgb(216, 180, 120);
-    --color-env-border:  rgb(138, 96, 48);
-    --color-blue:        rgb(24, 95, 165);
-    --color-blue-pale:   rgb(192, 216, 232);
-    --color-green:       rgb(42, 106, 42);
-    --color-stamp-red:   rgb(200, 64, 48);
-    --color-string:      rgb(200, 168, 112);
+    --color-paper:      rgb(244, 234, 208);
+    --color-ink:        rgb(26, 18, 8);
+    --color-ink-brown:  rgb(106, 74, 26);
+    --color-env:        rgb(216, 180, 120);
+    --color-env-border: rgb(138, 96, 48);
+    --color-blue:       rgb(24, 95, 165);
+    --color-green:      rgb(42, 106, 42);
+    --color-stamp-red:  rgb(200, 64, 48);
+    --color-string:     rgb(200, 168, 112);
 }
 
-/* ════════════════════════════════════════
-   ROOT
-════════════════════════════════════════ */
 .hud-tag-root {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
 }
 
-/* ════════════════════════════════════════
-   LEFT COLUMN
-════════════════════════════════════════ */
 .hud-tag-left {
     position: absolute;
     top: 0; left: 0;
@@ -51,189 +29,111 @@
 .hud-tags-row {
     flex-direction: row;
     align-items: flex-start;
-    gap: 10px;
+    gap: 14px;
 }
 
-/* ════════════════════════════════════════
-   TAG ASSEMBLY (мотузка + бірка)
-════════════════════════════════════════ */
-.tag-assembly {
-    flex-direction: column;
-    align-items: center;
-    cursor: link;
-}
+/* === TAG === */
+.tag-assembly { flex-direction: column; align-items: center; cursor: link; }
 
-/* Мотузка */
-.tag-string {
-    width: 2px;
-    height: 28px;
-    background-color: var(--color-string);
-}
+.tag-string { width: 3px; height: 38px; background-color: var(--color-string); }
 
-/* Металевий гачок (псевдоелемент замінюється окремим VisualElement,
-   бо USS не підтримує ::before/::after у runtime) */
-
-/* ── Flipper ── */
 .tag-flipper {
-    width: 82px;
-    height: 132px;
-    /* 3D flip реалізується через клас .flipped + transition на rotate */
+    width: 120px; height: 190px;
     transition-property: rotate;
     transition-duration: 0.65s;
     transition-timing-function: ease;
     rotate: 0 1 0 0deg;
 }
-.tag-flipper.flipped {
-    rotate: 0 1 0 180deg;
-}
+.tag-flipper.flipped { rotate: 0 1 0 180deg; }
 
-/* ── Faces ── */
-.tag-face,
-.tag-back {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: 3px 3px 4px 4px;
-    padding: 6px 7px 7px 7px;
+.tag-face, .tag-back {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 4px 4px 6px 6px;
+    padding: 10px 10px 12px 10px;
 }
-
 .tag-face {
     background-color: var(--color-paper);
-    border-width: 1px;
-    border-color: rgb(138, 104, 48);
-    border-style: solid;
+    border-width: 1.5px; border-color: rgb(138, 104, 48); border-style: solid;
 }
-.tag-face--green {
-    background-color: rgb(232, 244, 232);
-    border-color: rgb(74, 122, 74);
-}
-
+.tag-face--green { background-color: rgb(232, 244, 232); border-color: rgb(74, 122, 74); }
 .tag-back {
     background-color: rgb(240, 232, 208);
-    border-width: 1px;
-    border-color: rgb(122, 88, 32);
-    border-style: solid;
-    rotate: 0 1 0 180deg;   /* завжди "перевернута" в 3D-просторі */
+    border-width: 1.5px; border-color: rgb(122, 88, 32); border-style: solid;
+    rotate: 0 1 0 180deg;
 }
-.tag-back--green {
-    background-color: rgb(224, 240, 224);
-    border-color: rgb(58, 106, 58);
-}
+.tag-back--green { background-color: rgb(224, 240, 224); border-color: rgb(58, 106, 58); }
 
-/* Декоративні рамки (вкладені VisualElement) */
-.tag-border {
-    position: absolute;
-    border-style: solid;
-    border-radius: 2px;
-}
-.tag-border--outer { top: 4px; left: 4px; right: 4px; bottom: 4px; border-width: 0.5px; border-color: rgba(26,18,8,0.18); }
-.tag-border--inner { top: 8px; left: 8px; right: 8px; bottom: 8px; border-width: 0.5px; border-color: rgba(26,18,8,0.10); }
-.tag-border--green.tag-border--outer { border-color: rgba(20,60,20,0.18); }
-.tag-border--green.tag-border--inner { border-color: rgba(20,60,20,0.10); }
+.tag-border { position: absolute; border-style: solid; border-radius: 3px; }
+.tag-border--outer { top: 6px; left: 6px; right: 6px; bottom: 6px; border-width: 0.5px; border-color: rgba(26,18,8,0.15); }
+.tag-border--inner { top: 11px; left: 11px; right: 11px; bottom: 11px; border-width: 0.5px; border-color: rgba(26,18,8,0.08); }
+.tag-border--green.tag-border--outer { border-color: rgba(20,60,20,0.15); }
+.tag-border--green.tag-border--inner { border-color: rgba(20,60,20,0.08); }
 
-/* Вертикальна кольорова смужка */
-.tag-accent-bar {
-    position: absolute;
-    left: 0; top: 24%; bottom: 0;
-    width: 5px;
-    border-radius: 0 0 0 3px;
-}
+.tag-accent-bar { position: absolute; left: 0; top: 24%; bottom: 0; width: 7px; border-radius: 0 0 0 4px; }
 .tag-accent-bar--blue  { background-color: var(--color-blue); }
 .tag-accent-bar--green { background-color: var(--color-green); }
 
-/* Отвір */
 .tag-hole {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
+    width: 18px; height: 18px; border-radius: 50%;
     background-color: rgb(42, 26, 8);
-    border-width: 1px;
-    border-color: rgb(106, 74, 32);
-    border-style: solid;
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 4px;
+    border-width: 1.5px; border-color: rgb(106, 74, 32); border-style: solid;
+    margin-left: auto; margin-right: auto; margin-bottom: 6px;
 }
 .tag-hole--green { background-color: rgb(26, 48, 16); border-color: rgb(58, 96, 32); }
 
-/* Типографіка — Front */
-.tag-brand          { font-size: 6.5px; letter-spacing: 2px; color: var(--color-ink-brown); -unity-text-align: middle-center; margin-bottom: 1px; }
-.tag-brand--green   { color: rgb(58, 90, 26); }
-.tag-series         { font-size: 5px; letter-spacing: 1px; color: var(--color-ink-brown); -unity-text-align: middle-center; margin-bottom: 3px; -unity-font-style: italic; }
-.tag-series--green  { color: rgb(58, 90, 26); }
-.tag-ornament       { font-size: 8px; color: rgba(26,18,8,0.18); -unity-text-align: middle-center; margin-top: 1px; margin-bottom: 1px; }
-.tag-amount         { font-size: 22px; font-style: Bold; color: var(--color-ink); -unity-text-align: middle-center; letter-spacing: -1px; }
-.tag-currency       { font-size: 7.5px; color: var(--color-ink-brown); -unity-text-align: middle-center; letter-spacing: 1px; }
-.tag-divider        { height: 0.5px; background-color: rgb(138, 104, 48); opacity: 0.45; margin-top: 4px; margin-bottom: 4px; }
+.tag-brand        { font-size: 9px; letter-spacing: 2px; color: var(--color-ink-brown); -unity-text-align: middle-center; margin-bottom: 2px; }
+.tag-brand--green { color: rgb(58, 90, 26); }
+.tag-series       { font-size: 7px; letter-spacing: 1px; color: var(--color-ink-brown); -unity-text-align: middle-center; margin-bottom: 4px; -unity-font-style: italic; }
+.tag-series--green{ color: rgb(58, 90, 26); }
+.tag-ornament     { font-size: 11px; color: rgba(26,18,8,0.15); -unity-text-align: middle-center; margin-top: 1px; margin-bottom: 1px; }
+.tag-amount       { font-size: 32px; -unity-font-style: bold; color: var(--color-ink); -unity-text-align: middle-center; letter-spacing: -1px; }
+.tag-currency     { font-size: 10px; color: var(--color-ink-brown); -unity-text-align: middle-center; letter-spacing: 1px; }
+.tag-divider      { height: 0.5px; background-color: rgb(138, 104, 48); opacity: 0.45; margin-top: 6px; margin-bottom: 6px; }
 .tag-divider--green { background-color: rgb(74, 122, 74); }
-.tag-day-row        { flex-direction: row; justify-content: space-between; align-items: flex-end; padding-left: 2px; padding-right: 2px; }
-.tag-day-label      { font-size: 6px; color: var(--color-ink-brown); letter-spacing: 1px; }
-.tag-day-value      { font-size: 11px; font-style: Bold; color: var(--color-blue); }
+.tag-day-row    { flex-direction: row; justify-content: space-between; align-items: flex-end; padding-left: 3px; padding-right: 3px; }
+.tag-day-label  { font-size: 8px; color: var(--color-ink-brown); letter-spacing: 1px; }
+.tag-day-value  { font-size: 16px; -unity-font-style: bold; color: var(--color-blue); }
 
-/* Типографіка — Back */
-.tag-back-title         { font-size: 6px; letter-spacing: 2px; color: var(--color-ink-brown); -unity-text-align: middle-center; border-bottom-width: 0.5px; border-color: var(--color-ink-brown); border-style: solid; padding-bottom: 3px; margin-bottom: 4px; }
-.tag-back-title--green  { color: rgb(42, 90, 26); border-color: rgb(42, 90, 26); }
-.tag-back-row           { flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 3px; }
-.tag-back-label         { font-size: 6px; color: var(--color-ink-brown); letter-spacing: 0.5px; }
-.tag-back-value         { font-size: 9px; font-style: Bold; color: var(--color-blue); }
-.tag-back-value--small  { font-size: 7px; }
-.tag-back-club-title    { font-size: 6px; letter-spacing: 1px; color: var(--color-ink-brown); -unity-text-align: middle-center; -unity-font-style: italic; margin-top: 2px; }
-.tag-back-stars         { font-size: 10px; color: var(--color-blue); -unity-text-align: middle-center; letter-spacing: 2px; margin-top: 1px; margin-bottom: 1px; }
-.tag-back-hint          { font-size: 5px; color: rgb(187, 187, 187); -unity-text-align: middle-center; margin-top: 4px; letter-spacing: 1px; }
+.tag-back-title        { font-size: 8px; letter-spacing: 2px; color: var(--color-ink-brown); -unity-text-align: middle-center; border-bottom-width: 0.5px; border-color: var(--color-ink-brown); border-style: solid; padding-bottom: 4px; margin-bottom: 6px; }
+.tag-back-title--green { color: rgb(42, 90, 26); border-color: rgb(42, 90, 26); }
+.tag-back-row          { flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.tag-back-label        { font-size: 8px; color: var(--color-ink-brown); letter-spacing: 0.5px; }
+.tag-back-value        { font-size: 12px; -unity-font-style: bold; color: var(--color-blue); }
+.tag-back-value--small { font-size: 9px; }
+.tag-back-club-title   { font-size: 8px; letter-spacing: 1px; color: var(--color-ink-brown); -unity-text-align: middle-center; -unity-font-style: italic; margin-top: 3px; }
+.tag-back-stars        { font-size: 14px; color: var(--color-blue); -unity-text-align: middle-center; letter-spacing: 2px; margin-top: 2px; margin-bottom: 2px; }
+.tag-back-hint         { font-size: 7px; color: rgb(187, 187, 187); -unity-text-align: middle-center; margin-top: 6px; letter-spacing: 1px; }
 
-/* Tag B специфічне */
-.tag-b-level          { font-size: 26px; font-style: Bold; color: rgb(26, 64, 16); -unity-text-align: middle-center; }
-.tag-b-rank           { font-size: 7.5px; color: var(--color-green); -unity-text-align: middle-center; letter-spacing: 2px; margin-top: 1px; }
-.tag-b-prestige-label { font-size: 5.5px; color: rgb(58, 90, 26); -unity-text-align: middle-center; letter-spacing: 0.5px; margin-bottom: 2px; }
-.tag-b-bar-bg         { height: 5px; background-color: rgba(74,122,74,0.15); border-width: 0.5px; border-color: rgb(74, 122, 74); border-style: solid; border-radius: 2px; overflow: hidden; margin-top: 2px; margin-bottom: 2px; }
+.tag-b-level          { font-size: 38px; -unity-font-style: bold; color: rgb(26, 64, 16); -unity-text-align: middle-center; }
+.tag-b-rank           { font-size: 10px; color: var(--color-green); -unity-text-align: middle-center; letter-spacing: 2px; margin-top: 1px; }
+.tag-b-prestige-label { font-size: 7px; color: rgb(58, 90, 26); -unity-text-align: middle-center; letter-spacing: 0.5px; margin-bottom: 3px; }
+.tag-b-bar-bg         { height: 7px; background-color: rgba(74,122,74,0.15); border-width: 0.5px; border-color: rgb(74, 122, 74); border-style: solid; border-radius: 2px; overflow: hidden; margin-top: 3px; margin-bottom: 3px; }
 .tag-b-bar-fill       { height: 100%; background-color: var(--color-green); border-radius: 2px; }
 .tag-b-bar-row        { flex-direction: row; justify-content: space-between; }
-.tag-b-bar-num        { font-size: 5.5px; color: rgb(58, 90, 26); letter-spacing: 0.5px; }
-.tag-b-next-info      { font-size: 6px; color: rgb(42, 90, 26); white-space: normal; margin-top: 4px; }
+.tag-b-bar-num        { font-size: 7px; color: rgb(58, 90, 26); letter-spacing: 0.5px; }
+.tag-b-next-info      { font-size: 8px; color: rgb(42, 90, 26); white-space: normal; margin-top: 6px; }
 
-/* ════════════════════════════════════════
-   BONUS STRIP
-════════════════════════════════════════ */
-.bonus-strip {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 8px;
-    margin-left: 8px;
-}
-
-.bonus-item {
-    flex-direction: column;
-    align-items: center;
-}
-
-.bonus-string {
-    width: 1px;
-    height: 18px;
-    background-color: var(--color-string);
-}
-
+/* === BONUS STRIP === */
+.bonus-strip { flex-direction: row; align-items: flex-start; gap: 10px; margin-left: 12px; }
+.bonus-item  { flex-direction: column; align-items: center; }
+.bonus-string { width: 1px; height: 22px; background-color: var(--color-string); }
 .bonus-body {
-    padding: 3px 6px 4px 6px;
-    border-style: solid;
-    border-width: 0.5px;
-    flex-direction: column;
-    align-items: center;
+    padding: 5px 8px 6px 8px;
+    border-style: solid; border-width: 0.5px;
+    flex-direction: column; align-items: center;
 }
 .bonus-body--rect   { border-radius: 1px; }
-.bonus-body--round  { border-radius: 6px; }
+.bonus-body--round  { border-radius: 8px; }
 .bonus-body--ticket { border-radius: 2px; }
-
 .bonus-body--gold   { background-color: rgb(255, 248, 224); border-color: rgb(200, 160, 32); }
 .bonus-body--teal   { background-color: rgb(224, 244, 240); border-color: rgb(42, 138, 122); }
 .bonus-body--purple { background-color: rgb(240, 224, 248); border-color: rgb(122, 42, 138); }
 .bonus-body--orange { background-color: rgb(255, 240, 224); border-color: rgb(200, 96, 32); }
 .bonus-body--red    { background-color: rgb(255, 232, 228); border-color: rgb(200, 64, 48); }
 .bonus-body--blue   { background-color: rgb(224, 236, 255); border-color: var(--color-blue); }
-
-.bonus-hole  { width: 6px; height: 6px; border-radius: 50%; background-color: rgb(42, 26, 8); border-width: 0.5px; border-color: rgb(106, 74, 32); border-style: solid; margin-bottom: 2px; margin-left: auto; margin-right: auto; }
-.bonus-label { font-size: 5.5px; letter-spacing: 0.5px; -unity-text-align: middle-center; white-space: nowrap; }
-.bonus-value { font-size: 9px; font-style: Bold; -unity-text-align: middle-center; }
-
-/* Кольори тексту бонусів */
+.bonus-hole  { width: 8px; height: 8px; border-radius: 50%; background-color: rgb(42, 26, 8); border-width: 0.5px; border-color: rgb(106, 74, 32); border-style: solid; margin-bottom: 3px; margin-left: auto; margin-right: auto; }
+.bonus-label { font-size: 7px; letter-spacing: 0.5px; -unity-text-align: middle-center; white-space: nowrap; }
+.bonus-value { font-size: 12px; -unity-font-style: bold; -unity-text-align: middle-center; }
 .bonus-body--gold   .bonus-label, .bonus-body--gold   .bonus-value { color: rgb(138, 96, 16); }
 .bonus-body--teal   .bonus-label, .bonus-body--teal   .bonus-value { color: rgb(26, 90, 74); }
 .bonus-body--purple .bonus-label, .bonus-body--purple .bonus-value { color: rgb(74, 26, 90); }
@@ -241,142 +141,64 @@
 .bonus-body--red    .bonus-label, .bonus-body--red    .bonus-value { color: rgb(160, 32, 24); }
 .bonus-body--blue   .bonus-label, .bonus-body--blue   .bonus-value { color: var(--color-blue); }
 
-/* ════════════════════════════════════════
-   TOOLTIP
-════════════════════════════════════════ */
-.hud-tooltip {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    translate: -50% 0;
-    margin-bottom: 8px;
-    width: 130px;
-    z-index: 1000;
-}
-.hud-tooltip__inner {
-    background-color: rgb(250, 244, 226);
-    border-width: 1px;
-    border-color: var(--color-ink);
-    border-style: solid;
-    padding: 6px 8px 7px 8px;
-}
-.hud-tooltip__title {
-    font-size: 7px;
-    font-style: Bold;
-    letter-spacing: 2px;
-    color: var(--color-ink);
-    border-bottom-width: 1px;
-    border-color: var(--color-ink);
-    border-style: solid;
-    padding-bottom: 3px;
-    margin-bottom: 4px;
-    padding-left: 12px;
-}
-.hud-tooltip__row  { flex-direction: row; gap: 3px; margin-bottom: 3px; padding-left: 12px; }
-.hud-tooltip__line { font-size: 7.5px; color: var(--color-ink); }
+/* === TOOLTIP === */
+.hud-tooltip { position: absolute; bottom: 100%; left: 50%; translate: -50% 0; margin-bottom: 10px; width: 170px; z-index: 1000; }
+.hud-tooltip__inner { background-color: rgb(250, 244, 226); border-width: 1px; border-color: var(--color-ink); border-style: solid; padding: 8px 10px 9px 10px; }
+.hud-tooltip__title { font-size: 9px; -unity-font-style: bold; letter-spacing: 2px; color: var(--color-ink); border-bottom-width: 1px; border-color: var(--color-ink); border-style: solid; padding-bottom: 4px; margin-bottom: 5px; padding-left: 14px; }
+.hud-tooltip__row   { flex-direction: row; gap: 3px; margin-bottom: 3px; padding-left: 14px; }
+.hud-tooltip__line  { font-size: 9px; color: var(--color-ink); }
 
-/* ════════════════════════════════════════
-   PHASE ZONE (конверт + картки)
-════════════════════════════════════════ */
-.phase-zone {
-    position: absolute;
-    left: 12px;
-    bottom: 14px;
-    width: 108px;
-    cursor: link;
-}
+/* === PHASE ZONE — лівий нижній кут === */
+.phase-zone { position: absolute; left: 16px; bottom: 18px; width: 140px; cursor: link; }
+.phase-cards-stack { position: absolute; bottom: 0; left: 0; right: 0; height: 320px; }
 
-.phase-cards-stack {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 260px;
-}
-
-/* Картки */
 .phase-card {
-    position: absolute;
-    bottom: 0;
-    width: 88%;
-    border-width: 0.6px;
-    border-color: rgb(42, 32, 24);
-    border-style: solid;
+    position: absolute; bottom: 0; width: 88%;
+    border-width: 0.6px; border-color: rgb(42, 32, 24); border-style: solid;
     transition-property: translate, opacity;
-    transition-duration: 0.5s;
-    transition-timing-function: ease;
+    transition-duration: 0.5s; transition-timing-function: ease;
 }
 .phase-card--active { background-color: rgb(192, 216, 232); left: 1%; z-index: 5; translate: -3% -52%; }
 .phase-card--dec1   { background-color: rgb(176, 202, 218); left: 5%; z-index: 4; translate: 3% -28%; }
 .phase-card--dec2   { background-color: rgb(160, 184, 196); left: 9%; z-index: 3; translate: 8% -14%; }
 
-/* Анімаційні стани */
-.phase-card--active.phase-card--hiding  { translate: -3% 8%; opacity: 0; }
-.phase-card--active.phase-card--entering{ translate: -3% -8%; opacity: 0; transition-duration: 0s; }
-.phase-card--active.phase-card--show    { translate: -3% -52%; opacity: 1; transition-duration: 0.5s; }
+.phase-card--active.phase-card--hiding   { translate: -3% 8%; opacity: 0; }
+.phase-card--active.phase-card--entering { translate: -3% -8%; opacity: 0; transition-duration: 0s; }
+.phase-card--active.phase-card--show     { translate: -3% -52%; opacity: 1; transition-duration: 0.5s; }
 
-/* Внутрішній вміст */
-.phase-card-inner   { padding: 7% 7% 4% 7%; position: relative; }
-.phase-card-heading { font-size: 10px; font-style: Bold; letter-spacing: 3px; color: var(--color-ink); border-bottom-width: 1px; border-color: rgba(26,18,8,0.3); border-style: solid; padding-bottom: 4%; margin-bottom: 3%; -unity-text-align: middle-center; }
+.phase-card-inner   { padding: 8% 8% 5% 8%; position: relative; }
+.phase-card-heading { font-size: 13px; -unity-font-style: bold; letter-spacing: 3px; color: var(--color-ink); border-bottom-width: 1px; border-color: rgba(26,18,8,0.3); border-style: solid; padding-bottom: 5%; margin-bottom: 4%; -unity-text-align: middle-center; }
 .phase-lines        { flex-direction: column; }
-.phase-line-row     { flex-direction: row; border-bottom-width: 0.4px; border-color: rgba(26,18,8,0.2); border-style: solid; padding-top: 3px; padding-bottom: 3px; align-items: center; }
-.phase-line-num     { width: 22%; font-size: 5.5px; color: var(--color-ink-brown); letter-spacing: 0.5px; padding-right: 3%; }
+.phase-line-row     { flex-direction: row; border-bottom-width: 0.4px; border-color: rgba(26,18,8,0.2); border-style: solid; padding-top: 5px; padding-bottom: 5px; align-items: center; }
+.phase-line-num     { width: 22%; font-size: 7px; color: var(--color-ink-brown); letter-spacing: 0.5px; padding-right: 3%; }
 .phase-line-sep     { width: 0.4px; background-color: rgba(26,18,8,0.3); align-self: stretch; margin-right: 4%; }
-.phase-line-val     { flex-grow: 1; font-size: 8px; color: var(--color-ink); letter-spacing: 0.5px; }
-.phase-line-val--bold  { font-style: Bold; font-size: 9px; }
-.phase-line-val--blue  { color: var(--color-blue); }
+.phase-line-val     { flex-grow: 1; font-size: 10px; color: var(--color-ink); letter-spacing: 0.5px; }
+.phase-line-val--bold { -unity-font-style: bold; font-size: 11px; }
+.phase-line-val--blue { color: var(--color-blue); }
 
-/* Dots */
-.phase-dots        { flex-direction: row; gap: 3px; margin-top: 5%; }
-.phase-dot         { width: 7px; height: 7px; border-width: 0.6px; border-color: var(--color-ink); border-style: solid; background-color: rgba(0,0,0,0); }
+.phase-dots        { flex-direction: row; gap: 4px; margin-top: 6%; }
+.phase-dot         { width: 9px; height: 9px; border-width: 0.6px; border-color: var(--color-ink); border-style: solid; background-color: rgba(0,0,0,0); }
 .phase-dot--active { background-color: var(--color-blue); }
 .phase-dot--done   { background-color: rgb(90, 136, 184); opacity: 0.6; }
 
-/* ── Печатка (Stamp) ── */
 .phase-stamp {
-    position: absolute;
-    bottom: 8%;
-    right: 6%;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border-width: 1.5px;
-    border-style: solid;
+    position: absolute; bottom: 8%; right: 6%;
+    width: 46px; height: 46px; border-radius: 50%;
+    border-width: 2px; border-style: solid;
     -unity-text-align: middle-center;
-    font-size: 6.5px;
-    font-style: Bold;
-    letter-spacing: 2px;
-    rotate: -8deg;
-    white-space: normal;
+    font-size: 8px; -unity-font-style: bold; letter-spacing: 2px;
+    rotate: -8deg; white-space: normal;
 }
-.stamp--prep   { color: var(--color-blue);       border-color: var(--color-blue);       background-color: rgba(24,95,165,0.07); }
-.stamp--trade  { color: var(--color-stamp-red);   border-color: var(--color-stamp-red);   background-color: rgba(200,64,48,0.07); }
-.stamp--reward { color: var(--color-green);        border-color: var(--color-green);        background-color: rgba(42,106,42,0.07); }
+.stamp--prep   { color: var(--color-blue);      border-color: var(--color-blue);      background-color: rgba(24,95,165,0.07); }
+.stamp--trade  { color: var(--color-stamp-red);  border-color: var(--color-stamp-red);  background-color: rgba(200,64,48,0.07); }
+.stamp--reward { color: var(--color-green);       border-color: var(--color-green);       background-color: rgba(42,106,42,0.07); }
 
-/* ── Конверт ── */
 .phase-envelope {
-    position: relative;
-    z-index: 10;
-    width: 100%;
+    position: relative; z-index: 10; width: 100%;
     background-color: var(--color-env);
-    border-width: 1.5px;
-    border-color: var(--color-env-border);
-    border-style: solid;
-    border-radius: 3px;
+    border-width: 2px; border-color: var(--color-env-border); border-style: solid;
+    border-radius: 4px;
     padding-top: 50%;
 }
-.phase-envelope-string {
-    position: absolute;
-    top: 0; left: 50%;
-    translate: -50% 0;
-    width: 1px;
-    height: 18%;
-    background-color: var(--color-env-border);
-}
-.phase-envelope-label {
-    position: absolute;
-    bottom: 8%;
-    left: 0; right: 0;
-    font-size: 7px;
-    letter-spacing: 2px;
-    color: rgb(90, 58, 16);
-    -unity-text-align: middle-center;
-}
+.phase-envelope-string { position: absolute; top: 0; left: 50%; translate: -50% 0; width: 1px; height: 18%; background-color: var(--color-env-border); }
+.phase-envelope-label  { position: absolute; bottom: 8%; left: 0; right: 0; font-size: 9px; letter-spacing: 2px; color: rgb(90, 58, 16); -unity-text-align: middle-center; }
