@@ -11,22 +11,125 @@ public class InventoryManager : MonoBehaviour
     [Header("Data")]
     [SerializeField] private BookDatabase database;
 
-    private List<BookInstance> _ownedBooks = new List<BookInstance>();
-    private List<FurnitureTemplate> _unlockedFurniture = new List<FurnitureTemplate>();
+    // ── Books ──
+    private readonly List<BookInstance> _ownedBooks = new();
+
+    // ── Furniture ──
+    private readonly List<FurnitureInstance>             _furnitureInventory = new();
+    private readonly Dictionary<int, FurnitureTemplate> _furnitureDB        = new();
 
     public event Action OnInventoryChanged;
+    public event Action OnFurnitureChanged;
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            // ВИПРАВЛЕНО: не ініціалізуємо базу тут — це робить BookDatabaseLoader
-        }
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
     }
 
-    // --- Books ---
+    // ─────────────────────────────────────────────
+    #region Furniture DB Init
+    // ─────────────────────────────────────────────
+
+    /// Викликається з DecorationPanelUI.OnEnable — реєструє шаблони
+    /// і авто-видає екземпляри для unlockedByDefault
+    public void InitFurnitureDatabase(IEnumerable<FurnitureTemplate> allTemplates)
+    {
+        _furnitureDB.Clear();
+        foreach (var t in allTemplates)
+        {
+            if (t == null) continue;
+            _furnitureDB[t.furnitureID] = t;
+
+            if (t.unlockedByDefault && !HasFurnitureTemplate(t.furnitureID))
+            {
+                var fi = new FurnitureInstance(t.furnitureID);
+                _furnitureInventory.Add(fi);
+                Debug.Log($"[Inventory] Auto-unlocked: {t.furnitureName}");
+            }
+        }
+        OnFurnitureChanged?.Invoke();
+    }
+
+    public FurnitureTemplate GetTemplate(int templateID) =>
+        _furnitureDB.TryGetValue(templateID, out var t) ? t : null;
+
+    #endregion
+
+    // ─────────────────────────────────────────────
+    #region Furniture Inventory
+    // ─────────────────────────────────────────────
+
+    public void AddFurnitureInstance(FurnitureInstance instance)
+    {
+        if (instance == null) return;
+        _furnitureInventory.Add(instance);
+        OnFurnitureChanged?.Invoke();
+        Debug.Log($"[Inventory] Furniture added: templateID={instance.templateID}");
+    }
+
+    /// Розблокувати = додати новий екземпляр (викликається з LootManager)
+    public void UnlockFurniture(FurnitureTemplate template)
+    {
+        if (template == null) return;
+        var fi = new FurnitureInstance(template.furnitureID);
+        _furnitureInventory.Add(fi);
+
+        // Реєструємо шаблон якщо ще не зареєстровано
+        if (!_furnitureDB.ContainsKey(template.furnitureID))
+            _furnitureDB[template.furnitureID] = template;
+
+        OnFurnitureChanged?.Invoke();
+        Debug.Log($"[Inventory] Unlocked furniture: {template.furnitureName}");
+    }
+
+    public void RemoveFurnitureInstance(FurnitureInstance instance)
+    {
+        if (_furnitureInventory.Remove(instance))
+            OnFurnitureChanged?.Invoke();
+    }
+
+    public bool HasFurnitureTemplate(int templateID) =>
+        _furnitureInventory.Any(f => f.templateID == templateID);
+
+    public bool IsTemplateUnlocked(int templateID) =>
+        HasFurnitureTemplate(templateID);
+
+    /// Перший нерозміщений екземпляр шаблону (для BeginPlacement)
+    public FurnitureInstance GetFirstUnplaced(int templateID) =>
+        _furnitureInventory.FirstOrDefault(f => f.templateID == templateID && !f.isPlaced);
+
+    public List<FurnitureInstance> GetUnplacedInstances() =>
+        _furnitureInventory.Where(f => !f.isPlaced).ToList();
+
+    public List<FurnitureInstance> GetPlacedInstances() =>
+        _furnitureInventory.Where(f => f.isPlaced).ToList();
+
+    public List<FurnitureInstance> GetInstancesByTemplate(int templateID) =>
+        _furnitureInventory.Where(f => f.templateID == templateID).ToList();
+
+    public List<FurnitureInstance> GetAllFurnitureInstances() =>
+        new List<FurnitureInstance>(_furnitureInventory);
+
+    /// Всі унікальні шаблони що є у гравця (для DecorationPanelUI)
+    public List<FurnitureTemplate> GetAllUnlockedTemplates()
+    {
+        var ids = _furnitureInventory.Select(f => f.templateID).Distinct();
+        return ids.Select(id => GetTemplate(id)).Where(t => t != null).ToList();
+    }
+
+    // Сумісність зі старим кодом
+    public List<FurnitureTemplate> GetUnlockedFurnitureByClass(FurnitureClass targetClass) =>
+        GetAllUnlockedTemplates().Where(t => t.furnitureClass == targetClass).ToList();
+
+    public List<FurnitureTemplate> GetAllUnlockedFurniture() =>
+        GetAllUnlockedTemplates();
+
+    #endregion
+
+    // ─────────────────────────────────────────────
+    #region Books
+    // ─────────────────────────────────────────────
 
     public void AddBook(string templateID)
     {
@@ -43,11 +146,10 @@ public class InventoryManager : MonoBehaviour
         _ownedBooks.Add(instance);
         OnInventoryChanged?.Invoke();
 
-        // Туторіал — перша книга
         if (_ownedBooks.Count == 1)
             TutorialManager.Instance?.TryTrigger(TutorialTrigger.OnFirstBook);
 
-        Debug.Log($"[Inventory] Added: {template.title}. Total: {_ownedBooks.Count}");
+        Debug.Log($"[Inventory] Book added: {template.title}. Total: {_ownedBooks.Count}");
     }
 
     public void AddExistingBook(BookInstance instance)
@@ -65,15 +167,19 @@ public class InventoryManager : MonoBehaviour
 
     public int GetBookCount() => _ownedBooks.Count;
 
-    // --- Shelf Operations ---
+    #endregion
+
+    // ─────────────────────────────────────────────
+    #region Shelf Operations
+    // ─────────────────────────────────────────────
 
     public void PushOneToShelf(Shelf targetShelf)
     {
         if (targetShelf == null || _ownedBooks.Count == 0) return;
         if (!ValidateDatabase()) return;
 
-        BookInstance bookToPlace = _ownedBooks[0];
-        BookTemplate template = database.GetBook(bookToPlace.templateID);
+        var bookToPlace = _ownedBooks[0];
+        var template    = database.GetBook(bookToPlace.templateID);
 
         if (template?.containerPrefab == null)
         {
@@ -92,49 +198,28 @@ public class InventoryManager : MonoBehaviour
         }
     }
 
-       public void PushAllToShelf(Shelf targetShelf)
+    public void PushAllToShelf(Shelf targetShelf)
     {
-        if (targetShelf == null || !ValidateDatabase()) return;
-// 
+        if (targetShelf == null) return;
+        if (!ValidateDatabase()) return;
+
         var snapshot = new List<BookInstance>(_ownedBooks);
-        bool anyMoved = false;
- 
         foreach (var book in snapshot)
         {
-            BookTemplate template = database.GetBook(book.templateID);
+            var template = database.GetBook(book.templateID);
             if (template?.containerPrefab == null) continue;
             if (!targetShelf.CanFitBook(template.containerPrefab)) break;
-  
-            targetShelf.PlaceBookSilent(book, template.containerPrefab);
-            _ownedBooks.Remove(book); // remove directly, no per-book event
-            anyMoved = true;
-        }
- 
-        if (anyMoved)
-        {
-            targetShelf.CommitLayout();       // single layout pass
-            OnInventoryChanged?.Invoke();     // single UI refresh
+            targetShelf.PlaceBook(book, template.containerPrefab);
+            RemoveBook(book);
         }
     }
 
-    // --- Furniture ---
+    #endregion
 
-    public void UnlockFurniture(FurnitureTemplate furniture)
-    {
-        if (furniture == null || _unlockedFurniture.Contains(furniture)) return;
-        _unlockedFurniture.Add(furniture);
-        Debug.Log($"[Inventory] Unlocked furniture: {furniture.furnitureName}");
-    }
+    // ─────────────────────────────────────────────
+    #region Sorting
+    // ─────────────────────────────────────────────
 
-    public List<FurnitureTemplate> GetUnlockedFurnitureByClass(FurnitureClass targetClass)
-        => _unlockedFurniture.Where(f => f.furnitureClass == targetClass).ToList();
-
-    public List<FurnitureTemplate> GetAllUnlockedFurniture()
-        => new List<FurnitureTemplate>(_unlockedFurniture);
-
-    // --- Sorting ---
-
-    // ВИПРАВЛЕНО: повертає порожній список замість null
     public List<BookInstance> GetSortedInventory(SortType type)
     {
         if (_ownedBooks.Count == 0 || !ValidateDatabase())
@@ -142,28 +227,22 @@ public class InventoryManager : MonoBehaviour
 
         return type switch
         {
-            SortType.ByTitle  => _ownedBooks
-                .OrderBy(b => database.GetBook(b.templateID)?.title ?? "")
-                .ToList(),
-            SortType.ByAuthor => _ownedBooks
-                .OrderBy(b => database.GetBook(b.templateID)?.author ?? "")
-                .ToList(),
-            SortType.ByPrice  => _ownedBooks
-                .OrderByDescending(b => database.GetBook(b.templateID)?.sellPrice ?? 0)
-                .ToList(),
-            SortType.ByRarity => _ownedBooks
-                .OrderByDescending(b => (int)(database.GetBook(b.templateID)?.rarity ?? 0))
-                .ToList(),
-            SortType.ByGenre  => _ownedBooks
-                .OrderBy(b => (int)(database.GetBook(b.templateID)?.genre ?? 0))
-                .ToList(),
+            SortType.ByTitle  => _ownedBooks.OrderBy(b => database.GetBook(b.templateID)?.title  ?? "").ToList(),
+            SortType.ByAuthor => _ownedBooks.OrderBy(b => database.GetBook(b.templateID)?.author ?? "").ToList(),
+            SortType.ByPrice  => _ownedBooks.OrderByDescending(b => database.GetBook(b.templateID)?.sellPrice ?? 0).ToList(),
+            SortType.ByRarity => _ownedBooks.OrderByDescending(b => (int)(database.GetBook(b.templateID)?.rarity ?? 0)).ToList(),
+            SortType.ByGenre  => _ownedBooks.OrderBy(b => (int)(database.GetBook(b.templateID)?.genre ?? 0)).ToList(),
             _ => new List<BookInstance>(_ownedBooks)
         };
     }
 
     public BookDatabase GetDatabase() => database;
 
-    // --- Private Helpers ---
+    #endregion
+
+    // ─────────────────────────────────────────────
+    #region Private Helpers
+    // ─────────────────────────────────────────────
 
     private bool ValidateDatabase()
     {
@@ -171,4 +250,6 @@ public class InventoryManager : MonoBehaviour
         Debug.LogError("[Inventory] Database is not assigned!");
         return false;
     }
+
+    #endregion
 }

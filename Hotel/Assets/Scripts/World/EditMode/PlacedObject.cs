@@ -1,8 +1,14 @@
 // Assets/Scripts/World/EditMode/PlacedObject.cs
 using UnityEngine;
 
+/// Компонент-мітка на розміщеному обʼєкті в сцені.
+/// Звʼязує GameObject з FurnitureInstance.
 public class PlacedObject : MonoBehaviour
 {
-    [HideInInspector] public GameObject originalPrefab;
-    [HideInInspector] public FurnitureTemplate sourceTemplate; // лишаємо для Registry
+    public FurnitureInstance Instance { get; private set; }
+
+    public void Init(FurnitureInstance instance)
+    {
+        Instance = instance;
+    }
 }

@@ -8,7 +8,6 @@ using System.Linq;
 ///
 /// UNITY SETUP:
 /// 1. DecorationPanel.uxml підключений до MainShopUI.uxml
-///    (або окремий UIDocument Sort Order 100)
 /// 2. Цей скрипт — на тому ж GameObject що ShopUIManager
 /// 3. allFurniture — призначити всі FurnitureTemplate з проекту
 /// 4. furnitureCardTemplate — FurnitureItemCard.uxml
@@ -48,13 +47,15 @@ public class DecorationPanelUI : MonoBehaviour
     private Button        _actionBtn;
 
     // ── State ──
-    private FurnitureClass? _activeFilter = null;   // null = всі
-    private bool            _filterPlaced = false;
+    private FurnitureClass?  _activeFilter = null;
+    private bool             _filterPlaced = false;
     private FurnitureTemplate _selected;
-    private bool _isOpen = false;
-    private bool _isEditMode;
+    private bool             _isOpen = false;
 
-    // Назви класів українською
+    // Замість поля _isEditMode — завжди читаємо з менеджера
+    private bool InEditMode =>
+        EditModeManager.Instance != null && EditModeManager.Instance.IsEditMode;
+
     private static readonly Dictionary<FurnitureClass, string> ClassNames = new()
     {
         { FurnitureClass.WallShelf,    "НАСТІННА ПОЛИЦЯ" },
@@ -77,11 +78,23 @@ public class DecorationPanelUI : MonoBehaviour
         if (uiDocument == null) return;
         var root = uiDocument.rootVisualElement;
 
+        // Реєструємо всі шаблони в InventoryManager (авто-розблокування unlockedByDefault)
+        InventoryManager.Instance?.InitFurnitureDatabase(allFurniture);
+
+        // Підписка на зміни інвентарю → перебудова гриду
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnFurnitureChanged += BuildGrid;
+
         CacheElements(root);
         BindButtons(root);
 
-        // Стартово — закрита
         SetDisplay(_panel, false);
+    }
+
+    private void OnDisable()
+    {
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnFurnitureChanged -= BuildGrid;
     }
 
     #endregion
@@ -92,16 +105,16 @@ public class DecorationPanelUI : MonoBehaviour
 
     private void CacheElements(VisualElement root)
     {
-        _panel          = root.Q<VisualElement>("DecorationPanel");
-        _grid           = root.Q<ScrollView>("DecoGrid");
-        _unlockedCount  = root.Q<Label>("DecoUnlockedCount");
+        _panel         = root.Q<VisualElement>("DecorationPanel");
+        _grid          = root.Q<ScrollView>("DecoGrid");
+        _unlockedCount = root.Q<Label>("DecoUnlockedCount");
 
-        _detailEmpty    = root.Q<VisualElement>("DecoDetailEmpty");
-        _detailContent  = root.Q<VisualElement>("DecoDetailContent");
-        _detailIcon     = root.Q<VisualElement>("DecoDetailIcon");
-        _detailName     = root.Q<Label>("DecoDetailName");
-        _detailClass    = root.Q<Label>("DecoDetailClass");
-        _detailBonus    = root.Q<Label>("DecoDetailBonus");
+        _detailEmpty       = root.Q<VisualElement>("DecoDetailEmpty");
+        _detailContent     = root.Q<VisualElement>("DecoDetailContent");
+        _detailIcon        = root.Q<VisualElement>("DecoDetailIcon");
+        _detailName        = root.Q<Label>("DecoDetailName");
+        _detailClass       = root.Q<Label>("DecoDetailClass");
+        _detailBonus       = root.Q<Label>("DecoDetailBonus");
         _detailBonusBlock  = root.Q<VisualElement>("DecoDetailBonusBlock");
         _detailUnlock      = root.Q<Label>("DecoDetailUnlock");
         _detailUnlockBlock = root.Q<VisualElement>("DecoDetailUnlockBlock");
@@ -116,19 +129,19 @@ public class DecorationPanelUI : MonoBehaviour
 
     private void BindButtons(VisualElement root)
     {
-        // Закрити
         root.Q<Button>("BtnCloseDecoration")?.RegisterCallback<ClickEvent>(_ => Close());
 
-        // Фільтри
-        BindFilter(root, "DecoFilterAll",    null,                      false);
-        BindFilter(root, "DecoFilterShelf",  FurnitureClass.WallShelf,  false);
+        BindFilter(root, "DecoFilterAll",    null,                        false);
+        BindFilter(root, "DecoFilterShelf",  FurnitureClass.WallShelf,    false);
         BindFilter(root, "DecoFilterIsland", FurnitureClass.CenterIsland, false);
-        BindFilter(root, "DecoFilterDecor",  FurnitureClass.Decor,      false);
+        BindFilter(root, "DecoFilterDecor",  FurnitureClass.Decor,        false);
         BindFilterPlaced(root, "DecoFilterPlaced");
 
-        // Кнопка дії
         if (_actionBtn != null)
+        {
+            _actionBtn.clicked -= OnActionBtnClicked; // захист від подвійної підписки
             _actionBtn.clicked += OnActionBtnClicked;
+        }
     }
 
     private void BindFilter(VisualElement root, string btnName,
@@ -142,7 +155,6 @@ public class DecorationPanelUI : MonoBehaviour
             _activeFilter = filterClass;
             _filterPlaced = placed;
 
-            // Скидаємо active на всіх фільтрах
             foreach (var name in new[]
                 { "DecoFilterAll","DecoFilterShelf","DecoFilterIsland",
                   "DecoFilterDecor","DecoFilterPlaced" })
@@ -167,6 +179,7 @@ public class DecorationPanelUI : MonoBehaviour
                 { "DecoFilterAll","DecoFilterShelf","DecoFilterIsland",
                   "DecoFilterDecor","DecoFilterPlaced" })
                 root.Q<Button>(name)?.RemoveFromClassList("active");
+
             btn.AddToClassList("active");
             BuildGrid();
         };
@@ -184,94 +197,99 @@ public class DecorationPanelUI : MonoBehaviour
         else Open();
     }
 
-  public void Open()
-{
-    _isOpen = true;
-    SetDisplay(_panel, true);
-    BuildGrid();
-    ShowDetailEmpty();
-    // Якщо EditMode — оновлюємо текст кнопки
-    if (_actionBtn != null)
-        _actionBtn.text = _isEditMode ? "РОЗМІСТИТИ" : "ПОСТАВИТИ";
-}
+    /// Відкрити панель (зберігає поточний InEditMode стан)
+    public void Open()
+    {
+        _isOpen = true;
+        SetDisplay(_panel, true);
+        BuildGrid();
+        ShowDetailEmpty();
 
-    // Повністю закрити (скидає EditMode) — викликається при виході з EditMode
+        if (_actionBtn != null)
+            _actionBtn.text = InEditMode ? "РОЗМІСТИТИ" : "ДЕТАЛІ";
+    }
+
+    /// Відкрити явно в EditMode (для кнопки BtnOpenDecoration коли IsEditMode=true)
+    public void OpenInEditMode()
+    {
+        Open(); // InEditMode читається з менеджера — додаткових дій не треба
+    }
+
+    /// Повністю закрити панель
     public void Close()
     {
-        _isEditMode = false;
         _isOpen = false;
         SetDisplay(_panel, false);
         _selected = null;
-        if (_actionBtn != null) _actionBtn.text = "ПОСТАВИТИ";
     }
 
+    /// Сховати (без скидання стану EditMode) — після початку розміщення
     private void Hide()
     {
         _isOpen = false;
         SetDisplay(_panel, false);
         _selected = null;
     }
+
     #endregion
 
     // ─────────────────────────────────────────────
     #region Grid
     // ─────────────────────────────────────────────
 
-    public void OpenInEditMode()
-    {
-        _isEditMode = true;
-        Open();
-        // Змінюємо текст кнопки дії під EditMode
-        if (_actionBtn != null) _actionBtn.text = "РОЗМІСТИТИ";
-    }
+    public void BuildGridPublic() => BuildGrid();
+
     private void BuildGrid()
     {
         if (_grid == null || furnitureCardTemplate == null) return;
         _grid.Clear();
 
-        var unlocked  = InventoryManager.Instance?.GetUnlockedFurnitureByClass(FurnitureClass.WallShelf)
-                        ?? new List<FurnitureTemplate>();
-        // Отримуємо всі розблоковані (всіх класів разом)
-        var allUnlocked = GetAllUnlocked();
-
-        // Оновлюємо лічильник
-        if (_unlockedCount != null)
-            _unlockedCount.text = $"{allUnlocked.Count} / {allFurniture.Count} предметів";
+        // Всі розблоковані шаблони через InventoryManager
+        var allUnlocked = InventoryManager.Instance?.GetAllUnlockedTemplates()
+                          ?? new List<FurnitureTemplate>();
 
         // Фільтрація
-        var filtered = allFurniture.AsEnumerable();
+        IEnumerable<FurnitureTemplate> filtered = allUnlocked;
 
-        if (_filterPlaced)
-            filtered = filtered.Where(f => f.IsPlaced);
-        else if (_activeFilter.HasValue)
+        if (_activeFilter.HasValue)
             filtered = filtered.Where(f => f.furnitureClass == _activeFilter.Value);
 
-        // Сортування: доступні першими, всередині — за назвою
-        var sorted = filtered
-            .OrderByDescending(f => allUnlocked.Contains(f) || f.unlockedByDefault)
-            .ThenBy(f => f.furnitureName)
-            .ToList();
+        if (_filterPlaced)
+            filtered = filtered.Where(f =>
+                PlacementRegistry.Instance?.GetAll()
+                    .Any(e => e.instance.templateID == f.furnitureID) == true);
 
-        foreach (var item in sorted)
+        if (_unlockedCount != null)
+            _unlockedCount.text = $"{allUnlocked.Count} предметів";
+
+        foreach (var item in filtered)
+            _grid.Add(MakeCard(item, isUnlocked: true));
+
+        // Заблоковані предмети (є в allFurniture але не в інвентарі)
+        foreach (var item in allFurniture)
         {
-            bool isUnlocked = item.unlockedByDefault || allUnlocked.Contains(item);
-            var card = MakeCard(item, isUnlocked);
-            _grid.Add(card);
+            if (item == null) continue;
+            if (allUnlocked.Any(u => u.furnitureID == item.furnitureID)) continue;
+            if (_activeFilter.HasValue && item.furnitureClass != _activeFilter.Value) continue;
+            if (_filterPlaced) continue; // заблоковані ніколи не розміщені
+
+            _grid.Add(MakeCard(item, isUnlocked: false));
         }
     }
 
     private VisualElement MakeCard(FurnitureTemplate item, bool isUnlocked)
     {
-        VisualElement card = furnitureCardTemplate.Instantiate().ElementAt(0);
+        var card = furnitureCardTemplate.CloneTree();
+        card.AddToClassList("furniture-card");
 
-        // ── Стан ──
-        if (!isUnlocked)
-            card.AddToClassList("locked");
-        else if (item.IsPlaced)
-            card.AddToClassList("placed");
+        if (!isUnlocked) card.AddToClassList("locked");
+        if (_selected == item) card.AddToClassList("selected");
 
-        if (item == _selected)
-            card.AddToClassList("selected");
+        // Визначаємо чи розміщений через Registry (не через SO)
+        bool isPlaced = PlacementRegistry.Instance?.GetAll()
+            .Any(e => e.instance.templateID == item.furnitureID) == true;
+
+        if (isPlaced) card.AddToClassList("placed");
 
         // ── Іконка ──
         var iconEl = card.Q<VisualElement>("FurnitureIcon");
@@ -282,39 +300,34 @@ public class DecorationPanelUI : MonoBehaviour
         var nameL = card.Q<Label>("FurnitureName");
         if (nameL != null) nameL.text = item.furnitureName;
 
-        // ── Бонус (скорочено) ──
-        var bonusL = card.Q<Label>("BonusText");
+        // ── Бонус ──
         var bonusBadge = card.Q<VisualElement>("BonusBadge");
-        if (bonusL != null && bonusBadge != null)
-        {
-            bool hasBonus = !string.IsNullOrEmpty(item.bonusDescription);
+        var bonusL     = card.Q<Label>("BonusText");
+        bool hasBonus  = !string.IsNullOrEmpty(item.bonusDescription);
+        if (bonusBadge != null)
             bonusBadge.style.display = hasBonus ? DisplayStyle.Flex : DisplayStyle.None;
-            if (hasBonus) bonusL.text = TruncateBonus(item.bonusDescription);
-        }
+        if (hasBonus && bonusL != null)
+            bonusL.text = TruncateBonus(item.bonusDescription);
 
-        // ── Статус в футері ──
+        // ── Статус ──
         var statusL = card.Q<Label>("FurnitureStatus");
         if (statusL != null)
         {
-            if (!isUnlocked)      statusL.text = "ЗАБЛОКОВАНО";
-            else if (item.IsPlaced) statusL.text = "В ЗАЛІ ✓";
-            else                    statusL.text = "В ЗАПАСІ";
+            if (!isUnlocked) statusL.text = "ЗАБЛОКОВАНО";
+            else if (isPlaced) statusL.text = "В ЗАЛІ ✓";
+            else statusL.text = "В ЗАПАСІ";
         }
 
         // ── Клік ──
         FurnitureTemplate captured = item;
         bool capturedLocked = !isUnlocked;
-        card.RegisterCallback<ClickEvent>(_ => OnCardClick(captured, capturedLocked, card));
+        card.RegisterCallback<ClickEvent>(_ => OnCardClick(captured, capturedLocked));
 
         return card;
-
-
-        
     }
 
-    private void OnCardClick(FurnitureTemplate item, bool isLocked, VisualElement clickedCard)
+    private void OnCardClick(FurnitureTemplate item, bool isLocked)
     {
-        // Знімаємо selected з попередньої картки — перебудовуємо грід
         _selected = item;
         BuildGrid();
         ShowDetail(item, isLocked);
@@ -346,9 +359,10 @@ public class DecorationPanelUI : MonoBehaviour
         }
 
         // ── Назва + клас ──
-        if (_detailName  != null) _detailName.text  = item.furnitureName;
-        if (_detailClass != null) _detailClass.text =
-            ClassNames.TryGetValue(item.furnitureClass, out var cn) ? cn : item.furnitureClass.ToString();
+        if (_detailName  != null) _detailName.text = item.furnitureName;
+        if (_detailClass != null)
+            _detailClass.text = ClassNames.TryGetValue(item.furnitureClass, out var cn)
+                ? cn : item.furnitureClass.ToString();
 
         // ── Бонус ──
         bool hasBonus = !string.IsNullOrEmpty(item.bonusDescription);
@@ -356,7 +370,7 @@ public class DecorationPanelUI : MonoBehaviour
         if (hasBonus && _detailBonus != null)
             _detailBonus.text = item.bonusDescription;
 
-        // ── Умова розблокування (тільки locked) ──
+        // ── Умова розблокування ──
         bool hasUnlock = isLocked && !string.IsNullOrEmpty(item.unlockCondition);
         if (_detailUnlockBlock != null)
         {
@@ -373,30 +387,41 @@ public class DecorationPanelUI : MonoBehaviour
             if (hasSet) _detailSetBlock.RemoveFromClassList("hidden");
             else        _detailSetBlock.AddToClassList("hidden");
         }
-        if (hasSet)
-            BuildSetProgress(item.setID);
+        if (hasSet) BuildSetProgress(item.setID);
 
-        // ── Кнопка дії ──
-        if (_actionBtn != null)
+        // ── Кнопка дії — ЄДИНИЙ блок ──
+        UpdateActionButton(item, isLocked);
+    }
+
+    /// Оновлює текст і стан кнопки залежно від контексту
+    private void UpdateActionButton(FurnitureTemplate item, bool isLocked)
+    {
+        if (_actionBtn == null) return;
+
+        if (isLocked)
         {
-            if (isLocked)
-            {
-                _actionBtn.text = "ЗАБЛОКОВАНО";
-                _actionBtn.SetEnabled(false);
-                _actionBtn.RemoveFromClassList("remove");
-            }
-            else if (item.IsPlaced)
-            {
-                _actionBtn.text = "ПРИБРАТИ";
-                _actionBtn.SetEnabled(true);
-                _actionBtn.AddToClassList("remove");
-            }
-            else
-            {
-                _actionBtn.text = "РОЗМІСТИТИ";
-                _actionBtn.SetEnabled(true);
-                _actionBtn.RemoveFromClassList("remove");
-            }
+            _actionBtn.text = "ЗАБЛОКОВАНО";
+            _actionBtn.SetEnabled(false);
+            _actionBtn.RemoveFromClassList("remove");
+            return;
+        }
+
+        // Перевіряємо розміщення через Registry, не через SO
+        bool isPlaced = PlacementRegistry.Instance?.GetAll()
+            .Any(e => e.instance.templateID == item.furnitureID) == true;
+
+        if (InEditMode)
+        {
+            _actionBtn.text = isPlaced ? "ПЕРЕМІСТИТИ" : "РОЗМІСТИТИ";
+            _actionBtn.SetEnabled(true);
+            _actionBtn.RemoveFromClassList("remove");
+        }
+        else
+        {
+            // Поза EditMode — кнопка недоступна (розміщення тільки в EditMode)
+            _actionBtn.text = isPlaced ? "РОЗМІЩЕНО" : "ДЕТАЛІ";
+            _actionBtn.SetEnabled(false);
+            _actionBtn.RemoveFromClassList("remove");
         }
     }
 
@@ -405,17 +430,22 @@ public class DecorationPanelUI : MonoBehaviour
         if (_detailSetProgress == null) return;
         _detailSetProgress.Clear();
 
-        var setItems = allFurniture.Where(f => f.setID == setID).ToList();
-        var allUnlocked = GetAllUnlocked();
+        var setItems    = allFurniture.Where(f => f.setID == setID).ToList();
+        var allUnlocked = InventoryManager.Instance?.GetAllUnlockedTemplates()
+                          ?? new List<FurnitureTemplate>();
 
         if (_detailSetName != null)
-            _detailSetName.text = $"Набір: {setID} ({setItems.Count(f => allUnlocked.Contains(f))}/{setItems.Count})";
+        {
+            int collected = setItems.Count(f => allUnlocked.Any(u => u.furnitureID == f.furnitureID));
+            _detailSetName.text = $"Набір: {setID} ({collected}/{setItems.Count})";
+        }
 
         foreach (var f in setItems)
         {
             var dot = new VisualElement();
             dot.AddToClassList("set-dot");
-            dot.AddToClassList(allUnlocked.Contains(f) ? "collected" : "missing");
+            bool has = allUnlocked.Any(u => u.furnitureID == f.furnitureID);
+            dot.AddToClassList(has ? "collected" : "missing");
             dot.tooltip = f.furnitureName;
             _detailSetProgress.Add(dot);
         }
@@ -427,60 +457,68 @@ public class DecorationPanelUI : MonoBehaviour
     #region Action Button
     // ─────────────────────────────────────────────
 
-   private void OnActionBtnClicked()
+    private void OnActionBtnClicked()
     {
-        Debug.Log($"[DecoUI] Кнопка. selected={_selected?.furnitureName}, editMode={_isEditMode}");
-        if (_selected == null) return;
-
-        if (_isEditMode)
+        if (_selected == null)
         {
-            PlacementController.Instance?.BeginPlacement(_selected);
-            Hide();
+            Debug.LogWarning("[DecoUI] Кнопка натиснута але _selected = null");
             return;
         }
 
-        // Не EditMode — стара логіка FurnitureSlot
-        if (_selected.IsPlaced)
-            RemoveFurniture(_selected);
-        else
-            PlaceFurniture(_selected);
+        Debug.Log($"[DecoUI] Кнопка: {_selected.furnitureName}, InEditMode={InEditMode}");
 
-        BuildGrid();
-        ShowDetail(_selected, isLocked: false);
-    }
+        if (!InEditMode) return; // поза EditMode кнопка заблокована через SetEnabled
 
-    private void PlaceFurniture(FurnitureTemplate item)
-    {
-        // Знаходимо перший вільний FurnitureSlot відповідного класу
-        var slots = Object.FindObjectsByType<FurnitureSlot>(FindObjectsInactive.Exclude);
-        FurnitureSlot target = null;
+        // Перевіряємо чи є нерозміщений екземпляр для переміщення/розміщення
+        bool isPlaced = PlacementRegistry.Instance?.GetAll()
+            .Any(e => e.instance.templateID == _selected.furnitureID) == true;
 
-        foreach (var slot in slots)
+        if (isPlaced)
         {
-            if (slot.allowedClass == item.furnitureClass)
+            // "ПЕРЕМІСТИТИ" — знаходимо GO і піднімаємо
+            // GetAll() повертає IEnumerable<(GameObject go, FurnitureInstance instance)>
+            // Шукаємо через foreach щоб уникнути nullable tuple проблеми
+            GameObject targetGo = null;
+            foreach (var (go, inst) in PlacementRegistry.Instance?.GetAll()
+                                       ?? System.Linq.Enumerable.Empty<(GameObject, FurnitureInstance)>())
             {
-                target = slot;
-                break;
+                if (inst.templateID == _selected.furnitureID) { targetGo = go; break; }
+            }
+
+            if (targetGo != null)
+            {
+                var placedObj = targetGo.GetComponentInChildren<PlacedObject>()
+                             ?? targetGo.GetComponent<PlacedObject>();
+                if (placedObj != null)
+                    PlacementController.Instance?.PickUpExisting(placedObj);
             }
         }
-
-        if (target == null)
+        else
         {
-            Debug.LogWarning($"[DecoUI] Немає вільного слота для {item.furnitureClass}");
-            return;
+            // "РОЗМІСТИТИ" — починаємо розміщення нового екземпляра
+            PlacementController.Instance?.BeginPlacement(_selected);
         }
 
-        target.UpgradeFurniture(item);
-        item.IsPlaced = true;
-        Debug.Log($"[DecoUI] Розміщено: {item.furnitureName}");
+        Hide();
     }
 
     private void RemoveFurniture(FurnitureTemplate item)
     {
-        // Знаходимо слот де стоїть цей предмет і скидаємо
-        // (спрощена логіка — у повній версії треба зберігати посилання на слот)
-        item.IsPlaced = false;
-        Debug.Log($"[DecoUI] Прибрано: {item.furnitureName}");
+        if (PlacementRegistry.Instance == null) return;
+
+        GameObject targetGo = null;
+        foreach (var (go, inst) in PlacementRegistry.Instance.GetAll())
+        {
+            if (inst.templateID == item.furnitureID) { targetGo = go; break; }
+        }
+
+        if (targetGo != null)
+        {
+            PlacementRegistry.Instance.Unregister(targetGo);
+            Destroy(targetGo);
+        }
+
+        BuildGrid();
     }
 
     #endregion
@@ -488,18 +526,6 @@ public class DecorationPanelUI : MonoBehaviour
     // ─────────────────────────────────────────────
     #region Helpers
     // ─────────────────────────────────────────────
-
-    /// Повертає всі розблоковані меблі з усіх класів
-    private List<FurnitureTemplate> GetAllUnlocked()
-    {
-        var result = new List<FurnitureTemplate>();
-        foreach (FurnitureClass cls in System.Enum.GetValues(typeof(FurnitureClass)))
-        {
-            var list = InventoryManager.Instance?.GetUnlockedFurnitureByClass(cls);
-            if (list != null) result.AddRange(list);
-        }
-        return result;
-    }
 
     private static string TruncateBonus(string text)
     {
@@ -513,7 +539,4 @@ public class DecorationPanelUI : MonoBehaviour
     }
 
     #endregion
-
-
-    
 }

@@ -1,15 +1,16 @@
+// Assets/Scripts/Core/Save/GameStateSerializer.cs
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
-// Збирає та відновлює стан гри з усіх менеджерів
 public class GameStateSerializer : MonoBehaviour
 {
     public static GameStateSerializer Instance { get; private set; }
 
     [Header("References")]
     [SerializeField] private InventoryManager inventoryManager;
-    [SerializeField] private EconomyManager economyManager;
-    [SerializeField] private GameLoopManager gameLoopManager;
+    [SerializeField] private EconomyManager   economyManager;
+    [SerializeField] private GameLoopManager  gameLoopManager;
 
     private float _sessionStartTime;
 
@@ -17,21 +18,24 @@ public class GameStateSerializer : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
-
         _sessionStartTime = Time.time;
     }
 
-    // --- Збір даних для збереження ---
+    // ─────────────────────────────────────────────
+    #region Collect
+    // ─────────────────────────────────────────────
+
     public SaveData CollectSaveData(SaveData existing = null)
     {
         SaveData data = existing ?? new SaveData();
 
-        // Economy
-        data.money = economyManager.Money;
-        data.currentDay = gameLoopManager.CurrentDay;
+        // ── Economy ──────────────────────────────
+        data.money         = economyManager.Money;
+        data.currentDay    = gameLoopManager.CurrentDay;
         data.totalPlayTime += Time.time - _sessionStartTime;
+        data.gameStateIndex = (int)gameLoopManager.CurrentState;
 
-        // Inventory books
+        // ── Books: інвентар ──────────────────────
         data.inventoryBookIDs.Clear();
         data.inventoryInstanceIDs.Clear();
         var books = inventoryManager.GetSortedInventory(SortType.ByTitle);
@@ -41,38 +45,65 @@ public class GameStateSerializer : MonoBehaviour
             data.inventoryInstanceIDs.Add(b.instanceID);
         }
 
-        // Placed books on shelves
+        // ── Books: на полицях ────────────────────
         data.placedBooks.Clear();
-        var allShelves = FindObjectsByType<Shelf>(FindObjectsSortMode.None);
+        var allShelves = FindObjectsByType<Shelf>(FindObjectsInactive.Exclude);
         foreach (var shelf in allShelves)
         {
-            var entry = shelf.CollectSaveData(); // додати до Shelf.cs
+            var entry = shelf.CollectSaveData();
             if (entry != null && entry.templateIDs.Count > 0)
                 data.placedBooks.Add(entry);
         }
 
-        // Unlocked furniture
-        data.unlockedFurnitureIDs.Clear();
-        var unlocked = inventoryManager.GetAllUnlockedFurniture();
-        foreach (var f in unlocked)
-           data.unlockedFurnitureIDs.Add(f.furnitureID.ToString());
+        // ── Furniture ────────────────────────────
+        data.furnitureInventory.Clear();
+        data.placedFurniture.Clear();
 
-        // Game state
-        data.gameStateIndex = (int)gameLoopManager.CurrentState;
+        PlacementRegistry.Instance?.SyncPositions();
 
-        Debug.Log($"[Serializer] Collected save data. Books: {books.Count}");
+        var allInstances = inventoryManager.GetAllFurnitureInstances();
+        foreach (var fi in allInstances)
+        {
+            data.furnitureInventory.Add(new FurnitureSaveEntry
+            {
+                templateID = fi.templateID,
+                instanceID = fi.instanceID,
+                isPlaced   = fi.isPlaced
+            });
+
+            if (fi.isPlaced)
+            {
+                data.placedFurniture.Add(new FurniturePlacedEntry
+                {
+                    instanceID = fi.instanceID,
+                    px = fi.placedPosition.x,
+                    py = fi.placedPosition.y,
+                    pz = fi.placedPosition.z,
+                    rx = fi.placedRotation.x,
+                    ry = fi.placedRotation.y,
+                    rz = fi.placedRotation.z,
+                    rw = fi.placedRotation.w
+                });
+            }
+        }
+
+        Debug.Log($"[Serializer] Collected. Books: {books.Count}, Furniture: {allInstances.Count}");
         return data;
     }
 
-    // --- Відновлення стану ---
+    #endregion
+
+    // ─────────────────────────────────────────────
+    #region Apply
+    // ─────────────────────────────────────────────
+
     public void ApplySaveData(SaveData data)
     {
         if (data == null) return;
 
-        // Economy
         economyManager.SetMoney(data.money);
 
-        // Inventory
+        // Books: інвентар
         for (int i = 0; i < data.inventoryBookIDs.Count; i++)
         {
             var instance = new BookInstance(data.inventoryBookIDs[i]);
@@ -81,18 +112,55 @@ public class GameStateSerializer : MonoBehaviour
             inventoryManager.AddExistingBook(instance);
         }
 
-        // Placed books — відновлення через ShelfRestorer
+        // Books: полиці
         ShelfRestorer.RestoreAll(data.placedBooks);
 
-        Debug.Log($"[Serializer] Applied save data. Day: {data.currentDay}");
+        // Furniture
+        RestoreFurniture(data);
+
+        Debug.Log($"[Serializer] Applied. Day: {data.currentDay}");
     }
 
-    // Автозбереження при виході
-    private void OnApplicationPause(bool pause)
+    private void RestoreFurniture(SaveData data)
     {
-        if (pause) QuickSave();
+        if (data.furnitureInventory == null || data.furnitureInventory.Count == 0) return;
+
+        var placedDict = (data.placedFurniture ?? new List<FurniturePlacedEntry>())
+            .ToDictionary(e => e.instanceID);
+
+        foreach (var entry in data.furnitureInventory)
+        {
+            var fi = new FurnitureInstance(entry.templateID, entry.instanceID);
+            inventoryManager.AddFurnitureInstance(fi);
+
+            if (!entry.isPlaced) continue;
+            if (!placedDict.TryGetValue(entry.instanceID, out var placed)) continue;
+
+            var template = inventoryManager.GetTemplate(entry.templateID);
+            if (template?.prefab == null)
+            {
+                Debug.LogWarning($"[Serializer] Prefab не знайдено: templateID={entry.templateID}");
+                continue;
+            }
+
+            var pos = new Vector3(placed.px, placed.py, placed.pz);
+            var rot = new Quaternion(placed.rx, placed.ry, placed.rz, placed.rw);
+            var go  = Object.Instantiate(template.prefab, pos, rot);
+
+            var placedObj = go.AddComponent<PlacedObject>();
+            placedObj.Init(fi);
+
+            PlacementRegistry.Instance?.Register(go, fi);
+        }
     }
 
+    #endregion
+
+    // ─────────────────────────────────────────────
+    #region Auto Save
+    // ─────────────────────────────────────────────
+
+    private void OnApplicationPause(bool pause) { if (pause) QuickSave(); }
     private void OnApplicationQuit() => QuickSave();
 
     public void QuickSave()
@@ -101,4 +169,6 @@ public class GameStateSerializer : MonoBehaviour
         SaveSystem.Save(data);
         Debug.Log("[Serializer] Auto-saved.");
     }
+
+    #endregion
 }

@@ -2,12 +2,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class InteractableBox : MonoBehaviour
+/// Коробка на старті гри. Реалізує IInteractable.
+/// Клік → розпаковка меблів або книг.
+public class InteractableBox : MonoBehaviour, IInteractable
 {
     public enum BoxType { Furniture, Books }
 
     [Header("Type")]
-    [SerializeField] public BoxType boxType;
+    [SerializeField] private BoxType boxType;
 
     [Header("Furniture Box")]
     [SerializeField] private GameObject furnitureBundlePrefab;
@@ -21,17 +23,24 @@ public class InteractableBox : MonoBehaviour
 
     public bool IsOpened { get; private set; }
 
-    // Викликаєтьсяззовні (з PlayerInteraction)
-    public void TryOpen()
+    // ── IInteractable ──────────────────────────────
+
+    public bool CanInteract =>
+        !IsOpened &&
+        GameLoopManager.Instance?.CurrentState == GameState.Preparation;
+
+    public void OnInteract()
     {
-        if (IsOpened) return;
+        if (!CanInteract) return;
         IsOpened = true;
         Unbox();
     }
 
+    // ── Розпаковка ────────────────────────────────
+
     private void Unbox()
     {
-        if (unboxFX != null) unboxFX.Play(); // ← додати null-check
+        if (unboxFX != null) unboxFX.Play();
         PlacementFeedback.Instance?.PlaySound(PlacementFeedback.SoundType.Place);
 
         if (boxType == BoxType.Furniture) UnboxFurniture();

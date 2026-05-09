@@ -1,54 +1,72 @@
 // Assets/Scripts/Core/Save/SaveData.cs
-// ВИПРАВЛЕНО:
-//   ShelfSaveEntry.instanceIDs  — List<string> замість "internal object"
-//   ShelfSaveEntry.shelfID      — string (GameStateSerializer пише це поле)
-// Всі поля відповідають GameStateSerializer.CollectSaveData() / ApplySaveData()
 using System;
 using System.Collections.Generic;
 
 [Serializable]
 public class SaveData
 {
-    // ── UI мета (для слотів збереження) ──────────────
+    // ── UI мета ──────────────────────────────────────
     public int    slotIndex;
-    public string saveName;       // "День 5 · 2 450 грн"
-    public string saveDateTime;   // "2025-01-15 18:42"
+    public string saveName;
+    public string saveDateTime;
     public string version = "1.0";
 
     // ── Прогрес ──────────────────────────────────────
     public int   currentDay     = 1;
-    public int   money          = 500;   // EconomyManager.Money
+    public int   money          = 500;
     public float totalPlayTime  = 0f;
-    public int   gameStateIndex = 0;     // (int)GameState
+    public int   gameStateIndex = 0;
 
-    // ── Інвентар книг ─────────────────────────────────
-    // GameStateSerializer заповнює обидва паралельно: [i] = одна книга
-    public List<string> inventoryBookIDs     = new();   // b.templateID
-    public List<string> inventoryInstanceIDs = new();   // b.instanceID (string GUID)
+    // ── Книги: інвентар ───────────────────────────────
+    public List<string> inventoryBookIDs     = new();
+    public List<string> inventoryInstanceIDs = new();
 
-    // ── Книги на полицях ──────────────────────────────
-    // shelf.CollectSaveData() → ShelfSaveEntry
+    // ── Книги: на полицях ─────────────────────────────
     public List<ShelfSaveEntry> placedBooks = new();
 
-    // ── Розблоковані меблі ────────────────────────────
-    // inventoryManager.GetAllUnlockedFurniture() → f.furnitureID
+    // ── Меблі: інвентар (всі екземпляри) ─────────────
+    public List<FurnitureSaveEntry> furnitureInventory = new();
+
+    // ── Меблі: позиції розміщених ─────────────────────
+    public List<FurniturePlacedEntry> placedFurniture = new();
+
+    // ── Застаріле — лишаємо для сумісності зі старими сейвами ──
+    // Не використовується в новому коді, але Unity не зламає старі JSON
     public List<string> unlockedFurnitureIDs = new();
 }
+
+// ─────────────────────────────────────────────────────
+// Книги на полицях
+// ─────────────────────────────────────────────────────
 
 [Serializable]
 public class ShelfSaveEntry
 {
     public string cabinetName;
     public int    shelfIndex;
-
-    // GameStateSerializer пише shelfID (рядок 197 Shelf.cs → GetInstanceID())
-    // Але GetInstanceID() повертає int — конвертуємо в string при збереженні
     public string shelfID;
-
-    // templateIDs — GameStateSerializer очікував це
     public List<string> templateIDs = new();
-
-    // instanceIDs — string GUID кожного BookInstance
-    // ВИПРАВЛЕНО: було "internal object instanceIDs" → тепер List<string>
     public List<string> instanceIDs = new();
+}
+
+// ─────────────────────────────────────────────────────
+// Меблі
+// ─────────────────────────────────────────────────────
+
+[Serializable]
+public class FurnitureSaveEntry
+{
+    public int    templateID;
+    public string instanceID;
+    public bool   isPlaced;
+}
+
+[Serializable]
+public class FurniturePlacedEntry
+{
+    public string instanceID;
+    // Position
+    public float px, py, pz;
+    // Rotation (quaternion)
+    public float rx, ry, rz, rw;
 }

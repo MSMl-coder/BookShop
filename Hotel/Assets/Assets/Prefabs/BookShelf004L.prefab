@@ -194,7 +194,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5493938757749610537, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_Name
-      value: BookShelf_xxx 1 1
+      value: BookShelfColider
       objectReference: {fileID: 0}
     - target: {fileID: 5872626022262727018, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
       propertyPath: m_LocalPosition.x
@@ -300,23 +300,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: -90
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -324,7 +324,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: -180
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -338,6 +338,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BookShelf004L
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -348,6 +352,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       insertIndex: -1
       addedObject: {fileID: -4370059216606143491}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6314368586720807731}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6389101981063862398}
   m_SourcePrefab: {fileID: 100100000, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
 --- !u!4 &5036700881411442841 stripped
 Transform:
@@ -371,4 +381,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02e0d9881d9ce403fa8527ffe511e4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlacedObject
-  sourceTemplate: {fileID: 0}
+--- !u!114 &-6314368586720807731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5669509012263883299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d83282415854d5faf53cf7b4894596, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Cabinet
+  cabinetName: Cabinet
+  shelves: []
+--- !u!114 &-6389101981063862398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5669509012263883299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3873bbc6e9f348c7a0d47a9dadb85bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CabinetInteractable

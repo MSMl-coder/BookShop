@@ -1,6 +1,4 @@
 // Assets/Scripts/Data/Loot/LootManager.cs
-// ОНОВЛЕНО: додано public PicksRemaining, CanPick;
-//           прибрано прямий виклик ChangeState — тепер це робить LootPanelUI через GameLoopManager.StartNewDay()
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +9,15 @@ public class LootManager : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private List<LootCardTemplate> allAvailableCards;
-    [SerializeField] private int cardsToDraw   = 5;
+    [SerializeField] private int cardsToDraw    = 5;
     [SerializeField] private int maxPicksPerDay = 3;
+
+    [Header("Book Pack Settings")]
+    [SerializeField] private int booksPerPack = 3; // скільки книг дає BookPack
 
     private List<LootCardTemplate> _currentDailyPool = new();
     private int _picksRemaining = 0;
 
-    // ── Public ──
     public int  PicksRemaining => _picksRemaining;
     public bool CanPick        => _picksRemaining > 0;
 
@@ -39,14 +39,12 @@ public class LootManager : MonoBehaviour
             GameLoopManager.Instance.OnStateChanged -= HandleStateChange;
     }
 
-    // ─────────────────────────────────────────────
-
     private void HandleStateChange(GameState state)
     {
         if (state == GameState.LootPhase)
             GenerateLootPool();
         else if (state == GameState.Preparation)
-            _currentDailyPool.Clear(); // чистимо після нового дня
+            _currentDailyPool.Clear();
     }
 
     public List<LootCardTemplate> GetCurrentPool()
@@ -86,9 +84,6 @@ public class LootManager : MonoBehaviour
         _picksRemaining--;
 
         Debug.Log($"[LootManager] Обрано: {card.cardName}. Залишилось: {_picksRemaining}");
-
-        // ВАЖЛИВО: НЕ викликаємо ChangeState тут.
-        // LootPanelUI перевіряє CanPick після виклику і сам викликає GameLoopManager.StartNewDay().
     }
 
     private void ApplyCardEffect(LootCardTemplate card)
@@ -98,18 +93,47 @@ public class LootManager : MonoBehaviour
         switch (card.type)
         {
             case LootCardType.FurnitureUpgrade:
-                if (InventoryManager.Instance != null && card.furniturePayload != null)
-                    InventoryManager.Instance.UnlockFurniture(card.furniturePayload);
+                if (card.furniturePayload == null)
+                {
+                    Debug.LogWarning($"[LootManager] {card.cardName}: furniturePayload не призначено!");
+                    return;
+                }
+                // UnlockFurniture тепер додає FurnitureInstance в новий інвентар
+                InventoryManager.Instance?.UnlockFurniture(card.furniturePayload);
+                Debug.Log($"[LootManager] Меблі отримано: {card.furniturePayload.furnitureName}");
                 break;
 
             case LootCardType.MoneyBonus:
-                if (EconomyManager.Instance != null)
-                    EconomyManager.Instance.AddMoney(card.moneyPayload);
+                EconomyManager.Instance?.AddMoney(card.moneyPayload);
+                Debug.Log($"[LootManager] Гроші отримано: +{card.moneyPayload}");
                 break;
 
             case LootCardType.BookPack:
-                Debug.Log("[LootManager] BookPack — не реалізовано.");
+                ApplyBookPack(card);
                 break;
         }
+    }
+
+    private void ApplyBookPack(LootCardTemplate card)
+    {
+        var db = BookDatabase.Instance;
+        if (db == null || db.allBooks == null || db.allBooks.Count == 0)
+        {
+            Debug.LogWarning("[LootManager] BookPack: BookDatabase порожній або не ініціалізований.");
+            return;
+        }
+
+        // Вибираємо випадкові книги з бази
+        int count = Mathf.Min(booksPerPack, db.allBooks.Count);
+        var shuffled = db.allBooks
+            .Where(b => b != null)
+            .OrderBy(_ => Random.value)
+            .Take(count)
+            .ToList();
+
+        foreach (var bookTemplate in shuffled)
+            InventoryManager.Instance?.AddBook(bookTemplate.bookID);
+
+        Debug.Log($"[LootManager] BookPack: додано {shuffled.Count} книг в інвентар");
     }
 }

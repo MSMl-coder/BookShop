@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1953779816340297385}
   - component: {fileID: 6929561381848748962}
   - component: {fileID: 3778745578832915180}
-  m_Layer: 2
+  m_Layer: 9
   m_Name: StartPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -100,7 +100,7 @@ GameObject:
   - component: {fileID: 1336246676651107513}
   - component: {fileID: 6689861286006540403}
   - component: {fileID: 7324904622755568083}
-  m_Layer: 2
+  m_Layer: 9
   m_Name: StartPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,7 +262,7 @@ GameObject:
   - component: {fileID: 1202182138659578297}
   - component: {fileID: 1828811627098091267}
   - component: {fileID: 3034529262868741850}
-  m_Layer: 2
+  m_Layer: 9
   m_Name: StartPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -424,7 +424,7 @@ GameObject:
   - component: {fileID: 1753508096901234169}
   - component: {fileID: 6266199018584191484}
   - component: {fileID: 8596924031195119038}
-  m_Layer: 2
+  m_Layer: 9
   m_Name: StartPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -511,11 +511,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 746178795377399922}
-  - component: {fileID: 740539787895674802}
-  - component: {fileID: 3042976856771591145}
   - component: {fileID: 1335640463815150856}
-  m_Layer: 8
-  m_Name: BookShelf_xxx 1 1
+  m_Layer: 9
+  m_Name: BookShelfColider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -542,43 +540,6 @@ Transform:
   - {fileID: 2466843673760145587}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
---- !u!114 &740539787895674802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5493938757749610537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68894fba31cf24bc9b47dc3c5a0bad65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
-  mainCamera: {fileID: 0}
-  interactionLayer:
-    serializedVersion: 2
-    m_Bits: 768
-  interactionDistance: 20
---- !u!114 &3042976856771591145
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5493938757749610537}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53d83282415854d5faf53cf7b4894596, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Cabinet
-  cabinetName: "\u0421\u0442\u0435\u043B\u0430\u0436"
-  shelves:
-  - {fileID: 1208170815435622724}
-  - {fileID: 3095031447178143295}
-  - {fileID: 2213260958614055838}
-  - {fileID: 6853464505190792061}
-  - {fileID: 826115310369637206}
-  - {fileID: 8970351980902076829}
 --- !u!65 &1335640463815150856
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -903,7 +864,7 @@ GameObject:
   - component: {fileID: 7273818939359199731}
   - component: {fileID: 3260693951491780975}
   - component: {fileID: 1237243431248627095}
-  m_Layer: 2
+  m_Layer: 9
   m_Name: StartPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -992,7 +953,7 @@ GameObject:
   - component: {fileID: 5872626022262727018}
   - component: {fileID: 2547250461055645825}
   - component: {fileID: 5397946396945274784}
-  m_Layer: 2
+  m_Layer: 9
   m_Name: StartPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

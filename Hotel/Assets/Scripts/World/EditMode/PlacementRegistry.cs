@@ -6,7 +6,10 @@ public class PlacementRegistry : MonoBehaviour
 {
     public static PlacementRegistry Instance { get; private set; }
 
-    private readonly List<(GameObject obj, FurnitureTemplate data)> _placed = new();
+    // GO → Instance (щоб швидко знайти по кліку)
+    private readonly Dictionary<GameObject, FurnitureInstance> _goToInstance = new();
+    // instanceID → GO (для збереження/відновлення)
+    private readonly Dictionary<string, GameObject>            _idToGo       = new();
 
     private void Awake()
     {
@@ -14,35 +17,41 @@ public class PlacementRegistry : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void Register(GameObject obj, FurnitureTemplate data)
+    public void Register(GameObject go, FurnitureInstance instance)
     {
-        _placed.Add((obj, data));
+        _goToInstance[go]               = instance;
+        _idToGo[instance.instanceID]    = go;
+        instance.isPlaced               = true;
+        instance.placedPosition         = go.transform.position;
+        instance.placedRotation         = go.transform.rotation;
+        Debug.Log($"[Registry] Зареєстровано: {instance.instanceID} @ {go.transform.position}");
     }
 
-    public void Unregister(GameObject obj) =>
-        _placed.RemoveAll(e => e.obj == obj);
-
-    public IReadOnlyList<(GameObject obj, FurnitureTemplate data)> GetAll() => _placed;
-
-    private void RemoveFurniture(FurnitureTemplate item)
+    public void Unregister(GameObject go)
     {
-        // Знаходимо реальний обʼєкт в сцені через Registry
-        if (PlacementRegistry.Instance != null)
-        {
-            var all = PlacementRegistry.Instance.GetAll();
-            for (int i = all.Count - 1; i >= 0; i--)
-            {
-                if (all[i].data == item)
-                {
-                    var go = all[i].obj;
-                    PlacementRegistry.Instance.Unregister(go);
-                    if (go != null) Destroy(go);
-                    break;
-                }
-            }
-        }
+        if (!_goToInstance.TryGetValue(go, out var instance)) return;
+        instance.isPlaced = false;
+        _idToGo.Remove(instance.instanceID);
+        _goToInstance.Remove(go);
+    }
 
-        item.IsPlaced = false;
-        Debug.Log($"[DecoUI] Прибрано з сцени: {item.furnitureName}");
+    public FurnitureInstance GetInstance(GameObject go) =>
+        _goToInstance.TryGetValue(go, out var inst) ? inst : null;
+
+    public IEnumerable<(GameObject go, FurnitureInstance instance)> GetAll()
+    {
+        foreach (var kv in _goToInstance)
+            yield return (kv.Key, kv.Value);
+    }
+
+    /// Синхронізує збережені позиції (викликати перед Save)
+    public void SyncPositions()
+    {
+        foreach (var kv in _goToInstance)
+        {
+            if (kv.Key == null) continue;
+            kv.Value.placedPosition = kv.Key.transform.position;
+            kv.Value.placedRotation = kv.Key.transform.rotation;
+        }
     }
 }
