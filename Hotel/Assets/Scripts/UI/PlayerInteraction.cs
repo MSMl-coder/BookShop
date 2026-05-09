@@ -26,6 +26,9 @@ public class PlayerInteraction : MonoBehaviour
 
         if (mouse.leftButton.wasPressedThisFrame)
         {
+            // ← ця перевірка блокує клік коли миша над UI Toolkit
+            // але після ConfirmPlacement ghost зник і наступний клік
+            // проходить крізь UI прямо в 3D
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
             {
                 Debug.Log("[Interaction] Клік ігнорується: миша над UI.");
@@ -40,12 +43,15 @@ public class PlayerInteraction : MonoBehaviour
     {
         Ray ray = mainCamera.ScreenPointToRay(mousePosition);
 
+        if (PlacementController.Instance != null && PlacementController.Instance.JustConfirmedThisFrame)
+        return;
+
         if (!Physics.Raycast(ray, out RaycastHit hit, interactionDistance, interactionLayer))
             return;
 
         GameState currentState = GameLoopManager.Instance.CurrentState;
 
-        // ── Коробки — завжди в Preparation ─────────────────────────
+        // ── Коробки — завжди в Preparation незалежно від EditMode ──
         InteractableBox box = hit.collider.GetComponentInParent<InteractableBox>();
         if (box != null && currentState == GameState.Preparation)
         {
@@ -53,13 +59,23 @@ public class PlayerInteraction : MonoBehaviour
             return;
         }
 
-        // ── EditMode — тільки переміщення обʼєктів ─────────────────
+        // ── EditMode — блокуємо ВСЕ крім PlacedObject ──────────────
         if (EditModeManager.Instance != null && EditModeManager.Instance.IsEditMode)
         {
-           PlacedObject placed = hit.collider.GetComponentInParent<PlacedObject>();
-             if (placed == null)
-            placed = hit.collider.transform.root.GetComponentInChildren<PlacedObject>();
-            return; // все інше блокуємо
+            // Якщо зараз іде розміщення — клік обробляє PlacementController
+            // через свій Update, сюди не лізем взагалі
+            if (PlacementController.Instance != null && PlacementController.Instance.IsPlacing)
+                return;
+
+            // Клік по розміщеному обʼєкту — підняти
+            PlacedObject placed = hit.collider.GetComponentInParent<PlacedObject>();
+            if (placed == null)
+                placed = hit.collider.transform.root.GetComponentInChildren<PlacedObject>();
+
+            if (placed != null)
+                PlacementController.Instance?.PickUpExisting(placed);
+
+            return; // в EditMode більше нічого не робимо
         }
 
         // ── Звичайний режим ─────────────────────────────────────────

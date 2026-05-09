@@ -23,6 +23,9 @@ public class PlacementController : MonoBehaviour
     private bool _freePlacement;
     private float _currentYRotation;
 
+    public bool IsPlacing => _isPlacing;
+    // Прапор що цього кадру щойно підтвердили розміщення
+    public bool JustConfirmedThisFrame { get; private set; }
     public bool FreePlacement
     {
         get => _freePlacement;
@@ -38,6 +41,8 @@ public class PlacementController : MonoBehaviour
 
     private void Update()
     {
+        JustConfirmedThisFrame = false; // скидаємо кожен кадр
+ 
         if (!_isEnabled || !_isPlacing || _currentTemplate == null) return;
 
         var keyboard = Keyboard.current;
@@ -147,6 +152,7 @@ public class PlacementController : MonoBehaviour
         _isPlacing = false;
         _phantom = null;
         _currentTemplate = null;
+        JustConfirmedThisFrame = true; // ← встановити перед завершенням
     }
 
     public void CancelPlacement()
