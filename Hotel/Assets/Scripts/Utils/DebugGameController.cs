@@ -39,6 +39,10 @@ public class DebugGameController : MonoBehaviour
     [SerializeField] private bool enableHotkeys = true;
     [SerializeField] private bool showHotkeyHints = true;
 
+    [Header("Day Override")]
+    [SerializeField] private int startFromDay = 1;
+
+
     #endregion
 
     // ═══════════════════════════════════════════════════════════════
@@ -431,6 +435,10 @@ public class DebugGameController : MonoBehaviour
 
     // ═══════════════════════════════════════════════════════════════
     #endregion
+    
+    
+    
+    
     #region Full Status & Utilities
     // ═══════════════════════════════════════════════════════════════
 
@@ -479,8 +487,72 @@ public class DebugGameController : MonoBehaviour
         Debug.LogError($"[Debug] ❌ {name} not found in scene!");
         return false;
     }
+    // Додати до DebugGameController.cs
+    [ContextMenu("Test Save")]
+    public void TestSave()
+    {
+        GameStateSerializer.Instance?.QuickSave();
+        Debug.Log("[Debug] Manual save triggered.");
+    }
 
+    [ContextMenu("Test Load")]  
+    public void TestLoad()
+    {
+        SaveData data = SaveSystem.Load(0);
+        if (data != null)
+            GameStateSerializer.Instance?.ApplySaveData(data);
+    }
+
+
+
+
+
+    [ContextMenu("Day / Set Start Day")]
+    public void SetStartDay()
+    {
+        if (!CheckManager(GameLoopManager.Instance, "GameLoopManager")) return;
+        // Рефлексія або internal метод — залежно від доступу
+        typeof(GameLoopManager)
+            .GetProperty("CurrentDay")
+            ?.SetValue(GameLoopManager.Instance, startFromDay);
+        Debug.Log($"[Debug] 📅 День встановлено: {startFromDay}");
+    }
+    
     #endregion
+     
+    
+    #region Edit Mode
+    
+
+    [ContextMenu("EditMode / Enter Edit Mode")]
+
+    
+    public void EnterEditMode()
+    {
+        if (!CheckManager(EditModeManager.Instance, "EditModeManager")) return;
+        EditModeManager.Instance.EnterEditMode();
+        Debug.Log("[Debug] ✏️ Edit Mode увімкнено.");
+    }
+
+    [ContextMenu("EditMode / Exit Edit Mode")]
+    public void ExitEditMode()
+    {
+        if (!CheckManager(EditModeManager.Instance, "EditModeManager")) return;
+        EditModeManager.Instance.ExitEditMode();
+        Debug.Log("[Debug] ✏️ Edit Mode вимкнено.");
+    }
+
+    [ContextMenu("EditMode / Toggle Edit Mode")]
+    public void ToggleEditMode()
+    {
+        if (!CheckManager(EditModeManager.Instance, "EditModeManager")) return;
+        EditModeManager.Instance.ToggleEditMode();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    #endregion
+
+    
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -597,6 +669,22 @@ public class DebugGameControllerEditor : Editor
         if (GUILayout.Button("━━ PRINT FULL GAME STATUS ━━", GUILayout.Height(34)))
             script.PrintFullStatus();
         GUI.backgroundColor = Color.white;
+
+
+        EditorGUILayout.Space(4);
+
+        // ── Edit Mode ────────────────────────────────────────────────
+        bool _foldEdit = EditorGUILayout.BeginFoldoutHeaderGroup(true, "✏️ Edit Mode");
+        if (_foldEdit)
+        {
+            EditorGUILayout.BeginHorizontal();
+            DrawBtn("Enter",  Color.cyan,   script.EnterEditMode);
+            DrawBtn("Exit",   BtnRed,       script.ExitEditMode);
+            DrawBtn("Toggle", Color.yellow, script.ToggleEditMode);
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndFoldoutHeaderGroup();
+
     }
 
     // ── Helpers ──────────────────────────────────────────────────
@@ -619,24 +707,10 @@ public class DebugGameControllerEditor : Editor
         GUI.backgroundColor = Color.white;
     }
 
-    // Додати до DebugGameController.cs
-    [ContextMenu("Test Save")]
-    public void TestSave()
-    {
-        GameStateSerializer.Instance?.QuickSave();
-        Debug.Log("[Debug] Manual save triggered.");
-    }
-
-    [ContextMenu("Test Load")]  
-    public void TestLoad()
-    {
-        SaveData data = SaveSystem.Load(0);
-        if (data != null)
-            GameStateSerializer.Instance?.ApplySaveData(data);
-    }
 
     
 }
+
 #endif
 
 #endregion

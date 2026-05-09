@@ -44,31 +44,41 @@ public class PlayerInteraction : MonoBehaviour
             return;
 
         GameState currentState = GameLoopManager.Instance.CurrentState;
-        Debug.Log($"[Interaction] Клік по: {hit.collider.name}. Стан: {currentState}");
 
-        // ── 1. Слот меблів → апгрейд (тільки у Preparation) ──
-        FurnitureSlot slot = hit.collider.GetComponentInParent<FurnitureSlot>();
-        if (slot != null && currentState == GameState.Preparation)
+        // ── Коробки — завжди в Preparation ─────────────────────────
+        InteractableBox box = hit.collider.GetComponentInParent<InteractableBox>();
+        if (box != null && currentState == GameState.Preparation)
         {
-            Debug.Log($"[Interaction] Відкриваємо апгрейд для: {slot.name}");
-            UpgradeSlotUI.Instance?.Open(slot);  // ← РОЗКОМЕНТОВАНО
+            box.TryOpen();
             return;
         }
 
-        // ── 2. Шафа → інвентар ──
-        Cabinet cabinet = hit.collider.GetComponentInParent<Cabinet>();
-        if (cabinet != null)
+        // ── EditMode — тільки переміщення обʼєктів ─────────────────
+        if (EditModeManager.Instance != null && EditModeManager.Instance.IsEditMode)
         {
-            if (currentState == GameState.Preparation ||
-                currentState == GameState.WorkDay     ||
-                currentState == GameState.LootPhase)
-            {
-                _uiManager?.OpenCabinetUI(cabinet);
-            }
-            else
-            {
-                Debug.Log($"[Interaction] Стан {currentState} не дозволяє відкрити шафу.");
-            }
+           PlacedObject placed = hit.collider.GetComponentInParent<PlacedObject>();
+             if (placed == null)
+            placed = hit.collider.transform.root.GetComponentInChildren<PlacedObject>();
+            return; // все інше блокуємо
+        }
+
+        // ── Звичайний режим ─────────────────────────────────────────
+        FurnitureSlot slot = hit.collider.GetComponentInParent<FurnitureSlot>();
+        if (slot != null && currentState == GameState.Preparation)
+        {
+            UpgradeSlotUI.Instance?.Open(slot);
+            return;
+        }
+
+        Cabinet cabinet = hit.collider.GetComponentInParent<Cabinet>();
+        if (cabinet != null &&
+            (currentState == GameState.Preparation ||
+            currentState == GameState.WorkDay     ||
+            currentState == GameState.LootPhase))
+        {
+            _uiManager?.OpenCabinetUI(cabinet);
         }
     }
+
+
 }

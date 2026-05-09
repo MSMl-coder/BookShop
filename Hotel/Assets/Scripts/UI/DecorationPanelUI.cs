@@ -52,6 +52,7 @@ public class DecorationPanelUI : MonoBehaviour
     private bool            _filterPlaced = false;
     private FurnitureTemplate _selected;
     private bool _isOpen = false;
+    private bool _isEditMode;
 
     // Назви класів українською
     private static readonly Dictionary<FurnitureClass, string> ClassNames = new()
@@ -183,27 +184,46 @@ public class DecorationPanelUI : MonoBehaviour
         else Open();
     }
 
-    public void Open()
+  public void Open()
+{
+    _isOpen = true;
+    SetDisplay(_panel, true);
+    BuildGrid();
+    ShowDetailEmpty();
+    // Якщо EditMode — оновлюємо текст кнопки
+    if (_actionBtn != null)
+        _actionBtn.text = _isEditMode ? "РОЗМІСТИТИ" : "ПОСТАВИТИ";
+}
+
+    // Повністю закрити (скидає EditMode) — викликається при виході з EditMode
+    public void Close()
     {
-        _isOpen = true;
-        SetDisplay(_panel, true);
-        BuildGrid();
-        ShowDetailEmpty();
+        _isEditMode = false;
+        _isOpen = false;
+        SetDisplay(_panel, false);
+        _selected = null;
+        if (_actionBtn != null) _actionBtn.text = "ПОСТАВИТИ";
     }
 
-    public void Close()
+    private void Hide()
     {
         _isOpen = false;
         SetDisplay(_panel, false);
         _selected = null;
     }
-
     #endregion
 
     // ─────────────────────────────────────────────
     #region Grid
     // ─────────────────────────────────────────────
 
+    public void OpenInEditMode()
+    {
+        _isEditMode = true;
+        Open();
+        // Змінюємо текст кнопки дії під EditMode
+        if (_actionBtn != null) _actionBtn.text = "РОЗМІСТИТИ";
+    }
     private void BuildGrid()
     {
         if (_grid == null || furnitureCardTemplate == null) return;
@@ -287,6 +307,9 @@ public class DecorationPanelUI : MonoBehaviour
         card.RegisterCallback<ClickEvent>(_ => OnCardClick(captured, capturedLocked, card));
 
         return card;
+
+
+        
     }
 
     private void OnCardClick(FurnitureTemplate item, bool isLocked, VisualElement clickedCard)
@@ -404,10 +427,19 @@ public class DecorationPanelUI : MonoBehaviour
     #region Action Button
     // ─────────────────────────────────────────────
 
-    private void OnActionBtnClicked()
+   private void OnActionBtnClicked()
     {
+        Debug.Log($"[DecoUI] Кнопка. selected={_selected?.furnitureName}, editMode={_isEditMode}");
         if (_selected == null) return;
 
+        if (_isEditMode)
+        {
+            PlacementController.Instance?.BeginPlacement(_selected);
+            Hide();
+            return;
+        }
+
+        // Не EditMode — стара логіка FurnitureSlot
         if (_selected.IsPlaced)
             RemoveFurniture(_selected);
         else
@@ -481,4 +513,7 @@ public class DecorationPanelUI : MonoBehaviour
     }
 
     #endregion
+
+
+    
 }

@@ -35,6 +35,9 @@ public class HUDController : MonoBehaviour
         _prestigeValue = root.Q<Label>("PrestigeValue");
         _prestigeFill  = root.Q<VisualElement>("PrestigeBarFill");
 
+        root.Q<Button>("BtnEditMode")?.RegisterCallback<ClickEvent>(_ =>
+            EditModeManager.Instance?.ToggleEditMode());
+            
         if (EconomyManager.Instance != null)
             EconomyManager.Instance.OnMoneyChanged += UpdateMoney;
         if (GameLoopManager.Instance != null)

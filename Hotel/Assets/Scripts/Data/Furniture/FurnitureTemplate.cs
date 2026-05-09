@@ -7,9 +7,6 @@ public enum FurnitureClass { WallShelf, CenterIsland, Decor }
 public class FurnitureTemplate : ScriptableObject
 {
     [Header("Identity")]
-    // ВИПРАВЛЕНО: було public string furnitureID, але в .asset файлах (FT_.asset, FT_ 1.asset)
-    // це поле серіалізовано як int (furnitureID: 1, furnitureID: 2).
-    // Зміна на string призводила до того що Unity десеріалізував значення як порожній рядок.
     public int furnitureID;
     public string furnitureName;
     public FurnitureClass furnitureClass;
@@ -22,20 +19,32 @@ public class FurnitureTemplate : ScriptableObject
     public int basePrice = 100;
 
     [Header("Set & Bonus")]
-    [Tooltip("ID набору меблів. Предмети з однаковим setID дають сет-бонус.")]
     public string setID = "";
-
-    [Tooltip("Опис бонусу що дає предмет або набір.")]
     [TextArea(1, 3)]
     public string bonusDescription = "";
 
     [Header("Unlock")]
-    [Tooltip("Текстовий опис умови розблокування (показується гравцю).")]
     [TextArea(1, 2)]
     public string unlockCondition = "";
-
-    [Tooltip("Якщо true — предмет доступний з початку гри.")]
     public bool unlockedByDefault = false;
+
+    // ── НОВІ ПОЛЯ ДЛЯ EDIT MODE ─────────────────────
+    [Header("Edit Mode — Placement")]
+    [Tooltip("Може кріпитись до стіни (наприклад картина, полиця)")]
+    public bool canSnapToWall = false;
+
+    [Tooltip("Може ставитись на горизонтальну поверхню (полиця, стіл)")]
+    public bool canSnapToShelf = false;
+
+    [Tooltip("Зміщення pivot від підлоги вгору")]
+    public float pivotOffset = 0f;
+
+    [Tooltip("Відступ від стіни")]
+    public float wallOffset = 0.05f;
+
+    [Tooltip("Відступ від поверхні полиці")]
+    public float shelfOffset = 0.01f;
+    // ─────────────────────────────────────────────────
 
     [System.NonSerialized]
     public bool IsPlaced = false;

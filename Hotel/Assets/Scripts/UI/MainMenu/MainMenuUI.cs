@@ -15,6 +15,18 @@ public class MainMenuUI : MonoBehaviour
         root.Q<Button>("BtnContinue")?.RegisterCallback<ClickEvent>(_ => Continue());
         root.Q<Button>("BtnSettings")?.RegisterCallback<ClickEvent>(_ => settingsController?.Toggle());
         root.Q<Button>("BtnQuit")    ?.RegisterCallback<ClickEvent>(_ => Application.Quit());
+        
+        
+        
+        root.Q<Button>("BtnOpenDecoration")?.RegisterCallback<ClickEvent>(_ =>
+        {
+            if (EditModeManager.Instance != null && EditModeManager.Instance.IsEditMode)
+                DecorationPanelUI.Instance?.OpenInEditMode();
+            else
+                DecorationPanelUI.Instance?.Open();
+        });
+
+        
 
         // Continue — активна якщо є хоч один слот
         var continueBtn = root.Q<Button>("BtnContinue");

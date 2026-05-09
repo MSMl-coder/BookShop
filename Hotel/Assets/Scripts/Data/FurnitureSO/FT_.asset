@@ -13,12 +13,17 @@ MonoBehaviour:
   m_Name: FT_
   m_EditorClassIdentifier: Assembly-CSharp::FurnitureTemplate
   furnitureID: 1
-  furnitureName: 1
+  furnitureName: "\u0411\u0430\u0437\u043E\u0432\u0438\u0439 \u0421\u0442\u0435\u043B\u0430\u0436"
   furnitureClass: 0
-  prefab: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
-  icon: {fileID: 0}
+  prefab: {fileID: 5669509012263883299, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+  icon: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
   basePrice: 100
   setID: 
   bonusDescription: 
   unlockCondition: 
-  unlockedByDefault: 1
+  unlockedByDefault: 0
+  canSnapToWall: 0
+  canSnapToShelf: 0
+  pivotOffset: 0
+  wallOffset: 0.05
+  shelfOffset: 0.01

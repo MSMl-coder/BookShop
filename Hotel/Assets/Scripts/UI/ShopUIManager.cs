@@ -1,20 +1,10 @@
-// Assets/Scripts/UI/ShopUIManager.cs
-// ОНОВЛЕНО: додано ShowBookInfo/HideBookInfo, виправлено hud-chip,
-//           покращено RefreshInventory з hover-підтримкою
+ 
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Linq;
-
-/// Головний UI-менеджер магазину.
-/// Керує панелями Інвентаря та Шафи.
-/// HUD оновлюється через HUDController (окремий скрипт).
-///
-/// UNITY SETUP:
-/// - UIDocument → MainShopUI.uxml
-/// - bookItemTemplate → BookItem.uxml
-/// - BookInfoCardController — на тому самому або окремому GameObject
+ 
 public class ShopUIManager : MonoBehaviour
 {
     public static ShopUIManager Instance { get; private set; }
@@ -128,6 +118,14 @@ public class ShopUIManager : MonoBehaviour
         _phaseLabel    = root.Q<Label>("PhaseLabel");
         _prestigeValue = root.Q<Label>("PrestigeValue");
         _prestigeFill  = root.Q<VisualElement>("PrestigeBarFill");
+
+        root.Q<Button>("BtnOpenDecoration")?.RegisterCallback<ClickEvent>(_ =>
+{
+    if (EditModeManager.Instance != null && EditModeManager.Instance.IsEditMode)
+        DecorationPanelUI.Instance?.OpenInEditMode();
+    else
+        DecorationPanelUI.Instance?.Toggle();
+});
     }
 
     private void BindButtons(VisualElement root)
@@ -486,4 +484,6 @@ public class ShopUIManager : MonoBehaviour
     {
         if (el != null) el.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
     }
+
+    
 }

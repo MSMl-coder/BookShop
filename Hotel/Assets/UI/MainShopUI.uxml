@@ -13,7 +13,7 @@
     <Style src="project://database/Assets/UI/Styles/DecorStickers.uss?fileID=7433441132597879392&amp;guid=00c8fe60b80644583ade971403fca434&amp;type=3#DecorStickers"/>
     <Style src="project://database/Assets/UI/Styles/HudTag.uss?fileID=7433441132597879392&amp;guid=b1a7cdd97f3aa454d92795625fcfd94c&amp;type=3#HudTag"/>
     <ui:VisualElement name="Root" picking-mode="Ignore" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; flex-direction: column;">
-        <ui:VisualElement name="DecorStickers" picking-mode="Ignore" class="decor-stickers" style="display: flex;">
+        <ui:VisualElement name="DecorStickers" picking-mode="Ignore" class="decor-stickers" style="display: flex; right: 93px; bottom: -3px;">
             <ui:Label name="StickerConfidential" text="CONFIDENTIAL" picking-mode="Ignore" class="sticker-confidential" style="display: none;"/>
             <ui:VisualElement name="StickerRegistered" picking-mode="Ignore" class="sticker-registered" style="display: none;">
                 <ui:Label text="REGISTERED" class="sticker-registered__label"/>
@@ -143,10 +143,11 @@
             <ui:VisualElement class="phase-widget__sep"/>
             <ui:Label name="PhaseTimer" text="" class="phase-timer"/>
         </ui:VisualElement>
-        <ui:VisualElement name="HUDActions" picking-mode="Ignore" class="hud-actions" style="display: flex;">
+        <ui:VisualElement name="HUDActions" picking-mode="Position" class="hud-actions" style="display: flex;">
             <ui:Button name="BtnOpenInventory" text="📦" class="hud-action-btn"/>
             <ui:Button name="BtnOpenDecoration" text="🪑" class="hud-action-btn"/>
             <ui:Button name="BtnSettings" text="⚙" class="hud-action-btn"/>
+            <ui:Button name="BtnEditMode" text="✏️" class="hud-btn"/>
         </ui:VisualElement>
         <ui:VisualElement name="UpgradeOverlay" picking-mode="Position" class="upgrade-overlay hidden" style="display: none;">
             <ui:VisualElement picking-mode="Position" class="upgrade-modal">
