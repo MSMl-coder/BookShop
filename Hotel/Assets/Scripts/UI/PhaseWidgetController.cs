@@ -1,13 +1,24 @@
 // Assets/Scripts/UI/Phase/PhaseWidgetController.cs
-// ОНОВЛЕНО: підписка на OnNewDayStarted; HUD DayLabel/PhaseLabel синхронізовані
+// ВИПРАВЛЕННЯ v2:
+//   - Захист від подвійної підписки _mainBtn.clicked (унsubscribe перед subscribe)
+//   - Додано WorkDayTimer: таймер зворотного відліку під час WorkDay
+//     налаштовується через Inspector (workDayDuration, default 180 секунд)
+//   - Таймер показується в PhaseTimer label
+//   - По закінченню таймера → GameLoopManager.EndWorkDay() автоматично
+
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections;
 
 public class PhaseWidgetController : MonoBehaviour
 {
     public static PhaseWidgetController Instance { get; private set; }
 
     [SerializeField] private UIDocument uiDocument;
+
+    [Header("WorkDay Timer")]
+    [Tooltip("Тривалість робочого дня в секундах")]
+    [SerializeField] private float workDayDuration = 180f;
 
     private Button        _mainBtn;
     private Label         _indicatorLabel;
@@ -17,13 +28,11 @@ public class PhaseWidgetController : MonoBehaviour
     private VisualElement _dot0, _dot1, _dot2;
 
     private GameState _currentState;
+    private Coroutine _timerCoroutine;
 
-    private static readonly string[] BtnTexts =
-        { "ВІДКРИТИ МАГАЗИН", "ЗАВЕРШИТИ ДЕНЬ", "НАГОРОДИ..." };
-    private static readonly string[] IndicatorTexts =
-        { "ПІДГОТОВКА", "ТОРГІВЛЯ", "НАГОРОДИ" };
-    private static readonly string[] BtnClasses =
-        { "open-shop", "end-day", "inactive" };
+    private static readonly string[] BtnTexts      = { "ВІДКРИТИ МАГАЗИН", "ЗАВЕРШИТИ ДЕНЬ", "НАГОРОДИ..." };
+    private static readonly string[] IndicatorTexts = { "ПІДГОТОВКА", "ТОРГІВЛЯ", "НАГОРОДИ" };
+    private static readonly string[] BtnClasses     = { "open-shop", "end-day", "inactive" };
 
     private void Awake()
     {
@@ -45,13 +54,20 @@ public class PhaseWidgetController : MonoBehaviour
         _dot1 = root.Q<VisualElement>("PhaseDot1");
         _dot2 = root.Q<VisualElement>("PhaseDot2");
 
-        if (_mainBtn != null) _mainBtn.clicked += OnMainBtnClicked;
+        // ВИПРАВЛЕНО: unsubscribe перед subscribe — захист від подвійної підписки
+        if (_mainBtn != null)
+        {
+            _mainBtn.clicked -= OnMainBtnClicked;
+            _mainBtn.clicked += OnMainBtnClicked;
+        }
 
         var loop = GameLoopManager.Instance;
         if (loop != null)
         {
+            loop.OnStateChanged  -= UpdateState;
             loop.OnStateChanged  += UpdateState;
-            loop.OnNewDayStarted += day => UpdateDayLabel(day);
+            loop.OnNewDayStarted -= UpdateDayLabel;
+            loop.OnNewDayStarted += UpdateDayLabel;
             UpdateState(loop.CurrentState);
             UpdateDayLabel(loop.CurrentDay);
         }
@@ -60,13 +76,18 @@ public class PhaseWidgetController : MonoBehaviour
     private void OnDisable()
     {
         if (_mainBtn != null) _mainBtn.clicked -= OnMainBtnClicked;
+
         var loop = GameLoopManager.Instance;
         if (loop != null)
         {
             loop.OnStateChanged  -= UpdateState;
-            loop.OnNewDayStarted -= day => UpdateDayLabel(day);
+            loop.OnNewDayStarted -= UpdateDayLabel;
         }
+
+        StopTimer();
     }
+
+    // ── State ───────────────────────────────────────────────────
 
     private void UpdateState(GameState state)
     {
@@ -88,7 +109,13 @@ public class PhaseWidgetController : MonoBehaviour
             _phaseLabel.text = idx < IndicatorTexts.Length ? IndicatorTexts[idx] : "";
 
         UpdateDots(state);
-        if (_timerLabel != null) _timerLabel.text = "";
+
+        // Таймер
+        StopTimer();
+        if (state == GameState.WorkDay)
+            _timerCoroutine = StartCoroutine(WorkDayTimerRoutine());
+        else if (_timerLabel != null)
+            _timerLabel.text = "";
     }
 
     private void UpdateDayLabel(int day)
@@ -109,6 +136,8 @@ public class PhaseWidgetController : MonoBehaviour
         }
     }
 
+    // ── Button ──────────────────────────────────────────────────
+
     private void OnMainBtnClicked()
     {
         switch (_currentState)
@@ -117,7 +146,10 @@ public class PhaseWidgetController : MonoBehaviour
                 if (!HasBooksOnShelves()) { ShowWarning("Розмістіть книги на полицях!"); return; }
                 GameLoopManager.Instance?.StartWorkDay();
                 break;
+
             case GameState.WorkDay:
+                // Ручне завершення дня — зупиняємо таймер і завершуємо
+                StopTimer();
                 GameLoopManager.Instance?.EndWorkDay();
                 break;
         }
@@ -131,6 +163,49 @@ public class PhaseWidgetController : MonoBehaviour
         return false;
     }
 
+    // ── WorkDay Timer ───────────────────────────────────────────
+
+    private IEnumerator WorkDayTimerRoutine()
+    {
+        float remaining = workDayDuration;
+
+        while (remaining > 0f)
+        {
+            remaining -= Time.deltaTime;
+            remaining  = Mathf.Max(0f, remaining);
+
+            if (_timerLabel != null)
+            {
+                int mins = Mathf.FloorToInt(remaining / 60f);
+                int secs = Mathf.FloorToInt(remaining % 60f);
+                _timerLabel.text = $"{mins:D2}:{secs:D2}";
+
+                // Червоний колір коли менше 30 секунд
+                _timerLabel.style.color = remaining <= 30f
+                    ? new StyleColor(new Color(0.9f, 0.3f, 0.2f))
+                    : StyleKeyword.Null;
+            }
+
+            yield return null;
+        }
+
+        // Таймер закінчився — завершуємо день автоматично
+        Debug.Log("[PhaseWidget] WorkDay timer expired → EndWorkDay");
+        if (_currentState == GameState.WorkDay)
+            GameLoopManager.Instance?.EndWorkDay();
+    }
+
+    private void StopTimer()
+    {
+        if (_timerCoroutine != null)
+        {
+            StopCoroutine(_timerCoroutine);
+            _timerCoroutine = null;
+        }
+    }
+
+    // ── Warning ─────────────────────────────────────────────────
+
     private void ShowWarning(string text)
     {
         if (_timerLabel == null) return;
@@ -139,11 +214,18 @@ public class PhaseWidgetController : MonoBehaviour
         StartCoroutine(ClearWarning());
     }
 
-    private System.Collections.IEnumerator ClearWarning()
+    private IEnumerator ClearWarning()
     {
         yield return new WaitForSeconds(3f);
-        if (_timerLabel != null) { _timerLabel.text = ""; _timerLabel.style.color = StyleKeyword.Null; }
+        if (_timerLabel != null && _currentState != GameState.WorkDay)
+        {
+            _timerLabel.text = "";
+            _timerLabel.style.color = StyleKeyword.Null;
+        }
     }
 
-    public void SetTimerText(string text) { if (_timerLabel != null) _timerLabel.text = text; }
+    public void SetTimerText(string text)
+    {
+        if (_timerLabel != null) _timerLabel.text = text;
+    }
 }

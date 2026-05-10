@@ -100,27 +100,72 @@ public class Shelf : MonoBehaviour
         return data;
     }
 
-        public BookInstance RemoveBook(GameObject bookObj)
+     // ВСТАВИТИ в Assets/Scripts/World/Shelf/Shelf.cs
+// Замінити попередню версію RemoveBook (або вставити після TakeLastBook якщо її ще немає)
+
+    /// Видаляє книгу з полиці за BookWorldItem.
+    /// Шукає по instance-reference, потім по GO — надійно знаходить навіть якщо
+    /// hit.collider.gameObject є дочірнім об'єктом.
+    public BookInstance RemoveBook(BookWorldItem bookWorldItem)
+    {
+        if (bookWorldItem == null) return null;
+
+        // Шукаємо в списку GO що містить цей BookWorldItem
+        int idx = -1;
+        for (int i = 0; i < _placedBookVisuals.Count; i++)
+        {
+            var go = _placedBookVisuals[i];
+            if (go == null) continue;
+
+            // Прямий збіг GO
+            if (go == bookWorldItem.gameObject) { idx = i; break; }
+
+            // BookWorldItem на іншому рівні ієрархії
+            var bwi = go.GetComponent<BookWorldItem>();
+            if (bwi == bookWorldItem) { idx = i; break; }
+        }
+
+        if (idx < 0)
+        {
+            Debug.LogWarning($"[Shelf] RemoveBook: '{bookWorldItem.instance?.templateID}' не знайдено в {gameObject.name}");
+            return null;
+        }
+
+        BookInstance data = _placedBookVisuals[idx].GetComponent<BookWorldItem>()?.instance
+                         ?? bookWorldItem.instance;
+
+        GameObject toDestroy = _placedBookVisuals[idx];
+        _placedBookVisuals.RemoveAt(idx);
+        Destroy(toDestroy);
+        RefreshPositions();
+
+        Debug.Log($"[Shelf] RemoveBook OK: '{data?.templateID}' з {gameObject.name}. Лишилось: {_placedBookVisuals.Count}");
+        return data;
+    }
+
+    /// Перевантаження для зворотної сумісності — приймає GameObject.
+    public BookInstance RemoveBook(GameObject bookObj)
     {
         if (bookObj == null) return null;
- 
+        var bwi = bookObj.GetComponent<BookWorldItem>()
+               ?? bookObj.GetComponentInParent<BookWorldItem>()
+               ?? bookObj.GetComponentInChildren<BookWorldItem>();
+        if (bwi != null) return RemoveBook(bwi);
+
+        // Останній fallback — шукаємо по GO напряму
         int idx = _placedBookVisuals.IndexOf(bookObj);
         if (idx < 0)
         {
-            Debug.LogWarning($"[Shelf] RemoveBook: {bookObj.name} не знайдено на {gameObject.name}");
+            Debug.LogWarning($"[Shelf] RemoveBook(GO): '{bookObj.name}' не знайдено в {gameObject.name}");
             return null;
         }
- 
-        BookWorldItem item = bookObj.GetComponent<BookWorldItem>();
-        BookInstance  data = item?.instance;
- 
+        var item = _placedBookVisuals[idx].GetComponent<BookWorldItem>();
+        BookInstance data = item?.instance;
         _placedBookVisuals.RemoveAt(idx);
         Destroy(bookObj);
         RefreshPositions();
- 
         return data;
     }
- 
 
     /// <summary>
     /// Removes a specific book by its BookInstance (used when NPC purchases it).

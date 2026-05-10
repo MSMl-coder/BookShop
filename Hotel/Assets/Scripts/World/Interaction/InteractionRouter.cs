@@ -1,17 +1,14 @@
-// Assets/Scripts/Core/InteractionRouter.cs  [ВИПРАВЛЕНО v2 — Фаза 1]
+// Assets/Scripts/Core/InteractionRouter.cs  [Фаза 1 — v3, RaycastAll]
 // ВИПРАВЛЕННЯ:
-//   - CustomerBrain → NPCBrain
-//   - EditMode прибрано (не існує в GameState)
-//   - Додано InputBlocker.IsBlocked перевірку
-//
-// UNITY SETUP:
-//   1. Видали PlayerInteraction та CabinetClickHandler з усіх GO
-//   2. Add Component → InteractionRouter на Manager GO
-//   3. Assign mainCamera + interactionLayer
+//   - Замість Physics.Raycast (перший hit) → Physics.RaycastAll + сортування по відстані
+//   - Пріоритет: BookWorldItem > Cabinet > NPCBrain
+//     (книга завжди важливіша за шафу навіть якщо шафа ближче до камери)
+//   - Шафа більше не "з'їдає" клік по книзі що знаходиться всередині неї
 
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 [DefaultExecutionOrder(-5)]
 public class InteractionRouter : MonoBehaviour
@@ -36,12 +33,12 @@ public class InteractionRouter : MonoBehaviour
 
     private void Update()
     {
-        // Блокування під час туторіалу
         if (InputBlocker.IsBlocked) return;
 
         var mouse = Mouse.current;
         if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
 
+        // Ігноруємо кліки по UI (EventSystem — для Legacy UI/UGUI)
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
         HandleClick(mouse.position.ReadValue());
@@ -55,42 +52,58 @@ public class InteractionRouter : MonoBehaviour
 
         Ray ray = mainCamera.ScreenPointToRay(screenPos);
 
-        if (!Physics.Raycast(ray, out RaycastHit hit, maxDistance, interactionLayer))
+        // RaycastAll — отримуємо ВСІ об'єкти що перетинає промінь
+        RaycastHit[] hits = Physics.RaycastAll(ray, maxDistance, interactionLayer);
+
+        if (hits.Length == 0)
         {
             ContextMenuUI.Instance?.Hide();
             return;
         }
 
-        GameObject target = hit.collider.gameObject;
-        GameState  state  = GameLoopManager.Instance?.CurrentState ?? GameState.Preparation;
+        // Сортуємо за відстанню (від найближчого до найдальшого)
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
-        Debug.Log($"[InteractionRouter] Hit: {target.name} | State: {state}");
+        GameState state = GameLoopManager.Instance?.CurrentState ?? GameState.Preparation;
 
-        // 1. Книга на полиці
-        var bookItem = target.GetComponentInParent<BookWorldItem>();
-        if (bookItem != null)
+        // Пріоритет 1 — шукаємо BookWorldItem серед ВСІХ hits
+        // (книга може бути за collider-ом шафи/полиці)
+        foreach (var hit in hits)
         {
-            ContextMenuUI.Instance?.ShowForBook(bookItem, hit.point, state);
-            return;
+            var bookItem = hit.collider.GetComponentInParent<BookWorldItem>();
+            if (bookItem != null)
+            {
+                Debug.Log($"[InteractionRouter] Book hit: {hit.collider.name} | State: {state}");
+                ContextMenuUI.Instance?.ShowForBook(bookItem, hit.point, state);
+                return;
+            }
         }
 
-        // 2. Шафа
-        var cabinet = target.GetComponentInParent<Cabinet>();
-        if (cabinet != null)
+        // Пріоритет 2 — NPC (тільки WorkDay)
+        foreach (var hit in hits)
         {
-            ContextMenuUI.Instance?.ShowForCabinet(cabinet, hit.point, state);
-            return;
+            var npc = hit.collider.GetComponentInParent<NPCBrain>();
+            if (npc != null && state == GameState.WorkDay)
+            {
+                Debug.Log($"[InteractionRouter] NPC hit: {hit.collider.name}");
+                ContextMenuUI.Instance?.ShowForNPC(npc, hit.point, state);
+                return;
+            }
         }
 
-        // 3. NPC (тільки WorkDay)
-        var npc = target.GetComponentInParent<NPCBrain>();
-        if (npc != null && state == GameState.WorkDay)
+        // Пріоритет 3 — Cabinet
+        foreach (var hit in hits)
         {
-            ContextMenuUI.Instance?.ShowForNPC(npc, hit.point, state);
-            return;
+            var cabinet = hit.collider.GetComponentInParent<Cabinet>();
+            if (cabinet != null)
+            {
+                Debug.Log($"[InteractionRouter] Cabinet hit: {hit.collider.name} | State: {state}");
+                ContextMenuUI.Instance?.ShowForCabinet(cabinet, hit.point, state);
+                return;
+            }
         }
 
-        // Нічого → закрити меню
+        // Нічого не знайдено
         ContextMenuUI.Instance?.Hide();
     }
 }

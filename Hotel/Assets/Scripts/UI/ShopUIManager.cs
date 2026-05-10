@@ -249,6 +249,14 @@ public class ShopUIManager : MonoBehaviour
         }
     }
 
+    public void OpenInventoryPanel()
+        {
+            SetDisplay(_inventoryPanel, true);
+            SetDisplay(_cabinetPanel,   true);
+            RefreshInventory();
+            RefreshCabinetList();
+        }
+    
     public void CloseAllPanels()
     {
         SetDisplay(_inventoryPanel, false);

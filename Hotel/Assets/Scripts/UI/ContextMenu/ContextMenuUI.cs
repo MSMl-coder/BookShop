@@ -173,18 +173,35 @@ public class ContextMenuUI : MonoBehaviour
     }
 
     /// Забрати книгу з полиці в інвентар гравця.
-    /// Shelf.RemoveBook(go) знищує GO і повертає BookInstance.
     private static void TakeBookToInventory(BookWorldItem item)
     {
-        if (item?.parentShelf == null) return;
-
-        // Shelf.RemoveBook: видаляє з _placedBookVisuals, Destroy(go), RefreshPositions
-        BookInstance inst = item.parentShelf.RemoveBook(item.gameObject);
-        if (inst != null)
+        if (item == null || item.instance == null)
         {
-            InventoryManager.Instance?.AddExistingBook(inst);
-            Debug.Log($"[ContextMenu] '{inst.templateID}' → інвентар.");
+            Debug.LogWarning("[ContextMenu] TakeBookToInventory: item або instance == null");
+            return;
         }
+
+        BookInstance inst = null;
+
+        if (item.parentShelf != null)
+        {
+            // Передаємо BookWorldItem напряму — найнадійніший пошук
+            inst = item.parentShelf.RemoveBook(item);
+        }
+
+        if (inst == null)
+        {
+            // parentShelf не призначено — забираємо дані і знищуємо GO вручну
+            Debug.LogWarning($"[ContextMenu] parentShelf null для '{item.instance.templateID}', знищуємо GO напряму");
+            inst = item.instance;
+            Object.Destroy(item.gameObject);
+        }
+
+        InventoryManager.Instance?.AddExistingBook(inst);
+        Debug.Log($"[ContextMenu] '{inst.templateID}' → інвентар. Всього: {InventoryManager.Instance?.GetBookCount()}");
+
+        // Відкриваємо інвентарну панель
+        ShopUIManager.Instance?.OpenInventoryPanel();
     }
 
     // ── Inner class ────────────────────────────────────────────
