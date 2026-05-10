@@ -1,6 +1,4 @@
-
-Copy
-
+ 
 // Assets/Scripts/Tutorial/InputBlocker.cs
 // ФАЗА 1 — блокування вводу під час туторіалу (крок з blockInput = true)
 //

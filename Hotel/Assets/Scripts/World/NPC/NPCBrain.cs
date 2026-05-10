@@ -1,84 +1,14 @@
-// ═══════════════════════════════════════════════════════════════════════════
-// ПАТЧ до Assets/Scripts/World/NPC/NPCBrain.cs  — Фаза 1 / EndDay підтримка
-// ═══════════════════════════════════════════════════════════════════════════
-//
-// Додай наступне в клас NPCBrain:
-//
-// 1. Нове приватне поле (в секції Private Fields):
-//
-//    private BookWorldItem _reservedBookWorldItem;
-//
-//
-// 2. В методі InspectShelf() — після рядка "FoundBook = found;" додай:
-//
-//    // Резервуємо книгу в 3D-сцені
-//    var bwi = _currentTargetShelf
-//        .GetComponentsInChildren<BookWorldItem>()
-//        .FirstOrDefault(b => b.instance?.templateID == found.templateID);
-//    if (bwi != null && bwi.Reserve(this))
-//        _reservedBookWorldItem = bwi;
-//
-//    (додай using System.Linq; в початок файлу якщо ще немає)
-//
-//
-// 3. В методі CompletePurchase() — на початку методу додай:
-//
-//    // Знімаємо резервацію після успішної покупки
-//    _reservedBookWorldItem?.Unreserve();
-//    _reservedBookWorldItem = null;
-//
-//
-// 4. В методі ChangeState() — у case NPCState.Leaving додай:
-//
-//    // Знімаємо резервацію якщо NPC йде без покупки
-//    _reservedBookWorldItem?.Unreserve();
-//    _reservedBookWorldItem = null;
-//
-//
-// 5. НОВИЙ PUBLIC МЕТОД — додай у клас NPCBrain:
-
-/*
-/// Викликається CashDeskBuffer при EndDay.
-/// NPC примусово переходить у стан Leaving та повертає BookInstance
-/// зарезервованої/знайденої книги (без нарахування грошей).
-/// Повертає null якщо NPC не тримав книгу.
-public BookInstance ForceLeaveAndTakeBook()
-{
-    BookInstance result = null;
-
-    // Якщо NPC знайшов/зарезервував книгу — забираємо її
-    if (_reservedBookWorldItem != null)
-    {
-        result = _reservedBookWorldItem.instance;
-
-        // Знімаємо резервацію та прибираємо книгу з полиці
-        _reservedBookWorldItem.Unreserve();
-        if (_reservedBookWorldItem.parentShelf != null)
-            _reservedBookWorldItem.parentShelf.RemoveBook(_reservedBookWorldItem.gameObject);
-
-        _reservedBookWorldItem = null;
-        FoundBook = null;
-
-        Debug.Log($"[NPCBrain] {Data?.npcName}: EndDay — книга '{result?.templateID}' вилучена.");
-    }
-
-    // Примусово відправляємо NPC до виходу (якщо він ще активний)
-    if (CurrentState != NPCState.Leaving && _isInitialized)
-        ChangeState(NPCState.Leaving);
-
-    return result;
-}
-*/
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Повний оновлений NPCBrain.cs з усіма змінами вбудованими:
-// ═══════════════════════════════════════════════════════════════════════════
+// Assets/Scripts/World/NPC/NPCBrain.cs  [Фаза 1 — фінальна версія]
+// ВИПРАВЛЕННЯ:
+//   - BookTemplate.templateID → BookTemplate.bookID (правильне поле)
+//   - FindObjectsByType<Shelf>(FindObjectsSortMode.None) → FindObjectsByType<Shelf>()
+//     (застарілий підпис замінено на актуальний)
+//   - Без System.Linq (як в оригіналі)
 
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System;
 
 [RequireComponent(typeof(NavMeshAgent))]
@@ -91,23 +21,25 @@ public class NPCBrain : MonoBehaviour
     public BookTemplate FoundBook    { get; private set; }
 
     // ── Events ──────────────────────────────────────────────────
-    public event Action<NPCState>    OnStateChanged;
+    public event Action<NPCState>     OnStateChanged;
     public event Action<BookTemplate> OnBookFound;
-    public event Action              OnPurchaseComplete;
-    public event Action              OnNPCLeft;
+    public event Action               OnPurchaseComplete;
+    public event Action               OnNPCLeft;
 
     // ── Private ─────────────────────────────────────────────────
-    private NavMeshAgent   _agent;
+    private NavMeshAgent     _agent;
     private NPCInteractionUI _ui;
-    private ShelfScanner   _scanner;
-    private CashRegister   _cashRegister;
+    private ShelfScanner     _scanner;
+    private CashRegister     _cashRegister;
 
-    private float         _stayTimer;
-    private float         _browseTimer;
-    private List<Shelf>   _visitedShelves   = new List<Shelf>();
-    private Shelf         _currentTargetShelf;
-    private bool          _isInitialized;
-    private Shelf[]       _cachedShelves;
+    private float       _stayTimer;
+    private float       _browseTimer;
+    private List<Shelf> _visitedShelves     = new List<Shelf>();
+    private Shelf       _currentTargetShelf;
+    private bool        _isInitialized;
+
+    // ВИПРАВЛЕНО: кешуємо список полиць один раз
+    private Shelf[] _cachedShelves;
 
     // НОВЕ — Фаза 1: зарезервована книга в 3D-сцені
     private BookWorldItem _reservedBookWorldItem;
@@ -126,9 +58,11 @@ public class NPCBrain : MonoBehaviour
 
         _stayTimer     = data.stayDuration;
         _isInitialized = true;
-        _cachedShelves = FindObjectsByType<Shelf>(FindObjectsSortMode.None);
 
-        Debug.Log($"[NPC] {data.npcName} initialized. Wants: {DesiredGenre}. Shelves: {_cachedShelves.Length}");
+        // ВИПРАВЛЕНО: FindObjectsByType<T>() без FindObjectsSortMode (актуальний API)
+        _cachedShelves = FindObjectsByType<Shelf>();
+
+        Debug.Log($"[NPC] {data.npcName} initialized. Wants: {DesiredGenre}. Shelves cached: {_cachedShelves.Length}");
         ChangeState(NPCState.Entering);
     }
 
@@ -178,16 +112,17 @@ public class NPCBrain : MonoBehaviour
 
         if (AgentArrived() || _currentTargetShelf == null)
         {
-            Shelf next = FindUnvisitedShelf();
-            if (next != null)
+            Shelf nextShelf = FindUnvisitedShelf();
+            if (nextShelf != null)
             {
-                _currentTargetShelf = next;
-                _visitedShelves.Add(next);
-                _agent.SetDestination(next.transform.position + next.transform.forward * 1.2f);
+                _currentTargetShelf = nextShelf;
+                _visitedShelves.Add(nextShelf);
+                _agent.SetDestination(nextShelf.transform.position + nextShelf.transform.forward * 1.2f);
                 ChangeState(NPCState.Inspecting);
             }
             else
             {
+                Debug.Log($"[NPC] {Data.npcName} checked all shelves. Showing genre hint.");
                 ChangeState(NPCState.ShowingHint);
             }
         }
@@ -213,10 +148,8 @@ public class NPCBrain : MonoBehaviour
             OnBookFound?.Invoke(found);
 
             // НОВЕ — Фаза 1: резервуємо BookWorldItem
-            var bwi = _currentTargetShelf
-                .GetComponentsInChildren<BookWorldItem>()
-                .FirstOrDefault(b => b.instance?.templateID == found.templateID && !b.IsReserved);
-
+            // ВИПРАВЛЕНО: BookTemplate.bookID (не templateID)
+            BookWorldItem bwi = FindUnreservedBookWorldItem(_currentTargetShelf, found.bookID);
             if (bwi != null && bwi.Reserve(this))
                 _reservedBookWorldItem = bwi;
 
@@ -256,7 +189,7 @@ public class NPCBrain : MonoBehaviour
     {
         if (FoundBook == null) return;
 
-        // НОВЕ — Фаза 1: знімаємо резервацію після покупки
+        // НОВЕ — Фаза 1: знімаємо резервацію після успішної покупки
         _reservedBookWorldItem?.Unreserve();
         _reservedBookWorldItem = null;
 
@@ -291,6 +224,7 @@ public class NPCBrain : MonoBehaviour
                 break;
 
             case NPCState.ShowingHint:
+                // ВИПРАВЛЕНО: без рекурсивного ChangeState
                 CurrentState = NPCState.WaitingForPlayer;
                 OnStateChanged?.Invoke(NPCState.WaitingForPlayer);
                 break;
@@ -300,9 +234,8 @@ public class NPCBrain : MonoBehaviour
     // ── НОВЕ — Фаза 1: EndDay API ───────────────────────────────
 
     /// Викликається CashDeskBuffer при EndDay.
-    /// Примусово відправляє NPC до виходу і повертає BookInstance
-    /// яку NPC тримав/зарезервував (без нарахування грошей гравцю).
-    /// Повертає null якщо NPC не мав книги.
+    /// Знімає резервацію, прибирає книгу з полиці, відправляє NPC до виходу.
+    /// Повертає BookInstance або null якщо NPC не тримав книгу.
     public BookInstance ForceLeaveAndTakeBook()
     {
         BookInstance result = null;
@@ -311,20 +244,17 @@ public class NPCBrain : MonoBehaviour
         {
             result = _reservedBookWorldItem.instance;
 
-            // Знімаємо резервацію
             _reservedBookWorldItem.Unreserve();
 
-            // Прибираємо книгу з полиці (вона переходить на стіл каси)
             if (_reservedBookWorldItem.parentShelf != null)
                 _reservedBookWorldItem.parentShelf.RemoveBook(_reservedBookWorldItem.gameObject);
 
             _reservedBookWorldItem = null;
             FoundBook = null;
 
-            Debug.Log($"[NPC] {Data?.npcName}: EndDay → книга '{result?.templateID}' вилучена.");
+            Debug.Log($"[NPC] {Data?.npcName}: EndDay → '{result?.templateID}' → стіл каси.");
         }
 
-        // Відправляємо до виходу якщо ще активний
         if (_isInitialized && CurrentState != NPCState.Leaving)
             ChangeState(NPCState.Leaving);
 
@@ -332,28 +262,48 @@ public class NPCBrain : MonoBehaviour
     }
 
     // ── Helpers ─────────────────────────────────────────────────
+
+    /// Шукає незарезервований BookWorldItem за bookID (поле BookTemplate).
+    /// BookInstance.templateID зберігає bookID шаблону.
+    private BookWorldItem FindUnreservedBookWorldItem(Shelf shelf, string bookID)
+    {
+        var items = shelf.GetComponentsInChildren<BookWorldItem>();
+        foreach (var item in items)
+        {
+            if (item == null || item.IsReserved) continue;
+            // BookInstance.templateID = BookTemplate.bookID
+            if (item.instance?.templateID == bookID) return item;
+        }
+        return null;
+    }
+
+    // ВИПРАВЛЕНО: використовуємо _cachedShelves замість FindObjectsByType в методі
+    // що викликається з Update — критичне покращення продуктивності
     private Shelf FindUnvisitedShelf()
     {
-        if (_cachedShelves == null) return null;
+        if (_cachedShelves == null || _cachedShelves.Length == 0) return null;
+
+        var unvisited = new List<Shelf>();
         foreach (var s in _cachedShelves)
-            if (s != null && !_visitedShelves.Contains(s)) return s;
-        return null;
+            if (s != null && !_visitedShelves.Contains(s)) unvisited.Add(s);
+
+        if (unvisited.Count == 0) return null;
+        return unvisited[UnityEngine.Random.Range(0, unvisited.Count)];
     }
 
     private bool AgentArrived()
     {
-        if (!_agent.isOnNavMesh) return false;
-        return !_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance;
+        if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance)
+            return !_agent.hasPath || _agent.velocity.sqrMagnitude < 0.01f;
+        return false;
     }
 
-    private IEnumerator LookAtTarget(Vector3 targetPos)
+    private IEnumerator LookAtTarget(Vector3 target)
     {
-        Vector3 dir = (targetPos - transform.position).normalized;
-        dir.y = 0f;
-        if (dir == Vector3.zero) yield break;
-
+        Vector3 dir = (target - transform.position).normalized;
+        dir.y = 0;
         Quaternion targetRot = Quaternion.LookRotation(dir);
-        float t = 0f;
+        float t = 0;
         while (t < 1f)
         {
             t += Time.deltaTime * 3f;
@@ -365,6 +315,10 @@ public class NPCBrain : MonoBehaviour
     private void DestroyNPC()
     {
         OnNPCLeft?.Invoke();
-        Destroy(gameObject);
+        Destroy(gameObject, 0.5f);
     }
+
+    // ── Public timer API (використовується NPCWorldUI та NPCInteractionUI) ──
+    public float GetRemainingTimeNormalized() => Mathf.Clamp01(_stayTimer / Data.stayDuration);
+    public float GetRemainingTime()           => Mathf.Max(0f, _stayTimer);
 }

@@ -100,6 +100,28 @@ public class Shelf : MonoBehaviour
         return data;
     }
 
+        public BookInstance RemoveBook(GameObject bookObj)
+    {
+        if (bookObj == null) return null;
+ 
+        int idx = _placedBookVisuals.IndexOf(bookObj);
+        if (idx < 0)
+        {
+            Debug.LogWarning($"[Shelf] RemoveBook: {bookObj.name} не знайдено на {gameObject.name}");
+            return null;
+        }
+ 
+        BookWorldItem item = bookObj.GetComponent<BookWorldItem>();
+        BookInstance  data = item?.instance;
+ 
+        _placedBookVisuals.RemoveAt(idx);
+        Destroy(bookObj);
+        RefreshPositions();
+ 
+        return data;
+    }
+ 
+
     /// <summary>
     /// Removes a specific book by its BookInstance (used when NPC purchases it).
     /// Returns true if the book was found and removed.

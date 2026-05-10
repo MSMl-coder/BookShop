@@ -1,20 +1,19 @@
-// Assets/Scripts/World/CashDesk/CashDeskBuffer.cs
-// ФАЗА 1 — стіл каси як буфер для книг після закінчення WorkDay
+// Assets/Scripts/World/CashDesk/CashDeskBuffer.cs  [Фаза 1 — фінальна версія]
+// Стіл каси як буфер для книг після закінчення WorkDay.
 //
 // Поведінка за ТЗ:
-//   - При переході WorkDay → LootPhase:
-//       → всі NPC миттєво йдуть до каси (ForceLeave)
-//       → книги які NPC тримали кладуться на стіл каси (TryAddBook)
-//       → якщо немає місця — книги йдуть в інвентар гравця
-//       → покупка НЕ зараховується (NPC не встиг оплатити)
-//   - При переході LootPhase → Preparation:
-//       → буфер очищається, книги повертаються в інвентар
+//   WorkDay → LootPhase:
+//     → всі NPC отримують ForceLeaveAndTakeBook()
+//     → книги кладуться на стіл (TryAddBook)
+//     → переповнення → автоматично в інвентар гравця
+//     → покупка НЕ зараховується
+//   LootPhase → Preparation (новий день):
+//     → стіл очищається, залишки → інвентар гравця
 //
 // UNITY SETUP:
-//   1. Знайди або створи GameObject "CashDesk" у сцені
+//   1. GameObject "CashDesk" у сцені
 //   2. Add Component → CashDeskBuffer
-//   3. Встанови maxSlots (рекомендовано 8)
-//   4. Опційно: призначи slotPoints — точки де книги відображаються на столі
+//   3. maxSlots = 8 (або потрібна кількість)
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,7 +24,7 @@ public class CashDeskBuffer : MonoBehaviour
     public static CashDeskBuffer Instance { get; private set; }
 
     // ── Inspector ──────────────────────────────────────────────
-    [Header("Налаштування")]
+    [Header("Налаштування столу каси")]
     [Tooltip("Максимальна кількість книг на столі каси")]
     [SerializeField] private int maxSlots = 8;
 
@@ -35,26 +34,22 @@ public class CashDeskBuffer : MonoBehaviour
     // ── State ──────────────────────────────────────────────────
     private readonly List<BookInstance> _bufferedBooks = new List<BookInstance>();
 
-    // Статистика для DayStats екрану
+    // Статистика для екрану підсумків дня
     private int _booksCollectedThisDay;
-    private int _booksOverflowedThisDay; // скільки пішло в інвентар через переповнення
+    private int _booksOverflowedThisDay;
 
     // ── Properties ─────────────────────────────────────────────
-    public IReadOnlyList<BookInstance> BufferedBooks   => _bufferedBooks;
-    public int  Count      => _bufferedBooks.Count;
-    public bool HasSpace   => _bufferedBooks.Count < maxSlots;
-    public int  FreeSlots  => maxSlots - _bufferedBooks.Count;
-    public int  BooksCollectedThisDay  => _booksCollectedThisDay;
-    public int  BooksOverflowedThisDay => _booksOverflowedThisDay;
+    public IReadOnlyList<BookInstance> BufferedBooks        => _bufferedBooks;
+    public int  Count                                       => _bufferedBooks.Count;
+    public bool HasSpace                                    => _bufferedBooks.Count < maxSlots;
+    public int  FreeSlots                                   => maxSlots - _bufferedBooks.Count;
+    public int  BooksCollectedThisDay                       => _booksCollectedThisDay;
+    public int  BooksOverflowedThisDay                      => _booksOverflowedThisDay;
 
     // ── Unity ──────────────────────────────────────────────────
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
     }
 
@@ -73,8 +68,8 @@ public class CashDeskBuffer : MonoBehaviour
     // ── Public API ─────────────────────────────────────────────
 
     /// Покласти книгу на стіл каси.
-    /// Якщо місця немає — книга автоматично йде в інвентар гравця.
-    /// Повертає true якщо книга потрапила на стіл, false — в інвентар.
+    /// Якщо місця немає — книга автоматично іде в інвентар гравця.
+    /// Повертає true якщо книга потрапила на стіл.
     public bool TryAddBook(BookInstance book)
     {
         if (book == null) return false;
@@ -86,16 +81,14 @@ public class CashDeskBuffer : MonoBehaviour
             Debug.Log($"[CashDesk] '{book.templateID}' → стіл каси ({_bufferedBooks.Count}/{maxSlots}).");
             return true;
         }
-        else
-        {
-            _booksOverflowedThisDay++;
-            Debug.Log($"[CashDesk] Стіл повний! '{book.templateID}' → інвентар гравця.");
-            InventoryManager.Instance?.AddExistingBook(book);
-            return false;
-        }
+
+        _booksOverflowedThisDay++;
+        Debug.Log($"[CashDesk] Стіл повний! '{book.templateID}' → інвентар гравця.");
+        InventoryManager.Instance?.AddExistingBook(book);
+        return false;
     }
 
-    /// Забрати всі книги зі столу (наприклад для серіалізації або нового дня).
+    /// Взяти всі книги зі столу (для серіалізації або нового дня).
     public List<BookInstance> TakeAllBooks()
     {
         var result = new List<BookInstance>(_bufferedBooks);
@@ -103,17 +96,17 @@ public class CashDeskBuffer : MonoBehaviour
         return result;
     }
 
-    /// Повернути всі книги зі столу назад в інвентар гравця та очистити буфер.
+    /// Повернути всі книги зі столу в інвентар гравця та очистити.
     public void ClearToInventory()
     {
         if (_bufferedBooks.Count == 0) return;
 
+        int count = _bufferedBooks.Count;
         foreach (var book in _bufferedBooks)
             InventoryManager.Instance?.AddExistingBook(book);
 
-        int count = _bufferedBooks.Count;
         _bufferedBooks.Clear();
-        Debug.Log($"[CashDesk] {count} книг повернуто в інвентар гравця.");
+        Debug.Log($"[CashDesk] {count} книг повернуто в інвентар гравця (новий день).");
     }
 
     // ── Private ────────────────────────────────────────────────
@@ -123,28 +116,28 @@ public class CashDeskBuffer : MonoBehaviour
         switch (newState)
         {
             case GameState.LootPhase:
-                // WorkDay закінчився → збираємо книги від усіх NPC
+                // WorkDay закінчився — збираємо книги від усіх NPC
                 ResetDailyStats();
                 CollectBooksFromAllNPCs();
                 break;
 
             case GameState.Preparation:
-                // Новий день починається → повертаємо залишки в інвентар
+                // Новий день — залишки столу повертаємо в інвентар
                 ClearToInventory();
                 break;
         }
     }
 
-    /// Знаходить усіх активних NPC, примусово відправляє їх до виходу
-    /// та забирає книги які вони тримали або зарезервували.
+    /// Знаходить усіх активних NPC.
+    /// ForceLeaveAndTakeBook() — відправляє NPC до виходу та повертає BookInstance
+    /// яку NPC тримав/зарезервував (без нарахування грошей гравцю).
     private void CollectBooksFromAllNPCs()
     {
-        var allNPCs = Object.FindObjectsByType<NPCBrain>(FindObjectsSortMode.None);
+        var allNPCs = Object.FindObjectsByType<NPCBrain>();
 
         int collected = 0;
         foreach (var npc in allNPCs)
         {
-            // Знімаємо резервацію та отримуємо книгу яку NPC тримав
             BookInstance heldBook = npc.ForceLeaveAndTakeBook();
             if (heldBook != null)
             {
@@ -153,9 +146,9 @@ public class CashDeskBuffer : MonoBehaviour
             }
         }
 
-        Debug.Log($"[CashDesk] EndDay: зібрано {collected} книг від {allNPCs.Length} NPC. " +
+        Debug.Log($"[CashDesk] EndDay: {collected} книг від {allNPCs.Length} NPC. " +
                   $"На столі: {_bufferedBooks.Count}/{maxSlots}. " +
-                  $"В інвентар через переповнення: {_booksOverflowedThisDay}.");
+                  $"В інвентар (переповнення): {_booksOverflowedThisDay}.");
     }
 
     private void ResetDailyStats()

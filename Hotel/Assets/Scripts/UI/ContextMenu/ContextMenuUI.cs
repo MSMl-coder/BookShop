@@ -1,13 +1,8 @@
-// Assets/Scripts/UI/ContextMenu/ContextMenuUI.cs  [ВИПРАВЛЕНО v2 — Фаза 1]
+// Assets/Scripts/UI/ContextMenu/ContextMenuUI.cs  [Фаза 1 — фінальна версія]
 // ВИПРАВЛЕННЯ:
-//   - CustomerBrain → NPCBrain (правильна назва класу)
-//   - EditMode/DayStats прибрано (GameState має лише Preparation/WorkDay/LootPhase)
-//   - ShowForNPC перевіряє NPCState правильно
-//
-// UNITY SETUP:
-//   1. GameObject "ContextMenuUI" → Add Component → ContextMenuUI
-//   2. Assign UIDocument з UXML що має #ContextMenu та #ContextMenuContainer
-//   3. Дивись ContextMenuPanel.uxml нижче в коментарях
+//   - shelf.RemoveBook(item.gameObject) — тепер Shelf.RemoveBook існує (додано в Shelf.cs)
+//   - NPCBrain замість CustomerBrain
+//   - Тільки GameState.Preparation / WorkDay / LootPhase (без EditMode/DayStats)
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,15 +10,19 @@ using UnityEngine.UIElements;
 
 public class ContextMenuUI : MonoBehaviour
 {
+    // ── Singleton ──────────────────────────────────────────────
     public static ContextMenuUI Instance { get; private set; }
 
+    // ── Inspector ──────────────────────────────────────────────
     [SerializeField] private UIDocument uiDocument;
     [SerializeField] private Vector2    screenOffset = new Vector2(12f, -12f);
 
+    // ── Runtime ────────────────────────────────────────────────
     private VisualElement _panel;
     private VisualElement _container;
     private bool          _isReady;
 
+    // ── Unity ──────────────────────────────────────────────────
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -33,10 +32,18 @@ public class ContextMenuUI : MonoBehaviour
     private void Start()
     {
         if (uiDocument == null) return;
+
         var root   = uiDocument.rootVisualElement;
         _panel     = root.Q<VisualElement>("ContextMenu");
         _container = root.Q<VisualElement>("ContextMenuContainer");
-        if (_panel != null) _isReady = true;
+
+        if (_panel == null)
+        {
+            Debug.LogError("[ContextMenuUI] #ContextMenu не знайдено у UXML!");
+            return;
+        }
+
+        _isReady = true;
         Hide();
     }
 
@@ -50,17 +57,18 @@ public class ContextMenuUI : MonoBehaviour
     /// Книга на полиці
     public void ShowForBook(BookWorldItem bookItem, Vector3 worldPos, GameState state)
     {
+        if (state == GameState.LootPhase) { Hide(); return; }
+
         var btns = new List<ContextButton>();
 
-        bool showButtons = (state == GameState.Preparation || state == GameState.WorkDay);
-        if (!showButtons) { Hide(); return; }
-
+        // Інформація — Preparation + WorkDay
         btns.Add(new ContextButton("📖 Інформація", () =>
         {
-            Debug.Log($"[ContextMenu] Інфо книги: {bookItem.instance?.templateID}");
+            Debug.Log($"[ContextMenu] Інфо: {bookItem.instance?.templateID}");
             Hide();
         }));
 
+        // Забрати в інвентар
         if (!bookItem.IsReserved)
         {
             btns.Add(new ContextButton("🎒 Забрати в інвентар", () =>
@@ -77,7 +85,7 @@ public class ContextMenuUI : MonoBehaviour
         Show(worldPos, btns);
     }
 
-    /// Шафа/меблі
+    /// Шафа / меблі
     public void ShowForCabinet(Cabinet cabinet, Vector3 worldPos, GameState state)
     {
         if (state == GameState.LootPhase) { Hide(); return; }
@@ -99,7 +107,7 @@ public class ContextMenuUI : MonoBehaviour
         Show(worldPos, btns);
     }
 
-    /// NPC-покупець (тільки WorkDay)
+    /// NPC-покупець — тільки WorkDay
     public void ShowForNPC(NPCBrain npc, Vector3 worldPos, GameState state)
     {
         if (state != GameState.WorkDay) return;
@@ -114,7 +122,7 @@ public class ContextMenuUI : MonoBehaviour
         {
             new ContextButton("📚 Запропонувати книгу", () =>
             {
-                Debug.Log($"[ContextMenu] Пропозиція книги → {npc.Data?.npcName}");
+                Debug.Log($"[ContextMenu] Пропозиція → {npc.Data?.npcName}");
                 // TODO: BookOfferUI.Instance?.OpenFor(npc);
                 Hide();
             })
@@ -136,10 +144,12 @@ public class ContextMenuUI : MonoBehaviour
         }
 
         _container.Clear();
+
         foreach (var btn in btns)
         {
             var b = new Button { text = btn.Label };
             b.AddToClassList("ctx-btn");
+
             if (btn.IsDisabled)
             {
                 b.SetEnabled(false);
@@ -155,27 +165,41 @@ public class ContextMenuUI : MonoBehaviour
 
         Camera cam = Camera.main;
         if (cam == null) return;
+
         Vector3 sp = cam.WorldToScreenPoint(worldPos);
         _panel.style.left    = sp.x + screenOffset.x;
         _panel.style.top     = (Screen.height - sp.y) + screenOffset.y;
         _panel.style.display = DisplayStyle.Flex;
     }
 
+    /// Забрати книгу з полиці в інвентар гравця.
+    /// Shelf.RemoveBook(go) знищує GO і повертає BookInstance.
     private static void TakeBookToInventory(BookWorldItem item)
     {
-        if (item?.instance == null || item.parentShelf == null) return;
-        var inst = item.instance;
-        item.parentShelf.RemoveBook(item.gameObject);
-        InventoryManager.Instance?.AddExistingBook(inst);
-        Debug.Log($"[ContextMenu] '{inst.templateID}' → інвентар.");
+        if (item?.parentShelf == null) return;
+
+        // Shelf.RemoveBook: видаляє з _placedBookVisuals, Destroy(go), RefreshPositions
+        BookInstance inst = item.parentShelf.RemoveBook(item.gameObject);
+        if (inst != null)
+        {
+            InventoryManager.Instance?.AddExistingBook(inst);
+            Debug.Log($"[ContextMenu] '{inst.templateID}' → інвентар.");
+        }
     }
+
+    // ── Inner class ────────────────────────────────────────────
 
     private class ContextButton
     {
         public string        Label;
         public System.Action Action;
         public bool          IsDisabled;
-        public ContextButton(string l, System.Action a, bool d = false)
-        { Label = l; Action = a; IsDisabled = d; }
+
+        public ContextButton(string label, System.Action action, bool disabled = false)
+        {
+            Label      = label;
+            Action     = action;
+            IsDisabled = disabled;
+        }
     }
 }
