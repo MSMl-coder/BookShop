@@ -1,3 +1,4 @@
+
 // Assets/Scripts/Tutorial/TutorialOutline.cs
 // Простий компонент пульсації/обводки для 3D-об'єктів у туторіалі.
 // При enabled=true: пульсує емісія матеріалу.

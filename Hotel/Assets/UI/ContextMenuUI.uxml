@@ -1,16 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ui:UXML
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ui="UnityEngine.UIElements"
-    xmlns:uie="UnityEditor.UIElements"
-    xsi:noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd"
->
-  <Style src="project://database/Assets/UI/Styles/ContextMenuUI.uss"/>
-
-    <ui:VisualElement name="ContextMenu" style="position: absolute; display: none;
-        background-color: rgba(20,20,20,0.9); border-radius: 8px; padding: 4px;">
-        <ui:VisualElement name="ContextMenuContainer" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="ContextMenu"
+        style="position: absolute; display: none; flex-direction: column;
+               background-color: rgba(18,18,22,0.95); border-radius: 8px;
+               padding: 4px; min-width: 180px;
+               border-left-width: 1px; border-right-width: 1px;
+               border-top-width: 1px; border-bottom-width: 1px;
+               border-left-color: rgba(255,255,255,0.08);
+               border-right-color: rgba(255,255,255,0.08);
+               border-top-color: rgba(255,255,255,0.08);
+               border-bottom-color: rgba(255,255,255,0.08);">
+        <ui:VisualElement name="ContextMenuContainer" style="flex-direction: column;" />
     </ui:VisualElement>
-     
-
 </ui:UXML>

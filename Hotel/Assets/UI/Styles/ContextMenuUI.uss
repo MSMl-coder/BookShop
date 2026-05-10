@@ -1,10 +1,43 @@
-.context-menu__btn {
-    background-color: transparent;
-    color: #F0E6CC;
-    border-width: 0;
-    padding: 8px 16px;
-    font-size: 14px;
+/* Assets/UI/ContextMenuPanel.uss */
+
+.ctx-btn {
+    background-color: rgba(0,0,0,0);
+    color: rgb(240, 230, 204);
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-radius: 4px;
+    padding: 7px 14px;
+    font-size: 13px;
     -unity-text-align: middle-left;
+    margin: 1px 2px;
+    cursor: link;
 }
-.context-menu__btn:hover { background-color: rgba(255,255,255,0.1); }
-.context-menu__btn--disabled { color: #666; }
+
+.ctx-btn:hover {
+    background-color: rgba(255,255,255,0.08);
+}
+
+.ctx-btn:active {
+    background-color: rgba(255,255,255,0.15);
+}
+
+.ctx-btn--disabled {
+    color: rgb(100, 100, 100);
+    cursor: arrow;
+}
+
+.tutorial-highlight {
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-top-color: rgb(255, 212, 0);
+    border-bottom-color: rgb(255, 212, 0);
+    border-left-color: rgb(255, 212, 0);
+    border-right-color: rgb(255, 212, 0);
+    border-radius: 4px;
+    transition-duration: 0.4s;
+    transition-property: border-color;
+}

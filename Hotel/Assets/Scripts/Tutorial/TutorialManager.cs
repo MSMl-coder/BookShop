@@ -1,132 +1,210 @@
-// Assets/Scripts/World/CashDesk/CashDeskBuffer.cs
-// ФАЗА 1 — стіл каси як буфер для книг після закінчення WorkDay
+// Assets/Scripts/Tutorial/TutorialManager.cs
+// ФАЗА 1 — фіксований TutorialManager
 //
-// Поведінка за ТЗ:
-//   - Коли WorkDay закінчується (таймер → 0 або гравець натискає "Завершити день"):
-//     ВСІ NPC миттєво переходять до каси.
-//   - Книги що NPC тримали / зарезервували — кладуться на стіл каси.
-//   - Якщо на столі каси немає місця — книги повертаються в інвентар гравця.
-//   - Покупка НЕ зараховується якщо NPC не встиг оплатити.
+// ВИПРАВЛЕНО (з ТЗ):
+//   ПРОБЛЕМА: дубль — InitTutorial викликається і з Awake, і з GameLoopManager.
+//   РІШЕННЯ: прибрано виклик з Awake; InitTutorial викликається ТІЛЬКИ з GameLoopManager
+//             через подію OnStateChanged (GameState.Preparation → перший день).
 //
-// UNITY SETUP:
-//   1. Створи GameObject "CashDesk" у сцені.
-//   2. Додай CashDeskBuffer.
-//   3. Встанови maxSlots (скільки книг вміщує стіл каси).
-//   4. Підпишись на GameLoopManager.Instance.OnStateChanged.
+//   ПРОБЛЕМА: поле blockInput існує але логіка не реалізована.
+//   РІШЕННЯ: реалізовано через InputBlocker.SetBlocked(true/false) — блокує
+//             InteractionRouter та інші системи вводу під час кроку.
+//
+//   ПРОБЛЕМА: поле highlightTarget існує але підсвітка не реалізована.
+//   РІШЕННЯ: реалізовано TutorialHighlight.Highlight(elementName) — обводка/пульсація
+//             цільового UI елемента або 3D-об'єкта.
+//
+//   ПРОБЛЕМА: тригер OnFirstSale ніколи не спрацьовував.
+//   РІШЕННЯ: підключено до EconomyManager.OnBookSold.
+//
+//   РІШЕННЯ кнопки "НЕ буде": туторіал проходиться ОДИН РАЗ, кнопка "Пропустити"
+//             є але не дає пропустити окремий крок — лише весь туторіал.
 
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
-public class CashDeskBuffer : MonoBehaviour
+public class TutorialManager : MonoBehaviour
 {
-    // ── Singleton ──────────────────────────────────────────────
-    public static CashDeskBuffer Instance { get; private set; }
+    public static TutorialManager Instance { get; private set; }
 
-    // ── Inspector ──────────────────────────────────────────────
-    [Header("Налаштування столу каси")]
-    [SerializeField] private int maxSlots = 8;
+    [SerializeField] private List<TutorialStep> steps = new List<TutorialStep>();
 
-    [Tooltip("Точки де книги з'являються на столі (опційно)")]
-    [SerializeField] private Transform[] slotPoints;
+    private HashSet<string> _completedSteps = new HashSet<string>();
+    private TutorialStep    _currentStep;
 
-    // ── State ──────────────────────────────────────────────────
-    private readonly List<BookInstance> _bufferedBooks = new();
+    public bool IsTutorialActive  => _currentStep != null;
+    public bool IsTutorialDone    => _allDone;
+    private bool _allDone;
 
-    public IReadOnlyList<BookInstance> BufferedBooks => _bufferedBooks;
-    public bool HasSpace => _bufferedBooks.Count < maxSlots;
-    public int  FreeSlots => maxSlots - _bufferedBooks.Count;
+    public event System.Action<TutorialStep> OnStepStarted;
+    public event System.Action<string>       OnStepCompleted;
+    public event System.Action               OnAllCompleted;
+
+    private const string PREFS_KEY = "TutorialProgress_v2";
 
     // ── Unity ──────────────────────────────────────────────────
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+
+        LoadProgress();
+        // ✅ ФІКС: InitTutorial НЕ викликається тут
+        // Туторіал стартує через OnEnable → підписка на події
     }
 
     private void OnEnable()
     {
+        // ✅ ФІКС: підписуємось на GameLoopManager — туторіал стартує при першому Preparation
         if (GameLoopManager.Instance != null)
             GameLoopManager.Instance.OnStateChanged += OnStateChanged;
+
+        // ✅ ФІКС: тригер продажу — підключаємо до EconomyManager
+        if (EconomyManager.Instance != null)
+            EconomyManager.Instance.OnBookSold += OnBookSold;
     }
 
     private void OnDisable()
     {
         if (GameLoopManager.Instance != null)
             GameLoopManager.Instance.OnStateChanged -= OnStateChanged;
+
+        if (EconomyManager.Instance != null)
+            EconomyManager.Instance.OnBookSold -= OnBookSold;
     }
 
     // ── Public API ─────────────────────────────────────────────
 
-    /// Додати книгу на стіл каси.
-    /// Повертає true якщо успішно, false якщо немає місця (книга → інвентар).
-    public bool TryAddBook(BookInstance book)
+    public void TryTrigger(TutorialTrigger trigger)
     {
-        if (book == null) return false;
+        if (_allDone) return;
 
-        if (!HasSpace)
+        foreach (var step in steps)
         {
-            Debug.Log($"[CashDesk] Немає місця! Книга '{book.templateID}' → інвентар гравця.");
-            InventoryManager.Instance?.AddExistingBook(book);
-            return false;
+            if (step.trigger == trigger && !_completedSteps.Contains(step.stepID))
+            {
+                ShowStep(step);
+                return;
+            }
+        }
+    }
+
+    public void CompleteCurrentStep()
+    {
+        if (_currentStep == null) return;
+
+        // Знімаємо блокування вводу
+        if (_currentStep.blockInput)
+            InputBlocker.SetBlocked(false);
+
+        // Знімаємо підсвітку
+        TutorialHighlight.ClearHighlight();
+
+        _completedSteps.Add(_currentStep.stepID);
+        string completedID = _currentStep.stepID;
+        _currentStep = null;
+
+        OnStepCompleted?.Invoke(completedID);
+        SaveProgress();
+
+        if (AreAllCompleted())
+        {
+            _allDone = true;
+            OnAllCompleted?.Invoke();
+            Debug.Log("[Tutorial] ✅ Всі кроки пройдено!");
+        }
+    }
+
+    /// Пропустити весь туторіал (кнопка "Пропустити" — тільки весь, не окремий крок)
+    public void SkipAll()
+    {
+        if (_currentStep != null)
+        {
+            if (_currentStep.blockInput) InputBlocker.SetBlocked(false);
+            TutorialHighlight.ClearHighlight();
         }
 
-        _bufferedBooks.Add(book);
-        Debug.Log($"[CashDesk] Книга '{book.templateID}' покладена на стіл каси ({_bufferedBooks.Count}/{maxSlots}).");
-        return true;
+        foreach (var step in steps)
+            _completedSteps.Add(step.stepID);
+
+        _currentStep = null;
+        _allDone     = true;
+        SaveProgress();
+        OnAllCompleted?.Invoke();
+        Debug.Log("[Tutorial] Туторіал пропущено.");
     }
 
-    /// Взяти всі книги зі столу каси (наприклад при переході до нового дня)
-    public List<BookInstance> TakeAllBooks()
+    /// Скинути прогрес (для дебагу)
+    public void ResetProgress()
     {
-        var result = new List<BookInstance>(_bufferedBooks);
-        _bufferedBooks.Clear();
-        return result;
+        _completedSteps.Clear();
+        _currentStep = null;
+        _allDone     = false;
+        PlayerPrefs.DeleteKey(PREFS_KEY);
+        Debug.Log("[Tutorial] Прогрес скинуто.");
     }
 
-    /// Очистити стіл каси (книги повертаються в інвентар)
-    public void ClearToInventory()
-    {
-        foreach (var book in _bufferedBooks)
-            InventoryManager.Instance?.AddExistingBook(book);
-        _bufferedBooks.Clear();
-        Debug.Log("[CashDesk] Стіл каси очищено, книги повернуто в інвентар.");
-    }
+    public bool IsCompleted(string stepID) => _completedSteps.Contains(stepID);
 
     // ── Private ────────────────────────────────────────────────
 
-    private void OnStateChanged(GameState newState)
+    private void OnStateChanged(GameState state)
     {
-        if (newState == GameState.DayStats)
+        if (state == GameState.Preparation && !_allDone)
         {
-            // Перехід WorkDay → DayStats: збираємо книги від усіх NPC
-            CollectBooksFromAllNPCs();
+            // Стартовий тригер — перший день
+            TryTrigger(TutorialTrigger.OnGameStart);
         }
-        else if (newState == GameState.Preparation)
+        else if (state == GameState.LootPhase && !_allDone)
         {
-            // На початку нового дня повертаємо буфер у інвентар
-            ClearToInventory();
+            TryTrigger(TutorialTrigger.OnDayEnd);
         }
     }
 
-    /// Збираємо всі зарезервовані/тримані книги від активних NPC
-    private void CollectBooksFromAllNPCs()
+    private void OnBookSold(BookInstance book)
     {
-        // Знаходимо всіх активних покупців
-        var allCustomers = Object.FindObjectsByType<CustomerBrain>(FindObjectsSortMode.None);
+        // ✅ ФІКС: тригер продажу тепер підключений
+        TryTrigger(TutorialTrigger.OnFirstSale);
+    }
 
-        foreach (var customer in allCustomers)
-        {
-            // Забираємо книгу яку NPC ніс/знайшов
-            BookInstance heldBook = customer.TakeHeldBook();
-            if (heldBook != null)
-            {
-                TryAddBook(heldBook);
-            }
+    private void ShowStep(TutorialStep step)
+    {
+        _currentStep = step;
 
-            // Знімаємо всі резервації що цей NPC зробив
-            customer.ClearReservations();
-        }
+        // ✅ ФІКС: блокування вводу якщо потрібно
+        if (step.blockInput)
+            InputBlocker.SetBlocked(true);
 
-        Debug.Log($"[CashDesk] EndDay: зібрано {_bufferedBooks.Count} книг на стіл каси.");
+        // ✅ ФІКС: підсвічування цільового елемента
+        if (!string.IsNullOrEmpty(step.highlightTarget))
+            TutorialHighlight.Highlight(step.highlightTarget);
+
+        OnStepStarted?.Invoke(step);
+        Debug.Log($"[Tutorial] → {step.stepID}: {step.message}");
+    }
+
+    private bool AreAllCompleted()
+    {
+        foreach (var step in steps)
+            if (!_completedSteps.Contains(step.stepID)) return false;
+        return true;
+    }
+
+    private void SaveProgress()
+    {
+        PlayerPrefs.SetString(PREFS_KEY, string.Join(",", _completedSteps));
+        PlayerPrefs.Save();
+    }
+
+    private void LoadProgress()
+    {
+        string saved = PlayerPrefs.GetString(PREFS_KEY, "");
+        if (string.IsNullOrEmpty(saved)) return;
+
+        foreach (var id in saved.Split(','))
+            if (!string.IsNullOrEmpty(id)) _completedSteps.Add(id);
+
+        _allDone = AreAllCompleted();
+        Debug.Log($"[Tutorial] Завантажено {_completedSteps.Count} пройдених кроків. Done={_allDone}");
     }
 }

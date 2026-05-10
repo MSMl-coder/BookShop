@@ -1,3 +1,4 @@
+
 // Assets/Scripts/Tutorial/TutorialHighlight.cs
 // ФАЗА 1 — підсвітка/пульсація цільового елемента туторіалу
 //
@@ -90,3 +91,4 @@ public static class TutorialHighlight
  
  
 // ─────────────────────────────────────────────────────────────────────────────
+ 

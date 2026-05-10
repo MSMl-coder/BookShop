@@ -30,6 +30,7 @@ public class NPCBrain : MonoBehaviour
     private List<Shelf> _visitedShelves = new List<Shelf>();
     private Shelf _currentTargetShelf;
     private bool _isInitialized;
+    private BookWorldItem _reservedBook;
 
     // ВИПРАВЛЕНО: кешуємо список полиць один раз щоб не викликати
     // FindObjectsByType щоразу в Update (дорога операція)
@@ -157,6 +158,14 @@ public class NPCBrain : MonoBehaviour
         }
     }
 
+
+    public void ForceLeave()
+    {
+        _reservedBook?.Unreserve();
+        _reservedBook = null;
+        ChangeState(NPCState.Leaving);
+    }
+
     // ВИПРАВЛЕНО: додано дужки для явного пріоритету операторів &&/||
     public void ReceiveBookOffer(BookTemplate offeredBook)
     {
@@ -224,6 +233,9 @@ public class NPCBrain : MonoBehaviour
 
     // ВИПРАВЛЕНО: використовуємо _cachedShelves замість FindObjectsByType в методі
     // що викликається з Update — критичне покращення продуктивності
+
+
+
     private Shelf FindUnvisitedShelf()
     {
         if (_cachedShelves == null || _cachedShelves.Length == 0) return null;
