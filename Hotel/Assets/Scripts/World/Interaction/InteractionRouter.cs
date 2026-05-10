@@ -1,95 +1,114 @@
-// Assets/Scripts/World/Interaction/InteractionRouter.cs
+// Assets/Scripts/Core/InteractionRouter.cs
+// ФАЗА 1 — замінює PlayerInteraction + CabinetClickHandler
+// Єдина точка обробки ЛКМ на 3D-об'єктах.
+// Визначає тип об'єкта + поточний GameState → показує ContextMenuUI.
+//
+// UNITY SETUP:
+// 1. Видали PlayerInteraction та CabinetClickHandler з усіх GameObject-ів.
+// 2. Додай InteractionRouter на той самий GO що й GameLoopManager (або окремий Manager GO).
+// 3. Призначи mainCamera (або залиш порожнім — знайде Camera.main).
+// 4. Виставте interactionLayer — шар/шари що мають реагувати на кліки.
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
 
-/// Єдина точка обробки кліків.
-///
-/// UNITY SETUP:
-/// 1. Видали PlayerInteraction і CabinetClickHandler
-/// 2. GameObject [InteractionRouter] → InteractionRouter
-/// 3. Furniture Layer  = тільки шар "Furniture"  (root шафи)
-/// 4. Box Layer        = тільки шар коробок
-/// Два окремих raycast — чітко розділені, ніякого пересічення.
+[DefaultExecutionOrder(-5)]
 public class InteractionRouter : MonoBehaviour
 {
+    // ── Singleton ──────────────────────────────────────────────
     public static InteractionRouter Instance { get; private set; }
 
-    [Header("References")]
+    // ── Inspector ──────────────────────────────────────────────
+    [Header("Raycast")]
     [SerializeField] private Camera mainCamera;
-
-    [Header("Layers — кожен окремо, не змішувати")]
-    [Tooltip("Шар root GO шафи (Furniture). Тільки він.")]
-    [SerializeField] private LayerMask furnitureLayer;
-
-    [Tooltip("Шар коробок (Box або Default — той що на InteractableBox GO).")]
-    [SerializeField] private LayerMask boxLayer;
-
-    [Header("Settings")]
+    [SerializeField] private LayerMask interactionLayer;
     [SerializeField] private float maxDistance = 30f;
 
+    // ── Private ────────────────────────────────────────────────
+    private Mouse _mouse;
+
+    // ── Unity ──────────────────────────────────────────────────
     private void Awake()
     {
-        if (Instance == null) Instance = this;
-        else { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        _mouse = Mouse.current;
         if (mainCamera == null) mainCamera = Camera.main;
+        if (mainCamera == null)
+            Debug.LogError("[InteractionRouter] Camera not found! Assign mainCamera in Inspector.");
     }
 
     private void Update()
     {
-        var mouse = Mouse.current;
-        if (mouse == null) return;
-        if (!mouse.leftButton.wasPressedThisFrame) return;
-        if (IsPointerOverUI()) return;
-        if (PlacementController.Instance != null && PlacementController.Instance.IsPlacing) return;
-        if (PlacementController.Instance != null && PlacementController.Instance.JustConfirmedThisFrame) return;
+        _mouse = Mouse.current;
+        if (_mouse == null) return;
+        if (!_mouse.leftButton.wasPressedThisFrame) return;
 
-        HandleClick(mouse.position.ReadValue());
+        // Ігноруємо кліки по UI
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            Debug.Log("[InteractionRouter] Клік по UI — ігноруємо.");
+            return;
+        }
+
+        HandleClick(_mouse.position.ReadValue());
     }
+
+    // ── Public API ─────────────────────────────────────────────
+
+    /// Програмне «симулювання» кліку (для тестів / туторіалу)
+    public void SimulateClick(Vector2 screenPos) => HandleClick(screenPos);
+
+    // ── Private ────────────────────────────────────────────────
 
     private void HandleClick(Vector2 screenPos)
     {
         Ray ray = mainCamera.ScreenPointToRay(screenPos);
 
-        // ── 1. Коробки ───────────────────────────────────────────
-        // Перевіряємо першими — вони мають пріоритет
-        if (Physics.Raycast(ray, out RaycastHit boxHit, maxDistance, boxLayer))
+        if (!Physics.Raycast(ray, out RaycastHit hit, maxDistance, interactionLayer))
         {
-            var box = boxHit.collider.GetComponentInParent<InteractableBox>();
-            if (box != null && box.CanInteract)
-            {
-                Debug.Log($"[Router] Коробка: {boxHit.collider.name}");
-                box.OnInteract();
-                return;
-            }
+            // Клік у порожнечу — закриваємо відкрите меню
+            ContextMenuUI.Instance?.Hide();
+            return;
         }
 
-        // ── 2. Меблі (тільки шар Furniture) ─────────────────────
-        // Шари Shelf, Default, підлога — сюди не потраплять
-        if (Physics.Raycast(ray, out RaycastHit furHit, maxDistance, furnitureLayer))
+        GameObject target  = hit.collider.gameObject;
+        GameState   state  = GameLoopManager.Instance?.CurrentState ?? GameState.Preparation;
+
+        Debug.Log($"[InteractionRouter] Hit: {target.name} | State: {state}");
+
+        // ── Визначаємо тип об'єкта ──────────────────────────────
+
+        // 1. BookWorldItem (книга на полиці)
+        var bookItem = target.GetComponentInParent<BookWorldItem>();
+        if (bookItem != null)
         {
-            Debug.Log($"[Router] Furniture хіт: {furHit.collider.name}");
-
-            // Шукаємо IInteractable тільки на хітнутому GO і його батьках
-            // НЕ на root — бо root може бути сценою
-            var interactables = furHit.collider.GetComponentsInParent<IInteractable>();
-
-            foreach (var i in interactables)
-            {
-                if (!i.CanInteract) continue;
-                Debug.Log($"[Router] → {i.GetType().Name}");
-                i.OnInteract();
-                return;
-            }
-
-            Debug.Log($"[Router] Furniture знайдено але CanInteract=false");
+            ContextMenuUI.Instance?.ShowForBook(bookItem, hit.point, state);
+            return;
         }
-    }
 
-    private bool IsPointerOverUI()
-    {
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-            return true;
-        return false;
+        // 2. Cabinet (шафа)
+        var cabinet = target.GetComponentInParent<Cabinet>();
+        if (cabinet != null)
+        {
+            ContextMenuUI.Instance?.ShowForCabinet(cabinet, hit.point, state);
+            return;
+        }
+
+        // 3. NPC (покупець) — тільки у WorkDay
+        var npc = target.GetComponentInParent<CustomerBrain>();
+        if (npc != null && state == GameState.WorkDay)
+        {
+            ContextMenuUI.Instance?.ShowForNPC(npc, hit.point, state);
+            return;
+        }
+
+        // 4. Нічого не знайдено — закриваємо меню
+        ContextMenuUI.Instance?.Hide();
     }
 }

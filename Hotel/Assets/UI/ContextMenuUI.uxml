@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xmlns:uie="UnityEditor.UIElements"
+    xsi:noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd"
+>
+  <Style src="project://database/Assets/UI/Styles/ContextMenuUI.uss"/>
+
+    <ui:VisualElement name="ContextMenu" style="position: absolute; display: none;
+        background-color: rgba(20,20,20,0.9); border-radius: 8px; padding: 4px;">
+        <ui:VisualElement name="ContextMenuContainer" />
+    </ui:VisualElement>
+     
+
+</ui:UXML>
