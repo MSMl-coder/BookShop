@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NPCData
   npcName: "\u0422\u0443\u0440\u0438\u0441\u0442"
   portrait: {fileID: 0}
-  prefab: {fileID: 5520795998672949194, guid: 9f8c811f604d748c687f4ccdc65774dc, type: 3}
-  stayDuration: 45
+  prefab: {fileID: 1692468126580653705, guid: 6206c14b6fb53694cb6b0bb8a41fcb9c, type: 3}
+  stayDuration: 1.4
   buyChance: 0.9
   maxBudget: 40
   preferredGenres: 050000000000000004000000

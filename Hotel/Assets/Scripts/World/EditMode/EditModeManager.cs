@@ -1,19 +1,24 @@
 // Assets/Scripts/World/EditMode/EditModeManager.cs
+// EditMode — підстан Preparation. GameLoopManager.CurrentState НЕ змінюється.
+//
+// API:
+//   EditModeManager.Instance.IsEditMode  — instance property (як було в оригіналі)
+//   EditModeManager.IsEditMode           — static shortcut (те саме)
+//   EditModeManager.GetEffectiveState()  — повертає GameState.EditMode якщо активний
+
 using UnityEngine;
-using System;
 
 public class EditModeManager : MonoBehaviour
 {
     public static EditModeManager Instance { get; private set; }
 
-    [Header("References")]
-    [SerializeField] private GridOverlay gridOverlay;
-    [SerializeField] private PlacementController placementController;
-    [SerializeField] private DecorationPanelUI decorationPanel; // ← замість furniturePickerPanel
-    [SerializeField] private GameObject editButtonRoot;
-
+    // ── Instance property (як в оригінальному коді проекту) ────
+    // EditModeInputHandler та CabinetInteractable читають через Instance.IsEditMode
     public bool IsEditMode { get; private set; }
-    public event Action<bool> OnEditModeChanged;
+
+    // ── Static shortcut (для нового коду без Instance) ─────────
+    // ContextMenuUI, InteractionRouter, HoverHighlighter читають так
+    public static bool IsActive => Instance != null && Instance.IsEditMode;
 
     private void Awake()
     {
@@ -21,55 +26,42 @@ public class EditModeManager : MonoBehaviour
         else { Destroy(gameObject); return; }
     }
 
-    private void OnEnable()
-    {
-        if (GameLoopManager.Instance != null)
-        {
-            GameLoopManager.Instance.OnStateChanged += HandleStateChanged;
-            HandleStateChanged(GameLoopManager.Instance.CurrentState);
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (GameLoopManager.Instance != null)
-            GameLoopManager.Instance.OnStateChanged -= HandleStateChanged;
-    }
-
-    private void HandleStateChanged(GameState state)
-    {
-        bool allowed = state == GameState.Preparation;
-        if (editButtonRoot != null) editButtonRoot.SetActive(allowed);
-        if (!allowed && IsEditMode) ExitEditMode();
-    }
+    // ── Public API ─────────────────────────────────────────────
 
     public void ToggleEditMode()
     {
-        if (GameLoopManager.Instance.CurrentState != GameState.Preparation) return;
         if (IsEditMode) ExitEditMode();
-        else EnterEditMode();
+        else            EnterEditMode();
     }
 
     public void EnterEditMode()
     {
+        if (GameLoopManager.Instance?.CurrentState != GameState.Preparation)
+        {
+            Debug.LogWarning("[EditMode] Тільки в Preparation!");
+            return;
+        }
+
         IsEditMode = true;
-        gridOverlay?.Show();
-        // ← decorationPanel?.OpenInEditMode() — прибрати звідси
-        placementController?.EnablePlacement();
-        PlacementFeedback.Instance?.PlaySound(PlacementFeedback.SoundType.ModeEnter);
-        OnEditModeChanged?.Invoke(true);
         Debug.Log("[EditMode] Увійшли в режим редагування");
+        DecorationPanelUI.Instance?.Open();
     }
 
     public void ExitEditMode()
     {
         IsEditMode = false;
-        placementController?.CancelPlacement();
-        gridOverlay?.Hide();
-        decorationPanel?.Close();          // ← закрити при виході
-        placementController?.DisablePlacement();
-        PlacementFeedback.Instance?.PlaySound(PlacementFeedback.SoundType.ModeExit);
-        OnEditModeChanged?.Invoke(false);
         Debug.Log("[EditMode] Вийшли з режиму редагування");
+        DecorationPanelUI.Instance?.Close();
+    }
+
+    // ── Static helper для ContextMenuUI / InteractionRouter ────
+
+    /// Повертає GameState.EditMode якщо активний, інакше поточний GameState.
+    public static GameState GetEffectiveState()
+    {
+        var gs = GameLoopManager.Instance?.CurrentState ?? GameState.Preparation;
+        if (IsActive && gs == GameState.Preparation)
+            return GameState.EditMode;
+        return gs;
     }
 }

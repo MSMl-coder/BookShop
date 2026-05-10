@@ -8,6 +8,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
 using System.Collections.Generic;
 
 [DefaultExecutionOrder(-5)]
@@ -18,7 +19,7 @@ public class InteractionRouter : MonoBehaviour
     [Header("Raycast")]
     [SerializeField] private Camera    mainCamera;
     [SerializeField] private LayerMask interactionLayer;
-    [SerializeField] private float     maxDistance = 30f;
+    [SerializeField] private float     maxDistance = 100f;
 
     private void Awake()
     {
@@ -38,8 +39,10 @@ public class InteractionRouter : MonoBehaviour
         var mouse = Mouse.current;
         if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
 
-        // Ігноруємо кліки по UI (EventSystem — для Legacy UI/UGUI)
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+        // Діагностика
+        Debug.Log($"[InteractionRouter] ЛКМ | UIToolkit block: {IsPointerOverUIToolkit()}");
+
+        if (IsPointerOverUIToolkit()) return;
 
         HandleClick(mouse.position.ReadValue());
     }
@@ -52,19 +55,56 @@ public class InteractionRouter : MonoBehaviour
 
         Ray ray = mainCamera.ScreenPointToRay(screenPos);
 
-        // RaycastAll — отримуємо ВСІ об'єкти що перетинає промінь
-        RaycastHit[] hits = Physics.RaycastAll(ray, maxDistance, interactionLayer);
+        // Debug: малюємо промінь в Scene View (видно через Gizmos)
+        Debug.DrawRay(ray.origin, ray.direction * 200f, Color.red, 2f);
+        Debug.Log($"[InteractionRouter] Ray origin:{ray.origin:F1} dir:{ray.direction:F2} cam:{mainCamera.name} ortho:{mainCamera.orthographic}");
+        // QueryTriggerInteraction.Collide — бачить і звичайні і trigger collider-и
+        RaycastHit[] hits = Physics.RaycastAll(ray, maxDistance, interactionLayer,
+                                               QueryTriggerInteraction.Collide);
 
+        // Діагностика
         if (hits.Length == 0)
         {
+            Debug.Log($"[InteractionRouter] Hits: 0 — нічого в interactionLayer ({interactionLayer.value})");
+
+            // Діагностика: що взагалі є під курсором (без маски)?
+            RaycastHit[] allHits = Physics.RaycastAll(ray, maxDistance, ~0,
+                                                      QueryTriggerInteraction.Collide);
+            if (allHits.Length > 0)
+            {
+                Debug.Log($"[InteractionRouter] Але БЕЗ маски знайдено {allHits.Length} об'єктів:");
+                foreach (var h in allHits)
+                    Debug.Log($"  → {h.collider.gameObject.name} layer:{h.collider.gameObject.layer} ({LayerMask.LayerToName(h.collider.gameObject.layer)})");
+            }
+            else
+            {
+                Debug.Log("[InteractionRouter] Взагалі нічого під курсором — перевір позицію камери або collider.");
+            }
+
             ContextMenuUI.Instance?.Hide();
             return;
         }
 
-        // Сортуємо за відстанню (від найближчого до найдальшого)
+        Debug.Log($"[InteractionRouter] Hits: {hits.Length} об'єктів:");
+        foreach (var h in hits)
+            Debug.Log($"  → {h.collider.gameObject.name} (layer: {LayerMask.LayerToName(h.collider.gameObject.layer)})");
+
         System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
-        GameState state = GameLoopManager.Instance?.CurrentState ?? GameState.Preparation;
+        // Враховуємо EditMode (підстан Preparation)
+        GameState state = EditModeManager.GetEffectiveState();
+
+        // Пріоритет 0 — LootBox (стартові коробки, відкриваються одразу без меню)
+        foreach (var hit in hits)
+        {
+            var lootBox = hit.collider.GetComponentInParent<LootBox>();
+            if (lootBox != null && !lootBox.IsOpened)
+            {
+                Debug.Log($"[InteractionRouter] LootBox hit: {hit.collider.name}");
+                lootBox.OpenBox();
+                return;
+            }
+        }
 
         // Пріоритет 1 — шукаємо BookWorldItem серед ВСІХ hits
         // (книга може бути за collider-ом шафи/полиці)
@@ -105,5 +145,40 @@ public class InteractionRouter : MonoBehaviour
 
         // Нічого не знайдено
         ContextMenuUI.Instance?.Hide();
+    }
+
+    // ── UIToolkit перевірка ─────────────────────────────────────
+
+    /// Перевіряє чи курсор знаходиться над UIToolkit елементом що блокує кліки.
+    /// На відміну від EventSystem.IsPointerOverGameObject() — працює з UIToolkit.
+    private static bool IsPointerOverUIToolkit()
+    {
+        var mouse = Mouse.current;
+        if (mouse == null) return false;
+
+        Vector2 screenPos = mouse.position.ReadValue();
+
+        // Перебираємо всі активні UIDocument в сцені
+        foreach (var doc in Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude))
+        {
+            if (doc == null || doc.rootVisualElement == null) continue;
+
+            // Конвертуємо screen coordinates в UIToolkit panel coordinates
+            var panel = doc.rootVisualElement.panel;
+            if (panel == null) continue;
+
+            // UIToolkit Y-вісь інвертована відносно Screen
+            Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(
+                panel,
+                new Vector2(screenPos.x, Screen.height - screenPos.y)
+            );
+
+            // Перевіряємо чи є під курсором елемент з picking-mode != Ignore
+            var picked = doc.rootVisualElement.panel.Pick(panelPos);
+            if (picked != null && picked.pickingMode != PickingMode.Ignore)
+                return true;
+        }
+
+        return false;
     }
 }

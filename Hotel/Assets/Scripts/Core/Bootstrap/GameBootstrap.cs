@@ -4,6 +4,12 @@ public class GameBootstrap : MonoBehaviour
 {
     [SerializeField] private GameStateSerializer serializer;
 
+    private void Awake()
+    {
+        // Обмеження FPS до 60
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount  = 0; // vSync вимикаємо щоб targetFrameRate працював
+    }
     private void Start()
     {
         // FIX: assertions moved to Start() — all Awake() have completed by now,

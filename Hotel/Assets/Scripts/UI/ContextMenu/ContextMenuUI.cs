@@ -57,7 +57,12 @@ public class ContextMenuUI : MonoBehaviour
     /// Книга на полиці
     public void ShowForBook(BookWorldItem bookItem, Vector3 worldPos, GameState state)
     {
-        if (state == GameState.LootPhase) { Hide(); return; }
+        // Книга: тільки Preparation + WorkDay (ТЗ матриця)
+        if (state != GameState.Preparation && state != GameState.WorkDay)
+        {
+            Hide();
+            return;
+        }
 
         var btns = new List<ContextButton>();
 
@@ -86,23 +91,74 @@ public class ContextMenuUI : MonoBehaviour
     }
 
     /// Шафа / меблі
+    /// Матриця (ТЗ):
+    ///   Інвентар книги  → Preparation + WorkDay
+    ///   Інформація      → Preparation + EditMode + WorkDay
+    ///   Перемістити     → EditMode
+    ///   Обернути        → EditMode
+    ///   Змінити колір   → EditMode
+    ///   Продати         → EditMode
     public void ShowForCabinet(Cabinet cabinet, Vector3 worldPos, GameState state)
     {
-        if (state == GameState.LootPhase) { Hide(); return; }
-
-        var btns = new List<ContextButton>
+        if (state == GameState.LootPhase || state == GameState.DayStats)
         {
-            new ContextButton("📦 Відкрити шафу", () =>
+            Hide();
+            return;
+        }
+
+        var btns = new List<ContextButton>();
+
+        // ── Preparation + WorkDay ────────────────────────────────
+        if (state == GameState.Preparation || state == GameState.WorkDay)
+        {
+            btns.Add(new ContextButton("📦 Інвентар / книги", () =>
             {
                 ShopUIManager.Instance?.OpenCabinetUI(cabinet);
                 Hide();
-            }),
-            new ContextButton("ℹ️ Інформація", () =>
+            }));
+        }
+
+        // ── Preparation + EditMode + WorkDay ─────────────────────
+        if (state == GameState.Preparation || state == GameState.EditMode || state == GameState.WorkDay)
+        {
+            btns.Add(new ContextButton("ℹ️ Інформація", () =>
             {
                 Debug.Log($"[ContextMenu] Шафа: {cabinet.cabinetName}");
                 Hide();
-            })
-        };
+            }));
+        }
+
+        // ── EditMode тільки ──────────────────────────────────────
+        if (state == GameState.EditMode)
+        {
+            btns.Add(new ContextButton("↔️ Перемістити", () =>
+            {
+                Debug.Log($"[ContextMenu] Перемістити: {cabinet.cabinetName}");
+                // TODO: DecorationPanelUI / EditModeManager.StartMove(cabinet)
+                Hide();
+            }));
+
+            btns.Add(new ContextButton("🔄 Обернути", () =>
+            {
+                Debug.Log($"[ContextMenu] Обернути: {cabinet.cabinetName}");
+                // TODO: EditModeManager.StartRotate(cabinet)
+                Hide();
+            }));
+
+            btns.Add(new ContextButton("🎨 Змінити колір", () =>
+            {
+                Debug.Log($"[ContextMenu] Змінити колір: {cabinet.cabinetName}");
+                // TODO: ColorPickerUI.Instance?.Open(cabinet)
+                Hide();
+            }));
+
+            btns.Add(new ContextButton("💰 Продати", () =>
+            {
+                Debug.Log($"[ContextMenu] Продати: {cabinet.cabinetName}");
+                // TODO: EconomyManager.Instance?.SellFurniture(cabinet)
+                Hide();
+            }));
+        }
 
         Show(worldPos, btns);
     }
@@ -132,6 +188,9 @@ public class ContextMenuUI : MonoBehaviour
     }
 
     // ── Private ────────────────────────────────────────────────
+
+    // Зберігаємо worldPos для позиціонування
+    private Vector3 _pendingWorldPos;
 
     private void Show(Vector3 worldPos, List<ContextButton> btns)
     {
@@ -163,13 +222,48 @@ public class ContextMenuUI : MonoBehaviour
             _container.Add(b);
         }
 
-        Camera cam = Camera.main;
-        if (cam == null) return;
+        _pendingWorldPos = worldPos;
 
-        Vector3 sp = cam.WorldToScreenPoint(worldPos);
-        _panel.style.left    = sp.x + screenOffset.x;
-        _panel.style.top     = (Screen.height - sp.y) + screenOffset.y;
+        // Показуємо поза екраном — після layout перемістимо на правильну позицію
+        _panel.style.left    = -9999;
+        _panel.style.top     = -9999;
         _panel.style.display = DisplayStyle.Flex;
+
+        // GeometryChangedEvent спрацьовує після того як UIToolkit розрахує розмір панелі
+        _panel.RegisterCallback<GeometryChangedEvent>(OnPanelGeometryReady);
+    }
+
+    private void OnPanelGeometryReady(GeometryChangedEvent evt)
+    {
+        _panel.UnregisterCallback<GeometryChangedEvent>(OnPanelGeometryReady);
+
+        var mouse = UnityEngine.InputSystem.Mouse.current;
+        if (mouse == null) return;
+
+        Vector2 m = mouse.position.ReadValue();
+
+        // UIToolkit: Y інвертований відносно Screen
+        float x = m.x + screenOffset.x;
+        float y = (Screen.height - m.y) + screenOffset.y;
+
+        float w = _panel.resolvedStyle.width;
+        float h = _panel.resolvedStyle.height;
+        float margin = 6f;
+
+        // Якщо виходить за правий край — показуємо лівіше від курсора
+        if (x + w > Screen.width - margin)
+            x = m.x - w - Mathf.Abs(screenOffset.x);
+
+        // Якщо виходить за нижній край — показуємо вище курсора
+        if (y + h > Screen.height - margin)
+            y = (Screen.height - m.y) - h - Mathf.Abs(screenOffset.y);
+
+        // Гарантуємо що не за лівим і верхнім краями
+        x = Mathf.Max(margin, x);
+        y = Mathf.Max(margin, y);
+
+        _panel.style.left = x;
+        _panel.style.top  = y;
     }
 
     /// Забрати книгу з полиці в інвентар гравця.

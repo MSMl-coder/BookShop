@@ -117,7 +117,7 @@ public class NPCBrain : MonoBehaviour
             {
                 _currentTargetShelf = nextShelf;
                 _visitedShelves.Add(nextShelf);
-                _agent.SetDestination(nextShelf.transform.position + nextShelf.transform.forward * 1.2f);
+                TrySetDestination(nextShelf.transform.position + nextShelf.transform.forward * 1.2f);
                 ChangeState(NPCState.Inspecting);
             }
             else
@@ -210,17 +210,16 @@ public class NPCBrain : MonoBehaviour
         {
             case NPCState.Buying:
                 if (_cashRegister != null)
-                    _agent.SetDestination(_cashRegister.GetQueuePosition());
+                    TrySetDestination(_cashRegister.GetQueuePosition());
                 break;
 
             case NPCState.Leaving:
-                // НОВЕ — Фаза 1: знімаємо резервацію якщо NPC йде без покупки
                 _reservedBookWorldItem?.Unreserve();
                 _reservedBookWorldItem = null;
 
                 var spawner = NPCSpawner.Instance;
                 if (spawner != null)
-                    _agent.SetDestination(spawner.ExitPoint.position);
+                    TrySetDestination(spawner.ExitPoint.position);
                 break;
 
             case NPCState.ShowingHint:
@@ -293,9 +292,21 @@ public class NPCBrain : MonoBehaviour
 
     private bool AgentArrived()
     {
-        if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance)
-            return !_agent.hasPath || _agent.velocity.sqrMagnitude < 0.01f;
-        return false;
+        if (_agent == null || !_agent.isOnNavMesh || !_agent.enabled) return false;
+        if (_agent.pathPending) return false;
+        return _agent.remainingDistance <= _agent.stoppingDistance
+            && (!_agent.hasPath || _agent.velocity.sqrMagnitude < 0.01f);
+    }
+
+    private bool TrySetDestination(Vector3 destination)
+    {
+        if (_agent == null || !_agent.isOnNavMesh || !_agent.enabled)
+        {
+            Debug.LogWarning($"[NPC] {Data?.npcName}: агент не на NavMesh — SetDestination пропущено.");
+            return false;
+        }
+        _agent.SetDestination(destination);
+        return true;
     }
 
     private IEnumerator LookAtTarget(Vector3 target)

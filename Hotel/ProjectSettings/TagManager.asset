@@ -9,7 +9,7 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Outline
   - Water
   - UI
   - Floor
@@ -26,9 +26,9 @@ TagManager:
   - 
   - 
   - 
-  - Interactive/Clickable
-  - ' '
-  - ' '
+  - Interactive
+  - 
+  - 
   - 
   - 
   - 
