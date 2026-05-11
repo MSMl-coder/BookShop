@@ -361,6 +361,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       insertIndex: -1
       addedObject: {fileID: -4697795194817492855}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3631483408704413290}
   m_SourcePrefab: {fileID: 100100000, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
 --- !u!4 &5036700881411442841 stripped
 Transform:
@@ -422,4 +425,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d100d22d03c94b989b5382b49ec9ef7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutlineTarget
-  targetRenderers: []
+  outlineMaterial: {fileID: 2100000, guid: 509d86b2a618c409ba8d9209023f7265, type: 2}
+--- !u!65 &3631483408704413290
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5669509012263883299}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.42801988, y: 1.1464951, z: 2.4000008}
+  m_Center: {x: 0.03355947, y: 0.0013138847, z: 1.1693506}

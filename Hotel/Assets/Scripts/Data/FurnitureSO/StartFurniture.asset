@@ -15,7 +15,7 @@ MonoBehaviour:
   furnitureID: 1
   furnitureName: 1
   furnitureClass: 0
-  prefab: {fileID: 5669509012263883299, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+  prefab: {fileID: 4486382782729572761, guid: 29f712dff494344dfbdb42a23efa4c26, type: 3}
   icon: {fileID: 0}
   basePrice: 100
   setID: 

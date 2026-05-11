@@ -1,58 +1,60 @@
 // Assets/Scripts/World/Interaction/OutlineTarget.cs
-// Керує hover-підсвіткою одного об'єкта.
-// Автоматично додається HoverHighlighter через GetOrAdd — не треба
-// вручну додавати на кожен prefab.
+// Hover outline через додавання матеріалу в sharedMaterials[].
+// Не потребує шейдерів, stencil, або RenderObjects feature.
 //
-// SetHighlight(true)  → всі Renderer-и переходять в Layer "Outline"
-//                        → URP RenderObjects feature малює їх через OutlineHoverMat
-// SetHighlight(false) → Renderer-и повертаються в оригінальний layer
-//
-// Якщо Layer "Outline" не існує — виводить попередження один раз і
-// нічого не робить (не крашиться).
+// UNITY SETUP:
+//   1. Створи матеріал OutlineHoverMat:
+//      Shader: Universal Render Pipeline/Unlit
+//      Color: білий (1,1,1,1)
+//      Surface: Opaque
+//   2. Assign в Inspector → Outline Material
+//   3. Компонент додається автоматично через HoverHighlighter.GetOrAdd()
 
 using UnityEngine;
 
 public class OutlineTarget : MonoBehaviour
 {
-    [Tooltip("Залиш порожнім — знайде автоматично всі дочірні Renderer-и")]
-    [SerializeField] private Renderer[] targetRenderers;
+    [Tooltip("Матеріал що додається як overlay для outline ефекту.\n" +
+             "Shader: URP/Unlit, Color: білий")]
+    [SerializeField] private Material outlineMaterial;
 
-    private int[]  _originalLayers;
-    private bool   _highlighted;
-    private bool   _initialized;
+    private Renderer[] _renderers;
+    private Material[][] _originalMaterials; // оригінальні масиви матеріалів
+    private bool _highlighted;
+    private bool _initialized;
 
-    private static int  _outlineLayer   = -2; // -2 = ще не шукали
-    private static bool _warnedMissing;
-
-    // ── Unity ──────────────────────────────────────────────────
-
-    private void Awake() => EnsureInit();
-
-    // ── Public API ─────────────────────────────────────────────
+    // ── Public API ──────────────────────────────────────────────
 
     public void SetHighlight(bool on)
     {
         EnsureInit();
         if (_highlighted == on) return;
-
-        // Layer не знайдений — пропускаємо але не крашимось
-        if (_outlineLayer < 0)
+        if (outlineMaterial == null)
         {
-            if (!_warnedMissing)
-            {
-                Debug.LogWarning("[OutlineTarget] Layer 'Outline' не знайдено.\n" +
-                                 "Створи його: Edit → Project Settings → Tags and Layers");
-                _warnedMissing = true;
-            }
+            if (on) Debug.LogWarning($"[OutlineTarget] outlineMaterial не призначено на {gameObject.name}!");
             return;
         }
 
         _highlighted = on;
 
-        for (int i = 0; i < targetRenderers.Length; i++)
+        for (int i = 0; i < _renderers.Length; i++)
         {
-            if (targetRenderers[i] == null) continue;
-            targetRenderers[i].gameObject.layer = on ? _outlineLayer : _originalLayers[i];
+            if (_renderers[i] == null) continue;
+
+            if (on)
+            {
+                // Додаємо outline матеріал як останній в масиві
+                var original = _originalMaterials[i];
+                var newMats  = new Material[original.Length + 1];
+                original.CopyTo(newMats, 0);
+                newMats[original.Length] = outlineMaterial;
+                _renderers[i].materials = newMats;
+            }
+            else
+            {
+                // Відновлюємо оригінальний масив
+                _renderers[i].materials = _originalMaterials[i];
+            }
         }
     }
 
@@ -61,26 +63,19 @@ public class OutlineTarget : MonoBehaviour
         if (_highlighted) SetHighlight(false);
     }
 
-    // ── Private ────────────────────────────────────────────────
+    // ── Private ─────────────────────────────────────────────────
 
     private void EnsureInit()
     {
         if (_initialized) return;
         _initialized = true;
 
-        // Шукаємо layer один раз для всіх екземплярів
-        if (_outlineLayer == -2)
-            _outlineLayer = LayerMask.NameToLayer("Outline"); // -1 якщо не знайдено
+        _renderers = GetComponentsInChildren<Renderer>(includeInactive: false);
+        _originalMaterials = new Material[_renderers.Length][];
 
-        // Автоматично знаходимо Renderer-и якщо не призначені
-        if (targetRenderers == null || targetRenderers.Length == 0)
-            targetRenderers = GetComponentsInChildren<Renderer>(includeInactive: false);
-
-        // Зберігаємо оригінальні layers
-        _originalLayers = new int[targetRenderers.Length];
-        for (int i = 0; i < targetRenderers.Length; i++)
-            _originalLayers[i] = targetRenderers[i] != null
-                                ? targetRenderers[i].gameObject.layer
-                                : 0;
+        for (int i = 0; i < _renderers.Length; i++)
+            _originalMaterials[i] = _renderers[i] != null
+                ? _renderers[i].materials
+                : new Material[0];
     }
 }

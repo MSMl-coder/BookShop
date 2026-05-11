@@ -250,6 +250,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 1
   defaultBookThickness: 0.03
 --- !u!1 &2824776042596458914
 GameObject:
@@ -412,6 +413,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &4077622065862479675
 GameObject:
@@ -633,6 +635,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &7337486132078831180
 GameObject:
@@ -706,6 +709,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &7461461496185991650
 GameObject:
@@ -779,6 +783,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &7786597280050946986
 GameObject:
@@ -852,6 +857,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &8693502380842732427
 GameObject:

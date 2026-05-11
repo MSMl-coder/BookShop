@@ -76,11 +76,16 @@ public class ContextMenuUI : MonoBehaviour
         // Забрати в інвентар
         if (!bookItem.IsReserved)
         {
-            btns.Add(new ContextButton("🎒 Забрати в інвентар", () =>
-            {
-                TakeBookToInventory(bookItem);
-                Hide();
-            }));
+        var tpl = BookDatabase.Instance?.GetBook(bookItem.instance?.templateID);
+        string sizeTag = tpl != null
+            ? $" [{BookSizeHelper.ToIcon(tpl.size)} {tpl.size}]"
+            : "";
+        
+            btns.Add(new ContextButton($"🎒 Забрати в інвентар{sizeTag}", () =>  
+                {
+                    TakeBookToInventory(bookItem);
+                    Hide();
+                }));
         }
         else
         {
@@ -89,6 +94,21 @@ public class ContextMenuUI : MonoBehaviour
 
         Show(worldPos, btns);
     }
+
+
+    public static bool CheckBookFitsShelf(BookTemplate template, Shelf shelf)
+        {
+            if (template == null || shelf == null) return true;
+            string reason = shelf.GetSizeRejectReason(template);
+            if (string.IsNullOrEmpty(reason)) return true;
+    
+            // TODO: замінити на правильну сигнатуру NotificationSystem.Show() з проекту
+    // Поки що — лог в консоль
+    Debug.LogWarning($"[BookSize] {reason}");
+   // NotificationSystem.Instance?.ShowWarning($"❌ {reason}");
+            return false;
+        }
+
 
     /// Шафа / меблі
     /// Матриця (ТЗ):

@@ -22,6 +22,11 @@ public class Shelf : MonoBehaviour
     public float spacingOffset = 0.002f;
     public float animationSpeed = 5f;
 
+    [Header("Book Size Restriction")]
+    [Tooltip("Максимальний розмір книги що вміщується на цю полицю.\n" +
+             "Залежить від висоти просвіту між полицями в шафі.")]
+    public BookSize maxBookSize = BookSize.Large;
+
     [Header("Fallback")]
     [SerializeField] private float defaultBookThickness = 0.03f;
 
@@ -38,13 +43,34 @@ public class Shelf : MonoBehaviour
     }
 
     // ── Public API ──────────────────────────────────────────────
-
+    // Використовується внутрішньо через CanFitBook(BookTemplate)
+    // та InventoryManager.PushOneToShelf/PushAllToShelf
     public bool CanFitBook(GameObject bookPrefab)
     {
         if (bookPrefab == null) return false;
         float bookThickness = GetPrefabThickness(bookPrefab);
         return (GetTotalUsedWidth() + bookThickness + spacingOffset) <= GetShelfWorldWidth();
     }
+
+    public bool CanFitBook(BookTemplate template)
+        {
+            if (template == null) return false;
+            // 1. Перевірка висоти через bookSize enum
+            if (template.size > maxBookSize) return false;
+            // 2. Перевірка ширини — через існуючий prefab-метод
+            if (template.containerPrefab == null) return true;
+            return CanFitBook(template.containerPrefab);
+        }
+
+    // Повертає зрозуміле повідомлення якщо книга не влізе по висоті.
+     /// Порожній рядок = все ок.
+       public string GetSizeRejectReason(BookTemplate template)
+       {
+        if (template == null || template.size <= maxBookSize) return "";
+           return $"Книга {BookSizeHelper.ToUkrainian(template.size)} " +
+                  $"не вміщується. Ця полиця для {BookSizeHelper.ToUkrainian(maxBookSize)} і менше.";
+       }
+
 
     public void PlaceBook(BookInstance instance, GameObject prefab)
     {

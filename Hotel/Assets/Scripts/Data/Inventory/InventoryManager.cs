@@ -187,7 +187,7 @@ public class InventoryManager : MonoBehaviour
             return;
         }
 
-        if (targetShelf.CanFitBook(template.containerPrefab))
+        if (targetShelf.CanFitBook(template))
         {
             targetShelf.PlaceBook(bookToPlace, template.containerPrefab);
             RemoveBook(bookToPlace);
@@ -208,7 +208,7 @@ public class InventoryManager : MonoBehaviour
         {
             var template = database.GetBook(book.templateID);
             if (template?.containerPrefab == null) continue;
-            if (!targetShelf.CanFitBook(template.containerPrefab)) break;
+            if (!targetShelf.CanFitBook(template)) break;
             targetShelf.PlaceBook(book, template.containerPrefab);
             RemoveBook(book);
         }

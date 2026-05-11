@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4301050595564456322}
   - component: {fileID: 8976771647904410188}
-  - component: {fileID: 8543880290218311732}
   - component: {fileID: 1125565263695385036}
   - component: {fileID: 786054712306655495}
   - component: {fileID: 3849525890249538983}
   - component: {fileID: -6153926161373870911}
   - component: {fileID: -1997244763712258023}
+  - component: {fileID: 5404122362504119946}
   m_Layer: 8
   m_Name: BookShelf_A
   m_TagString: Untagged
@@ -51,28 +51,6 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 616780906853062774}
-  m_Mesh: {fileID: 9183700040209453511, guid: 8720de75470c5854e88542a45ece1605, type: 3}
---- !u!64 &8543880290218311732
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 616780906853062774}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
   m_Mesh: {fileID: 9183700040209453511, guid: 8720de75470c5854e88542a45ece1605, type: 3}
 --- !u!23 &1125565263695385036
 MeshRenderer:
@@ -167,7 +145,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d100d22d03c94b989b5382b49ec9ef7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutlineTarget
-  targetRenderers: []
+  outlineMaterial: {fileID: 2100000, guid: 509d86b2a618c409ba8d9209023f7265, type: 2}
 --- !u!114 &-1997244763712258023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -180,6 +158,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02e0d9881d9ce403fa8527ffe511e4ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlacedObject
+--- !u!65 &5404122362504119946
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 616780906853062774}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.81558627, y: 1.7266011, z: 0.3301417}
+  m_Center: {x: 0, y: 0.86330056, z: -0.000000074505806}
 --- !u!1 &2956843864616640372
 GameObject:
   m_ObjectHideFlags: 0
@@ -341,6 +340,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &4240666343953249331
 GameObject:
@@ -414,6 +414,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &4279258016313295453
 GameObject:
@@ -576,6 +577,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &6544198286638341819
 GameObject:
@@ -649,6 +651,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &7269236507209092626
 GameObject:
@@ -722,6 +725,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &8341316747902936004
 GameObject:
@@ -795,6 +799,7 @@ MonoBehaviour:
   maxRandomTilt: 2
   spacingOffset: 0.0001
   animationSpeed: 4
+  maxBookSize: 2
   defaultBookThickness: 0.03
 --- !u!1 &8548824649002108599
 GameObject:
