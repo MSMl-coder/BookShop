@@ -350,6 +350,9 @@ PrefabInstance:
       addedObject: {fileID: 1598391477245573630}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 3631483408704413290}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       insertIndex: -1
       addedObject: {fileID: -4370059216606143491}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
@@ -363,7 +366,7 @@ PrefabInstance:
       addedObject: {fileID: -4697795194817492855}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3631483408704413290}
+      addedObject: {fileID: 514030638114670380}
   m_SourcePrefab: {fileID: 100100000, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
 --- !u!4 &5036700881411442841 stripped
 Transform:
@@ -375,6 +378,27 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
   m_PrefabInstance: {fileID: 4787130387540242290}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &3631483408704413290
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5669509012263883299}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.42801988, y: 1.1464951, z: 2.4000008}
+  m_Center: {x: 0.03355947, y: 0.0013138847, z: 1.1693506}
 --- !u!114 &-4370059216606143491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,6 +425,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
+  _instancedRenderer: {fileID: 0}
 --- !u!114 &-6389101981063862398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -426,24 +451,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutlineTarget
   outlineMaterial: {fileID: 2100000, guid: 509d86b2a618c409ba8d9209023f7265, type: 2}
---- !u!65 &3631483408704413290
-BoxCollider:
+--- !u!114 &514030638114670380
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5669509012263883299}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.42801988, y: 1.1464951, z: 2.4000008}
-  m_Center: {x: 0.03355947, y: 0.0013138847, z: 1.1693506}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
+  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  bookMaterial: {fileID: 2100000, guid: 829da319d927f4f0ba16763e368fa863, type: 2}
+  showGizmos: 1

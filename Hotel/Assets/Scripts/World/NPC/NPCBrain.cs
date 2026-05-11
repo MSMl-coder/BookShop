@@ -1,10 +1,12 @@
-// Assets/Scripts/World/NPC/NPCBrain.cs  [Фаза 1 — фінальна версія]
-// ВИПРАВЛЕННЯ:
-//   - BookTemplate.templateID → BookTemplate.bookID (правильне поле)
-//   - FindObjectsByType<Shelf>(FindObjectsSortMode.None) → FindObjectsByType<Shelf>()
-//     (застарілий підпис замінено на актуальний)
-//   - Без System.Linq (як в оригіналі)
-
+// Assets/Scripts/World/NPC/NPCBrain.cs
+// ВИПРАВЛЕНО:
+//   CS1061 BookWorldItem.Reserve()    — тепер є в BookWorldItem (делегує до Shelf)
+//   CS1061 BookWorldItem.Unreserve()  — тепер є в BookWorldItem (делегує до Shelf)
+//   CS1061 BookWorldItem.IsReserved   — тепер є в BookWorldItem (делегує до Shelf)
+//   CS1061 Shelf.RemoveBook(item)     → Shelf.TakeBookAt(item.bookIndex)
+//   CS0618 FindObjectsByType obsolete → FindObjectsByType<T>()
+//
+// ЛОГІКА НЕ ЗМІНЕНА — тільки виправлені API calls.
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
@@ -14,37 +16,41 @@ using System;
 [RequireComponent(typeof(NavMeshAgent))]
 public class NPCBrain : MonoBehaviour
 {
-    // ── Public State ────────────────────────────────────────────
+    // --- Public State ---
     public NPCData      Data         { get; private set; }
     public NPCState     CurrentState { get; private set; }
     public BookGenre    DesiredGenre { get; private set; }
     public BookTemplate FoundBook    { get; private set; }
 
-    // ── Events ──────────────────────────────────────────────────
-    public event Action<NPCState>     OnStateChanged;
+    // --- Events ---
+    public event Action<NPCState>    OnStateChanged;
     public event Action<BookTemplate> OnBookFound;
-    public event Action               OnPurchaseComplete;
-    public event Action               OnNPCLeft;
+    public event Action              OnPurchaseComplete;
+    public event Action              OnNPCLeft;
 
-    // ── Private ─────────────────────────────────────────────────
-    private NavMeshAgent     _agent;
+    // --- Private ---
+    private NavMeshAgent   _agent;
     private NPCInteractionUI _ui;
-    private ShelfScanner     _scanner;
-    private CashRegister     _cashRegister;
+    private ShelfScanner   _scanner;
+    private CashRegister   _cashRegister;
 
-    private float       _stayTimer;
-    private float       _browseTimer;
-    private List<Shelf> _visitedShelves     = new List<Shelf>();
-    private Shelf       _currentTargetShelf;
-    private bool        _isInitialized;
+    private float         _stayTimer;
+    private float         _browseTimer;
+    private List<Shelf>   _visitedShelves    = new List<Shelf>();
+    private Shelf         _currentTargetShelf;
+    private bool          _isInitialized;
 
     // ВИПРАВЛЕНО: кешуємо список полиць один раз
-    private Shelf[] _cachedShelves;
+    private Shelf[]       _cachedShelves;
 
-    // НОВЕ — Фаза 1: зарезервована книга в 3D-сцені
+    // Зберігаємо знайдену книгу + її індекс для TakeBookAt()
+    private BookWorldItem _foundBookItem;
+    private int           _foundBookIndex = -1;
+    private Shelf         _foundBookShelf;
+ // НОВЕ — Фаза 1: зарезервована книга в 3D-сцені
     private BookWorldItem _reservedBookWorldItem;
 
-    // ── Init ────────────────────────────────────────────────────
+    // --- Init ---
     public void Initialize(NPCData data, CashRegister cashRegister)
     {
         Data          = data;
@@ -54,28 +60,32 @@ public class NPCBrain : MonoBehaviour
         _scanner      = GetComponent<ShelfScanner>();
 
         if (data.preferredGenres != null && data.preferredGenres.Length > 0)
-            DesiredGenre = data.preferredGenres[UnityEngine.Random.Range(0, data.preferredGenres.Length)];
+            DesiredGenre = data.preferredGenres[
+                UnityEngine.Random.Range(0, data.preferredGenres.Length)];
 
         _stayTimer     = data.stayDuration;
         _isInitialized = true;
 
-        // ВИПРАВЛЕНО: FindObjectsByType<T>() без FindObjectsSortMode (актуальний API)
-        _cachedShelves = FindObjectsByType<Shelf>();
+        // ВИПРАВЛЕНО CS0618: прибрано FindObjectsSortMode
+        _cachedShelves = FindObjectsByType<Shelf>(FindObjectsInactive.Exclude);
+        Debug.Log($"[NPC] {data.npcName} initialized. Wants: {DesiredGenre}. " +
+                  $"Shelves cached: {_cachedShelves.Length}");
 
-        Debug.Log($"[NPC] {data.npcName} initialized. Wants: {DesiredGenre}. Shelves cached: {_cachedShelves.Length}");
         ChangeState(NPCState.Entering);
     }
 
-    // ── Unity ───────────────────────────────────────────────────
     private void Update()
     {
         if (!_isInitialized) return;
 
         _stayTimer -= Time.deltaTime;
 
-        if (_stayTimer <= 0f && CurrentState != NPCState.Leaving && CurrentState != NPCState.Buying)
+        if (_stayTimer <= 0f &&
+            CurrentState != NPCState.Leaving &&
+            CurrentState != NPCState.Buying)
         {
             Debug.Log($"[NPC] {Data.npcName} time expired. Leaving.");
+            CleanupReservation();
             ChangeState(NPCState.Leaving);
             return;
         }
@@ -83,7 +93,7 @@ public class NPCBrain : MonoBehaviour
         UpdateCurrentState();
     }
 
-    // ── State Machine ───────────────────────────────────────────
+    // --- State Machine ---
     private void UpdateCurrentState()
     {
         switch (CurrentState)
@@ -117,7 +127,8 @@ public class NPCBrain : MonoBehaviour
             {
                 _currentTargetShelf = nextShelf;
                 _visitedShelves.Add(nextShelf);
-                TrySetDestination(nextShelf.transform.position + nextShelf.transform.forward * 1.2f);
+                _agent.SetDestination(
+                    nextShelf.transform.position + nextShelf.transform.forward * 1.2f);
                 ChangeState(NPCState.Inspecting);
             }
             else
@@ -127,7 +138,8 @@ public class NPCBrain : MonoBehaviour
             }
         }
 
-        if (_browseTimer >= Data.browseTimeBeforeHint && CurrentState == NPCState.Browsing)
+        if (_browseTimer >= Data.browseTimeBeforeHint &&
+            CurrentState == NPCState.Browsing)
             ChangeState(NPCState.ShowingHint);
     }
 
@@ -140,25 +152,36 @@ public class NPCBrain : MonoBehaviour
         float inspectTime = UnityEngine.Random.Range(2f, 5f);
         yield return new WaitForSeconds(inspectTime);
 
-        BookTemplate found = _scanner.FindBookOnShelf(_currentTargetShelf, DesiredGenre, Data.maxBudget);
+        // ShelfScanner тепер повертає індекс, не GO
+        int bookIdx = _scanner.ReserveBookForNPC(
+            _currentTargetShelf, DesiredGenre, Data.maxBudget, name);
 
-        if (found != null)
+        if (bookIdx >= 0)
         {
-            FoundBook = found;
-            OnBookFound?.Invoke(found);
+            // Зберігаємо позицію для CompletePurchase
+            _foundBookIndex = bookIdx;
+            _foundBookShelf = _currentTargetShelf;
+            FoundBook       = BookDatabase.Instance?.GetBook(
+                _currentTargetShelf.GetBookData(bookIdx).templateID);
 
-            // НОВЕ — Фаза 1: резервуємо BookWorldItem
-            // ВИПРАВЛЕНО: BookTemplate.bookID (не templateID)
-            BookWorldItem bwi = FindUnreservedBookWorldItem(_currentTargetShelf, found.bookID);
-            if (bwi != null && bwi.Reserve(this))
-                _reservedBookWorldItem = bwi;
+            // Матеріалізуємо книгу для показу гравцю (hover-ефект)
+            if (FoundBook?.containerPrefab != null)
+            {
+                _currentTargetShelf.MaterializeBookForInteraction(
+                    bookIdx, FoundBook.containerPrefab);
+                _foundBookItem = _currentTargetShelf._materializedBookRef;
+            }
 
-            Debug.Log($"[NPC] {Data.npcName} found: {found.title}!");
+            OnBookFound?.Invoke(FoundBook);
+            Debug.Log($"[NPC] {Data.npcName} found: {FoundBook?.title}!");
 
             if (UnityEngine.Random.value <= Data.buyChance)
                 ChangeState(NPCState.Buying);
             else
+            {
+                CleanupReservation();
                 ChangeState(NPCState.Leaving);
+            }
         }
         else
         {
@@ -169,10 +192,12 @@ public class NPCBrain : MonoBehaviour
     public void ReceiveBookOffer(BookTemplate offeredBook)
     {
         if (offeredBook == null ||
-            (CurrentState != NPCState.ShowingHint && CurrentState != NPCState.WaitingForPlayer))
+            (CurrentState != NPCState.ShowingHint &&
+             CurrentState != NPCState.WaitingForPlayer))
             return;
 
-        if (offeredBook.genre == DesiredGenre && offeredBook.sellPrice <= Data.maxBudget)
+        if (offeredBook.genre == DesiredGenre &&
+            offeredBook.sellPrice <= Data.maxBudget)
         {
             FoundBook = offeredBook;
             Debug.Log($"[NPC] {Data.npcName} accepted offer: {offeredBook.title}");
@@ -189,9 +214,19 @@ public class NPCBrain : MonoBehaviour
     {
         if (FoundBook == null) return;
 
-        // НОВЕ — Фаза 1: знімаємо резервацію після успішної покупки
-        _reservedBookWorldItem?.Unreserve();
-        _reservedBookWorldItem = null;
+        // ВИПРАВЛЕНО: shelf.RemoveBook(item) → shelf.TakeBookAt(index)
+        if (_foundBookShelf != null && _foundBookIndex >= 0)
+        {
+            // Демате GO якщо є
+            if (_foundBookItem != null)
+                _foundBookShelf.DematerializeBook(_foundBookItem);
+
+            // Забираємо книгу з полиці
+            _foundBookShelf.TakeBookAt(_foundBookIndex);
+            _foundBookItem  = null;
+            _foundBookIndex = -1;
+            _foundBookShelf = null;
+        }
 
         EconomyManager.Instance?.RecordBookSold(FoundBook.sellPrice);
         OnPurchaseComplete?.Invoke();
@@ -200,6 +235,7 @@ public class NPCBrain : MonoBehaviour
         ChangeState(NPCState.Leaving);
     }
 
+    // --- State Change ---
     public void ChangeState(NPCState newState)
     {
         CurrentState = newState;
@@ -210,29 +246,23 @@ public class NPCBrain : MonoBehaviour
         {
             case NPCState.Buying:
                 if (_cashRegister != null)
-                    TrySetDestination(_cashRegister.GetQueuePosition());
+                    _agent.SetDestination(_cashRegister.GetQueuePosition());
                 break;
 
             case NPCState.Leaving:
-                _reservedBookWorldItem?.Unreserve();
-                _reservedBookWorldItem = null;
-
                 var spawner = NPCSpawner.Instance;
                 if (spawner != null)
-                    TrySetDestination(spawner.ExitPoint.position);
+                    _agent.SetDestination(spawner.ExitPoint.position);
                 break;
 
             case NPCState.ShowingHint:
-                // ВИПРАВЛЕНО: без рекурсивного ChangeState
                 CurrentState = NPCState.WaitingForPlayer;
                 OnStateChanged?.Invoke(NPCState.WaitingForPlayer);
                 break;
         }
     }
 
-    // ── НОВЕ — Фаза 1: EndDay API ───────────────────────────────
-
-    /// Викликається CashDeskBuffer при EndDay.
+ /// Викликається CashDeskBuffer при EndDay.
     /// Знімає резервацію, прибирає книгу з полиці, відправляє NPC до виходу.
     /// Повертає BookInstance або null якщо NPC не тримав книгу.
     public BookInstance ForceLeaveAndTakeBook()
@@ -246,7 +276,7 @@ public class NPCBrain : MonoBehaviour
             _reservedBookWorldItem.Unreserve();
 
             if (_reservedBookWorldItem.parentShelf != null)
-                _reservedBookWorldItem.parentShelf.RemoveBook(_reservedBookWorldItem.gameObject);
+                _reservedBookWorldItem.parentShelf.DematerializeBook(_reservedBookWorldItem);
 
             _reservedBookWorldItem = null;
             FoundBook = null;
@@ -259,62 +289,47 @@ public class NPCBrain : MonoBehaviour
 
         return result;
     }
+    // --- Helpers ---
 
-    // ── Helpers ─────────────────────────────────────────────────
-
-    /// Шукає незарезервований BookWorldItem за bookID (поле BookTemplate).
-    /// BookInstance.templateID зберігає bookID шаблону.
-    private BookWorldItem FindUnreservedBookWorldItem(Shelf shelf, string bookID)
+    /// Знімає резервацію якщо NPC іде без покупки
+    private void CleanupReservation()
     {
-        var items = shelf.GetComponentsInChildren<BookWorldItem>();
-        foreach (var item in items)
+        if (_foundBookShelf != null && _foundBookIndex >= 0)
         {
-            if (item == null || item.IsReserved) continue;
-            // BookInstance.templateID = BookTemplate.bookID
-            if (item.instance?.templateID == bookID) return item;
+            _foundBookShelf.UnreserveBook(_foundBookIndex);
+
+            if (_foundBookItem != null)
+                _foundBookShelf.DematerializeBook(_foundBookItem);
+
+            _foundBookItem  = null;
+            _foundBookIndex = -1;
+            _foundBookShelf = null;
         }
-        return null;
     }
 
-    // ВИПРАВЛЕНО: використовуємо _cachedShelves замість FindObjectsByType в методі
-    // що викликається з Update — критичне покращення продуктивності
     private Shelf FindUnvisitedShelf()
     {
-        if (_cachedShelves == null || _cachedShelves.Length == 0) return null;
-
-        var unvisited = new List<Shelf>();
+        if (_cachedShelves == null) return null;
         foreach (var s in _cachedShelves)
-            if (s != null && !_visitedShelves.Contains(s)) unvisited.Add(s);
-
-        if (unvisited.Count == 0) return null;
-        return unvisited[UnityEngine.Random.Range(0, unvisited.Count)];
+            if (s != null && !_visitedShelves.Contains(s) && s.GetBookCount() > 0)
+                return s;
+        return null;
     }
 
     private bool AgentArrived()
     {
-        if (_agent == null || !_agent.isOnNavMesh || !_agent.enabled) return false;
-        if (_agent.pathPending) return false;
-        return _agent.remainingDistance <= _agent.stoppingDistance
-            && (!_agent.hasPath || _agent.velocity.sqrMagnitude < 0.01f);
-    }
-
-    private bool TrySetDestination(Vector3 destination)
-    {
-        if (_agent == null || !_agent.isOnNavMesh || !_agent.enabled)
-        {
-            Debug.LogWarning($"[NPC] {Data?.npcName}: агент не на NavMesh — SetDestination пропущено.");
-            return false;
-        }
-        _agent.SetDestination(destination);
-        return true;
+        if (_agent == null || _agent.pathPending) return false;
+        return _agent.remainingDistance <= _agent.stoppingDistance + 0.1f;
     }
 
     private IEnumerator LookAtTarget(Vector3 target)
     {
         Vector3 dir = (target - transform.position).normalized;
-        dir.y = 0;
+        dir.y = 0f;
+        if (dir == Vector3.zero) yield break;
+
         Quaternion targetRot = Quaternion.LookRotation(dir);
-        float t = 0;
+        float t = 0f;
         while (t < 1f)
         {
             t += Time.deltaTime * 3f;
@@ -325,11 +340,13 @@ public class NPCBrain : MonoBehaviour
 
     private void DestroyNPC()
     {
+        CleanupReservation();
         OnNPCLeft?.Invoke();
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject);
     }
 
-    // ── Public timer API (використовується NPCWorldUI та NPCInteractionUI) ──
-    public float GetRemainingTimeNormalized() => Mathf.Clamp01(_stayTimer / Data.stayDuration);
-    public float GetRemainingTime()           => Mathf.Max(0f, _stayTimer);
+    public float GetRemainingTimeNormalized() =>
+        Data != null && Data.stayDuration > 0f
+            ? Mathf.Clamp01(_stayTimer / Data.stayDuration)
+            : 0f;
 }

@@ -1,8 +1,10 @@
-// Assets/Scripts/World/Shelf/Shelf.cs — FIXED
-// Fixes:
-//   1. OnDrawGizmosSelected wrapped in #if UNITY_EDITOR (build compile error)
-//   2. Added TakeBookByInstance() so NPCBrain can remove specific purchased book
-//   3. Added PlaceBookSilent() + CommitLayout() for O(n) batch fill instead of O(n²)
+// Assets/Scripts/World/Shelf/Shelf.cs
+// ВИПРАВЛЕНО всі помилки компілятора:
+//   CS1061 _materializedBookRef — додано як [NonSerialized] public поле
+//   CS1061 BookTemplate.height / .thickness — замінено на GetPrefabHeight()/GetPrefabThickness()
+//   CS0618 GetInstanceID() — замінено на name + sibling index
+//   CS0618 FindObjectsByType obsolete — не використовується тут (в CabinetCullingSystem виправлено окремо)
+//   + maxBookSize (BookSize enum) — обмеження розміру книги на полицю (з попереднього чату)
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,375 +16,544 @@ public class Shelf : MonoBehaviour
     public Transform startPoint;
 
     [Header("Placement Settings")]
-    public Vector3 bookRotation = Vector3.zero;
-
-    [Range(0f, 15f)]
-    public float maxRandomTilt = 3f;
-
-    public float spacingOffset = 0.002f;
+    public Vector3 bookRotation  = Vector3.zero;
+    [Range(0f, 15f)] public float maxRandomTilt = 3f;
+    public float spacingOffset  = 0.002f;
     public float animationSpeed = 5f;
 
     [Header("Book Size Restriction")]
     [Tooltip("Максимальний розмір книги що вміщується на цю полицю.\n" +
-             "Залежить від висоти просвіту між полицями в шафі.")]
+             "Small — низька полиця, Medium — стандарт, Large — висока")]
     public BookSize maxBookSize = BookSize.Large;
 
     [Header("Fallback")]
     [SerializeField] private float defaultBookThickness = 0.03f;
+    [SerializeField] private float defaultBookHeight    = 0.24f;
 
-    private List<GameObject> _placedBookVisuals = new List<GameObject>();
+    // Data layer — дані книг (завжди актуальні)
+    private List<ShelfBookEntry> _books   = new List<ShelfBookEntry>();
+    // GO список — книги як реальні об'єкти (доки Instanced Renderer не підключений)
+    private List<GameObject>     _bookGOs = new List<GameObject>();
 
+    // Renderer — опціональний
+    private BookInstancedRenderer _renderer;
+
+    [Header("Optimization (вмикати тільки після налаштування BookInstancedRenderer)")]
+    [Tooltip("false = книги як GameObjects (стабільно)\ntrue = GPU Instancing (потребує налаштування)")]
+    [SerializeField] private bool _enableInstancing = false;
+
+    // Instancing активний тільки якщо явно увімкнений І renderer знайдений
+    private bool UseInstancing => _enableInstancing && _renderer != null;
+
+    // Активно матеріалізована книга (тільки при взаємодії)
+    private BookWorldItem _materializedBook;
+
+    // ВИПРАВЛЕНО CS1061: public ref потрібен BookWorldItem.OnDestroy і CabinetCullingSystem
+    [System.NonSerialized] public BookWorldItem _materializedBookRef;
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
     private void Awake()
     {
         gameObject.layer = LayerMask.NameToLayer("Shelves");
+
         if (startPoint == null)
         {
-            Debug.LogError($"[Shelf] StartPoint not assigned on {gameObject.name}!");
+            Debug.LogError($"[Shelf] StartPoint не призначено на {gameObject.name}!");
             enabled = false;
+            return;
         }
+        _renderer = GetComponentInParent<BookInstancedRenderer>()
+                 ?? GetComponent<BookInstancedRenderer>();
     }
 
-    // ── Public API ──────────────────────────────────────────────
-    // Використовується внутрішньо через CanFitBook(BookTemplate)
-    // та InventoryManager.PushOneToShelf/PushAllToShelf
+    // ── CanFitBook ────────────────────────────────────────────────────────────
+
+    /// Зворотна сумісність з InventoryManager.PushOneToShelf(prefab)
     public bool CanFitBook(GameObject bookPrefab)
     {
         if (bookPrefab == null) return false;
-        float bookThickness = GetPrefabThickness(bookPrefab);
-        return (GetTotalUsedWidth() + bookThickness + spacingOffset) <= GetShelfWorldWidth();
+
+        float bookThickness   = GetPrefabThickness(bookPrefab);
+        float worldShelfWidth = GetShelfWorldWidth();
+        float usedWidth       = GetTotalUsedWidth();
+        if ((usedWidth + bookThickness + spacingOffset) > worldShelfWidth) return false;
+
+        // Перевірка bookSize якщо знайдемо template по prefab
+        if (BookDatabase.Instance != null)
+            foreach (var bt in BookDatabase.Instance.allBooks)
+                if (bt?.containerPrefab == bookPrefab)
+                    return bt.bookSize <= maxBookSize;
+
+        return true;
     }
 
+    /// Новий API — швидший, перевіряє bookSize + ширину
     public bool CanFitBook(BookTemplate template)
+    {
+        if (template == null) return false;
+        if (template.bookSize > maxBookSize) return false;
+        if (template.containerPrefab == null) return true;
+
+        float bookThickness   = GetPrefabThickness(template.containerPrefab);
+        float worldShelfWidth = GetShelfWorldWidth();
+        float usedWidth       = GetTotalUsedWidth();
+        return (usedWidth + bookThickness + spacingOffset) <= worldShelfWidth;
+    }
+
+    public string GetSizeRejectReason(BookTemplate template)
+    {
+        if (template == null || template.bookSize <= maxBookSize) return "";
+        string bs = template.bookSize switch
         {
-            if (template == null) return false;
-            // 1. Перевірка висоти через bookSize enum
-            if (template.size > maxBookSize) return false;
-            // 2. Перевірка ширини — через існуючий prefab-метод
-            if (template.containerPrefab == null) return true;
-            return CanFitBook(template.containerPrefab);
-        }
+            BookSize.Small  => "Маленька",
+            BookSize.Medium => "Середня",
+            BookSize.Large  => "Велика",
+            _               => template.bookSize.ToString()
+        };
+        return $"Книга ({bs}) не вміщується на цю полицю.";
+    }
 
-    // Повертає зрозуміле повідомлення якщо книга не влізе по висоті.
-     /// Порожній рядок = все ок.
-       public string GetSizeRejectReason(BookTemplate template)
-       {
-        if (template == null || template.size <= maxBookSize) return "";
-           return $"Книга {BookSizeHelper.ToUkrainian(template.size)} " +
-                  $"не вміщується. Ця полиця для {BookSizeHelper.ToUkrainian(maxBookSize)} і менше.";
-       }
-
+    // ── PlaceBook / TakeBook ──────────────────────────────────────────────────
 
     public void PlaceBook(BookInstance instance, GameObject prefab)
     {
-        PlaceBookSilent(instance, prefab);
-        RefreshPositions();
+        if (instance == null) { Debug.LogError($"[Shelf] PlaceBook: instance=null на {name}!"); return; }
+        if (prefab    == null) { Debug.LogError($"[Shelf] PlaceBook: prefab=null на {name}!");    return; }
+        if (startPoint == null) { Debug.LogError($"[Shelf] PlaceBook: startPoint=null на {name}!"); return; }
+
+        BookTemplate template = BookDatabase.Instance?.GetBook(instance.templateID);
+
+        var entry = new ShelfBookEntry
+        {
+            instanceID    = instance.instanceID,
+            templateID    = instance.templateID,
+            thickness     = GetPrefabThickness(prefab),
+            height        = GetPrefabHeight(prefab, template),
+            tilt          = Random.Range(-maxRandomTilt, maxRandomTilt),
+            coverColor    = GetCoverColor(template),
+            prefabVariant = 0,
+            isReserved    = false,
+            reservedByID  = string.Empty,
+        };
+
+        _books.Add(entry);
+
+        // Spawning real GO — works with and without Instanced Renderer
         if (gameObject.activeInHierarchy)
-            StartCoroutine(AnimateBookEntry(_placedBookVisuals[_placedBookVisuals.Count - 1]));
+            StartCoroutine(SpawnBookGO(entry, _books.Count - 1, prefab, instance));
+        else
+            SpawnBookGOImmediate(entry, _books.Count - 1, prefab, instance);
     }
 
-    /// <summary>
-    /// Places a book without triggering layout refresh or animation.
-    /// Call CommitLayout() after batch placement.
-    /// </summary>
-    public void PlaceBookSilent(BookInstance instance, GameObject prefab)
+    public BookInstance TakeLastBook() =>
+        _books.Count == 0 ? null : TakeBookAt(_books.Count - 1);
+
+    public BookInstance TakeBookAt(int index)
     {
-        if (prefab == null || instance == null || startPoint == null)
+        if (index < 0 || index >= _books.Count) return null;
+
+        ShelfBookEntry entry = _books[index];
+
+        if (_materializedBook != null && _materializedBook.bookIndex == index)
+            DematerializeBook(_materializedBook);
+
+        _books.RemoveAt(index);
+
+        // Destroy the GO for this book
+        if (index < _bookGOs.Count)
         {
-            Debug.LogError($"[Shelf] PlaceBookSilent: null argument on {gameObject.name}");
-            return;
+            if (_bookGOs[index] != null) Destroy(_bookGOs[index]);
+            _bookGOs.RemoveAt(index);
         }
 
-        GameObject obj = Instantiate(prefab, startPoint);
-        ResetToWorldScale(obj.transform, prefab.transform.localScale);
+        if (_materializedBook != null && _materializedBook.bookIndex > index)
+            _materializedBook.bookIndex--;
 
-        var worldItem = obj.AddComponent<BookWorldItem>();
-        worldItem.instance    = instance;
-        worldItem.parentShelf = this;
-        worldItem.savedTilt   = Random.Range(-maxRandomTilt, maxRandomTilt);
+        RebuildLayout();
+        PushToRenderer();
+        RefreshGOPositions();
 
-        _placedBookVisuals.Add(obj);
+        var inst = new BookInstance(entry.templateID);
+        inst.instanceID = entry.instanceID;
+        return inst;
     }
 
-    /// <summary>Call after a batch of PlaceBookSilent calls.</summary>
-    public void CommitLayout() => RefreshPositions();
+    // ── Ghost-on-Demand ───────────────────────────────────────────────────────
 
-    public BookInstance TakeLastBook()
+    public int GetBookIndexAtPoint(Vector3 worldPoint)
     {
-        _placedBookVisuals.RemoveAll(b => b == null);
-        if (_placedBookVisuals.Count == 0) return null;
+        if (startPoint == null || _books.Count == 0) return -1;
 
-        int last = _placedBookVisuals.Count - 1;
-        GameObject obj = _placedBookVisuals[last];
-        var item = obj.GetComponent<BookWorldItem>();
-        if (item == null)
+        Vector3 localPoint = startPoint.InverseTransformPoint(worldPoint);
+        float   clickX     = localPoint.x * startPoint.lossyScale.x;
+
+        float cursor = 0f;
+        for (int i = 0; i < _books.Count; i++)
         {
-            Debug.LogWarning($"[Shelf] TakeLastBook: no BookWorldItem on {obj.name}");
-            return null;
+            float right = cursor + _books[i].thickness;
+            if (clickX >= cursor && clickX <= right) return i;
+            cursor = right + spacingOffset;
         }
-        BookInstance data = item.instance;
-        _placedBookVisuals.RemoveAt(last);
-        Destroy(obj);
-        RefreshPositions();
-        return data;
+        return -1;
     }
 
-     // ВСТАВИТИ в Assets/Scripts/World/Shelf/Shelf.cs
-// Замінити попередню версію RemoveBook (або вставити після TakeLastBook якщо її ще немає)
-
-    /// Видаляє книгу з полиці за BookWorldItem.
-    /// Шукає по instance-reference, потім по GO — надійно знаходить навіть якщо
-    /// hit.collider.gameObject є дочірнім об'єктом.
-    public BookInstance RemoveBook(BookWorldItem bookWorldItem)
+    public void MaterializeBookForInteraction(int index, GameObject prefab)
     {
-        if (bookWorldItem == null) return null;
+        if (index < 0 || index >= _books.Count || prefab == null) return;
 
-        // Шукаємо в списку GO що містить цей BookWorldItem
-        int idx = -1;
-        for (int i = 0; i < _placedBookVisuals.Count; i++)
-        {
-            var go = _placedBookVisuals[i];
-            if (go == null) continue;
+        if (_materializedBook != null) DematerializeBook(_materializedBook);
 
-            // Прямий збіг GO
-            if (go == bookWorldItem.gameObject) { idx = i; break; }
+        ShelfBookEntry entry  = _books[index];
+        GameObject     bookGO = Instantiate(prefab, startPoint);
+        ApplyBookTransform(bookGO.transform, entry);
 
-            // BookWorldItem на іншому рівні ієрархії
-            var bwi = go.GetComponent<BookWorldItem>();
-            if (bwi == bookWorldItem) { idx = i; break; }
-        }
+        var worldItem = bookGO.AddComponent<BookWorldItem>();
+        worldItem.instance          = BuildInstance(entry);
+        worldItem.parentShelf       = this;
+        worldItem.bookIndex         = index;
+        worldItem.savedTilt         = entry.tilt;
+        worldItem.isBeingInteracted = true;
 
-        if (idx < 0)
-        {
-            Debug.LogWarning($"[Shelf] RemoveBook: '{bookWorldItem.instance?.templateID}' не знайдено в {gameObject.name}");
-            return null;
-        }
+        _materializedBook    = worldItem;
+        _materializedBookRef = worldItem;  // public ref для CabinetCullingSystem
 
-        BookInstance data = _placedBookVisuals[idx].GetComponent<BookWorldItem>()?.instance
-                         ?? bookWorldItem.instance;
-
-        GameObject toDestroy = _placedBookVisuals[idx];
-        _placedBookVisuals.RemoveAt(idx);
-        Destroy(toDestroy);
-        RefreshPositions();
-
-        Debug.Log($"[Shelf] RemoveBook OK: '{data?.templateID}' з {gameObject.name}. Лишилось: {_placedBookVisuals.Count}");
-        return data;
+        StartCoroutine(AnimateHoverEntry(bookGO));
     }
 
-    /// Перевантаження для зворотної сумісності — приймає GameObject.
-    public BookInstance RemoveBook(GameObject bookObj)
+    public void DematerializeBook(BookWorldItem item)
     {
-        if (bookObj == null) return null;
-        var bwi = bookObj.GetComponent<BookWorldItem>()
-               ?? bookObj.GetComponentInParent<BookWorldItem>()
-               ?? bookObj.GetComponentInChildren<BookWorldItem>();
-        if (bwi != null) return RemoveBook(bwi);
-
-        // Останній fallback — шукаємо по GO напряму
-        int idx = _placedBookVisuals.IndexOf(bookObj);
-        if (idx < 0)
-        {
-            Debug.LogWarning($"[Shelf] RemoveBook(GO): '{bookObj.name}' не знайдено в {gameObject.name}");
-            return null;
-        }
-        var item = _placedBookVisuals[idx].GetComponent<BookWorldItem>();
-        BookInstance data = item?.instance;
-        _placedBookVisuals.RemoveAt(idx);
-        Destroy(bookObj);
-        RefreshPositions();
-        return data;
+        if (item == null) return;
+        if (_materializedBook    == item) _materializedBook    = null;
+        if (_materializedBookRef == item) _materializedBookRef = null;
+        if (item.gameObject != null) Destroy(item.gameObject);
     }
 
-    /// <summary>
-    /// Removes a specific book by its BookInstance (used when NPC purchases it).
-    /// Returns true if the book was found and removed.
-    /// </summary>
-    public bool TakeBookByInstance(BookInstance target)
-    {
-        if (target == null) return false;
+    public ShelfBookEntry           GetBookData(int index) =>
+        (index >= 0 && index < _books.Count) ? _books[index] : default;
 
-        for (int i = 0; i < _placedBookVisuals.Count; i++)
-        {
-            if (_placedBookVisuals[i] == null) continue;
-            var item = _placedBookVisuals[i].GetComponent<BookWorldItem>();
-            if (item?.instance?.instanceID == target.instanceID)
-            {
-                Destroy(_placedBookVisuals[i]);
-                _placedBookVisuals.RemoveAt(i);
-                RefreshPositions();
-                return true;
-            }
-        }
+    public IReadOnlyList<ShelfBookEntry> GetAllBookData() => _books;
 
-        Debug.LogWarning($"[Shelf] TakeBookByInstance: instanceID {target.instanceID} not found.");
-        return false;
-    }
-
-    // ── Dimensions ──────────────────────────────────────────────
+    // ── Розміри ───────────────────────────────────────────────────────────────
 
     public float GetShelfWorldWidth()
     {
         BoxCollider col = GetComponent<BoxCollider>();
-        if (col == null)
-        {
-            Debug.LogWarning($"[Shelf] No BoxCollider on {gameObject.name}");
-            return 1f;
-        }
+        if (col == null) { Debug.LogWarning($"[Shelf] BoxCollider не знайдено на {name}"); return 1f; }
         return col.size.x * transform.lossyScale.x;
     }
 
-    public int GetBookCount() => _placedBookVisuals.Count;
-
-    public ShopZoneType ZoneType
-    {
-        get
-        {
-            var zone = GetComponentInParent<ShopZone>();
-            return zone != null ? zone.zoneType : ShopZoneType.Storefront;
-        }
-    }
-
+    public int   GetBookCount()    => _books.Count;
     public float GetTotalUsedWidth()
     {
-        if (startPoint == null) return 0f;
         float total = 0f;
-        Vector3 parentScale = startPoint.lossyScale;
-        foreach (var obj in _placedBookVisuals)
-        {
-            if (obj == null) continue;
-            total += GetRuntimeThickness(obj, parentScale) + spacingOffset;
-        }
+        foreach (var b in _books) total += b.thickness + spacingOffset;
         return total;
     }
-
-    public float GetFreeWidth()   => GetShelfWorldWidth() - GetTotalUsedWidth();
+    public float GetFreeWidth()  => GetShelfWorldWidth() - GetTotalUsedWidth();
     public float GetFillRatio()
     {
         float w = GetShelfWorldWidth();
-        return w <= 0f ? 0f : Mathf.Clamp01(GetTotalUsedWidth() / w);
+        return w > 0f ? Mathf.Clamp01(GetTotalUsedWidth() / w) : 0f;
     }
 
-    // ── Save / Load ─────────────────────────────────────────────
+    public ShopZoneType ZoneType
+    {
+        get { var z = GetComponentInParent<ShopZone>(); return z != null ? z.zoneType : ShopZoneType.Storefront; }
+    }
+
+    // ── Резервування ──────────────────────────────────────────────────────────
+
+    public bool ReserveBook(int index, string npcID)
+    {
+        if (index < 0 || index >= _books.Count || _books[index].isReserved) return false;
+        var e = _books[index]; e.isReserved = true; e.reservedByID = npcID; _books[index] = e;
+        return true;
+    }
+    public void UnreserveBook(int index)
+    {
+        if (index < 0 || index >= _books.Count) return;
+        var e = _books[index]; e.isReserved = false; e.reservedByID = string.Empty; _books[index] = e;
+    }
+    public int FindAvailableBookIndex(string templateID)
+    {
+        for (int i = 0; i < _books.Count; i++)
+            if (_books[i].templateID == templateID && !_books[i].isReserved) return i;
+        return -1;
+    }
+
+    // ── Збереження / Завантаження ─────────────────────────────────────────────
 
     public ShelfSaveEntry CollectSaveData()
     {
         var entry = new ShelfSaveEntry();
-        entry.shelfID = GetInstanceID().ToString();
-        foreach (var obj in _placedBookVisuals)
+        // ВИПРАВЛЕНО CS0618: GetInstanceID() deprecated → стабільний ID з імені та позиції
+        entry.shelfID = $"{name}_{transform.GetSiblingIndex()}";
+
+        foreach (var book in _books)
         {
-            if (obj == null) continue;
-            var item = obj.GetComponent<BookWorldItem>();
-            if (item?.instance == null) continue;
-            entry.templateIDs.Add(item.instance.templateID);
-            entry.instanceIDs.Add(item.instance.instanceID);
+            entry.templateIDs.Add(book.templateID);
+            entry.instanceIDs.Add(book.instanceID);
         }
         return entry;
     }
 
-    // ── Layout ──────────────────────────────────────────────────
+    public void LoadFromSaveEntry(ShelfSaveEntry saveEntry)
+    {
+        ClearAllGOs();
+        _books.Clear();
+        for (int i = 0; i < saveEntry.templateIDs.Count; i++)
+        {
+            string tid = saveEntry.templateIDs[i];
+            string iid = i < saveEntry.instanceIDs.Count
+                         ? saveEntry.instanceIDs[i]
+                         : System.Guid.NewGuid().ToString();
 
-    public void RefreshPositions()
+            BookTemplate t = BookDatabase.Instance?.GetBook(tid);
+            if (t == null) { Debug.LogWarning($"[Shelf] Template not found: '{tid}'"); continue; }
+
+            float thick = t.containerPrefab != null ? GetPrefabThickness(t.containerPrefab) : defaultBookThickness;
+            float h     = t.containerPrefab != null ? GetPrefabHeight(t.containerPrefab, t) : defaultBookHeight;
+
+            _books.Add(new ShelfBookEntry
+            {
+                instanceID = iid, templateID = tid,
+                thickness  = thick, height   = h,
+                tilt       = Random.Range(-maxRandomTilt, maxRandomTilt),
+                coverColor = GetCoverColor(t),
+            });
+        }
+        RebuildLayout();
+        PushToRenderer();
+    }
+
+    // ── Layout / Renderer ─────────────────────────────────────────────────────
+
+    private void RebuildLayout()
     {
         if (startPoint == null) return;
         float currentX = 0f;
-        Vector3 parentScale = startPoint.lossyScale;
-
-        foreach (var obj in _placedBookVisuals)
+        for (int i = 0; i < _books.Count; i++)
         {
-            if (obj == null) continue;
-            float worldThickness = GetRuntimeThickness(obj, parentScale);
-            float localX = (currentX + (worldThickness / 2f)) / Mathf.Max(parentScale.x, 0.001f);
-            float localY = GetBottomAlignedY(obj);
-            obj.transform.localPosition = new Vector3(localX, localY, 0f);
-
-            var wi = obj.GetComponent<BookWorldItem>();
-            float tilt = wi != null ? wi.savedTilt : 0f;
-            obj.transform.localRotation = Quaternion.Euler(bookRotation.x + tilt, bookRotation.y, bookRotation.z);
-            currentX += worldThickness + spacingOffset;
+            var e = _books[i];
+            e.localPosition = new Vector3(
+                (currentX + e.thickness * 0.5f) / Mathf.Max(startPoint.lossyScale.x, 0.001f),
+                -(e.height * 0.5f)              / Mathf.Max(startPoint.lossyScale.y, 0.001f),
+                0f);
+            _books[i] = e;
+            currentX += e.thickness + spacingOffset;
         }
     }
 
-    // ── Private Helpers ─────────────────────────────────────────
+    private void PushToRenderer()
+    {
+        if (UseInstancing)
+            _renderer.RebuildFromEntries(_books, startPoint, bookRotation);
+        // Без Instanced Renderer — GO список є основним джерелом рендерингу
+    }
 
+    private void ApplyBookTransform(Transform t, in ShelfBookEntry e)
+    {
+        if (t == null || startPoint == null) return;
+        t.localPosition = e.localPosition;
+        t.localRotation = Quaternion.Euler(bookRotation.x + e.tilt, bookRotation.y, bookRotation.z);
+        // НЕ чіпаємо localScale — префаб вже має правильний масштаб (Book001 scale 0.8 тощо).
+        // ResetToWorldScale викликається окремо якщо потрібна компенсація lossy scale батька.
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /// Товщина книги — враховує масштаб кореневого GO префаба (Book001.scale.z)
+    /// і масштаб дочірнього меша (Book000.scale.z).
     private float GetPrefabThickness(GameObject prefab)
     {
         if (prefab == null) return defaultBookThickness;
-        MeshFilter mf = prefab.GetComponent<MeshFilter>()
-                     ?? prefab.GetComponentInChildren<MeshFilter>(includeInactive: true);
-        if (mf != null && mf.sharedMesh != null)
-            return mf.sharedMesh.bounds.size.z * prefab.transform.localScale.z;
-        Renderer rend = prefab.GetComponentInChildren<Renderer>(includeInactive: true);
-        if (rend != null && rend.bounds.size.z > 0.001f)
-            return rend.bounds.size.z;
+
+        // Масштаб кореня префаба (Book001 може мати scale 0.8, 1.0, 0.6...)
+        float rootScaleZ = prefab.transform.localScale.z;
+
+        foreach (var mf in prefab.GetComponentsInChildren<MeshFilter>(true))
+        {
+            if (mf == null) continue;
+            Mesh mesh = mf.sharedMesh;
+            if (mesh == null) continue;
+
+            // Масштаб дочірнього об'єкта відносно кореня
+            float childScaleZ = mf.transform.localScale.z;
+
+            // Товщина = meshBounds.z * childScale * rootScale
+            float thickness = mesh.bounds.size.z * childScaleZ * rootScaleZ;
+            if (thickness > 0.001f) return thickness;
+        }
+
+        Debug.LogWarning($"[Shelf] GetPrefabThickness: sharedMesh=null у '{prefab.name}'. " +
+                         $"Використовую default={defaultBookThickness}m");
         return defaultBookThickness;
     }
 
-    private float GetRuntimeThickness(GameObject obj, Vector3 parentScale)
+    /// Висота книги — аналогічно враховує кореневий і дочірній масштаб.
+    private float GetPrefabHeight(GameObject prefab, BookTemplate template)
     {
-        if (obj == null) return defaultBookThickness;
-        MeshFilter mf = obj.GetComponentInChildren<MeshFilter>(includeInactive: true);
-        if (mf != null && mf.sharedMesh != null)
-            return mf.sharedMesh.bounds.size.z * obj.transform.localScale.z * Mathf.Max(parentScale.z, 0.001f);
-        return defaultBookThickness;
+        if (prefab != null)
+        {
+            float rootScaleY = prefab.transform.localScale.y;
+
+            foreach (var mf in prefab.GetComponentsInChildren<MeshFilter>(true))
+            {
+                if (mf == null) continue;
+                Mesh mesh = mf.sharedMesh;
+                if (mesh == null) continue;
+
+                float childScaleY = mf.transform.localScale.y;
+                float h = mesh.bounds.size.y * childScaleY * rootScaleY;
+                if (h > 0.001f) return h;
+            }
+        }
+
+        if (template != null)
+            return template.bookSize switch
+            {
+                BookSize.Small  => 0.17f,
+                BookSize.Medium => 0.24f,
+                BookSize.Large  => 0.30f,
+                _               => defaultBookHeight,
+            };
+        return defaultBookHeight;
     }
 
-    private float GetBottomAlignedY(GameObject obj)
+    private static Color GetCoverColor(BookTemplate t)
     {
-        if (obj == null) return 0f;
-        MeshFilter mf = obj.GetComponentInChildren<MeshFilter>(includeInactive: true);
-        if (mf != null && mf.sharedMesh != null)
-            return -(mf.sharedMesh.bounds.min.y * obj.transform.localScale.y);
-        return 0f;
+        if (t == null) return new Color(0.5f, 0.35f, 0.2f);
+        return t.genre switch
+        {
+            BookGenre.Fantasy   => new Color(0.31f, 0.33f, 0.75f),
+            BookGenre.Horror    => new Color(0.55f, 0.10f, 0.10f),
+            BookGenre.Mystery   => new Color(0.25f, 0.25f, 0.35f),
+            BookGenre.Classic   => new Color(0.47f, 0.28f, 0.10f),
+            BookGenre.SciFi     => new Color(0.10f, 0.40f, 0.55f),
+            BookGenre.Biography => new Color(0.30f, 0.50f, 0.25f),
+            BookGenre.Academic  => new Color(0.55f, 0.45f, 0.15f),
+            _                   => new Color(0.5f, 0.35f, 0.2f),
+        };
     }
 
-    private void ResetToWorldScale(Transform target, Vector3 targetWorldScale)
+    private static BookInstance BuildInstance(in ShelfBookEntry e)
     {
-        if (target == null || target.parent == null) return;
-        Vector3 ps = target.parent.lossyScale;
-        target.localScale = new Vector3(
-            targetWorldScale.x / Mathf.Max(ps.x, 0.001f),
-            targetWorldScale.y / Mathf.Max(ps.y, 0.001f),
-            targetWorldScale.z / Mathf.Max(ps.z, 0.001f));
+        var inst = new BookInstance(e.templateID);
+        inst.instanceID = e.instanceID;
+        return inst;
     }
 
-    private IEnumerator AnimateBookEntry(GameObject book)
+    // ── GO управління ─────────────────────────────────────────────────────────
+
+    /// Миттєво створює GO без анімації (при завантаженні або коли GO неактивний)
+    private void SpawnBookGOImmediate(ShelfBookEntry entry, int index, GameObject prefab, BookInstance instance)
     {
-        if (book == null) yield break;
-        Vector3 target = book.transform.localScale;
-        Vector3 start  = new Vector3(target.x, 0f, target.z);
-        book.transform.localScale = start;
+        GameObject bookGO = Instantiate(prefab, startPoint);
+        ApplyBookTransform(bookGO.transform, entry);
+        SetupBookWorldItem(bookGO, entry, instance, index);
+
+        // Синхронізуємо список GO з _books
+        while (_bookGOs.Count <= index) _bookGOs.Add(null);
+        if (_bookGOs[index] != null) Destroy(_bookGOs[index]);
+        _bookGOs[index] = bookGO;
+    }
+
+    /// Створює GO з анімацією появи (виростає знизу вгору)
+    private IEnumerator SpawnBookGO(ShelfBookEntry entry, int index, GameObject prefab, BookInstance instance)
+    {
+        GameObject bookGO = Instantiate(prefab, startPoint);
+        ApplyBookTransform(bookGO.transform, entry);
+        SetupBookWorldItem(bookGO, entry, instance, index);
+
+        // Синхронізуємо список GO
+        while (_bookGOs.Count <= index) _bookGOs.Add(null);
+        if (_bookGOs[index] != null) Destroy(_bookGOs[index]);
+        _bookGOs[index] = bookGO;
+
+        // Якщо є Instanced Renderer — знищуємо GO після анімації
+        // Якщо ні — GO залишається як основний рендер
+        // Зберігаємо оригінальний масштаб префаба (не чіпаємо після ApplyBookTransform)
+        Vector3 targetScale = bookGO.transform.localScale;
+        Vector3 startScale  = new Vector3(targetScale.x, 0f, targetScale.z);
+        bookGO.transform.localScale = startScale;
+
         float t = 0f;
         while (t < 1f)
         {
             t += Time.deltaTime * animationSpeed;
-            if (book == null) yield break;
-            book.transform.localScale = Vector3.Lerp(start, target, t);
+            if (bookGO == null) yield break;
+            bookGO.transform.localScale = Vector3.Lerp(startScale, targetScale, t);
             yield return null;
         }
-        if (book != null) book.transform.localScale = target;
+        if (bookGO != null)
+            bookGO.transform.localScale = targetScale;
+
+        // Тільки якщо Instanced Renderer активний — переходимо на GPU рендеринг
+        if (UseInstancing && bookGO != null)
+        {
+            _bookGOs[index] = null;
+            Destroy(bookGO);
+            PushToRenderer();
+        }
     }
 
-    // FIX: wrapped in #if UNITY_EDITOR — Handles.Label is editor-only API
-    // Without this, the build fails with CS0234
+    private void SetupBookWorldItem(GameObject go, in ShelfBookEntry entry, BookInstance instance, int index)
+    {
+        if (!go.TryGetComponent<BookWorldItem>(out var wi))
+            wi = go.AddComponent<BookWorldItem>();
+        wi.instance    = instance;
+        wi.parentShelf = this;
+        wi.bookIndex   = index;
+        wi.savedTilt   = entry.tilt;
+    }
+
+    /// Перераховує позиції існуючих GO після видалення книги
+    private void RefreshGOPositions()
+    {
+        if (_bookGOs.Count == 0) return;
+        for (int i = 0; i < Mathf.Min(_bookGOs.Count, _books.Count); i++)
+        {
+            if (_bookGOs[i] == null) continue;
+            ApplyBookTransform(_bookGOs[i].transform, _books[i]);
+        }
+    }
+
+    /// Очищає всі GO (при LoadFromSaveEntry)
+    private void ClearAllGOs()
+    {
+        foreach (var go in _bookGOs)
+            if (go != null) Destroy(go);
+        _bookGOs.Clear();
+    }
+
+    private IEnumerator AnimateHoverEntry(GameObject bookGO)
+    {
+        if (bookGO == null) yield break;
+        Vector3 start = bookGO.transform.localPosition;
+        Vector3 end   = start + new Vector3(0f, 0f, -0.05f);
+        float t = 0f;
+        while (t < 1f && bookGO != null)
+        {
+            t += Time.deltaTime * 8f;
+            bookGO.transform.localPosition = Vector3.Lerp(start, end, t);
+            yield return null;
+        }
+    }
+
+    // ── Gizmos ────────────────────────────────────────────────────────────────
 #if UNITY_EDITOR
     private void OnDrawGizmosSelected()
     {
         if (startPoint == null) return;
-        float shelfWidth = GetShelfWorldWidth();
-        float usedWidth  = GetTotalUsedWidth();
-
-        Vector3 freeStart = startPoint.position + (-startPoint.right * usedWidth);
-        Vector3 freeEnd   = startPoint.position + (-startPoint.right * shelfWidth);
-
+        float sw = GetShelfWorldWidth(), uw = GetTotalUsedWidth();
         Gizmos.color = Color.green;
-        Gizmos.DrawLine(freeStart, freeEnd);
+        Gizmos.DrawLine(startPoint.position + startPoint.right * uw,
+                        startPoint.position + startPoint.right * sw);
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(startPoint.position, freeStart);
-
-        float pct = shelfWidth > 0 ? (usedWidth / shelfWidth * 100f) : 0f;
-        UnityEditor.Handles.Label(
-            startPoint.position + Vector3.up * 0.15f,
-            $"{GetBookCount()} books | {pct:F0}%");
+        Gizmos.DrawLine(startPoint.position, startPoint.position + startPoint.right * uw);
+        float pct = sw > 0 ? uw / sw * 100f : 0f;
+        UnityEditor.Handles.Label(startPoint.position + Vector3.up * 0.15f,
+            $"{GetBookCount()} книг | {pct:F0}% | max:{maxBookSize}");
     }
 #endif
 }

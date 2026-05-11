@@ -1,336 +1,338 @@
-// Assets/Scripts/UI/ContextMenu/ContextMenuUI.cs  [Фаза 1 — фінальна версія]
-// ВИПРАВЛЕННЯ:
-//   - shelf.RemoveBook(item.gameObject) — тепер Shelf.RemoveBook існує (додано в Shelf.cs)
-//   - NPCBrain замість CustomerBrain
-//   - Тільки GameState.Preparation / WorkDay / LootPhase (без EditMode/DayStats)
-
-using System.Collections.Generic;
+// Assets/Scripts/UI/ContextMenu/ContextMenuUI.cs
+// ПОВНІСТЮ ПЕРЕПИСАНО під реальний ContextMenuUI.uxml:
+//
+//   UXML структура:
+//     ContextMenu           — root панель (display:none за замовчуванням)
+//     └─ ContextMenuContainer — порожній контейнер, кнопки додаються динамічно
+//
+//   Меню будується програмно: ClearContainer() → Add(кнопки/лейбли)
+//   залежно від того що передано: Book / NPC / Cabinet.
+//
+//   Сигнатури відповідають InteractionRouter.cs:
+//     ShowForBook(BookWorldItem, Vector3, GameState)
+//     ShowForNPC(NPCBrain, Vector3, GameState)
+//     ShowForCabinet(Cabinet, Vector3, GameState)
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class ContextMenuUI : MonoBehaviour
 {
-    // ── Singleton ──────────────────────────────────────────────
     public static ContextMenuUI Instance { get; private set; }
 
-    // ── Inspector ──────────────────────────────────────────────
     [SerializeField] private UIDocument uiDocument;
-    [SerializeField] private Vector2    screenOffset = new Vector2(12f, -12f);
 
-    // ── Runtime ────────────────────────────────────────────────
-    private VisualElement _panel;
-    private VisualElement _container;
-    private bool          _isReady;
+    // ── UXML елементи ─────────────────────────────────────────────────────────
+    private VisualElement _menu;       // name="ContextMenu"
+    private VisualElement _container;  // name="ContextMenuContainer"
 
-    // ── Unity ──────────────────────────────────────────────────
+    // ── Поточний контекст ─────────────────────────────────────────────────────
+    private BookWorldItem _currentItem;
+    private NPCBrain      _currentNPC;
+    private Cabinet       _currentCabinet;
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
     private void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
-        Instance = this;
+        if (Instance == null) Instance = this;
+        else { Destroy(gameObject); return; }
     }
 
-    private void Start()
+    private void Update()
+    {
+        // Закрити меню по ЛКМ поза його межами
+        if (_menu == null || _menu.style.display == DisplayStyle.None) return;
+        if (!UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame) return;
+
+        var mouse = UnityEngine.InputSystem.Mouse.current;
+        var panel = uiDocument?.rootVisualElement?.panel;
+        if (panel == null) return;
+
+        Vector2 screenPos = mouse.position.ReadValue();
+        Vector2 panelPos  = RuntimePanelUtils.ScreenToPanel(
+            panel, new Vector2(screenPos.x, Screen.height - screenPos.y));
+
+        // Якщо клік НЕ по меню — ховаємо
+        var picked = panel.Pick(panelPos);
+        if (picked == null || !IsChildOf(_menu, picked))
+            Hide();
+    }
+
+    private static bool IsChildOf(VisualElement parent, VisualElement child)
+    {
+        var current = child;
+        while (current != null)
+        {
+            if (current == parent) return true;
+            current = current.parent;
+        }
+        return false;
+    }
+
+    private void OnEnable()
     {
         if (uiDocument == null) return;
-
         var root   = uiDocument.rootVisualElement;
-        _panel     = root.Q<VisualElement>("ContextMenu");
+        _menu      = root.Q<VisualElement>("ContextMenu");
         _container = root.Q<VisualElement>("ContextMenuContainer");
 
-        if (_panel == null)
-        {
-            Debug.LogError("[ContextMenuUI] #ContextMenu не знайдено у UXML!");
-            return;
-        }
+        if (_menu == null)
+            Debug.LogWarning("[ContextMenuUI] 'ContextMenu' не знайдено у UXML!");
+        if (_container == null)
+            Debug.LogWarning("[ContextMenuUI] 'ContextMenuContainer' не знайдено у UXML!");
 
-        _isReady = true;
         Hide();
     }
 
-    // ── Public API ─────────────────────────────────────────────
+    // ── Public API ────────────────────────────────────────────────────────────
+
+    // InteractionRouter рядок 117
+    public void ShowForBook(BookWorldItem item, Vector3 hitPoint, GameState state)
+    {
+        if (item == null) { Hide(); return; }
+        _currentItem    = item;
+        _currentNPC     = null;
+        _currentCabinet = null;
+
+        BookTemplate template = BookDatabase.Instance?.GetBook(item.instance?.templateID);
+        if (template == null) { Hide(); return; }
+
+        Build(() =>
+        {
+            // Заголовок
+            AddHeader(template.title);
+            AddSubLabel($"{template.author}  •  {template.bookSize}  •  {template.genre}");
+
+            if (item.IsReserved)
+                AddSubLabel("🔒 Зарезервовано NPC");
+
+            AddDivider();
+
+            // "Забрати в інвентар"
+            bool canTake = !item.IsReserved &&
+                           (state == GameState.Preparation || state == GameState.WorkDay);
+            AddButton("Забрати в інвентар", OnTakeClicked, enabled: canTake);
+
+            // "Інформація"
+            AddButton("Інформація", OnInfoClicked);
+        });
+    }
+
+    // InteractionRouter рядок 129
+    public void ShowForNPC(NPCBrain npc, Vector3 hitPoint, GameState state)
+    {
+        if (npc == null) { Hide(); return; }
+        _currentItem    = null;
+        _currentNPC     = npc;
+        _currentCabinet = null;
+
+        Build(() =>
+        {
+            AddHeader(npc.Data?.npcName ?? "NPC");
+            AddSubLabel($"Шукає: {npc.DesiredGenre}");
+            AddDivider();
+
+            bool canOffer = state == GameState.WorkDay;
+            AddButton("Запропонувати книгу", OnOfferBookClicked, enabled: canOffer);
+        });
+    }
+
+    // InteractionRouter рядок 141
+    public void ShowForCabinet(Cabinet cabinet, Vector3 hitPoint, GameState state)
+    {
+        if (cabinet == null) { Hide(); return; }
+        _currentItem    = null;
+        _currentNPC     = null;
+        _currentCabinet = cabinet;
+
+        Build(() =>
+        {
+            AddHeader(cabinet.cabinetName);
+
+            int total = 0;
+            foreach (var s in cabinet.shelves) if (s != null) total += s.GetBookCount();
+            AddSubLabel($"{cabinet.shelves.Count} полиць  •  {total} книг");
+
+            AddDivider();
+
+            bool canOpen = state == GameState.Preparation ||
+                           state == GameState.WorkDay     ||
+                           state == GameState.LootPhase;
+            AddButton("Відкрити шафу", OnOpenCabinetClicked, enabled: canOpen);
+        });
+    }
 
     public void Hide()
     {
-        if (_panel != null) _panel.style.display = DisplayStyle.None;
+        _currentItem    = null;
+        _currentNPC     = null;
+        _currentCabinet = null;
+
+        if (_menu != null)
+            _menu.style.display = DisplayStyle.None;
     }
 
-    /// Книга на полиці
-    public void ShowForBook(BookWorldItem bookItem, Vector3 worldPos, GameState state)
+    // ── Builder helpers ───────────────────────────────────────────────────────
+
+    private void Build(System.Action populate)
     {
-        // Книга: тільки Preparation + WorkDay (ТЗ матриця)
-        if (state != GameState.Preparation && state != GameState.WorkDay)
-        {
-            Hide();
-            return;
-        }
-
-        var btns = new List<ContextButton>();
-
-        // Інформація — Preparation + WorkDay
-        btns.Add(new ContextButton("📖 Інформація", () =>
-        {
-            Debug.Log($"[ContextMenu] Інфо: {bookItem.instance?.templateID}");
-            Hide();
-        }));
-
-        // Забрати в інвентар
-        if (!bookItem.IsReserved)
-        {
-        var tpl = BookDatabase.Instance?.GetBook(bookItem.instance?.templateID);
-        string sizeTag = tpl != null
-            ? $" [{BookSizeHelper.ToIcon(tpl.size)} {tpl.size}]"
-            : "";
-        
-            btns.Add(new ContextButton($"🎒 Забрати в інвентар{sizeTag}", () =>  
-                {
-                    TakeBookToInventory(bookItem);
-                    Hide();
-                }));
-        }
-        else
-        {
-            btns.Add(new ContextButton("🔒 Зарезервована NPC", null, disabled: true));
-        }
-
-        Show(worldPos, btns);
-    }
-
-
-    public static bool CheckBookFitsShelf(BookTemplate template, Shelf shelf)
-        {
-            if (template == null || shelf == null) return true;
-            string reason = shelf.GetSizeRejectReason(template);
-            if (string.IsNullOrEmpty(reason)) return true;
-    
-            // TODO: замінити на правильну сигнатуру NotificationSystem.Show() з проекту
-    // Поки що — лог в консоль
-    Debug.LogWarning($"[BookSize] {reason}");
-   // NotificationSystem.Instance?.ShowWarning($"❌ {reason}");
-            return false;
-        }
-
-
-    /// Шафа / меблі
-    /// Матриця (ТЗ):
-    ///   Інвентар книги  → Preparation + WorkDay
-    ///   Інформація      → Preparation + EditMode + WorkDay
-    ///   Перемістити     → EditMode
-    ///   Обернути        → EditMode
-    ///   Змінити колір   → EditMode
-    ///   Продати         → EditMode
-    public void ShowForCabinet(Cabinet cabinet, Vector3 worldPos, GameState state)
-    {
-        if (state == GameState.LootPhase || state == GameState.DayStats)
-        {
-            Hide();
-            return;
-        }
-
-        var btns = new List<ContextButton>();
-
-        // ── Preparation + WorkDay ────────────────────────────────
-        if (state == GameState.Preparation || state == GameState.WorkDay)
-        {
-            btns.Add(new ContextButton("📦 Інвентар / книги", () =>
-            {
-                ShopUIManager.Instance?.OpenCabinetUI(cabinet);
-                Hide();
-            }));
-        }
-
-        // ── Preparation + EditMode + WorkDay ─────────────────────
-        if (state == GameState.Preparation || state == GameState.EditMode || state == GameState.WorkDay)
-        {
-            btns.Add(new ContextButton("ℹ️ Інформація", () =>
-            {
-                Debug.Log($"[ContextMenu] Шафа: {cabinet.cabinetName}");
-                Hide();
-            }));
-        }
-
-        // ── EditMode тільки ──────────────────────────────────────
-        if (state == GameState.EditMode)
-        {
-            btns.Add(new ContextButton("↔️ Перемістити", () =>
-            {
-                Debug.Log($"[ContextMenu] Перемістити: {cabinet.cabinetName}");
-                // TODO: DecorationPanelUI / EditModeManager.StartMove(cabinet)
-                Hide();
-            }));
-
-            btns.Add(new ContextButton("🔄 Обернути", () =>
-            {
-                Debug.Log($"[ContextMenu] Обернути: {cabinet.cabinetName}");
-                // TODO: EditModeManager.StartRotate(cabinet)
-                Hide();
-            }));
-
-            btns.Add(new ContextButton("🎨 Змінити колір", () =>
-            {
-                Debug.Log($"[ContextMenu] Змінити колір: {cabinet.cabinetName}");
-                // TODO: ColorPickerUI.Instance?.Open(cabinet)
-                Hide();
-            }));
-
-            btns.Add(new ContextButton("💰 Продати", () =>
-            {
-                Debug.Log($"[ContextMenu] Продати: {cabinet.cabinetName}");
-                // TODO: EconomyManager.Instance?.SellFurniture(cabinet)
-                Hide();
-            }));
-        }
-
-        Show(worldPos, btns);
-    }
-
-    /// NPC-покупець — тільки WorkDay
-    public void ShowForNPC(NPCBrain npc, Vector3 worldPos, GameState state)
-    {
-        if (state != GameState.WorkDay) return;
-
-        bool canOffer = npc.CurrentState == NPCState.Browsing
-                     || npc.CurrentState == NPCState.ShowingHint
-                     || npc.CurrentState == NPCState.WaitingForPlayer;
-
-        if (!canOffer) return;
-
-        var btns = new List<ContextButton>
-        {
-            new ContextButton("📚 Запропонувати книгу", () =>
-            {
-                Debug.Log($"[ContextMenu] Пропозиція → {npc.Data?.npcName}");
-                // TODO: BookOfferUI.Instance?.OpenFor(npc);
-                Hide();
-            })
-        };
-
-        Show(worldPos, btns);
-    }
-
-    // ── Private ────────────────────────────────────────────────
-
-    // Зберігаємо worldPos для позиціонування
-    private Vector3 _pendingWorldPos;
-
-    private void Show(Vector3 worldPos, List<ContextButton> btns)
-    {
-        if (btns.Count == 0) { Hide(); return; }
-
-        if (!_isReady)
-        {
-            foreach (var b in btns) Debug.Log($"[ContextMenu-fallback] {b.Label}");
-            return;
-        }
+        if (_menu == null || _container == null) return;
 
         _container.Clear();
+        populate();
 
-        foreach (var btn in btns)
-        {
-            var b = new Button { text = btn.Label };
-            b.AddToClassList("ctx-btn");
-
-            if (btn.IsDisabled)
-            {
-                b.SetEnabled(false);
-                b.AddToClassList("ctx-btn--disabled");
-            }
-            else
-            {
-                var cap = btn;
-                b.clicked += () => cap.Action?.Invoke();
-            }
-            _container.Add(b);
-        }
-
-        _pendingWorldPos = worldPos;
-
-        // Показуємо поза екраном — після layout перемістимо на правильну позицію
-        _panel.style.left    = -9999;
-        _panel.style.top     = -9999;
-        _panel.style.display = DisplayStyle.Flex;
-
-        // GeometryChangedEvent спрацьовує після того як UIToolkit розрахує розмір панелі
-        _panel.RegisterCallback<GeometryChangedEvent>(OnPanelGeometryReady);
+        PositionAtMouse();
+        _menu.style.display = DisplayStyle.Flex;
     }
 
-    private void OnPanelGeometryReady(GeometryChangedEvent evt)
+    // ── Позиціонування ────────────────────────────────────────────────────────
+
+    private void PositionAtMouse()
     {
-        _panel.UnregisterCallback<GeometryChangedEvent>(OnPanelGeometryReady);
+        if (_menu == null || uiDocument == null) return;
+
+        var panel = uiDocument.rootVisualElement?.panel;
+        if (panel == null) return;
 
         var mouse = UnityEngine.InputSystem.Mouse.current;
         if (mouse == null) return;
 
-        Vector2 m = mouse.position.ReadValue();
+        Vector2 screenPos = mouse.position.ReadValue();
 
-        // UIToolkit: Y інвертований відносно Screen
-        float x = m.x + screenOffset.x;
-        float y = (Screen.height - m.y) + screenOffset.y;
+        // Screen → Panel coordinates (UIToolkit Y інвертований)
+        Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(
+            panel,
+            new Vector2(screenPos.x, Screen.height - screenPos.y)
+        );
 
-        float w = _panel.resolvedStyle.width;
-        float h = _panel.resolvedStyle.height;
-        float margin = 6f;
-
-        // Якщо виходить за правий край — показуємо лівіше від курсора
-        if (x + w > Screen.width - margin)
-            x = m.x - w - Mathf.Abs(screenOffset.x);
-
-        // Якщо виходить за нижній край — показуємо вище курсора
-        if (y + h > Screen.height - margin)
-            y = (Screen.height - m.y) - h - Mathf.Abs(screenOffset.y);
-
-        // Гарантуємо що не за лівим і верхнім краями
-        x = Mathf.Max(margin, x);
-        y = Mathf.Max(margin, y);
-
-        _panel.style.left = x;
-        _panel.style.top  = y;
+        // Зсув -5/-5 як раніше
+        _menu.style.left = panelPos.x - 5f;
+        _menu.style.top  = panelPos.y - 5f;
     }
 
-    /// Забрати книгу з полиці в інвентар гравця.
-    private static void TakeBookToInventory(BookWorldItem item)
+    private void AddHeader(string text)
     {
-        if (item == null || item.instance == null)
-        {
-            Debug.LogWarning("[ContextMenu] TakeBookToInventory: item або instance == null");
-            return;
-        }
-
-        BookInstance inst = null;
-
-        if (item.parentShelf != null)
-        {
-            // Передаємо BookWorldItem напряму — найнадійніший пошук
-            inst = item.parentShelf.RemoveBook(item);
-        }
-
-        if (inst == null)
-        {
-            // parentShelf не призначено — забираємо дані і знищуємо GO вручну
-            Debug.LogWarning($"[ContextMenu] parentShelf null для '{item.instance.templateID}', знищуємо GO напряму");
-            inst = item.instance;
-            Object.Destroy(item.gameObject);
-        }
-
-        InventoryManager.Instance?.AddExistingBook(inst);
-        Debug.Log($"[ContextMenu] '{inst.templateID}' → інвентар. Всього: {InventoryManager.Instance?.GetBookCount()}");
-
-        // Відкриваємо інвентарну панель
-        ShopUIManager.Instance?.OpenInventoryPanel();
+        var lbl = new Label(text);
+        lbl.style.fontSize        = 13;
+        lbl.style.unityFontStyleAndWeight = FontStyle.Bold;
+        lbl.style.color           = new StyleColor(new Color(1f, 1f, 1f, 0.95f));
+        lbl.style.paddingLeft     = 8;
+        lbl.style.paddingRight    = 8;
+        lbl.style.paddingTop      = 6;
+        lbl.style.paddingBottom   = 2;
+        lbl.style.whiteSpace      = WhiteSpace.Normal;
+        _container.Add(lbl);
     }
 
-    // ── Inner class ────────────────────────────────────────────
-
-    private class ContextButton
+    private void AddSubLabel(string text)
     {
-        public string        Label;
-        public System.Action Action;
-        public bool          IsDisabled;
+        var lbl = new Label(text);
+        lbl.style.fontSize  = 10;
+        lbl.style.color     = new StyleColor(new Color(1f, 1f, 1f, 0.45f));
+        lbl.style.paddingLeft  = 8;
+        lbl.style.paddingRight = 8;
+        lbl.style.paddingBottom = 4;
+        lbl.style.whiteSpace = WhiteSpace.Normal;
+        _container.Add(lbl);
+    }
 
-        public ContextButton(string label, System.Action action, bool disabled = false)
+    private void AddDivider()
+    {
+        var div = new VisualElement();
+        div.style.height           = 1;
+        div.style.marginTop        = 2;
+        div.style.marginBottom     = 2;
+        div.style.backgroundColor  = new StyleColor(new Color(1f, 1f, 1f, 0.08f));
+        _container.Add(div);
+    }
+
+    private void AddButton(string text, System.Action onClick, bool enabled = true)
+    {
+        var btn = new Button(onClick) { text = text };
+        btn.style.paddingLeft   = 8;
+        btn.style.paddingRight  = 8;
+        btn.style.paddingTop    = 7;
+        btn.style.paddingBottom = 7;
+        btn.style.marginTop     = 1;
+        btn.style.marginBottom  = 1;
+        btn.style.backgroundColor = StyleKeyword.None;
+        btn.style.borderTopWidth = btn.style.borderBottomWidth =
+        btn.style.borderLeftWidth = btn.style.borderRightWidth = 0;
+        btn.style.unityTextAlign  = TextAnchor.MiddleLeft;
+        btn.style.fontSize        = 12;
+
+        if (enabled)
         {
-            Label      = label;
-            Action     = action;
-            IsDisabled = disabled;
+            btn.style.color = new StyleColor(new Color(1f, 1f, 1f, 0.88f));
+            btn.RegisterCallback<MouseEnterEvent>(_ =>
+                btn.style.backgroundColor = new StyleColor(new Color(1f, 1f, 1f, 0.07f)));
+            btn.RegisterCallback<MouseLeaveEvent>(_ =>
+                btn.style.backgroundColor = StyleKeyword.None);
         }
+        else
+        {
+            btn.style.color   = new StyleColor(new Color(1f, 1f, 1f, 0.25f));
+            btn.SetEnabled(false);
+        }
+
+        _container.Add(btn);
+    }
+
+    // ── Callbacks ─────────────────────────────────────────────────────────────
+
+    private void OnTakeClicked()
+    {
+        if (_currentItem == null) return;
+        if (_currentItem.IsReserved) { Hide(); return; }
+
+        Shelf shelf = _currentItem.parentShelf;
+        int   idx   = _currentItem.bookIndex;
+
+        if (shelf == null || idx < 0) { Hide(); return; }
+
+        shelf.DematerializeBook(_currentItem);
+        BookInstance removed = shelf.TakeBookAt(idx);
+        if (removed != null)
+            InventoryManager.Instance?.AddExistingBook(removed);
+
+        Hide();
+    }
+
+    private void OnInfoClicked()
+    {
+        if (_currentItem?.instance == null) return;
+        var tmpl = BookDatabase.Instance?.GetBook(_currentItem.instance.templateID);
+        if (tmpl != null) BookInfoCardController.Instance?.Show(tmpl);
+        Hide();
+    }
+
+    private void OnOfferBookClicked()
+    {
+        if (_currentNPC == null) return;
+
+        var inv   = InventoryManager.Instance;
+        var books = inv?.GetSortedInventory(SortType.ByGenre);
+        if (books == null || books.Count == 0) { Hide(); return; }
+
+        foreach (var b in books)
+        {
+            var tmpl = BookDatabase.Instance?.GetBook(b.templateID);
+            if (tmpl?.genre == _currentNPC.DesiredGenre &&
+                tmpl.sellPrice <= (_currentNPC.Data?.maxBudget ?? float.MaxValue))
+            {
+                _currentNPC.ReceiveBookOffer(tmpl);
+                if (_currentNPC.FoundBook == tmpl)
+                    inv.RemoveBook(b);
+                break;
+            }
+        }
+
+        Hide();
+    }
+
+    private void OnOpenCabinetClicked()
+    {
+        if (_currentCabinet == null) return;
+        ShopUIManager.Instance?.OpenCabinetUI(_currentCabinet);
+        Hide();
     }
 }

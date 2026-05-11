@@ -252,6 +252,8 @@ MonoBehaviour:
   animationSpeed: 4
   maxBookSize: 1
   defaultBookThickness: 0.03
+  defaultBookHeight: 0.24
+  _enableInstancing: 1
 --- !u!1 &2824776042596458914
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,6 +417,8 @@ MonoBehaviour:
   animationSpeed: 4
   maxBookSize: 2
   defaultBookThickness: 0.03
+  defaultBookHeight: 0.24
+  _enableInstancing: 1
 --- !u!1 &4077622065862479675
 GameObject:
   m_ObjectHideFlags: 0
@@ -637,6 +641,8 @@ MonoBehaviour:
   animationSpeed: 4
   maxBookSize: 2
   defaultBookThickness: 0.03
+  defaultBookHeight: 0.24
+  _enableInstancing: 1
 --- !u!1 &7337486132078831180
 GameObject:
   m_ObjectHideFlags: 0
@@ -711,6 +717,8 @@ MonoBehaviour:
   animationSpeed: 4
   maxBookSize: 2
   defaultBookThickness: 0.03
+  defaultBookHeight: 0.24
+  _enableInstancing: 1
 --- !u!1 &7461461496185991650
 GameObject:
   m_ObjectHideFlags: 0
@@ -785,6 +793,8 @@ MonoBehaviour:
   animationSpeed: 4
   maxBookSize: 2
   defaultBookThickness: 0.03
+  defaultBookHeight: 0.24
+  _enableInstancing: 1
 --- !u!1 &7786597280050946986
 GameObject:
   m_ObjectHideFlags: 0
@@ -859,6 +869,8 @@ MonoBehaviour:
   animationSpeed: 4
   maxBookSize: 2
   defaultBookThickness: 0.03
+  defaultBookHeight: 0.24
+  _enableInstancing: 1
 --- !u!1 &8693502380842732427
 GameObject:
   m_ObjectHideFlags: 0
