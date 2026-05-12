@@ -1,132 +1,176 @@
 // Assets/Scripts/World/Shelf/BookInstancedRenderer.cs
-// НОВИЙ ФАЙЛ: єдиний компонент що рендерить усі книги полиці через GPU Instancing.
-// Один DrawCall на 1023 книжки замість окремого MeshRenderer на кожну.
+// Колір книги передається через _BaseColor (Color, Per Render Data) — палітра в коді.
+// Не залежить від UV розгортки меша і UV атласу.
 //
-// UNITY SETUP:
-//   1. Додати на root-об'єкт Cabinet (або Shelf якщо шафи немає).
-//   2. Призначити bookMesh та bookMaterial у Inspector.
-//   3. У bookMaterial увімкнути "Enable GPU Instancing".
-//   4. Shelf.cs викликає RebuildFromEntries() після будь-якої зміни книг.
+// В Shader Graph (SG_BookSpine):
+//   - Видали Color Atlas, UV Rect, Split, Multiply, Add, Vector2 ноди
+//   - Залиш тільки: _BaseColor (Color, Per Render Data, Scope=PerRenderData) → Base Color
+//   - Або: _BaseColor × Tint → Base Color (якщо хочеш глобальне тонування)
 using UnityEngine;
 using System.Collections.Generic;
 
+// UNITY SETUP: додавати на кожну Shelf окремо (не на Cabinet).
+// Кожна Shelf має свій BookInstancedRenderer.
+// Shelf.cs знаходить його через GetComponent<BookInstancedRenderer>() (не InParent).
 [AddComponentMenu("Bookstore/Book Instanced Renderer")]
 public class BookInstancedRenderer : MonoBehaviour
 {
-    // ── Inspector ────────────────────────────────────────────────────────────
-    [Header("Mesh & Material")]
-    [Tooltip("Спільний mesh для всіх книг (повинен мати GPU Instancing у матеріалі)")]
-    [SerializeField] private Mesh bookMesh;
+    // ── Палітра 16 кольорів — відповідає colorIndex 0–15 ────────────────────
+    public static readonly Color[] Palette =
+    {
+        new Color(0.27f, 0.13f, 0.07f), // 0  темно-коричневий
+        new Color(0.55f, 0.18f, 0.11f), // 1  червоно-коричневий
+        new Color(0.72f, 0.42f, 0.18f), // 2  охра
+        new Color(0.76f, 0.69f, 0.54f), // 3  бежевий
+        new Color(0.45f, 0.47f, 0.34f), // 4  оливковий
+        new Color(0.25f, 0.35f, 0.22f), // 5  темно-зелений
+        new Color(0.18f, 0.25f, 0.35f), // 6  темно-синій
+        new Color(0.35f, 0.42f, 0.52f), // 7  сталевий
+        new Color(0.52f, 0.28f, 0.18f), // 8  теракота
+        new Color(0.68f, 0.55f, 0.38f), // 9  пісочний
+        new Color(0.30f, 0.22f, 0.42f), // 10 фіолетовий
+        new Color(0.42f, 0.18f, 0.22f), // 11 бордо
+        new Color(0.18f, 0.38f, 0.42f), // 12 бірюзовий
+        new Color(0.55f, 0.50f, 0.42f), // 13 сірий теплий
+        new Color(0.62f, 0.35f, 0.15f), // 14 рудий
+        new Color(0.22f, 0.22f, 0.25f), // 15 антрацит
+    };
 
-    [Tooltip("Матеріал з увімкненим Enable GPU Instancing")]
-    [SerializeField] private Material bookMaterial;
+    public static Color GetColor(int colorIndex) =>
+        Palette[Mathf.Clamp(colorIndex, 0, Palette.Length - 1)];
+
+    // ── Inspector ─────────────────────────────────────────────────────────────
+    [Header("Mesh & Material")]
+    [SerializeField] private Mesh     bookMesh;
+    [SerializeField] private Material coverMaterial;  // обкладинка — SG_BookSpine_base
+    [SerializeField] private Material pagesMaterial;  // сторінки — білий/кремовий URP Lit
+
+    [Header("Mesh Correction")]
+    [Tooltip("Компенсація повороту меша. Book000 має X=-90° в prefab → виправляємо тут." +
+             "Якщо книги лежать — спробуй (90,0,0). Якщо стоять але розгорнуті — (90,0,90).")]
+ 
+    [SerializeField] private Vector3 meshRotationEuler = new Vector3(90f, 90f, 0f);
+
+    private Quaternion _meshRotationCorrection;
 
     [Header("Debug")]
     [SerializeField] private bool showGizmos = false;
 
-    // ── Private state ─────────────────────────────────────────────────────────
+    // Зворотна сумісність
+    public Material BookMaterial => coverMaterial;
+
+    // ── Дані рендерингу ───────────────────────────────────────────────────────
     private readonly List<Matrix4x4> _matrices = new(256);
     private readonly List<Vector4>   _colors   = new(256);
-    private MaterialPropertyBlock    _mpb;
 
-    // Кеш масивів для DrawMeshInstanced (уникаємо алокації щокадру)
     private Matrix4x4[] _matrixBatch = new Matrix4x4[1023];
     private Vector4[]   _colorBatch  = new Vector4[1023];
 
-    private bool _isDirty = false;
+    private MaterialPropertyBlock _mpb;
 
-    // ── Unity Lifecycle ───────────────────────────────────────────────────────
+
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
     private void Awake()
     {
         _mpb = new MaterialPropertyBlock();
+        _meshRotationCorrection = Quaternion.Euler(meshRotationEuler);
+    }
+
+    private void OnValidate()
+    {
+        // Оновлюємо в Editor при зміні поля
+        _meshRotationCorrection = Quaternion.Euler(meshRotationEuler);
     }
 
     private void Update()
     {
-        if (_matrices.Count == 0 || bookMesh == null || bookMaterial == null)
-            return;
+        if (_matrices.Count == 0 || bookMesh == null || coverMaterial == null) return;
 
-        // Рендеримо батчами по 1023 (ліміт DrawMeshInstanced)
         int total = _matrices.Count;
         for (int start = 0; start < total; start += 1023)
         {
             int count = Mathf.Min(1023, total - start);
 
-            // Копіюємо в pre-allocated масиви (без GC alloc)
-            for (int i = 0; i < count; i++)
-            {
-                _matrixBatch[i] = _matrices[start + i];
-                _colorBatch[i]  = _colors[start + i];
-            }
+            for (int i = 0; i < count; i++) _matrixBatch[i] = _matrices[start + i];
+            for (int i = 0; i < count; i++) _colorBatch[i]  = _colors[start + i];
 
+            // submesh 0 — обкладинка з кольором з палітри
             _mpb.SetVectorArray("_BaseColor", _colorBatch);
-
             Graphics.DrawMeshInstanced(
-                bookMesh,
-                submeshIndex: 0,
-                bookMaterial,
-                _matrixBatch,
-                count,
-                _mpb,
+                bookMesh, 0, coverMaterial, _matrixBatch, count, _mpb,
                 UnityEngine.Rendering.ShadowCastingMode.On,
-                receiveShadows: true,
-                layer: gameObject.layer
-            );
+                receiveShadows: true, layer: gameObject.layer);
+
+            // submesh 1 — сторінки (якщо є другий submesh і матеріал)
+            if (pagesMaterial != null && bookMesh.subMeshCount > 1)
+                Graphics.DrawMeshInstanced(
+                    bookMesh, 1, pagesMaterial, _matrixBatch, count, null,
+                    UnityEngine.Rendering.ShadowCastingMode.On,
+                    receiveShadows: true, layer: gameObject.layer);
         }
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
 
-    /// Повністю перебудовує дані рендерингу зі списку ShelfBookEntry.
-    /// Викликається Shelf після кожної зміни (PlaceBook, TakeBookAt, завантаження).
     public void RebuildFromEntries(List<ShelfBookEntry> entries, Transform startPoint, Vector3 bookRotation)
     {
         _matrices.Clear();
         _colors.Clear();
 
-        if (entries == null || startPoint == null)
-            return;
+        if (entries == null || startPoint == null) return;
+
+        // Нормуємо розмір меша один раз — щоб scale в матриці = реальні метри
+        // Якщо bookMesh.bounds.size = (0.1, 0.3, 0.05), то нормалізуючий коефіцієнт
+        // компенсує це і scale стає в реальних одиницях
+        Vector3 meshBounds = bookMesh != null && bookMesh.bounds.size != Vector3.zero
+            ? bookMesh.bounds.size
+            : Vector3.one;
 
         foreach (var entry in entries)
         {
-            // Перетворюємо локальну позицію відносно startPoint у світову матрицю
+            // Колір з палітри по colorIndex
+            Color c = GetColor(entry.colorIndex);
+            _colors.Add(new Vector4(c.r, c.g, c.b, c.a));
+
+            // Якщо є renderMatrix з реального GO — використовуємо її напряму.
+            // Вона вже містить правильний transform включно з ротацією меша (-90° X)
+            // і масштабом батьківського prefab (Book001 scale 0.8 тощо).
+            if (entry.renderMatrix != Matrix4x4.zero)
+            {
+                _matrices.Add(entry.renderMatrix);
+                continue;
+            }
+
+            // Fallback — будуємо матрицю вручну (при завантаженні збереження
+            // поки GO ще не заспавнений)
             Vector3    worldPos = startPoint.TransformPoint(entry.localPosition);
             Quaternion worldRot = startPoint.rotation
                                   * Quaternion.Euler(bookRotation.x + entry.tilt,
-                                                     bookRotation.y,
-                                                     bookRotation.z);
-            // Масштаб: товщина по X (startPoint.right), висота по Y фіксована з prefab
-            Vector3 scale = new Vector3(entry.thickness, entry.height, entry.thickness * 3f);
-
+                                                     bookRotation.y, bookRotation.z)
+                                  * _meshRotationCorrection;
+            Vector3 scale = new Vector3(
+                entry.thickness          / meshBounds.x,
+                (entry.thickness * 2.5f) / meshBounds.y,
+                entry.height             / meshBounds.z
+            );
             _matrices.Add(Matrix4x4.TRS(worldPos, worldRot, scale));
-            _colors.Add(entry.coverColor);
         }
 
-        // Розширити кеш якщо книг стало більше
+        // Розширити батч якщо треба
         if (_matrices.Count > _matrixBatch.Length)
         {
-            int newSize = Mathf.NextPowerOfTwo(_matrices.Count);
-            _matrixBatch = new Matrix4x4[newSize];
-            _colorBatch  = new Vector4[newSize];
+            int n = Mathf.NextPowerOfTwo(_matrices.Count);
+            _matrixBatch = new Matrix4x4[n];
+            _colorBatch  = new Vector4[n];
         }
-
-        _isDirty = false;
     }
 
-    /// Вмикає або вимикає рендеринг (використовується CabinetCullingSystem)
-    public void SetEnabled(bool active)
-    {
-        enabled = active;
-    }
-
-    /// Кількість книг що рендеряться зараз
+    public void SetEnabled(bool active) => enabled = active;
     public int RenderedCount => _matrices.Count;
 
-    // ── Gizmos ───────────────────────────────────────────────────────────────
     private void OnDrawGizmosSelected()
     {
         if (!showGizmos || _matrices.Count == 0) return;
-
         Gizmos.color = new Color(0f, 1f, 0.5f, 0.3f);
         foreach (var m in _matrices)
             Gizmos.DrawWireCube(m.GetColumn(3), new Vector3(0.03f, 0.24f, 0.03f));

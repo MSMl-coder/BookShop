@@ -1,28 +1,30 @@
 // Assets/Scripts/World/Shelf/ShelfBookEntry.cs
-// НОВИЙ ФАЙЛ: чиста структура даних — замінює роль BookWorldItem як носія даних.
-// Жодного MonoBehaviour, жодного GameObject. Лише дані для рендерингу та збереження.
 using UnityEngine;
 
 [System.Serializable]
 public struct ShelfBookEntry
 {
-    // ── Ідентифікація ────────────────────────────────────────
-    public string instanceID;   // GUID екземпляру книги (BookInstance.instanceID)
-    public string templateID;   // ID шаблону для BookDatabase.GetBook()
+    // ── Ідентифікація ─────────────────────────────────────────
+    public string instanceID;
+    public string templateID;
 
-    // ── Фізичні параметри (pre-calculated при PlaceBook) ─────
-    public float  thickness;    // товщина в локальних одиницях startPoint
-    public float  height;       // висота для bottom-align
-    public float  tilt;         // випадковий нахил (генерується один раз)
+    // ── Фізичні параметри ─────────────────────────────────────
+    public float thickness;     // товщина в world units
+    public float height;        // висота в world units
+    public float tilt;          // випадковий нахил (генерується один раз при PlaceBook)
 
-    // ── Рендеринг ────────────────────────────────────────────
-    public Color  coverColor;   // колір для GPU instancing (_BaseColor)
-    public int    prefabVariant; // індекс варіанту prefab (rarity/size)
+    // ── Рендеринг ─────────────────────────────────────────────
+    public int colorIndex;      // 0–15: індекс рядка в вертикальному Color Atlas
+    public int prefabVariant;   // індекс варіанту prefab (для Ghost-on-Demand)
 
-    // ── Layout (перераховується в RebuildLayout) ──────────────
-    public Vector3 localPosition; // позиція відносно startPoint
+    // ── Layout ────────────────────────────────────────────────
+    public Vector3  localPosition; // позиція відносно startPoint (pre-calculated)
 
-    // ── Стан ─────────────────────────────────────────────────
-    public bool   isReserved;   // NPC зарезервував цю книгу
-    public string reservedByID; // ID NPC що зарезервував (порожній якщо вільна)
+    // Матриця для Instanced Renderer — береться з реального GO при спавні.
+    // Містить правильний world transform з ротацією меша і масштабом prefab.
+    public Matrix4x4 renderMatrix;
+
+    // ── Стан ──────────────────────────────────────────────────
+    public bool   isReserved;
+    public string reservedByID;
 }

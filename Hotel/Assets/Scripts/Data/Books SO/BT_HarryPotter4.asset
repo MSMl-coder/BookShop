@@ -19,8 +19,9 @@ MonoBehaviour:
   rarity: 3
   writingYear: 2024
   volumeNumber: 1
-  containerPrefab: {fileID: 7792499953618239303, guid: b9d0e8aec5e234a80b2be0e9b465a8e3, type: 3}
+  containerPrefab: {fileID: 7792499953618239303, guid: bb6303b9d21d3460cbe2066910ba6fa6, type: 3}
   icon: {fileID: 21300000, guid: 2806541bfbf7344379e2680c0ccb56d1, type: 3}
-  size: 0
+  bookSize: 1
+  colorIndex: 4
   buyPrice: 12
   sellPrice: 18

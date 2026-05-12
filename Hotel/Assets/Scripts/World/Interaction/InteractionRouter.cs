@@ -106,17 +106,45 @@ public class InteractionRouter : MonoBehaviour
             }
         }
 
-        // Пріоритет 1 — шукаємо BookWorldItem серед ВСІХ hits
-        // (книга може бути за collider-ом шафи/полиці)
+        // Пріоритет 1А — BookWorldItem через collider (якщо книга в interactionLayer)
         foreach (var hit in hits)
         {
             var bookItem = hit.collider.GetComponentInParent<BookWorldItem>();
             if (bookItem != null)
             {
-                Debug.Log($"[InteractionRouter] Book hit: {hit.collider.name} | State: {state}");
+                Debug.Log($"[InteractionRouter] Book hit (collider): {hit.collider.name} | State: {state}");
                 ContextMenuUI.Instance?.ShowForBook(bookItem, hit.point, state);
                 return;
             }
+        }
+
+        // Пріоритет 1Б — книга через математику полиці (Shelf.GetBookIndexAtPoint)
+        // Використовується коли Book000 collider не в interactionLayer.
+        // Shelf вже знайдений Raycast — використовуємо hit.point для точного визначення книги.
+        foreach (var hit in hits)
+        {
+            var shelf = hit.collider.GetComponentInParent<Shelf>();
+            if (shelf == null) continue;
+
+            int bookIdx = shelf.GetBookIndexAtPoint(hit.point);
+            if (bookIdx < 0) continue;
+
+            // Знайшли книгу — матеріалізуємо для взаємодії (Ghost-on-Demand)
+            ShelfBookEntry bookData = shelf.GetBookData(bookIdx);
+            var template = BookDatabase.Instance?.GetBook(bookData.templateID);
+            if (template?.containerPrefab == null)
+            {
+                Debug.Log($"[InteractionRouter] Book math hit idx={bookIdx} але prefab null");
+                continue;
+            }
+
+            // Отримуємо або матеріалізуємо BookWorldItem
+            BookWorldItem worldItem = shelf.GetOrMaterializeBookForInteraction(bookIdx, template.containerPrefab);
+            if (worldItem == null) continue;
+
+            Debug.Log($"[InteractionRouter] Book hit (math): shelf={shelf.name} idx={bookIdx} | State: {state}");
+            ContextMenuUI.Instance?.ShowForBook(worldItem, hit.point, state);
+            return;
         }
 
         // Пріоритет 2 — NPC (тільки WorkDay)

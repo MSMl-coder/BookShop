@@ -64,6 +64,14 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+    - target: {fileID: -7511558181221131132, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
     - target: {fileID: 919132149155446097, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
       propertyPath: m_Name
       value: Book000_base
@@ -130,8 +138,8 @@ MonoBehaviour:
     instanceID: 
   parentShelf: {fileID: 0}
   savedTilt: 0
-  reservationMarkerPrefab: {fileID: 0}
-  markerOffset: {x: 0, y: 0.12, z: 0}
+  bookIndex: -1
+  isBeingInteracted: 0
 --- !u!114 &3318123230731966149
 MonoBehaviour:
   m_ObjectHideFlags: 0

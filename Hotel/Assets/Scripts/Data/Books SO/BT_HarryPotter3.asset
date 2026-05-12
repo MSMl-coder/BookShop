@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8acd7bd923df499ca6a5693e47a673f, type: 3}
   m_Name: BT_HarryPotter3
   m_EditorClassIdentifier: Assembly-CSharp::BookTemplate
-  bookID: 202401201024
+  bookID: 202401201653
   title: BT_HarryPotter3
   author: JKR
   genre: 1
@@ -21,7 +21,7 @@ MonoBehaviour:
   volumeNumber: 1
   containerPrefab: {fileID: 7792499953618239303, guid: 1b36dc44611af42b58ab519bc9265b9d, type: 3}
   icon: {fileID: 21300000, guid: 2806541bfbf7344379e2680c0ccb56d1, type: 3}
-  thickness: 0.05
-  height: 0.24
+  bookSize: 1
+  colorIndex: 3
   buyPrice: 12
   sellPrice: 17

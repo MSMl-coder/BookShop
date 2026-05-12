@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 1016570112679884827}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.2760001, y: 0.0074, z: -0.0009999238}
+  m_LocalPosition: {x: -0.2760001, y: 0.09099992, z: -0.0009999238}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -116,7 +116,7 @@ Transform:
   m_GameObject: {fileID: 1472910286825071198}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.295, y: 0.008, z: -0.057}
+  m_LocalPosition: {x: -0.295, y: 0.09159993, z: -0.057}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -189,6 +189,7 @@ GameObject:
   - component: {fileID: 4488902326176558445}
   - component: {fileID: 2627076772795554512}
   - component: {fileID: 1208170815435622724}
+  - component: {fileID: 6601626624567623741}
   m_Layer: 9
   m_Name: Shelf_01
   m_TagString: Untagged
@@ -253,7 +254,26 @@ MonoBehaviour:
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 1
+  _enableInstancing: 0
+  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  bookLayer: 0
+--- !u!114 &6601626624567623741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2092979782428276734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
+  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
+  meshRotationEuler: {x: 0, y: 0, z: 0}
+  showGizmos: 1
 --- !u!1 &2824776042596458914
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,7 +301,7 @@ Transform:
   m_GameObject: {fileID: 2824776042596458914}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.2760001, y: 0.0074, z: -0.0009999238}
+  m_LocalPosition: {x: -0.2760001, y: 0.09099992, z: -0.0009999238}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -354,6 +374,7 @@ GameObject:
   - component: {fileID: 7587216328286129134}
   - component: {fileID: 80370345112284817}
   - component: {fileID: 2213260958614055838}
+  - component: {fileID: 944124927169356043}
   m_Layer: 9
   m_Name: Shelf_03
   m_TagString: Untagged
@@ -418,7 +439,26 @@ MonoBehaviour:
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 1
+  _enableInstancing: 0
+  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  bookLayer: 0
+--- !u!114 &944124927169356043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3309485089567004709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
+  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
+  meshRotationEuler: {x: 0, y: 0, z: 0}
+  showGizmos: 1
 --- !u!1 &4077622065862479675
 GameObject:
   m_ObjectHideFlags: 0
@@ -446,7 +486,7 @@ Transform:
   m_GameObject: {fileID: 4077622065862479675}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.2760001, y: 0.0074, z: -0.0009999238}
+  m_LocalPosition: {x: -0.2760001, y: 0.09099992, z: -0.0009999238}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -578,6 +618,7 @@ GameObject:
   - component: {fileID: 7327043524222785252}
   - component: {fileID: 5481353696368757249}
   - component: {fileID: 3095031447178143295}
+  - component: {fileID: 1141241530795783710}
   m_Layer: 9
   m_Name: Shelf_02
   m_TagString: Untagged
@@ -642,7 +683,26 @@ MonoBehaviour:
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 1
+  _enableInstancing: 0
+  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  bookLayer: 0
+--- !u!114 &1141241530795783710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6994024427677144363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
+  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
+  meshRotationEuler: {x: 0, y: 0, z: 0}
+  showGizmos: 1
 --- !u!1 &7337486132078831180
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,6 +714,7 @@ GameObject:
   - component: {fileID: 2466843673760145587}
   - component: {fileID: 2354101405663439646}
   - component: {fileID: 8970351980902076829}
+  - component: {fileID: 4150368882928301295}
   m_Layer: 9
   m_Name: Shelf_06
   m_TagString: Untagged
@@ -719,6 +780,25 @@ MonoBehaviour:
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   _enableInstancing: 1
+  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  bookLayer: 0
+--- !u!114 &4150368882928301295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7337486132078831180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
+  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
+  meshRotationEuler: {x: 0, y: -180, z: 180}
+  showGizmos: 1
 --- !u!1 &7461461496185991650
 GameObject:
   m_ObjectHideFlags: 0
@@ -730,6 +810,7 @@ GameObject:
   - component: {fileID: 8341181903522688673}
   - component: {fileID: 7644839616166475041}
   - component: {fileID: 826115310369637206}
+  - component: {fileID: 1123833799331508031}
   m_Layer: 9
   m_Name: Shelf_05
   m_TagString: Untagged
@@ -795,6 +876,25 @@ MonoBehaviour:
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   _enableInstancing: 1
+  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  bookLayer: 0
+--- !u!114 &1123833799331508031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7461461496185991650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
+  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
+  meshRotationEuler: {x: 0, y: 0, z: 0}
+  showGizmos: 1
 --- !u!1 &7786597280050946986
 GameObject:
   m_ObjectHideFlags: 0
@@ -806,6 +906,7 @@ GameObject:
   - component: {fileID: 3520096820941986693}
   - component: {fileID: 2000352869442729591}
   - component: {fileID: 6853464505190792061}
+  - component: {fileID: 7793205153212976505}
   m_Layer: 9
   m_Name: Shelf_04
   m_TagString: Untagged
@@ -871,6 +972,25 @@ MonoBehaviour:
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   _enableInstancing: 1
+  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  bookLayer: 0
+--- !u!114 &7793205153212976505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7786597280050946986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
+  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
+  meshRotationEuler: {x: 0, y: 0, z: 0}
+  showGizmos: 1
 --- !u!1 &8693502380842732427
 GameObject:
   m_ObjectHideFlags: 0
@@ -898,7 +1018,7 @@ Transform:
   m_GameObject: {fileID: 8693502380842732427}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.2760001, y: 0.0074, z: -0.0009999238}
+  m_LocalPosition: {x: -0.2760001, y: 0.091, z: -0.0009999238}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -987,7 +1107,7 @@ Transform:
   m_GameObject: {fileID: 8997514088309730888}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.2760001, y: 0.0074, z: -0.0009999238}
+  m_LocalPosition: {x: -0.2760001, y: 0.09099992, z: -0.0009999238}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []

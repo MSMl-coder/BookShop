@@ -62,8 +62,8 @@ public class Shelf : MonoBehaviour
             enabled = false;
             return;
         }
-        _renderer = GetComponentInParent<BookInstancedRenderer>()
-                 ?? GetComponent<BookInstancedRenderer>();
+        // Renderer на самій Shelf (не на Cabinet — кожна Shelf рендерить свої книги)
+        _renderer = GetComponent<BookInstancedRenderer>();
     }
 
     // ── CanFitBook ────────────────────────────────────────────────────────────
@@ -130,7 +130,7 @@ public class Shelf : MonoBehaviour
             thickness     = GetPrefabThickness(prefab),
             height        = GetPrefabHeight(prefab, template),
             tilt          = Random.Range(-maxRandomTilt, maxRandomTilt),
-            coverColor    = GetCoverColor(template),
+            colorIndex    = GetColorIndex(template),
             prefabVariant = 0,
             isReserved    = false,
             reservedByID  = string.Empty,
@@ -138,11 +138,18 @@ public class Shelf : MonoBehaviour
 
         _books.Add(entry);
 
-        // Spawning real GO — works with and without Instanced Renderer
+        // КРИТИЧНО: RebuildLayout ДО spawn — щоб entry.localPosition було розраховано
+        RebuildLayout();
+        PushToRenderer();
+
+        // Беремо оновлений entry з _books (після RebuildLayout localPosition вже правильний)
+        ShelfBookEntry placedEntry = _books[_books.Count - 1];
+        int            placedIndex = _books.Count - 1;
+
         if (gameObject.activeInHierarchy)
-            StartCoroutine(SpawnBookGO(entry, _books.Count - 1, prefab, instance));
+            StartCoroutine(SpawnBookGO(placedEntry, placedIndex, prefab, instance));
         else
-            SpawnBookGOImmediate(entry, _books.Count - 1, prefab, instance);
+            SpawnBookGOImmediate(placedEntry, placedIndex, prefab, instance);
     }
 
     public BookInstance TakeLastBook() =>
@@ -204,20 +211,60 @@ public class Shelf : MonoBehaviour
         if (_materializedBook != null) DematerializeBook(_materializedBook);
 
         ShelfBookEntry entry  = _books[index];
-        GameObject     bookGO = Instantiate(prefab, startPoint);
-        ApplyBookTransform(bookGO.transform, entry);
 
-        var worldItem = bookGO.AddComponent<BookWorldItem>();
-        worldItem.instance          = BuildInstance(entry);
-        worldItem.parentShelf       = this;
-        worldItem.bookIndex         = index;
-        worldItem.savedTilt         = entry.tilt;
-        worldItem.isBeingInteracted = true;
+        // Спавнимо як дочірній Shelf (не startPoint)
+        GameObject bookGO = Instantiate(prefab, transform);
+        bookGO.transform.position = startPoint.TransformPoint(entry.localPosition);
+        bookGO.transform.rotation = startPoint.rotation
+                                    * Quaternion.Euler(bookRotation.x + entry.tilt,
+                                                       bookRotation.y, bookRotation.z);
 
-        _materializedBook    = worldItem;
-        _materializedBookRef = worldItem;  // public ref для CabinetCullingSystem
+        // Застосовуємо матеріал і колір — той самий що SetupBookWorldItem
+        var wi = bookGO.AddComponent<BookWorldItem>();
+        wi.instance          = BuildInstance(entry);
+        wi.parentShelf       = this;
+        wi.bookIndex         = index;
+        wi.savedTilt         = entry.tilt;
+        wi.isBeingInteracted = true;
+
+        // ── Матеріал і колір (як у SetupBookWorldItem) ───────────────────────
+        Material mat = bookMaterial;
+        if (mat == null && _renderer != null) mat = _renderer.BookMaterial;
+
+        Color bookColor = BookInstancedRenderer.GetColor(entry.colorIndex);
+        var   mpb       = new MaterialPropertyBlock();
+        mpb.SetColor("_BaseColor", bookColor);
+
+        foreach (var r in bookGO.GetComponentsInChildren<Renderer>(true))
+        {
+            if (mat != null) r.material = mat;
+            r.SetPropertyBlock(mpb);
+        }
+
+        _materializedBook    = wi;
+        _materializedBookRef = wi;
 
         StartCoroutine(AnimateHoverEntry(bookGO));
+    }
+
+    /// Повертає BookWorldItem для книги за індексом.
+    /// Якщо GO вже є в _bookGOs — повертає компонент з нього.
+    /// Якщо ні — матеріалізує через MaterializeBookForInteraction.
+    public BookWorldItem GetOrMaterializeBookForInteraction(int index, GameObject prefab)
+    {
+        if (index < 0 || index >= _books.Count) return null;
+
+        // Перевіряємо чи вже є GO для цієї книги
+        if (index < _bookGOs.Count && _bookGOs[index] != null)
+        {
+            var existing = _bookGOs[index].GetComponent<BookWorldItem>()
+                        ?? _bookGOs[index].GetComponentInChildren<BookWorldItem>();
+            if (existing != null) return existing;
+        }
+
+        // GO немає (Instancing режим або ще не спавнився) — матеріалізуємо
+        MaterializeBookForInteraction(index, prefab);
+        return _materializedBookRef;
     }
 
     public void DematerializeBook(BookWorldItem item)
@@ -319,11 +366,25 @@ public class Shelf : MonoBehaviour
                 instanceID = iid, templateID = tid,
                 thickness  = thick, height   = h,
                 tilt       = Random.Range(-maxRandomTilt, maxRandomTilt),
-                coverColor = GetCoverColor(t),
+                colorIndex = GetColorIndex(t),
             });
         }
+        // RebuildLayout розраховує localPosition для кожної книги
         RebuildLayout();
         PushToRenderer();
+
+        // Спавнимо GO після того як localPosition вже правильний
+        for (int i = 0; i < _books.Count; i++)
+        {
+            var tmpl = BookDatabase.Instance?.GetBook(_books[i].templateID);
+            if (tmpl?.containerPrefab == null) { _bookGOs.Add(null); continue; }
+            SpawnBookGOImmediate(_books[i], i, tmpl.containerPrefab, BuildInstance(_books[i]));
+
+            // При Instancing вимикаємо Renderer на GO
+            if (UseInstancing && i < _bookGOs.Count && _bookGOs[i] != null)
+                foreach (var r in _bookGOs[i].GetComponentsInChildren<Renderer>())
+                    r.enabled = false;
+        }
     }
 
     // ── Layout / Renderer ─────────────────────────────────────────────────────
@@ -331,14 +392,27 @@ public class Shelf : MonoBehaviour
     private void RebuildLayout()
     {
         if (startPoint == null) return;
+
+        // currentX накопичується у world units (метри)
+        // localPosition = позиція у LOCAL просторі startPoint
+        // startPoint.TransformPoint(localPosition) конвертує в world — без додаткового ділення
         float currentX = 0f;
+
         for (int i = 0; i < _books.Count; i++)
         {
-            var e = _books[i];
+            var   e      = _books[i];
+            float scaleX = Mathf.Max(startPoint.lossyScale.x, 0.001f);
+            float scaleY = Mathf.Max(startPoint.lossyScale.y, 0.001f);
+
+            // localPosition в просторі startPoint:
+            // X — вздовж полиці: currentX + пів-товщини, нормовано під localScale
+            // Y — вирівнювання по нижньому краю полиці
+            // Z — нуль (книга стоїть на площині startPoint)
             e.localPosition = new Vector3(
-                (currentX + e.thickness * 0.5f) / Mathf.Max(startPoint.lossyScale.x, 0.001f),
-                -(e.height * 0.5f)              / Mathf.Max(startPoint.lossyScale.y, 0.001f),
-                0f);
+                (currentX + e.thickness * 0.5f) / scaleX,
+                0f,  // Y=0: startPoint вже на поверхні полиці де має стояти книга
+                0f
+            );
             _books[i] = e;
             currentX += e.thickness + spacingOffset;
         }
@@ -420,20 +494,12 @@ public class Shelf : MonoBehaviour
         return defaultBookHeight;
     }
 
-    private static Color GetCoverColor(BookTemplate t)
+    /// Повертає colorIndex з BookTemplate.
+    /// Якщо template null — fallback по жанру (0-7).
+    private static int GetColorIndex(BookTemplate t)
     {
-        if (t == null) return new Color(0.5f, 0.35f, 0.2f);
-        return t.genre switch
-        {
-            BookGenre.Fantasy   => new Color(0.31f, 0.33f, 0.75f),
-            BookGenre.Horror    => new Color(0.55f, 0.10f, 0.10f),
-            BookGenre.Mystery   => new Color(0.25f, 0.25f, 0.35f),
-            BookGenre.Classic   => new Color(0.47f, 0.28f, 0.10f),
-            BookGenre.SciFi     => new Color(0.10f, 0.40f, 0.55f),
-            BookGenre.Biography => new Color(0.30f, 0.50f, 0.25f),
-            BookGenre.Academic  => new Color(0.55f, 0.45f, 0.15f),
-            _                   => new Color(0.5f, 0.35f, 0.2f),
-        };
+        if (t != null) return t.colorIndex;
+        return 0;
     }
 
     private static BookInstance BuildInstance(in ShelfBookEntry e)
@@ -448,11 +514,20 @@ public class Shelf : MonoBehaviour
     /// Миттєво створює GO без анімації (при завантаженні або коли GO неактивний)
     private void SpawnBookGOImmediate(ShelfBookEntry entry, int index, GameObject prefab, BookInstance instance)
     {
-        GameObject bookGO = Instantiate(prefab, startPoint);
-        ApplyBookTransform(bookGO.transform, entry);
+        // Спавнимо як дочірній об'єкт самої Shelf (не startPoint щоб уникнути
+        // спотворення масштабу від non-uniform lossyScale startPoint).
+        // localPosition вже розрахований відносно startPoint у RebuildLayout.
+        GameObject bookGO = Instantiate(prefab, transform);
+
+        // Виставляємо world-позицію через startPoint
+        bookGO.transform.position = startPoint.TransformPoint(entry.localPosition);
+        bookGO.transform.rotation = startPoint.rotation
+                                    * Quaternion.Euler(bookRotation.x + entry.tilt,
+                                                       bookRotation.y, bookRotation.z);
+        // localScale — власний масштаб префаба (не чіпаємо)
+
         SetupBookWorldItem(bookGO, entry, instance, index);
 
-        // Синхронізуємо список GO з _books
         while (_bookGOs.Count <= index) _bookGOs.Add(null);
         if (_bookGOs[index] != null) Destroy(_bookGOs[index]);
         _bookGOs[index] = bookGO;
@@ -461,8 +536,12 @@ public class Shelf : MonoBehaviour
     /// Створює GO з анімацією появи (виростає знизу вгору)
     private IEnumerator SpawnBookGO(ShelfBookEntry entry, int index, GameObject prefab, BookInstance instance)
     {
-        GameObject bookGO = Instantiate(prefab, startPoint);
-        ApplyBookTransform(bookGO.transform, entry);
+        // Спавнимо як дочірній Shelf (не startPoint — уникаємо non-uniform scale)
+        GameObject bookGO = Instantiate(prefab, transform);
+        bookGO.transform.position = startPoint.TransformPoint(entry.localPosition);
+        bookGO.transform.rotation = startPoint.rotation
+                                    * Quaternion.Euler(bookRotation.x + entry.tilt,
+                                                       bookRotation.y, bookRotation.z);
         SetupBookWorldItem(bookGO, entry, instance, index);
 
         // Синхронізуємо список GO
@@ -491,11 +570,23 @@ public class Shelf : MonoBehaviour
         // Тільки якщо Instanced Renderer активний — переходимо на GPU рендеринг
         if (UseInstancing && bookGO != null)
         {
+            // Вимикаємо рендери перед знищенням щоб уникнути flickering
+            foreach (var r in bookGO.GetComponentsInChildren<Renderer>())
+                r.enabled = false;
             _bookGOs[index] = null;
             Destroy(bookGO);
             PushToRenderer();
         }
     }
+
+    [Header("Book Material (for GO mode)")]
+    [Tooltip("Матеріал з SG_BookSpine шейдером — застосовується до GO в режимі без Instancing." +
+             "Якщо null — використовується матеріал з BookInstancedRenderer (якщо є).")]
+    [SerializeField] private Material bookMaterial;
+
+    [Header("Interaction")]
+    [Tooltip("Layer для книг — має бути в interactionLayer маску InteractionRouter")]
+    [SerializeField] private int bookLayer = 0; // виставити в Inspector = той самий layer що interactionLayer
 
     private void SetupBookWorldItem(GameObject go, in ShelfBookEntry entry, BookInstance instance, int index)
     {
@@ -505,16 +596,65 @@ public class Shelf : MonoBehaviour
         wi.parentShelf = this;
         wi.bookIndex   = index;
         wi.savedTilt   = entry.tilt;
+
+        // Зберігаємо world matrix з реального GO — для Instanced Renderer
+        // Читаємо з MeshRenderer або MeshFilter дочірнього об'єкта (Book000)
+        // щоб отримати правильну матрицю з урахуванням X=-90° rotation меша
+        var meshRenderer = go.GetComponentInChildren<MeshRenderer>(true);
+        if (meshRenderer != null && index < _books.Count)
+        {
+            var e = _books[index];
+            e.renderMatrix = meshRenderer.localToWorldMatrix;
+            _books[index]  = e;
+        }
+
+        SetLayerRecursive(go, bookLayer);
+
+        // ── Матеріал і колір ─────────────────────────────────────────────────
+        Material mat = bookMaterial;
+        if (mat == null && _renderer != null)
+            mat = _renderer.BookMaterial;
+
+        if (mat == null)
+        {
+            Debug.LogWarning($"[Shelf] {name}: Book Material не призначений! " +
+                             "Вистав Mat_BookSpine у поле 'Book Material' на Shelf або Book Instanced Renderer.");
+            // Застосовуємо колір навіть без кастомного матеріалу через MPB
+        }
+
+        // Колір з палітри — той самий що використовує BookInstancedRenderer
+        Color bookColor = BookInstancedRenderer.GetColor(entry.colorIndex);
+        var   mpb       = new MaterialPropertyBlock();
+        mpb.SetColor("_BaseColor", bookColor);
+
+        foreach (var r in go.GetComponentsInChildren<Renderer>(true))
+        {
+            if (mat != null) r.material = mat;
+            r.SetPropertyBlock(mpb);
+        }
     }
 
-    /// Перераховує позиції існуючих GO після видалення книги
+    private static void SetLayerRecursive(GameObject go, int layer)
+    {
+        if (layer == 0) return; // 0 = Default — не перевизначаємо якщо не налаштовано
+        go.layer = layer;
+        foreach (Transform child in go.transform)
+            SetLayerRecursive(child.gameObject, layer);
+    }
+
+    /// Перераховує позиції існуючих GO після видалення книги.
+    /// GO в world space — оновлюємо position/rotation безпосередньо.
     private void RefreshGOPositions()
     {
-        if (_bookGOs.Count == 0) return;
-        for (int i = 0; i < Mathf.Min(_bookGOs.Count, _books.Count); i++)
+        if (_bookGOs.Count == 0 || startPoint == null) return;
+        int count = Mathf.Min(_bookGOs.Count, _books.Count);
+        for (int i = 0; i < count; i++)
         {
             if (_bookGOs[i] == null) continue;
-            ApplyBookTransform(_bookGOs[i].transform, _books[i]);
+            var e = _books[i];
+            _bookGOs[i].transform.position = startPoint.TransformPoint(e.localPosition);
+            _bookGOs[i].transform.rotation = startPoint.rotation
+                * Quaternion.Euler(bookRotation.x + e.tilt, bookRotation.y, bookRotation.z);
         }
     }
 

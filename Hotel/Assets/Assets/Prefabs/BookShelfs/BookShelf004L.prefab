@@ -364,9 +364,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
       insertIndex: -1
       addedObject: {fileID: -4697795194817492855}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 514030638114670380}
   m_SourcePrefab: {fileID: 100100000, guid: bae5018fce8474b779c20b3bcb0d0026, type: 3}
 --- !u!4 &5036700881411442841 stripped
 Transform:
@@ -451,18 +448,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutlineTarget
   outlineMaterial: {fileID: 2100000, guid: 509d86b2a618c409ba8d9209023f7265, type: 2}
---- !u!114 &514030638114670380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5669509012263883299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
-  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
-  bookMaterial: {fileID: 2100000, guid: 829da319d927f4f0ba16763e368fa863, type: 2}
-  showGizmos: 1

@@ -26,6 +26,9 @@ public class BookTemplate : ScriptableObject
              "Large = великоформатна (>0.26m)")]
     public BookSize bookSize = BookSize.Medium;
 
+    [Range(0,15)]
+    public int colorIndex = 0;  // індекс в Color Atlas (0–15)
+
     [Header("Economics")]
     public float buyPrice;
     public float sellPrice;
