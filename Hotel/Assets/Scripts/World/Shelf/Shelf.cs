@@ -191,18 +191,22 @@ public class Shelf : MonoBehaviour
     {
         if (startPoint == null || _books.Count == 0) return -1;
 
-        Vector3 localPoint = startPoint.InverseTransformPoint(worldPoint);
-        float   clickX     = localPoint.x * startPoint.lossyScale.x;
+        // Проектуємо hitPoint на вісь полиці (world right напрямок startPoint).
+        // Точніше ніж InverseTransformPoint при non-uniform scale батька.
+        Vector3 toPoint = worldPoint - startPoint.position;
+        float   clickX  = Vector3.Dot(toPoint, startPoint.right); // world units вздовж полиці
 
         float cursor = 0f;
         for (int i = 0; i < _books.Count; i++)
         {
             float right = cursor + _books[i].thickness;
-            if (clickX >= cursor && clickX <= right) return i;
+            // +/- 5мм допуск для зручності вибору
+            if (clickX >= cursor - 0.005f && clickX <= right + 0.005f) return i;
             cursor = right + spacingOffset;
         }
         return -1;
     }
+     
 
     public void MaterializeBookForInteraction(int index, GameObject prefab)
     {
@@ -275,10 +279,18 @@ public class Shelf : MonoBehaviour
         if (item.gameObject != null) Destroy(item.gameObject);
     }
 
-    public ShelfBookEntry           GetBookData(int index) =>
+    public ShelfBookEntry GetBookData(int index) =>
         (index >= 0 && index < _books.Count) ? _books[index] : default;
 
     public IReadOnlyList<ShelfBookEntry> GetAllBookData() => _books;
+
+    /// Повертає GO книги за індексом (для hover анімації в ShelfInteractionHandler).
+    /// null якщо Instancing ON і GO не існує.
+    public GameObject GetBookGO(int index)
+    {
+        if (index < 0 || index >= _bookGOs.Count) return null;
+        return _bookGOs[index];
+    }
 
     // ── Розміри ───────────────────────────────────────────────────────────────
 
@@ -549,33 +561,28 @@ public class Shelf : MonoBehaviour
         if (_bookGOs[index] != null) Destroy(_bookGOs[index]);
         _bookGOs[index] = bookGO;
 
-        // Якщо є Instanced Renderer — знищуємо GO після анімації
-        // Якщо ні — GO залишається як основний рендер
-        // Зберігаємо оригінальний масштаб префаба (не чіпаємо після ApplyBookTransform)
-        Vector3 targetScale = bookGO.transform.localScale;
-        Vector3 startScale  = new Vector3(targetScale.x, 0f, targetScale.z);
-        bookGO.transform.localScale = startScale;
+        // Ховаємо GO під час анімації — він може стояти боком через внутрішню
+        // ротацію меша (Book000 X=-90°). Показуємо тільки після завершення анімації.
+        var renderers = bookGO.GetComponentsInChildren<Renderer>(true);
+        foreach (var r in renderers) r.enabled = false;
 
-        float t = 0f;
-        while (t < 1f)
-        {
-            t += Time.deltaTime * animationSpeed;
-            if (bookGO == null) yield break;
-            bookGO.transform.localScale = Vector3.Lerp(startScale, targetScale, t);
-            yield return null;
-        }
-        if (bookGO != null)
-            bookGO.transform.localScale = targetScale;
+        // Анімація масштабу (невидима — просто затримка перед показом)
+        yield return new WaitForSeconds(1f / Mathf.Max(animationSpeed, 0.1f));
 
-        // Тільки якщо Instanced Renderer активний — переходимо на GPU рендеринг
-        if (UseInstancing && bookGO != null)
+        if (bookGO == null) yield break;
+
+        if (UseInstancing)
         {
-            // Вимикаємо рендери перед знищенням щоб уникнути flickering
-            foreach (var r in bookGO.GetComponentsInChildren<Renderer>())
-                r.enabled = false;
+            // Instancing — знищуємо GO, GPU рендерить
             _bookGOs[index] = null;
             Destroy(bookGO);
             PushToRenderer();
+        }
+        else
+        {
+            // GO режим — показуємо після анімації (вже стоїть правильно)
+            foreach (var r in renderers)
+                if (r != null) r.enabled = true;
         }
     }
 

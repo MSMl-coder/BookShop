@@ -48,11 +48,6 @@ public class BookInstancedRenderer : MonoBehaviour
     [Header("Mesh Correction")]
     [Tooltip("Компенсація повороту меша. Book000 має X=-90° в prefab → виправляємо тут." +
              "Якщо книги лежать — спробуй (90,0,0). Якщо стоять але розгорнуті — (90,0,90).")]
- 
-    [SerializeField] private Vector3 meshRotationEuler = new Vector3(90f, 90f, 0f);
-
-    private Quaternion _meshRotationCorrection;
-
     [Header("Debug")]
     [SerializeField] private bool showGizmos = false;
 
@@ -70,17 +65,7 @@ public class BookInstancedRenderer : MonoBehaviour
 
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
-    private void Awake()
-    {
-        _mpb = new MaterialPropertyBlock();
-        _meshRotationCorrection = Quaternion.Euler(meshRotationEuler);
-    }
-
-    private void OnValidate()
-    {
-        // Оновлюємо в Editor при зміні поля
-        _meshRotationCorrection = Quaternion.Euler(meshRotationEuler);
-    }
+    private void Awake() => _mpb = new MaterialPropertyBlock();
 
     private void Update()
     {
@@ -146,8 +131,7 @@ public class BookInstancedRenderer : MonoBehaviour
             Vector3    worldPos = startPoint.TransformPoint(entry.localPosition);
             Quaternion worldRot = startPoint.rotation
                                   * Quaternion.Euler(bookRotation.x + entry.tilt,
-                                                     bookRotation.y, bookRotation.z)
-                                  * _meshRotationCorrection;
+                                                     bookRotation.y, bookRotation.z);
             Vector3 scale = new Vector3(
                 entry.thickness          / meshBounds.x,
                 (entry.thickness * 2.5f) / meshBounds.y,
@@ -173,6 +157,7 @@ public class BookInstancedRenderer : MonoBehaviour
         if (!showGizmos || _matrices.Count == 0) return;
         Gizmos.color = new Color(0f, 1f, 0.5f, 0.3f);
         foreach (var m in _matrices)
-            Gizmos.DrawWireCube(m.GetColumn(3), new Vector3(0.03f, 0.24f, 0.03f));
+            // Просто точка де центр книги
+            Gizmos.DrawWireSphere(m.GetColumn(3), 0.02f);
     }
 }

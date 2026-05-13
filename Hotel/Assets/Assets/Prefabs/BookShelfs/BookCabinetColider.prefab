@@ -269,10 +269,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
-  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  bookMesh: {fileID: -66333826979096818, guid: 0523031058fcd48cba22742d388ac974, type: 3}
   coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
-  meshRotationEuler: {x: 0, y: 0, z: 0}
   showGizmos: 1
 --- !u!1 &2824776042596458914
 GameObject:
@@ -457,7 +456,6 @@ MonoBehaviour:
   bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
   coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
-  meshRotationEuler: {x: 0, y: 0, z: 0}
   showGizmos: 1
 --- !u!1 &4077622065862479675
 GameObject:
@@ -701,7 +699,6 @@ MonoBehaviour:
   bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
   coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
-  meshRotationEuler: {x: 0, y: 0, z: 0}
   showGizmos: 1
 --- !u!1 &7337486132078831180
 GameObject:
@@ -797,7 +794,6 @@ MonoBehaviour:
   bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
   coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
-  meshRotationEuler: {x: 0, y: -180, z: 180}
   showGizmos: 1
 --- !u!1 &7461461496185991650
 GameObject:
@@ -893,7 +889,6 @@ MonoBehaviour:
   bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
   coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
-  meshRotationEuler: {x: 0, y: 0, z: 0}
   showGizmos: 1
 --- !u!1 &7786597280050946986
 GameObject:
@@ -989,7 +984,6 @@ MonoBehaviour:
   bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
   coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
-  meshRotationEuler: {x: 0, y: 0, z: 0}
   showGizmos: 1
 --- !u!1 &8693502380842732427
 GameObject:

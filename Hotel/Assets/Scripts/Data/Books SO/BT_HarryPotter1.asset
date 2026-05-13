@@ -19,7 +19,7 @@ MonoBehaviour:
   rarity: 0
   writingYear: 2024
   volumeNumber: 1
-  containerPrefab: {fileID: 7792499953618239303, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
+  containerPrefab: {fileID: 7792499953618239303, guid: 1feff3b01adb64282ba5ee94fd28a0e3, type: 3}
   icon: {fileID: 21300000, guid: 2806541bfbf7344379e2680c0ccb56d1, type: 3}
   bookSize: 1
   colorIndex: 1

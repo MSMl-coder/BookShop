@@ -2283,15 +2283,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1435801518059458227, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: meshRotationEuler.x
-      value: 180
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1435801518059458227, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: meshRotationEuler.y
-      value: -180
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1435801518059458227, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: meshRotationEuler.z
-      value: 180
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5036700881411442841, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4708,37 +4708,6 @@ MonoBehaviour:
   cardsToDraw: 5
   maxPicksPerDay: 3
   booksPerPack: 3
---- !u!1 &916544940
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 916544941}
-  m_Layer: 0
-  m_Name: CabinetCullingSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &916544941
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 916544940}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1050338995}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &921353273 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2317472877637231247, guid: 29f712dff494344dfbdb42a23efa4c26, type: 3}
@@ -5237,8 +5206,6 @@ Transform:
   - {fileID: 1832033275}
   - {fileID: 1372819789}
   - {fileID: 961640013}
-  - {fileID: 1640674009}
-  - {fileID: 916544941}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1072845407 stripped
@@ -6775,6 +6742,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1372819789}
   - component: {fileID: 1372819790}
+  - component: {fileID: 1372819792}
+  - component: {fileID: 1372819791}
   m_Layer: 0
   m_Name: InteractionRouter
   m_TagString: Untagged
@@ -6814,6 +6783,40 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1050368
   maxDistance: 200
+--- !u!114 &1372819791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372819788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48dfbd794806c4bcc9b697b5c72f0a34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CabinetCullingSystem
+  mainCamera: {fileID: 330585545}
+  cullDistance: 20
+  updateInterval: 0.1
+--- !u!114 &1372819792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372819788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cffd7faa641934c2ab0e09aa6113efa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfInteractionHandler
+  mainCamera: {fileID: 330585545}
+  shelfLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  slideOutDistance: 0.06
+  slideSpeed: 12
+  interactDistance: 25
 --- !u!1 &1373559107 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2522554472540333542, guid: 29f712dff494344dfbdb42a23efa4c26, type: 3}
@@ -8384,37 +8387,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutlineTarget
   outlineMaterial: {fileID: 2100000, guid: 509d86b2a618c409ba8d9209023f7265, type: 2}
---- !u!1 &1640674008
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1640674009}
-  m_Layer: 0
-  m_Name: ShelfInteractionHandler
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1640674009
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1640674008}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1050338995}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1645226904
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11348,63 +11320,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutlineTarget
   outlineMaterial: {fileID: 2100000, guid: 509d86b2a618c409ba8d9209023f7265, type: 2}
---- !u!1001 &2095309849
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 3.0095208
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.19999965
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -2.4029071
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1184021147884147476, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7792499953618239303, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
-      propertyPath: m_Name
-      value: Book001
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: f3da131d4ccac40e6ba54fc086a1b561, type: 3}
 --- !u!1 &2096972896
 GameObject:
   m_ObjectHideFlags: 0
@@ -12049,4 +11964,3 @@ SceneRoots:
   - {fileID: 1565861664}
   - {fileID: 369334800}
   - {fileID: 712627609}
-  - {fileID: 2095309849}
