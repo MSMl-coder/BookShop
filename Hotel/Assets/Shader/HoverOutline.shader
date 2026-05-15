@@ -1,14 +1,20 @@
-// Assets/Shader/HoverOutline.shader
-// Простий Unlit матеріал що додається як другий матеріал на renderer.
-// Малює об'єкт повністю білим — разом з основним матеріалом виглядає як outline
-// якщо використати невеликий scale offset в вертексному шейдері.
+// Assets/Shader/HoverHighlight.shader
+// Hover ефект — вибілювання об'єкта при наведенні мишки.
+// Рендерується поверх оригіналу як напівпрозорий білий шар.
+//
+// Параметри в матеріалі HoverOutlineMat:
+//   Highlight Color — колір підсвітки (default білий)
+//   Highlight Alpha — сила ефекту (0 = невидимо, 1 = повністю білий)
+//                     рекомендовано 0.15 - 0.35
+//   Depth Offset    — якщо мерехтить, збільш до 0.01
 
-Shader "Custom/HoverOutline"
+Shader "Custom/HoverHighlight"
 {
     Properties
     {
-        _OutlineColor ("Outline Color", Color) = (1, 1, 1, 0.8)
-        _OutlineWidth ("Outline Width", Float) = 0.005
+        _HighlightColor ("Highlight Color", Color)    = (1, 1, 1, 1)
+        _HighlightAlpha ("Highlight Alpha", Range(0, 1)) = 0.25
+        _DepthOffset    ("Depth Offset",    Float)    = 0.0
     }
 
     SubShader
@@ -17,16 +23,23 @@ Shader "Custom/HoverOutline"
         {
             "RenderPipeline" = "UniversalPipeline"
             "RenderType"     = "Transparent"
-            "Queue"          = "Transparent+1"
+            "Queue"          = "Transparent"
         }
 
         Pass
         {
-            Name "HoverOutline"
-            Cull  Front          // тільки задні грані (inverted hull)
+            Name "HoverHighlight"
+            Tags { "LightMode" = "SRPDefaultUnlit" }
+
+            Cull  Back
             ZTest LEqual
             ZWrite Off
-            Blend SrcAlpha OneMinusSrcAlpha
+
+            // Адитивне змішування — просто додає білий колір поверх
+            Blend One OneMinusSrcAlpha
+
+            // Невеликий offset щоб уникнути z-fighting з оригінальним мешем
+            Offset -1, -1
 
             HLSLPROGRAM
             #pragma vertex   vert
@@ -34,14 +47,14 @@ Shader "Custom/HoverOutline"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
-                float4 _OutlineColor;
-                float  _OutlineWidth;
+                float4 _HighlightColor;
+                float  _HighlightAlpha;
+                float  _DepthOffset;
             CBUFFER_END
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                float3 normalOS   : NORMAL;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -56,22 +69,14 @@ Shader "Custom/HoverOutline"
                 UNITY_SETUP_INSTANCE_ID(IN);
                 Varyings OUT;
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
-
-                // Розширення в clip space — рівномірна товщина на будь-якій відстані
-                float4 clip   = TransformObjectToHClip(IN.positionOS.xyz);
-                float3 clipN  = mul((float3x3)UNITY_MATRIX_VP,
-                                mul((float3x3)UNITY_MATRIX_M, IN.normalOS));
-                float2 offset = normalize(clipN.xy);
-                offset.x     /= _ScreenParams.x / _ScreenParams.y;
-                clip.xy      += offset * _OutlineWidth * clip.w;
-
-                OUT.positionHCS = clip;
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
                 return OUT;
             }
 
             half4 frag(Varyings IN) : SV_Target
             {
-                return _OutlineColor;
+                // Білий колір з налаштованою прозорістю
+                return half4(_HighlightColor.rgb * _HighlightAlpha, _HighlightAlpha);
             }
             ENDHLSL
         }

@@ -2333,6 +2333,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -180
       objectReference: {fileID: 0}
+    - target: {fileID: 5181924966907552177, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: bookMesh
+      value: 
+      objectReference: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
     - target: {fileID: 5669509012263883299, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: m_Name
       value: BookShelf004L (1)
@@ -4707,7 +4711,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a33121a17d5624bf2a2c471710ae7278, type: 2}
   cardsToDraw: 5
   maxPicksPerDay: 3
-  booksPerPack: 3
+  booksPerPack: 15
 --- !u!1 &921353273 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2317472877637231247, guid: 29f712dff494344dfbdb42a23efa4c26, type: 3}
@@ -6409,6 +6413,7 @@ Transform:
   m_Children:
   - {fileID: 1118481606}
   - {fileID: 1477937109}
+  - {fileID: 2025284045}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1310039948
@@ -10937,6 +10942,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OutlineTarget
   outlineMaterial: {fileID: 2100000, guid: 509d86b2a618c409ba8d9209023f7265, type: 2}
+--- !u!1 &2025284044
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2025284045}
+  - component: {fileID: 2025284046}
+  m_Layer: 0
+  m_Name: UI_Tester
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2025284045
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025284044}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1294574533}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2025284046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025284044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1f0d93a11828422ab74ac6b6a41b48e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIMockupTester
+  uiDocument: {fileID: 1118481608}
 --- !u!1 &2032051216 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2843166190662417578, guid: 29f712dff494344dfbdb42a23efa4c26, type: 3}
