@@ -1683,16 +1683,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1750656323}
-  bookRotation: {x: 0, y: 90, z: 0}
+  geometry: {fileID: 0}
   maxRandomTilt: 2
   spacingOffset: 0.0001
-  animationSpeed: 4
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 0
-  bookMaterial: {fileID: 0}
+  defaultBookDepth: 0.15
   bookLayer: 0
+  ghostZOffset: 0.001
+  hoverCubeMaterial: {fileID: 0}
+  hoverCubeScale: 1.05
 --- !u!4 &231563884
 Transform:
   m_ObjectHideFlags: 0
@@ -4782,6 +4783,58 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1050338995}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &959406891
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 959406892}
+  - component: {fileID: 959406893}
+  m_Layer: 0
+  m_Name: BookDiagnostic
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &959406892
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 959406891}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.63, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1050338995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &959406893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 959406891}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a55483108689741c0adf2c7ba9b2e89d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInstancingDiagnostic
+  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
+  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
+  origin: {x: 0, y: 1, z: 0}
+  spacingX: 0.46
+  spacingZ: 0.3
+  meshRotation: {x: 0, y: 0, z: 0}
+  verboseLogging: 0
 --- !u!1 &961640012
 GameObject:
   m_ObjectHideFlags: 0
@@ -5210,6 +5263,7 @@ Transform:
   - {fileID: 1832033275}
   - {fileID: 1372819789}
   - {fileID: 961640013}
+  - {fileID: 959406892}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1072845407 stripped
@@ -6819,9 +6873,9 @@ MonoBehaviour:
   shelfLayer:
     serializedVersion: 2
     m_Bits: 512
-  slideOutDistance: 0.06
-  slideSpeed: 12
   interactDistance: 25
+  hoverCursor: {fileID: 0}
+  hoverCursorHotspot: {x: 8, y: 8}
 --- !u!1 &1373559107 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2522554472540333542, guid: 29f712dff494344dfbdb42a23efa4c26, type: 3}
@@ -7719,13 +7773,45 @@ PrefabInstance:
       propertyPath: _enableInstancing
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 297769118861122677, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.477
+      objectReference: {fileID: 0}
+    - target: {fileID: 297769118861122677, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.128
+      objectReference: {fileID: 0}
     - target: {fileID: 914263477144856776, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: _enableInstancing
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2467864691849841889, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2467864691849841889, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.935
+      objectReference: {fileID: 0}
+    - target: {fileID: 2467864691849841889, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.093
+      objectReference: {fileID: 0}
+    - target: {fileID: 3929275839164352435, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: bookLayer
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 3929275839164352435, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: _enableInstancing
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3929275839164352435, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: hoverCubeMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 509d86b2a618c409ba8d9209023f7265, type: 2}
+    - target: {fileID: 4035530220352404316, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_Size.y
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 4857185615717391089, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: _enableInstancing
@@ -7778,6 +7864,18 @@ PrefabInstance:
     - target: {fileID: 5669509012263883299, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
       propertyPath: m_Name
       value: BookShelf004L
+      objectReference: {fileID: 0}
+    - target: {fileID: 5793312578193615757, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_Size.y
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 8780531078268843880, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8780531078268843880, guid: b12a6124acb104b8c815cf1a2a203422, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.574
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -10322,16 +10420,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1813619162}
-  bookRotation: {x: 0, y: 90, z: 0}
+  geometry: {fileID: 0}
   maxRandomTilt: 2
   spacingOffset: 0.0001
-  animationSpeed: 4
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 0
-  bookMaterial: {fileID: 0}
+  defaultBookDepth: 0.15
   bookLayer: 0
+  ghostZOffset: 0.001
+  hoverCubeMaterial: {fileID: 0}
+  hoverCubeScale: 1.05
 --- !u!4 &1886625124
 Transform:
   m_ObjectHideFlags: 0
@@ -11454,8 +11553,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.55, y: -3.8, z: 0.61}
-  m_Center: {x: -0.33, y: 0, z: 0}
+  m_Size: {x: 0.49, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &2103332340
 PrefabInstance:
   m_ObjectHideFlags: 0

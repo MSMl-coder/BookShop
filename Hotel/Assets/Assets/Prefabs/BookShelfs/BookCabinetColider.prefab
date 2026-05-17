@@ -116,7 +116,7 @@ Transform:
   m_GameObject: {fileID: 1472910286825071198}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.295, y: 0.09159993, z: -0.057}
+  m_LocalPosition: {x: -0.383, y: -0.135, z: -0.057}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -232,7 +232,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.55, y: 0.02, z: 0.15}
+  m_Size: {x: 0.96, y: 0.31, z: 0.31}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1208170815435622724
 MonoBehaviour:
@@ -247,16 +247,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1336246676651107513}
-  bookRotation: {x: 0, y: 90, z: 0}
+  geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
   spacingOffset: 0.0001
-  animationSpeed: 4
   maxBookSize: 1
+  hoverExtrudeZ: 0.05
+  hoverAnimDuration: 0.15
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 0
-  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   bookLayer: 0
+  ghostMaterial: {fileID: 0}
 --- !u!114 &6601626624567623741
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,9 +269,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
-  bookMesh: {fileID: -66333826979096818, guid: 0523031058fcd48cba22742d388ac974, type: 3}
-  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
-  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
   showGizmos: 1
 --- !u!1 &2824776042596458914
 GameObject:
@@ -431,16 +428,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 5872626022262727018}
-  bookRotation: {x: 0, y: 90, z: 0}
+  geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
   spacingOffset: 0.0001
-  animationSpeed: 4
   maxBookSize: 2
+  hoverExtrudeZ: 0.05
+  hoverAnimDuration: 0.15
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 0
-  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   bookLayer: 0
+  ghostMaterial: {fileID: 0}
 --- !u!114 &944124927169356043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -453,9 +450,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
-  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
-  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
-  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
   showGizmos: 1
 --- !u!1 &4077622065862479675
 GameObject:
@@ -674,16 +668,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1753508096901234169}
-  bookRotation: {x: 0, y: 90, z: 0}
+  geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
   spacingOffset: 0.0001
-  animationSpeed: 4
   maxBookSize: 2
+  hoverExtrudeZ: 0.05
+  hoverAnimDuration: 0.15
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 0
-  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   bookLayer: 0
+  ghostMaterial: {fileID: 0}
 --- !u!114 &1141241530795783710
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -696,9 +690,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
-  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
-  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
-  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
   showGizmos: 1
 --- !u!1 &7337486132078831180
 GameObject:
@@ -769,16 +760,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 7273818939359199731}
-  bookRotation: {x: 0, y: 90, z: 0}
+  geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
   spacingOffset: 0.0001
-  animationSpeed: 4
   maxBookSize: 2
+  hoverExtrudeZ: 0.05
+  hoverAnimDuration: 0.15
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 1
-  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   bookLayer: 0
+  ghostMaterial: {fileID: 0}
 --- !u!114 &4150368882928301295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -791,9 +782,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
-  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
-  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
-  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
   showGizmos: 1
 --- !u!1 &7461461496185991650
 GameObject:
@@ -864,16 +852,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1202182138659578297}
-  bookRotation: {x: 0, y: 90, z: 0}
+  geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
   spacingOffset: 0.0001
-  animationSpeed: 4
   maxBookSize: 2
+  hoverExtrudeZ: 0.05
+  hoverAnimDuration: 0.15
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 1
-  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   bookLayer: 0
+  ghostMaterial: {fileID: 0}
 --- !u!114 &1123833799331508031
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -886,9 +874,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
-  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
-  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
-  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
   showGizmos: 1
 --- !u!1 &7786597280050946986
 GameObject:
@@ -959,16 +944,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Shelf
   startPoint: {fileID: 1953779816340297385}
-  bookRotation: {x: 0, y: 90, z: 0}
+  geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
   spacingOffset: 0.0001
-  animationSpeed: 4
   maxBookSize: 2
+  hoverExtrudeZ: 0.05
+  hoverAnimDuration: 0.15
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
-  _enableInstancing: 1
-  bookMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
   bookLayer: 0
+  ghostMaterial: {fileID: 0}
 --- !u!114 &7793205153212976505
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -981,9 +966,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8dfd4fdcea963415db8d445cb12b9e0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookInstancedRenderer
-  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
-  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
-  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
   showGizmos: 1
 --- !u!1 &8693502380842732427
 GameObject:

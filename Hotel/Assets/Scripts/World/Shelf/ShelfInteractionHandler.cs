@@ -1,4 +1,15 @@
 // Assets/Scripts/World/Shelf/ShelfInteractionHandler.cs
+//
+// v3.1 ЗМІНИ:
+//   • При hover: shelf.ShowHoverCube(idx) — простий прозорий cube +5% без collider
+//   • При hover off: shelf.HideHoverCube() — куб знищується
+//   • Click: HitTestRay → MaterializeBookForInteraction (тимчасовий BookWorldItem)
+//          → ContextMenuUI.ShowForBook
+//          → ContextMenu при закритті викликає DematerializeBook
+//   • Cube НЕ блокує raycast (без collider), тому клік проходить крізь нього
+//     і потрапляє в Shelf BoxCollider як зазвичай
+//   • Зміна курсора при hover
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,23 +22,19 @@ public class ShelfInteractionHandler : MonoBehaviour
     [SerializeField] private Camera    mainCamera;
     [SerializeField] private LayerMask shelfLayer;
 
-    [Header("Hover Settings")]
-    [SerializeField] private float slideOutDistance = 0.06f;
-    [SerializeField] private float slideSpeed       = 12f;
-
     [Header("Interaction")]
     [SerializeField] private float interactDistance = 25f;
 
-    // ── Hover state ───────────────────────────────────────────────────────────
-    private Shelf      _hoveredShelf;
-    private int        _hoveredBookIndex = -1;
-    private GameObject _slideGO;         // GO що зараз анімується
-    private Vector3    _homePos;         // position на полиці
-    private Vector3    _outPos;          // висунута position
-    private float      _slideT    = 0f;
-    private bool       _slidingOut = false;
+    [Header("Cursor")]
+    [Tooltip("Текстура курсора при hover на книгу. Null → системний.")]
+    [SerializeField] private Texture2D hoverCursor;
+    [SerializeField] private Vector2   hoverCursorHotspot = new Vector2(8, 8);
 
-    // ── Lifecycle ─────────────────────────────────────────────────────────────
+    // ── Hover state ──────────────────────────────────────────────────────────
+    private Shelf _hoveredShelf;
+    private int   _hoveredBookIndex = -1;
+    private bool  _cursorChanged    = false;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -35,36 +42,47 @@ public class ShelfInteractionHandler : MonoBehaviour
         if (mainCamera == null) mainCamera = Camera.main;
     }
 
-    private void Update()
-    {
-        UpdateHover();
-        UpdateSlide();
-    }
+    private void OnDisable() => ResetHover();
 
-    // ── Hover ─────────────────────────────────────────────────────────────────
+    private void Update() => UpdateHover();
+
+    // ── Hover ────────────────────────────────────────────────────────────────
     private void UpdateHover()
     {
+        if (mainCamera == null || Mouse.current == null) return;
+
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
-        bool hit = Physics.Raycast(ray, out RaycastHit rh, interactDistance, shelfLayer);
-        Shelf shelf = hit ? rh.collider.GetComponentInParent<Shelf>() : null;
-        int   idx   = shelf != null ? shelf.GetBookIndexAtPoint(rh.point) : -1;
+        Shelf shelf = null;
+        int   idx   = -1;
 
-        // Та сама книга — нічого не робимо
+        if (Physics.Raycast(ray, out RaycastHit rh, interactDistance, shelfLayer))
+        {
+            shelf = rh.collider.GetComponentInParent<Shelf>();
+            if (shelf != null)
+                idx = shelf.HitTestRay(ray);
+        }
+
+        // Стан не змінився
         if (shelf == _hoveredShelf && idx == _hoveredBookIndex) return;
 
-        // Стара книга — slide back
-        StartSlideBack();
+        // ── Знімаємо hover-cube зі старої полиці ──
+        if (_hoveredShelf != null && _hoveredShelf != shelf)
+            _hoveredShelf.HideHoverCube();
 
-        // Нова книга
         _hoveredShelf     = shelf;
         _hoveredBookIndex = idx;
 
+        // ── Виставляємо новий hover ──
         if (shelf == null || idx < 0)
         {
+            if (_hoveredShelf != null) _hoveredShelf.HideHoverCube();
             BookInfoCardController.Instance?.Hide();
+            SetCursorHover(false);
             return;
         }
+
+        shelf.ShowHoverCube(idx);
 
         // Tooltip
         var data     = shelf.GetBookData(idx);
@@ -72,55 +90,40 @@ public class ShelfInteractionHandler : MonoBehaviour
         if (template != null)
             BookInfoCardController.Instance?.Show(template);
 
-        // Slide out
-        GameObject go = shelf.GetBookGO(idx);
-        if (go == null) return;
-
-        _slideGO    = go;
-        _homePos    = go.transform.position;
-        _outPos     = _homePos - go.transform.forward * slideOutDistance;
-        _slideT     = 0f;
-        _slidingOut = true;
+        SetCursorHover(true);
     }
 
-    // ── Slide ─────────────────────────────────────────────────────────────────
-    private void UpdateSlide()
+    // ── Cursor ───────────────────────────────────────────────────────────────
+    private void SetCursorHover(bool on)
     {
-        if (_slideGO == null) return;
+        if (on == _cursorChanged) return;
+        _cursorChanged = on;
 
-        float target = _slidingOut ? 1f : 0f;
-        _slideT = Mathf.MoveTowards(_slideT, target, Time.deltaTime * slideSpeed);
-        _slideGO.transform.position = Vector3.Lerp(_homePos, _outPos, _slideT);
-
-        // Slide back завершено — скидаємо GO
-        if (!_slidingOut && _slideT <= 0f)
-        {
-            _slideGO.transform.position = _homePos;
-            _slideGO = null;
-        }
+        if (on) Cursor.SetCursor(hoverCursor, hoverCursorHotspot, CursorMode.Auto);
+        else    Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 
-    private void StartSlideBack()
+    private void ResetHover()
     {
-        if (_slideGO == null) return;
-        // GO що висувається — починаємо ховати назад
-        // (не скидаємо _slideGO — UpdateSlide допрацює)
-        _slidingOut = false;
+        if (_hoveredShelf != null) _hoveredShelf.HideHoverCube();
+        _hoveredShelf     = null;
+        _hoveredBookIndex = -1;
+        BookInfoCardController.Instance?.Hide();
+        SetCursorHover(false);
     }
 
     // ── Public: клік (з InteractionRouter) ───────────────────────────────────
     public void HandleShelfClick(Shelf shelf, Vector3 hitPoint)
     {
-        if (shelf == null) return;
+        if (shelf == null || mainCamera == null) return;
 
-        int idx = shelf.GetBookIndexAtPoint(hitPoint);
+        Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+        int idx = shelf.HitTestRay(ray);
+        if (idx < 0) idx = shelf.GetBookIndexAtPoint(hitPoint);
         if (idx < 0) return;
 
-        var data     = shelf.GetBookData(idx);
-        var template = BookDatabase.Instance?.GetBook(data.templateID);
-        if (template?.containerPrefab == null) return;
-
-        BookWorldItem worldItem = shelf.GetOrMaterializeBookForInteraction(idx, template.containerPrefab);
+        // Створюємо тимчасовий BookWorldItem-ghost для ContextMenu
+        BookWorldItem worldItem = shelf.GetOrMaterializeBookForInteraction(idx);
         if (worldItem == null) return;
 
         GameState state = EditModeManager.GetEffectiveState();
