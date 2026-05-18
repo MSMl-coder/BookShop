@@ -272,6 +272,61 @@ public class Shelf : MonoBehaviour
         return -1;
     }
 
+    /// <summary>Точний OBB hit-test з поверненням відстані входу tMin.
+    /// Використовується ShelfInteractionHandler для вибору найближчої книги по всіх Shelf.</summary>
+    public bool HitTestRayWithDistance(Ray worldRay, out int bookIndex, out float tMin)
+    {
+        bookIndex = -1;
+        tMin      = float.PositiveInfinity;
+
+        if (startPoint == null || _books.Count == 0) return false;
+
+        Vector3 originLocal = startPoint.InverseTransformPoint(worldRay.origin);
+        Vector3 dirLocal    = startPoint.InverseTransformDirection(worldRay.direction);
+
+#if UNITY_EDITOR
+        if (_debugHitTest && _books.Count > 0)
+        {
+            var e0 = _books[0];
+            Debug.Log($"[Shelf '{name}'] HitTestRay debug:\n" +
+                      $"  worldRay.origin={worldRay.origin}\n" +
+                      $"  worldRay.dir={worldRay.direction}\n" +
+                      $"  startPoint.position={startPoint.position}\n" +
+                      $"  startPoint.right={startPoint.right}\n" +
+                      $"  startPoint.up={startPoint.up}\n" +
+                      $"  startPoint.forward={startPoint.forward}\n" +
+                      $"  originLocal={originLocal}\n" +
+                      $"  dirLocal={dirLocal}\n" +
+                      $"  book[0]: localPos={e0.localPosition}, thick={e0.thickness:F4}, h={e0.height:F4}, d={e0.depth:F4}");
+        }
+#endif
+
+        for (int i = 0; i < _books.Count; i++)
+        {
+            var e = _books[i];
+
+            // ТЕСТ: спочатку просто перевіряємо X і Y slab (плоский фронт книги)
+            // щоб зрозуміти чи X/Y локального простору правильні.
+            // Якщо це працює — проблема у Z slab (глибина) і в орієнтації startPoint.forward.
+            Vector3 size = new Vector3(e.thickness, e.height, e.depth);
+
+            if (ShelfRayMath.RayOBBIntersect(
+                    originLocal, dirLocal,
+                    e.localPosition.x, 0f, size, e.tilt,
+                    out float t)
+                && t < tMin)
+            {
+                tMin      = t;
+                bookIndex = i;
+            }
+        }
+        return bookIndex >= 0;
+    }
+
+    [Header("Debug")]
+    [Tooltip("Виводить детальний лог HitTestRay для першої книги. Вмикай тільки для діагностики.")]
+    [SerializeField] private bool _debugHitTest = false;
+
     public int HitTestRay(Ray worldRay)
     {
         if (startPoint == null || _books.Count == 0) return -1;
@@ -314,17 +369,34 @@ public class Shelf : MonoBehaviour
     // ───────────────────────────────────────────────────────────────────
 
     [Header("Hover Visual")]
-    [Tooltip("Матеріал для hover-cube. Має бути напівпрозорий (URP/Lit Surface Type = Transparent).")]
-    [SerializeField] private Material hoverCubeMaterial;
+    [Header("Hover Visual")]
+    [Tooltip("Layer для hover-ghost. Стандартно: PlacedBooks.\n" +
+             "Має бути в HoverHighlighter.interactionLayer,\n" +
+             "АЛЕ НЕ в InteractionRouter.interactionLayer (бо клік ловиться окремо).")]
+    [SerializeField] private string hoverGhostLayer = "PlacedBooks";
 
-    [Tooltip("Наскільки збільшити cube відносно реального розміру книги (1.05 = +5%).")]
+    [Tooltip("Наскільки збільшити collider відносно реального розміру книги (1.05 = +5%).")]
     [Range(1.0f, 1.5f)]
-    [SerializeField] private float hoverCubeScale = 1.05f;
+    [SerializeField] private float hoverColliderScale = 1.05f;
 
-    private GameObject _hoverCube;
-    private int        _hoverCubeIndex = -1;
+    private GameObject _hoverGhost;
+    private int        _hoverGhostIndex = -1;
 
-    /// <summary>Показати hover-cube на книзі з вказаним index. -1 = сховати.</summary>
+    /// <summary>
+    /// Показати hover-ghost на книзі. -1 = сховати.
+    ///
+    /// Ghost = повноцінний GO з:
+    ///   • MeshRenderer + 2 матеріали (як справжня книга) — для OutlineTarget overlay
+    ///   • BoxCollider (IsTrigger=true, +5% розмір) — для raycast HoverHighlighter
+    ///   • BookWorldItem — HoverHighlighter знаходить його через пріоритет 1
+    ///   • OutlineTarget — overlay shader для підсвітки (та сама система що меблі)
+    ///
+    /// HoverHighlighter автоматично знайде BookWorldItem на ghost через raycast
+    /// і підсвітить його через OutlineTarget overlay.
+    ///
+    /// Layer PlacedBooks НЕ повинен бути в InteractionRouter.interactionLayer —
+    /// інакше клік буде ловити ghost замість Shelf.
+    /// </summary>
     public void ShowHoverCube(int index)
     {
         if (index < 0 || index >= _books.Count)
@@ -332,54 +404,68 @@ public class Shelf : MonoBehaviour
             HideHoverCube();
             return;
         }
-        if (_hoverCubeIndex == index && _hoverCube != null) return;
+        if (_hoverGhostIndex == index && _hoverGhost != null) return;
 
         HideHoverCube();
 
+        if (geometry == null || geometry.baseMesh == null) return;
+
         ShelfBookEntry entry = _books[index];
 
-        _hoverCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        _hoverCube.name = "HoverCube";
+        _hoverGhost = new GameObject($"HoverGhost_{entry.templateID}");
+        int layer = LayerMask.NameToLayer(hoverGhostLayer);
+        if (layer >= 0) _hoverGhost.layer = layer;
 
-        // ВИДАЛЯЄМО COLLIDER — щоб клік проходив крізь куб у Shelf.BoxCollider
-        var col = _hoverCube.GetComponent<Collider>();
-        if (col != null) Destroy(col);
+        _hoverGhost.transform.SetParent(startPoint, false);
+        _hoverGhost.transform.localPosition = entry.localPosition + new Vector3(0f, 0f, ghostZOffset);
+        _hoverGhost.transform.localRotation = Quaternion.Euler(0f, 0f, entry.tilt)
+                                              * Quaternion.Euler(geometry.meshRotationFix);
 
-        _hoverCube.transform.SetParent(startPoint, false);
+        Vector3 baseSize = geometry.baseSize;
+        _hoverGhost.transform.localScale = new Vector3(
+            entry.thickness / Mathf.Max(baseSize.x, 1e-6f),
+            entry.height    / Mathf.Max(baseSize.y, 1e-6f),
+            entry.depth     / Mathf.Max(baseSize.z, 1e-6f));
 
-        // Позиція з невеликим offset вперед щоб куб був "перед" книгою (уникає z-fighting)
-        _hoverCube.transform.localPosition =
-            entry.localPosition + new Vector3(0f, entry.height * 0.5f, ghostZOffset);
+        // MeshRenderer (для OutlineTarget overlay)
+        var mf = _hoverGhost.AddComponent<MeshFilter>();
+        mf.sharedMesh = geometry.baseMesh;
 
-        // Tilt по Z як і в Renderer; meshFix НЕ потрібен для cube — він однакковий з усіх боків
-        _hoverCube.transform.localRotation = Quaternion.Euler(0f, 0f, entry.tilt);
+        var mr = _hoverGhost.AddComponent<MeshRenderer>();
+        mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        mr.receiveShadows    = false;
 
-        // Розмір cube = реальний розмір книги × 1.05
-        _hoverCube.transform.localScale = new Vector3(
-            entry.thickness * hoverCubeScale,
-            entry.height    * hoverCubeScale,
-            entry.depth     * hoverCubeScale);
+        Material coverMat = geometry.GetCoverMaterial(entry.colorIndex);
+        Material pagesMat = geometry.pagesMaterial;
+        if (geometry.baseMesh.subMeshCount > 1 && pagesMat != null)
+            mr.sharedMaterials = new[] { coverMat, pagesMat };
+        else
+            mr.sharedMaterial = coverMat;
 
-        // Матеріал
-        if (hoverCubeMaterial != null)
-        {
-            var mr = _hoverCube.GetComponent<MeshRenderer>();
-            if (mr != null)
-            {
-                mr.sharedMaterial    = hoverCubeMaterial;
-                mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                mr.receiveShadows    = false;
-            }
-        }
+        // Collider — IsTrigger щоб не блокувати фізику; +5% для легшого hover
+        var box = _hoverGhost.AddComponent<BoxCollider>();
+        box.size      = new Vector3(baseSize.x * hoverColliderScale,
+                                    baseSize.y * hoverColliderScale,
+                                    baseSize.z * hoverColliderScale);
+        box.center    = new Vector3(0f, baseSize.y * 0.5f, 0f);
+        box.isTrigger = true;
 
-        _hoverCubeIndex = index;
+        // BookWorldItem — HoverHighlighter знаходить його через пріоритет 1
+        var wi = _hoverGhost.AddComponent<BookWorldItem>();
+        wi.instance          = BuildInstance(entry);
+        wi.parentShelf       = this;
+        wi.bookIndex         = index;
+        wi.savedTilt         = entry.tilt;
+        wi.isBeingInteracted = false; // це hover, не click
+
+        _hoverGhostIndex = index;
     }
 
     public void HideHoverCube()
     {
-        if (_hoverCube != null) Destroy(_hoverCube);
-        _hoverCube      = null;
-        _hoverCubeIndex = -1;
+        if (_hoverGhost != null) Destroy(_hoverGhost);
+        _hoverGhost      = null;
+        _hoverGhostIndex = -1;
     }
 
     // ───────────────────────────────────────────────────────────────────

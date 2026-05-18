@@ -133,7 +133,6 @@ Assets/Scripts/
   UpgradeSlotUI.cs
  Utils/
   BookAnimations.cs
-  BookInstancingDiagnostic.cs
   DebugGameController.cs
   EnableBookInstancing.cs
   OutlineTargetSetup.cs

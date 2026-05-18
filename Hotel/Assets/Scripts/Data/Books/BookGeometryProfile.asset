@@ -33,5 +33,5 @@ MonoBehaviour:
   pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
   baseSize: {x: 0.03, y: 0.215, z: 0.145}
   meshRotationFix: {x: 0, y: 90, z: 0}
-  shadowMode: 1
+  shadowMode: 0
   receiveShadows: 1
