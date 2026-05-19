@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    DecorItemCardTemplate.uxml — Decor item card (horizontal scrollable)
+    Path: Assets/UI/Bookshop/Templates/DecorItemCardTemplate.uxml
+-->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement class="decor-item-card">
+        <ui:VisualElement class="decor-item-card__icon-frame">
+            <ui:Label name="DecorItemIcon" text="🪑"/>
+        </ui:VisualElement>
+        <ui:Label name="DecorItemName" text="Oak Chair" class="decor-item-card__name"/>
+        <ui:Label name="DecorItemPrice" text="$ 80" class="decor-item-card__price"/>
+    </ui:VisualElement>
+</ui:UXML>

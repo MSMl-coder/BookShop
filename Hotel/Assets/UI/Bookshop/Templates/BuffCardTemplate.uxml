@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    BuffCardTemplate.uxml — Individual buff card
+    Path: Assets/UI/Bookshop/Templates/BuffCardTemplate.uxml
+
+    Used dynamically by BuffsController to populate BuffsArea.
+    Small overlapping cards. On hover: expands and shows name + tooltip.
+-->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement class="buff-card">
+        <ui:VisualElement class="tag-cord" picking-mode="Ignore"/>
+        <ui:VisualElement class="tag-ring" picking-mode="Ignore"/>
+        <ui:VisualElement class="flip-face__border-outer" picking-mode="Ignore"/>
+        <ui:Label name="BuffIcon" text="📚" class="buff-card__icon"/>
+        <ui:Label name="BuffName" text="ZEAL" class="buff-card__name"/>
+        <ui:Label name="BuffValue" text="+20%" class="buff-card__value"/>
+        <ui:Label name="BuffTip" text="Description here" class="buff-card__tip"/>
+    </ui:VisualElement>
+</ui:UXML>

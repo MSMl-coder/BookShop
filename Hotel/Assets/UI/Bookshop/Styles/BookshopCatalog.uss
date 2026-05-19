@@ -1,0 +1,225 @@
+/* ═══════════════════════════════════════════════════
+   BookshopCatalog.uss — Catalog modal
+   Path: Assets/UI/Bookshop/Styles/BookshopCatalog.uss
+═══════════════════════════════════════════════════ */
+
+.cat-author-tabs {
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 10px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--gold-soft);
+}
+.cat-author-tab {
+    padding: 6px 14px;
+    font-size: 10px;
+    color: var(--ink-mute);
+    letter-spacing: 1.5px;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    -unity-font-style: bold;
+}
+.cat-author-tab:hover {
+    color: var(--ink);
+}
+.cat-author-tab.active {
+    color: var(--accent);
+    border-bottom-width: 2px;
+    border-bottom-color: var(--accent);
+}
+
+.author-section {
+    margin-bottom: 18px;
+}
+.author-section__header {
+    align-items: center;
+    margin-bottom: 10px;
+}
+.author-section__name {
+    font-size: 18px;
+    color: var(--ink);
+    -unity-font-style: bold-and-italic;
+    letter-spacing: 0.8px;
+}
+.author-section__meta {
+    font-size: 9px;
+    color: var(--ink-mute);
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+.author-section__books-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.author-section__books-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+/* ── Book card with rarity rim ── */
+.book-card {
+    width: 112px;
+    background-color: var(--page-light);
+    border-width: 2px;
+    border-color: var(--gold-soft);
+    flex-direction: column;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+.book-card:hover {
+    translate: -2px -3px;
+}
+.book-card.r-common    { border-color: var(--r-common); }
+.book-card.r-uncommon  { border-color: var(--r-uncommon); }
+.book-card.r-rare      { border-color: var(--r-rare); }
+.book-card.r-epic      { border-color: var(--r-epic); }
+.book-card.r-legend    { border-color: var(--r-legend); }
+.book-card.missing { opacity: 0.5; }
+
+.book-card__top-band {
+    height: 17px;
+    background-color: rgba(212, 168, 67, 0.06);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--gold-soft);
+}
+.book-card__content {
+    padding: 10px 8px 6px;
+    flex-direction: column;
+    align-items: center;
+}
+.book-card__icon-frame {
+    width: 40px; height: 40px;
+    border-width: 1px;
+    border-color: var(--ink-mute);
+    background-color: var(--page-light);
+    align-items: center;
+    justify-content: center;
+}
+.book-card__icon-frame > Label {
+    font-size: 19px;
+}
+.book-card__title {
+    font-size: 11px;
+    color: var(--ink);
+    -unity-font-style: bold-and-italic;
+    -unity-text-align: middle-center;
+    margin-top: 4px;
+    min-height: 27px;
+    white-space: normal;
+}
+.book-card__pills {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 3px;
+}
+.book-card__pills > .inv-pill {
+    font-size: 7px;
+    padding: 1px 4px;
+    margin-right: 2px;
+    margin-bottom: 2px;
+    letter-spacing: 0.8px;
+}
+.book-card__footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    border-top-width: 1px;
+    border-top-color: var(--gold-soft);
+    background-color: rgba(212, 168, 67, 0.05);
+}
+.book-card__price {
+    font-size: 10px;
+    color: var(--accent);
+    -unity-font-style: bold;
+}
+
+/* ── Collection arrow between books and bonus ── */
+.coll-arrow {
+    width: 29px;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+}
+.coll-arrow__icon {
+    font-size: 22px;
+    color: var(--gold);
+}
+
+/* ── Bonus card ── */
+.bonus-card {
+    width: 112px;
+    background-color: rgb(250, 236, 196);
+    border-width: 2px;
+    border-color: var(--gold);
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+.bonus-card.locked {
+    opacity: 0.55;
+}
+.bonus-card__top-band {
+    height: 17px;
+    background-color: rgba(138, 106, 40, 0.1);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--gold);
+}
+.bonus-card__content {
+    padding: 9px 8px 5px;
+    flex-direction: column;
+    align-items: center;
+}
+.bonus-card__label {
+    font-size: 8px;
+    color: var(--gold-deep);
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+.bonus-card__icon-frame {
+    width: 40px; height: 40px;
+    border-width: 1px;
+    border-color: var(--gold-deep);
+    background-color: rgba(255,255,255,0.4);
+    align-items: center;
+    justify-content: center;
+    margin-top: 3px;
+}
+.bonus-card__icon-frame > Label {
+    font-size: 19px;
+}
+.bonus-card__title {
+    font-size: 11px;
+    color: var(--ink);
+    -unity-font-style: bold-and-italic;
+    -unity-text-align: middle-center;
+    margin-top: 4px;
+    min-height: 27px;
+    white-space: normal;
+}
+.bonus-card__flourish {
+    font-size: 9px;
+    color: var(--gold-deep);
+    letter-spacing: 2.4px;
+    -unity-font-style: bold;
+}
+.bonus-card__footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    border-top-width: 1px;
+    border-top-color: var(--gold);
+    background-color: rgba(138, 106, 40, 0.15);
+}
+.bonus-card__target {
+    font-size: 10px;
+    color: var(--ink);
+    -unity-font-style: bold;
+}
+.bonus-card__status {
+    font-size: 6px;
+    color: var(--gold-deep);
+    letter-spacing: 1.2px;
+    -unity-font-style: bold;
+}

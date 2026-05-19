@@ -1,0 +1,232 @@
+/* ═══════════════════════════════════════════════════
+   BookshopModals.uss — Notebook-style modals
+   Path: Assets/UI/Bookshop/Styles/BookshopModals.uss
+═══════════════════════════════════════════════════ */
+
+.notebook-modal {
+    position: absolute;
+    flex-direction: row;
+    background-color: var(--board-dark);
+    opacity: 0;
+    transition-property: opacity, scale, translate;
+    transition-duration: 0.3s;
+}
+.notebook-modal:not(.hidden) {
+    opacity: 1;
+}
+
+/* ── Side-positioned (Inventory/NPC) ── */
+.notebook-modal--side {
+    top: 40px;
+    bottom: 104px;
+    width: 656px;
+}
+.notebook-modal--left { left: 22px; }
+.notebook-modal--right { right: 22px; }
+
+/* ── Centered (Catalog, Awards) ── */
+.notebook-modal--center {
+    top: 50%; left: 50%;
+    width: 960px;
+    height: 576px;
+    margin-left: -480px;
+    margin-top: -288px;
+}
+.notebook-modal--narrow {
+    width: 656px;
+    height: 544px;
+    margin-left: -328px;
+    margin-top: -272px;
+}
+
+/* ── Bottom strip (Decor) ── */
+.notebook-modal--bottom {
+    bottom: 0; left: 0; right: 0;
+    height: 288px;
+}
+
+/* ── Notebook cover (left side) ── */
+.nb-modal-cover {
+    width: 184px;
+    background-color: var(--board);
+    padding-top: 21px; padding-bottom: 14px;
+    padding-left: 14px; padding-right: 14px;
+    flex-direction: column;
+}
+.nb-cover-spine {
+    position: absolute;
+    top: 0; bottom: 0; right: 0;
+    width: 16px;
+    background-color: rgba(0,0,0,0.3);
+}
+.nb-cover-tag-top {
+    position: absolute;
+    top: -14px; left: 22px;
+    width: 45px;
+    padding-top: 4px; padding-bottom: 6px;
+    background-color: var(--page-shadow);
+    border-width: 1px;
+    border-color: var(--gold-deep);
+    font-size: 9px;
+    color: var(--board-dark);
+    letter-spacing: 1px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+.nb-modal-title {
+    font-size: 19px;
+    color: var(--page);
+    letter-spacing: 3.2px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-top: 3px;
+}
+.nb-modal-subtitle {
+    font-size: 11px;
+    color: var(--gold-bright);
+    letter-spacing: 1.5px;
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+    margin-bottom: 6px;
+}
+.nb-cover-section {
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 2.4px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-color: rgba(184, 144, 42, 0.4);
+    padding-top: 4px; padding-bottom: 4px;
+    margin-bottom: 6px;
+}
+.nb-cover-content {
+    flex-grow: 1;
+}
+.nb-cover-content .unity-scroll-view__content-container {
+    flex-direction: column;
+}
+.nb-cover-footer {
+    flex-direction: row;
+    justify-content: space-around;
+    padding-top: 8px;
+    border-top-width: 1px;
+    border-top-color: rgba(212, 168, 67, 0.3);
+}
+.nb-cover-stat {
+    align-items: center;
+}
+.nb-cover-stat-l {
+    font-size: 8px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    -unity-font-style: bold;
+}
+.nb-cover-stat-v {
+    font-size: 16px;
+    color: var(--page);
+    -unity-font-style: bold;
+}
+
+/* ── Notebook page (right side, paper) ── */
+.nb-modal-page {
+    flex-grow: 1;
+    background-color: var(--page);
+    padding-top: 22px; padding-bottom: 14px;
+    padding-left: 26px; padding-right: 26px;
+    flex-direction: column;
+}
+.nb-page-frame {
+    position: absolute;
+    top: 11px; right: 14px; bottom: 11px; left: 18px;
+    border-width: 1px;
+    border-color: var(--gold-soft);
+    opacity: 0.5;
+}
+.nb-page-stamp {
+    position: absolute;
+    top: 14px; right: 29px;
+    width: 45px; height: 51px;
+    background-color: var(--page-fold);
+    border-width: 1px;
+    border-color: var(--gold-deep);
+    align-items: center;
+    justify-content: center;
+    rotate: -6deg;
+}
+.nb-page-stamp-icon {
+    font-size: 19px;
+}
+.nb-page-stamp-text {
+    font-size: 6px;
+    color: var(--ink);
+    letter-spacing: 0.8px;
+    -unity-font-style: bold;
+}
+.nb-page-header {
+    align-items: center;
+    margin-bottom: 10px;
+}
+.nb-page-title {
+    font-size: 21px;
+    color: var(--ink);
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+}
+.nb-page-subtitle {
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 1.2px;
+    -unity-font-style: italic;
+}
+.nb-page-content {
+    flex-grow: 1;
+}
+.nb-page-content .unity-scroll-view__content-container {
+    flex-direction: column;
+}
+.nb-page-footer {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+    border-top-width: 1px;
+    border-top-color: var(--gold-soft);
+    margin-top: 8px;
+}
+.nb-page-num {
+    font-size: 11px;
+    color: var(--ink-mute);
+    -unity-font-style: italic;
+}
+.nb-close-stamp {
+    padding: 4px 13px;
+    border-width: 1px;
+    border-color: var(--accent);
+    color: var(--accent);
+    background-color: rgba(0,0,0,0);
+    font-size: 10px;
+    letter-spacing: 2px;
+    -unity-font-style: bold;
+}
+.nb-close-stamp:hover {
+    background-color: var(--accent);
+    color: var(--page-light);
+}
+.nb-close-btn {
+    position: absolute;
+    top: -11px; right: -11px;
+    width: 30px; height: 30px;
+    border-radius: 15px;
+    background-color: var(--board);
+    border-width: 2px;
+    border-color: var(--gold-soft);
+    color: var(--page);
+    font-size: 13px;
+    padding: 0;
+}
+.nb-close-btn:hover {
+    background-color: var(--accent);
+    border-color: var(--gold-bright);
+}

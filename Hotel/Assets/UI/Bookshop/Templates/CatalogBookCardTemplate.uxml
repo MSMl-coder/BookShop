@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    CatalogBookCardTemplate.uxml — Book card in catalog
+    Path: Assets/UI/Bookshop/Templates/CatalogBookCardTemplate.uxml
+-->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement class="book-card">
+        <ui:VisualElement class="book-card__top-band"/>
+        <ui:VisualElement class="book-card__content">
+            <ui:VisualElement name="CatBookIcon" class="book-card__icon-frame">
+                <ui:VisualElement class="flip-face__border-inner" picking-mode="Ignore"/>
+                <ui:Label name="CatBookIconText" text="📕"/>
+            </ui:VisualElement>
+            <ui:Label name="CatBookTitle" text="«Book Title»" class="book-card__title"/>
+            <ui:VisualElement class="book-card__pills">
+                <ui:Label name="CatBookGenre" text="Genre" class="inv-pill inv-pill--genre"/>
+                <ui:Label name="CatBookRarity" text="Common" class="inv-pill"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="book-card__footer">
+            <ui:Label name="CatBookPrice" text="$ 95" class="book-card__price"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

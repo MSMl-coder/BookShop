@@ -3628,6 +3628,296 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &754696640
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 754696641}
+  - component: {fileID: 754696654}
+  - component: {fileID: 754696653}
+  - component: {fileID: 754696652}
+  - component: {fileID: 754696651}
+  - component: {fileID: 754696650}
+  - component: {fileID: 754696649}
+  - component: {fileID: 754696648}
+  - component: {fileID: 754696647}
+  - component: {fileID: 754696646}
+  - component: {fileID: 754696645}
+  - component: {fileID: 754696644}
+  - component: {fileID: 754696643}
+  - component: {fileID: 754696642}
+  m_Layer: 0
+  m_Name: BookshopUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &754696641
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1294574533}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &754696642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d153a7f15e74bdfa1bd43110be4243, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AwardsModalController
+  achievements:
+  - id: bookworm
+    name: Bookworm
+    description: Sell 100 books
+    icon: "\U0001F4DA"
+    current: 67
+    target: 100
+    unit: ITEMS
+    isLocked: 0
+    points: 50
+  - id: starclub
+    name: Star Club
+    description: 5 Club Stars
+    icon: "\u2B50"
+    current: 2
+    target: 5
+    unit: STARS
+    isLocked: 0
+    points: 80
+  - id: wallet
+    name: Golden Wallet
+    description: Accumulate $5,000
+    icon: "\U0001F4B0"
+    current: 1240
+    target: 5000
+    unit: $
+    isLocked: 0
+    points: 60
+  - id: collector
+    name: Collector
+    description: Gather full author series
+    icon: "\U0001F512"
+    current: 0
+    target: 1
+    unit: LOCKED
+    isLocked: 1
+    points: 100
+  - id: panthers
+    name: Friend of Panthers
+    description: 5 visits from Panthers
+    icon: "\U0001F43E"
+    current: 2
+    target: 5
+    unit: VISITS
+    isLocked: 0
+    points: 40
+  - id: legend
+    name: Book Legend
+    description: Max shop level
+    icon: "\U0001F512"
+    current: 0
+    target: 1
+    unit: LOCKED
+    isLocked: 1
+    points: 200
+--- !u!114 &754696643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b77019ba41c5d4ae1a43e86ffd05c426, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCModalController
+--- !u!114 &754696644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac69968d547764c38b0677d01be4c0b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DecorModalController
+--- !u!114 &754696645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862d4bf80970f41f29c6f5761cf02a25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CatalogModalController
+--- !u!114 &754696646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15b221361cd9949f482547b404d31dc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryModalController
+--- !u!114 &754696647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 393b1983560d74c419e83608211731c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ToastController
+  toastDuration: 2.8
+--- !u!114 &754696648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea539b4f6c76746098936ba7d75789e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookInfoController
+--- !u!114 &754696649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47dd178fa0752423aae9785d1649acd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CalendarController
+  monthName: September
+  yearLabel: "YEAR I \xB7 AUTUMN"
+  daysInWeek: 7
+--- !u!114 &754696650
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8b2ff9a3c20942bf9c603fb62a51f13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClockController
+  startHour: 12
+  startMinute: 43
+  gameMinutesPerSec: 0.5
+--- !u!114 &754696651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 676e00674f9e34feb8e832202ed9fcb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BuffsController
+--- !u!114 &754696652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d3d7e35b81b84ad2a8e0630a4936448, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ClubCardController
+--- !u!114 &754696653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08ac6c4991b574daaac681cb79d56208, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookshopUIController
+  uiDocument: {fileID: 754696654}
+  buffCardTemplate: {fileID: 9197481963319205126, guid: ec442f7dcd93a46489d94c0829291f0d, type: 3}
+  inventoryRowTemplate: {fileID: 9197481963319205126, guid: 0f93f41f9dd3647f9a215fd01cb7881d, type: 3}
+  catalogBookCardTemplate: {fileID: 9197481963319205126, guid: 772a3c96097554d4c96f7cf25eef4f2d, type: 3}
+  catalogAuthorSectionTemplate: {fileID: 9197481963319205126, guid: 60940043b6e9949349099818c742facf, type: 3}
+  decorItemCardTemplate: {fileID: 9197481963319205126, guid: 9cb8a2283bcc04a468e6a1a41eabebb6, type: 3}
+  clubCardCtrl: {fileID: 0}
+  buffsCtrl: {fileID: 0}
+  clockCtrl: {fileID: 0}
+  calendarCtrl: {fileID: 0}
+  bookInfoCtrl: {fileID: 0}
+  inventoryCtrl: {fileID: 0}
+  catalogCtrl: {fileID: 0}
+  decorCtrl: {fileID: 0}
+  npcCtrl: {fileID: 0}
+  awardsCtrl: {fileID: 0}
+  toastCtrl: {fileID: 0}
+--- !u!114 &754696654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 6e4cde12f6eda463eb49b1bc45d811d7, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: f6ace560225604ccbbaa03a00a37d017, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1001 &756194331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4333,14 +4623,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a55483108689741c0adf2c7ba9b2e89d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookInstancingDiagnostic
-  bookMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
-  coverMaterial: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
-  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
-  origin: {x: 0, y: 1, z: 0}
-  spacingX: 0.46
-  spacingZ: 0.3
-  meshRotation: {x: 0, y: 0, z: 0}
-  verboseLogging: 0
 --- !u!1 &961640012
 GameObject:
   m_ObjectHideFlags: 0
@@ -4912,7 +5194,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1118481606
 Transform:
   m_ObjectHideFlags: 0
@@ -5920,6 +6202,7 @@ Transform:
   - {fileID: 1118481606}
   - {fileID: 1477937109}
   - {fileID: 2025284045}
+  - {fileID: 754696641}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1310039948
@@ -9489,6 +9772,37 @@ MonoBehaviour:
   enableHotkeys: 1
   showHotkeyHints: 1
   startFromDay: 1
+--- !u!1 &1839245955
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1839245956}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1839245956
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1839245955}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.54801, y: 1.94139, z: -3.62902}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1844277868 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7291838255608329019, guid: d98ced33ee879c041b86388227869b3f, type: 3}
@@ -11132,3 +11446,4 @@ SceneRoots:
   - {fileID: 1565861664}
   - {fileID: 369334800}
   - {fileID: 712627609}
+  - {fileID: 1839245956}

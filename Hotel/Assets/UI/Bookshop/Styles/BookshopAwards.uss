@@ -1,0 +1,93 @@
+/* ═══════════════════════════════════════════════════
+   BookshopAwards.uss — Awards modal
+   Path: Assets/UI/Bookshop/Styles/BookshopAwards.uss
+═══════════════════════════════════════════════════ */
+
+.ach-cover-stat {
+    align-items: center;
+    padding: 8px 0;
+}
+.ach-cover-stat-l {
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    -unity-font-style: bold;
+}
+.ach-cover-stat-v {
+    font-size: 27px;
+    color: var(--page);
+    -unity-font-style: bold;
+    margin-top: 2px;
+}
+
+.ach-grid {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+.ach-item {
+    width: 48%;
+    background-color: var(--page-light);
+    border-width: 1px;
+    border-color: var(--gold-soft);
+    padding: 11px;
+    margin-right: 2%;
+    margin-bottom: 11px;
+    flex-direction: row;
+}
+.ach-item:hover {
+    translate: -1px -2px;
+    border-color: var(--gold);
+}
+
+.ach-plate {
+    width: 46px; height: 46px;
+    background-color: var(--page-shadow);
+    border-width: 1px;
+    border-color: var(--gold-deep);
+    align-items: center;
+    justify-content: center;
+    margin-right: 11px;
+}
+.ach-plate > Label {
+    font-size: 22px;
+}
+.ach-plate.locked {
+    opacity: 0.5;
+}
+
+.ach-info {
+    flex-grow: 1;
+}
+.ach-name {
+    font-size: 14px;
+    color: var(--ink);
+    -unity-font-style: bold-and-italic;
+}
+.ach-desc {
+    font-size: 9px;
+    color: var(--ink-mute);
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+.ach-track {
+    height: 5px;
+    background-color: rgba(0,0,0,0.1);
+    border-width: 1px;
+    border-color: var(--gold-soft);
+    margin-top: 5px;
+}
+.ach-fill {
+    height: 100%;
+    background-color: var(--gold);
+    transition-property: width;
+    transition-duration: 1.2s;
+}
+.ach-count {
+    font-size: 10px;
+    color: var(--gold-deep);
+    letter-spacing: 0.8px;
+    margin-top: 3px;
+    -unity-font-style: bold;
+}

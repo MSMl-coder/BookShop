@@ -1,0 +1,82 @@
+/* ═══════════════════════════════════════════════════
+   BookshopNPC.uss — NPC dialogue modal
+   Path: Assets/UI/Bookshop/Styles/BookshopNPC.uss
+═══════════════════════════════════════════════════ */
+
+.npc-portrait {
+    width: 70px; height: 70px;
+    border-radius: 35px;
+    background-color: var(--board);
+    align-items: center;
+    justify-content: center;
+    border-width: 2px;
+    border-color: var(--gold);
+    margin: 6px auto 11px;
+    align-self: center;
+}
+.npc-portrait > Label {
+    font-size: 38px;
+}
+.npc-name {
+    font-size: 19px;
+    color: var(--ink);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold-and-italic;
+}
+.npc-role {
+    font-size: 10px;
+    letter-spacing: 2.4px;
+    color: var(--ink-mute);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    margin-top: 2px;
+}
+
+.npc-dialogue {
+    background-color: rgba(212, 168, 67, 0.12);
+    border-left-width: 3px;
+    border-left-color: var(--gold);
+    padding: 11px 13px;
+    margin-top: 11px;
+    margin-bottom: 11px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    -unity-font-style: italic;
+    white-space: normal;
+}
+
+.npc-options {
+    flex-direction: column;
+}
+.npc-option {
+    padding: 8px 13px;
+    margin-bottom: 4px;
+    border-width: 1px;
+    border-color: var(--gold-soft);
+    background-color: rgba(212, 168, 67, 0.04);
+    font-size: 12px;
+    color: var(--ink);
+    -unity-font-style: italic;
+    flex-direction: row;
+}
+.npc-option:hover {
+    background-color: rgba(212, 168, 67, 0.14);
+    border-color: var(--gold);
+    padding-left: 18px;
+}
+
+.npc-cover-stat {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 10px;
+    color: var(--page);
+    letter-spacing: 0.8px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(212, 168, 67, 0.2);
+    -unity-font-style: bold;
+}
+.npc-cover-stat__val {
+    color: var(--gold-bright);
+    -unity-font-style: bold;
+}

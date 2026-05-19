@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    InventoryRowTemplate.uxml — Single inventory book row
+    Path: Assets/UI/Bookshop/Templates/InventoryRowTemplate.uxml
+
+    Detailed row with rarity-colored border glow.
+    Rarity classes added dynamically: r-common, r-uncommon, r-rare, r-epic, r-legend
+-->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement class="inv-row">
+        <ui:VisualElement name="InvRowIcon" class="inv-row__icon">
+            <ui:VisualElement class="flip-face__border-inner" picking-mode="Ignore"/>
+            <ui:Label name="InvRowIconText" text="📕"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="inv-row__info">
+            <ui:Label name="InvBookTitle" text="«Book Title»" class="inv-row__title"/>
+            <ui:Label name="InvBookAuthor" text="Author · Year" class="inv-row__author"/>
+            <ui:VisualElement class="inv-row__pills">
+                <ui:Label name="InvBookGenre" text="Genre" class="inv-pill inv-pill--genre"/>
+                <ui:Label name="InvBookRarity" text="Common" class="inv-pill"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="inv-row__price-block">
+            <ui:Label name="InvBookPrice" text="$ 95" class="inv-row__price"/>
+            <ui:Label name="InvBookStock" text="3 in stock" class="inv-row__stock"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

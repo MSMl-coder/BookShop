@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    CatalogAuthorSectionTemplate.uxml — Author section: header + books row + arrow + bonus
+    Path: Assets/UI/Bookshop/Templates/CatalogAuthorSectionTemplate.uxml
+-->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement class="author-section">
+        <ui:VisualElement class="author-section__header">
+            <ui:Label name="AuthorName" text="Mikhail Bulgakov" class="author-section__name"/>
+            <ui:Label name="AuthorMeta" text="3 / 4 COLLECTED · CLASSIC" class="author-section__meta"/>
+        </ui:VisualElement>
+        <ui:VisualElement class="author-section__books-row">
+            <ui:VisualElement name="BooksContainer" class="author-section__books-container"/>
+            <ui:VisualElement class="coll-arrow">
+                <ui:Label text="→" class="coll-arrow__icon"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="BonusCard" class="bonus-card">
+                <ui:VisualElement class="bonus-card__top-band"/>
+                <ui:VisualElement class="bonus-card__content">
+                    <ui:Label text="REWARD" class="bonus-card__label"/>
+                    <ui:VisualElement class="bonus-card__icon-frame">
+                        <ui:Label name="BonusIcon" text="🎁"/>
+                    </ui:VisualElement>
+                    <ui:Label name="BonusTitle" text="+35% reputation" class="bonus-card__title"/>
+                    <ui:Label text="★ ★ ★" class="bonus-card__flourish"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="bonus-card__footer">
+                    <ui:Label name="BonusTarget" text="3 / 4" class="bonus-card__target"/>
+                    <ui:Label name="BonusStatus" text="IN PROGRESS" class="bonus-card__status"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
