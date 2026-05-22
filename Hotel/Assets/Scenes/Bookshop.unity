@@ -3948,7 +3948,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 754696640}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a673dff8e139c4c9fb103977dc93534e, type: 3}
+  m_Script: {fileID: 11500000, guid: c0fcd9ac91538437387ff35b6388b124, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BookshopUIBridge
 --- !u!1001 &756194331

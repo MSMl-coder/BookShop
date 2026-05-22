@@ -221,7 +221,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="Overlay" picking-mode="Position" class="overlay hidden"/>
         <ui:VisualElement name="ModalsLayer" picking-mode="Ignore" class="modals-layer" style="top: -8px; bottom: 10px; right: 2px; left: 0;">
-            <ui:VisualElement name="InvModal" picking-mode="Position" class="nb-modal nb-modal--inv hidden" style="display: none; top: 286px; width: 499px; position: relative; bottom: auto; height: 708px;">
+            <ui:VisualElement name="InvModal" picking-mode="Position" class="nb-modal nb-modal--inv hidden" style="top: 286px; width: 502px;">
                 <ui:VisualElement class="nb-cover">
                     <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
                     <ui:Label text="Inventory" class="nb-cover__title"/>
@@ -261,7 +261,7 @@
                 </ui:VisualElement>
                 <ui:Button name="InvCloseBtn" text="✕" class="nb-close-btn"/>
             </ui:VisualElement>
-            <ui:VisualElement name="CatModal" picking-mode="Position" class="nb-modal nb-modal--center hidden" style="display: none;">
+            <ui:VisualElement name="CatModal" picking-mode="Position" class="nb-modal nb-modal--center hidden">
                 <ui:VisualElement class="nb-cover">
                     <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
                     <ui:Label text="CLUB·007" class="nb-cover__tag"/>
@@ -295,7 +295,7 @@
                 </ui:VisualElement>
                 <ui:Button name="CatCloseBtn" text="✕" class="nb-close-btn"/>
             </ui:VisualElement>
-            <ui:VisualElement name="DecorModal" picking-mode="Position" class="nb-modal nb-modal--bottom hidden" style="display: none;">
+            <ui:VisualElement name="DecorModal" picking-mode="Position" class="nb-modal nb-modal--bottom hidden">
                 <ui:Button name="DecorCloseBtn" text="✕" class="nb-close-btn"/>
                 <ui:VisualElement class="decor-cats-strip">
                     <ui:ScrollView name="DecorCatList" mode="Vertical" class="decor-cats-strip__list"/>
