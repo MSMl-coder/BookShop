@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopTagData
   shopName: "\u041A\u043D\u0438\u0433\u0430\u0440\u043D\u044F"
   shopSubtitle: "\xAB\u0421\u0442\u0430\u0440\u0438\u0439 \u0410\u0440\u0445\u0456\u0432\xBB"
-  shopTicketNo: UA-1987
+  shopTicketNo: 
   levels:
   - level: 1
     rankName: "\u041D\u043E\u0432\u0430\u0447\u043E\u043A"

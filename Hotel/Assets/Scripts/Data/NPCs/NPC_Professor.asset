@@ -18,10 +18,19 @@ MonoBehaviour:
   stayDuration: 10.16
   buyChance: 0.6
   maxBudget: 80
-  preferredGenres: 060000000500000000000000
   shelvesToInspect: 8
   inspectTimeMin: 12
   inspectTimeMax: 25
+  preferredGenres: 060000000500000000000000
+  minBooksToBuy: 1
+  maxBooksToBuy: 5
+  minAcceptableRarity: 1
+  maxAcceptableRarity: 4
+  budgetMultiplierMin: 0.6
+  budgetMultiplierMax: 1.4
+  canBePicky: 1
+  canBeRushed: 1
+  impulsiveMoodChance: 0.15
   greetingDuration: 5
   acceptMessageDuration: 5
   maxPlayerOfferAttempts: 3

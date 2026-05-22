@@ -469,7 +469,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2637079585334307739
 RectTransform:
   m_ObjectHideFlags: 0
@@ -737,7 +737,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4657846213629777081
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2185,6 +2185,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e8e1bfafe7fa241ba6b4181f3eba85, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7148481230660635032}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e8e1bfafe7fa241ba6b4181f3eba85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1300322275722107075}
   m_SourcePrefab: {fileID: 100100000, guid: f1e8e1bfafe7fa241ba6b4181f3eba85, type: 3}
 --- !u!1 &1692468126580653705 stripped
 GameObject:
@@ -2301,6 +2304,45 @@ MonoBehaviour:
   shakeDuration: 0.45
   chipNormalColor: {r: 0.08, g: 0.4, b: 0.75, a: 1}
   chipRejectColor: {r: 0.76, g: 0.18, b: 0.18, a: 1}
+--- !u!114 &1300322275722107075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1692468126580653705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8728706b656184d1e8b879998ebb9664, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCLevelBadge
+  starPrefab: {fileID: 8026209407707755346, guid: eda9b5b19027c41479cb9882e9a8fe87, type: 3}
+  heightOffset: 2.6
+  orbitRadius: 0
+  orbitSpeed: 0
+  selfRotSpeed: 200
+  starScale: 1
+  levelFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  fontSize: 3
+  textColor: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  levelColors:
+  - minLevel: 1
+    color: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+  - minLevel: 4
+    color: {r: 0.25, g: 0.55, b: 1, a: 1}
+  - minLevel: 7
+    color: {r: 1, g: 0.8, b: 0.1, a: 1}
+  - minLevel: 10
+    color: {r: 0.65, g: 0.15, b: 1, a: 1}
+  emissionLevels:
+  - minLevel: 1
+    intensity: 0.5
+  - minLevel: 4
+    intensity: 1.5
+  - minLevel: 7
+    intensity: 3
+  - minLevel: 10
+    intensity: 5
 --- !u!4 &2033105197973300275 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f1e8e1bfafe7fa241ba6b4181f3eba85, type: 3}

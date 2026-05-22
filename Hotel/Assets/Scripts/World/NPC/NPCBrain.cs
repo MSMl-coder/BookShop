@@ -73,6 +73,12 @@ public class NPCBrain : MonoBehaviour
         _reservedShelf        = null;
         _isInitialized        = true;
 
+
+        int level = NPCLevelCalculator.Calculate(Personality);
+        GetComponent<NPCLevelBadge>()?.SetLevel(level);
+        Debug.Log($"[NPC] {data.npcName} Lv{level}: {Personality.DebugString()}");
+
+        
         // Unity 6: обов'язковий FindObjectsSortMode
         _cachedShelves = FindObjectsByType<Shelf>(FindObjectsSortMode.None);
 

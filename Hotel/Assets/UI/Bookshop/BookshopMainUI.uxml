@@ -42,10 +42,10 @@
             </ui:VisualElement>
             <ui:VisualElement name="BuffsArea" picking-mode="Position" class="buffs-area"/>
             <ui:VisualElement name="ClockFrame" picking-mode="Position" class="clock-frame">
-                <ui:VisualElement name="ClockBar" class="clock-bar tag">
+                <ui:VisualElement name="ClockBar" class="clock-bar tag" style="height: 67px; width: 355px;">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
-                    <ui:VisualElement name="FlipClock" class="flip-clock">
+                    <ui:VisualElement name="FlipClock" class="flip-clock" style="height: 57px; width: 159px;">
                         <ui:VisualElement name="FlipH1" class="flip-digit">
                             <ui:VisualElement class="flip-digit__top">
                                 <ui:Label name="FlipH1TopNext" text="1" style="height: 48px; -unity-text-align: middle-center;"/>
@@ -130,19 +130,19 @@
             </ui:VisualElement>
             <ui:VisualElement name="ToastArea" picking-mode="Ignore" class="toast-area" style="height: 58px;"/>
             <ui:VisualElement name="Calendar" picking-mode="Position" class="calendar">
-                <ui:VisualElement class="calendar__month-head">
+                <ui:VisualElement class="calendar__month-head" style="height: 35px;">
                     <ui:Label name="CalMonthName" text="September" class="calendar__month-name"/>
-                    <ui:Label name="CalYear" text="YEAR I · AUTUMN" class="calendar__year"/>
+                    <ui:Label name="CalYear" text="YEAR I · AUTUMN" class="calendar__year" style="height: 22px; width: 90px;"/>
                 </ui:VisualElement>
-                <ui:VisualElement class="calendar__body">
-                    <ui:VisualElement class="calendar__day-display">
+                <ui:VisualElement class="calendar__body" style="height: 122px; width: 191px;">
+                    <ui:VisualElement class="calendar__day-display" style="height: 65px; width: 165px;">
                         <ui:Label name="CalBigDay" text="1" class="calendar__big-day"/>
                         <ui:VisualElement class="calendar__day-side">
                             <ui:Label name="CalWeekday" text="Monday" class="calendar__weekday"/>
                             <ui:Label name="CalDayMeta" text="To weekend · 5 days" class="calendar__day-meta"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="CalWeekStrip" class="calendar__week-strip"/>
+                    <ui:VisualElement name="CalWeekStrip" class="calendar__week-strip" style="height: 24px; width: 163px; -unity-text-align: upper-center;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="BookInfoCard" picking-mode="Position" class="book-info hidden" style="display: flex;">
@@ -221,7 +221,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="Overlay" picking-mode="Position" class="overlay hidden"/>
         <ui:VisualElement name="ModalsLayer" picking-mode="Ignore" class="modals-layer" style="top: -8px; bottom: 10px; right: 2px; left: 0;">
-            <ui:VisualElement name="InvModal" picking-mode="Position" class="nb-modal nb-modal--inv hidden" style="top: 286px; width: 502px;">
+            <ui:VisualElement name="InvModal" picking-mode="Position" class="nb-modal nb-modal--inv hidden" style="top: 286px; width: 502px; display: none;">
                 <ui:VisualElement class="nb-cover">
                     <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
                     <ui:Label text="Inventory" class="nb-cover__title"/>
