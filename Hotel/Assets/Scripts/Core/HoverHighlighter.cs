@@ -108,7 +108,7 @@ public class HoverHighlighter : MonoBehaviour
                 var npc = h.collider.GetComponentInParent<NPCBrain>();
                 if (npc != null &&
                     (npc.CurrentState == NPCState.Browsing      ||
-                     npc.CurrentState == NPCState.ShowingHint   ||
+              //       npc.CurrentState == NPCState.ShowingHint   ||
                      npc.CurrentState == NPCState.WaitingForPlayer))
                     return GetOrAdd(npc.gameObject);
             }

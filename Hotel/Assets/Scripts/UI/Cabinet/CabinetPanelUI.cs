@@ -41,12 +41,8 @@ public class CabinetPanelUI : MonoBehaviour
 
         var all = FindObjectsByType<Cabinet>(FindObjectsSortMode.None);
         foreach (var cab in all)
-        {
-            var item = MakeCabinetItem(cab);
-            _cabinetList.Add(item);
-        }
+            _cabinetList.Add(MakeCabinetItem(cab));
 
-        // Будуємо полиці для вибраної шафи
         if (_selectedCabinet != null)
             BuildShelfList(_selectedCabinet);
     }
@@ -57,9 +53,14 @@ public class CabinetPanelUI : MonoBehaviour
         row.AddToClassList("cabinet-item");
         if (cab == _selectedCabinet) row.AddToClassList("selected");
 
-        var name  = new Label(cab.cabinetName);   name.AddToClassList("cabinet-item__name");
-        var count = new Label($"{cab.shelves.Count} полиці"); count.AddToClassList("cabinet-item__count");
-        row.Add(name); row.Add(count);
+        var name  = new Label(cab.cabinetName);
+        name.AddToClassList("cabinet-item__name");
+
+        var count = new Label($"{cab.shelves.Count} полиці");
+        count.AddToClassList("cabinet-item__count");
+
+        row.Add(name);
+        row.Add(count);
 
         row.RegisterCallback<ClickEvent>(_ =>
         {
@@ -77,25 +78,39 @@ public class CabinetPanelUI : MonoBehaviour
 
         for (int i = 0; i < cabinet.shelves.Count; i++)
         {
-            int idx   = i;
+            int   idx   = i;
             Shelf shelf = cabinet.shelves[i];
+            if (shelf == null) continue;
 
             var item = new VisualElement();
             item.AddToClassList("shelf-item");
             if (shelf == _selectedShelf) item.AddToClassList("selected");
 
-            var nameL = new Label($"Полиця {idx + 1}"); nameL.AddToClassList("shelf-item__name");
+            // Номер полиці
+            var nameL = new Label($"Полиця {idx + 1}");
+            nameL.AddToClassList("shelf-item__name");
 
             // Fill bar
-            var barBg  = new VisualElement(); barBg.AddToClassList("shelf-fill-bg");
+            var barBg   = new VisualElement(); barBg.AddToClassList("shelf-fill-bg");
             var barFill = new VisualElement(); barFill.AddToClassList("shelf-fill-bar");
             float pct = shelf.GetFillRatio() * 100f;
             barFill.style.width = Length.Percent(pct);
+            if (pct >= 95f) barFill.AddToClassList("full");
             barBg.Add(barFill);
 
-            var cnt = new Label($"{shelf.GetBookCount()} книг"); cnt.AddToClassList("shelf-item__count");
+            // Жанрова мітка — "Фентезі ×5" або "Фентезі (осн.) та інші"
+            string genreText = ShelfGenreInfo.BuildLabel(shelf);
+            var genreLbl = new Label(genreText);
+            genreLbl.AddToClassList("shelf-item__genre");
 
-            item.Add(nameL); item.Add(barBg); item.Add(cnt);
+            // Лічильник книг
+            var cnt = new Label($"{shelf.GetBookCount()} кн.");
+            cnt.AddToClassList("shelf-item__count");
+
+            item.Add(nameL);
+            item.Add(barBg);
+            item.Add(genreLbl);
+            item.Add(cnt);
             item.RegisterCallback<ClickEvent>(_ => SelectShelf(shelf, idx + 1));
 
             _shelfList.Add(item);
@@ -106,12 +121,25 @@ public class CabinetPanelUI : MonoBehaviour
     {
         _selectedShelf = shelf;
         if (_selectedLabel != null)
-            _selectedLabel.text = $"{_selectedCabinet?.cabinetName} · Полиця {number}  [{shelf.GetBookCount()} книг]";
+        {
+            string genreText = ShelfGenreInfo.BuildLabel(shelf);
+            _selectedLabel.text =
+                $"{_selectedCabinet?.cabinetName} · Полиця {number} — {genreText}";
+        }
         BuildShelfList(_selectedCabinet);
     }
 
-    private void PushOne()  { if (_selectedShelf != null) InventoryManager.Instance?.PushOneToShelf(_selectedShelf); RefreshLabel(); }
-    private void PushAll()  { if (_selectedShelf != null) InventoryManager.Instance?.PushAllToShelf(_selectedShelf); RefreshLabel(); }
+    private void PushOne()
+    {
+        if (_selectedShelf != null) InventoryManager.Instance?.PushOneToShelf(_selectedShelf);
+        RefreshLabel();
+    }
+
+    private void PushAll()
+    {
+        if (_selectedShelf != null) InventoryManager.Instance?.PushAllToShelf(_selectedShelf);
+        RefreshLabel();
+    }
 
     private void PopOne()
     {
@@ -125,15 +153,22 @@ public class CabinetPanelUI : MonoBehaviour
     {
         if (_selectedShelf == null) return;
         BookInstance b;
-        do { b = _selectedShelf.TakeLastBook(); if (b != null) InventoryManager.Instance?.AddExistingBook(b); } while (b != null);
+        do
+        {
+            b = _selectedShelf.TakeLastBook();
+            if (b != null) InventoryManager.Instance?.AddExistingBook(b);
+        }
+        while (b != null);
         RefreshLabel();
     }
 
     private void RefreshLabel()
     {
         if (_selectedShelf == null || _selectedLabel == null) return;
-        int n = _selectedCabinet?.shelves.IndexOf(_selectedShelf) + 1 ?? 0;
-        _selectedLabel.text = $"{_selectedCabinet?.cabinetName} · Полиця {n}  [{_selectedShelf.GetBookCount()} книг]";
+        int n = (_selectedCabinet?.shelves.IndexOf(_selectedShelf) ?? -1) + 1;
+        string genreText = ShelfGenreInfo.BuildLabel(_selectedShelf);
+        _selectedLabel.text =
+            $"{_selectedCabinet?.cabinetName} · Полиця {n} — {genreText}";
         BuildShelfList(_selectedCabinet);
     }
 }

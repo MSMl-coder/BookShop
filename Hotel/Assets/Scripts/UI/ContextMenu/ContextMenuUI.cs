@@ -230,27 +230,29 @@ public class ContextMenuUI : MonoBehaviour
         _panel.style.display = DisplayStyle.Flex;
     }
 
-    private void TakeBookToInventory(BookWorldItem bookItem)
+    private static void TakeBookToInventory(BookWorldItem item)
     {
-        if (bookItem == null) return;
+        if (item == null || item.instance == null) return;
 
-        // Знімаємо книгу з полиці
-        var shelf = bookItem.GetComponentInParent<Shelf>();
-        if (shelf != null) shelf.RemoveBook(bookItem.gameObject);
+        BookInstance inst = null;
 
-        // Додаємо в інвентар
-        if (bookItem.instance != null)
-            InventoryManager.Instance?.AddExistingBook(bookItem.instance);
+        if (item.parentShelf != null)
+        {
+            // v4.2: видаляємо за bookIndex, не за GO
+            inst = item.parentShelf.TakeBookAt(item.bookIndex);
+            // ghost демалізується автоматично через TakeBookAt → DematerializeBook
+        }
 
-        Destroy(bookItem.gameObject);
-        Debug.Log($"[ContextMenu] Taken to inventory. Total: {InventoryManager.Instance?.GetBookCount()}");
+        if (inst == null)
+        {
+            Debug.LogWarning($"[ContextMenu] fallback: '{item.instance.templateID}'");
+            inst = item.instance;
+            Object.Destroy(item.gameObject);
+        }
 
-        // ── Відкриваємо BookshopUI інвентар ──
-        if (BookshopUIController.Instance != null)
-            BookshopUIController.Instance.OpenModal("inv");
-        else
-            ShopUIManager.Instance?.OpenInventoryPanel(); // fallback
-    }
+        InventoryManager.Instance?.AddExistingBook(inst);
+        Debug.Log($"[ContextMenu] '{inst.templateID}' → інвентар.");
+}
 
     // ── Inner class ────────────────────────────────────────────
     private class ContextButton

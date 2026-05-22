@@ -69,6 +69,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e8e1bfafe7fa241ba6b4181f3eba85, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2364150855247973413}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e8e1bfafe7fa241ba6b4181f3eba85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -582507076819668263}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f1e8e1bfafe7fa241ba6b4181f3eba85, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7538019539142599567}
   m_SourcePrefab: {fileID: 100100000, guid: f1e8e1bfafe7fa241ba6b4181f3eba85, type: 3}
 --- !u!1 &990903540611260484 stripped
 GameObject:
@@ -127,3 +133,39 @@ ScaleConstraint:
   m_Active: 0
   m_IsLocked: 0
   m_Sources: []
+--- !u!114 &-582507076819668263
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990903540611260484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ad792f5efc54bbe92347054e9570e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCWorldUI
+  uiRoot: {fileID: 0}
+  timerFillImage: {fileID: 0}
+  thoughtBubble: {fileID: 0}
+  thoughtText: {fileID: 0}
+  genreChip: {fileID: 0}
+  genreText: {fileID: 0}
+  genreIconImage: {fileID: 0}
+  timeFullColor: {r: 0.3, g: 0.69, b: 0.31, a: 1}
+  timeHalfColor: {r: 1, g: 0.76, b: 0.03, a: 1}
+  timeEmptyColor: {r: 0.9, g: 0.23, b: 0.21, a: 1}
+  genreChipColor: {r: 0.08, g: 0.4, b: 0.75, a: 1}
+  genreIcons: []
+--- !u!114 &7538019539142599567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 990903540611260484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b1205d49a06d43669c90b988b8d42f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShelfScanner

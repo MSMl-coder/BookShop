@@ -6,19 +6,25 @@ using System.Collections.Generic;
 
 public static class ShelfRestorer
 {
-    public static void RestoreAll(List<ShelfSaveEntry> entries)
+   public static void RestoreAll(List<ShelfSaveEntry> entries)
+{
+    if (entries == null || entries.Count == 0) return;
+
+    var shelfMap = new Dictionary<string, Shelf>();
+    var allShelves = Object.FindObjectsByType<Shelf>(FindObjectsInactive.Exclude);
+    foreach (var shelf in allShelves)
+        shelfMap[$"{shelf.name}_{shelf.transform.GetSiblingIndex()}"] = shelf;
+
+    foreach (var entry in entries)
     {
-        if (entries == null) return;
-        var shelfMap = BuildShelfMap();
-        int restored = 0;
-        foreach (var entry in entries)
-        {
-            if (!shelfMap.TryGetValue(entry.shelfID, out Shelf shelf)) continue;
-            shelf.LoadFromSaveEntry(entry);
-            restored++;
-        }
-        Debug.Log(string.Format("[ShelfRestorer] Restored {0} shelves.", restored));
+        if (shelfMap.TryGetValue(entry.shelfID, out Shelf shelf))
+            shelf.LoadFromSaveEntry(entry); // делегуємо Shelf — вона знає свій формат
+        else
+            Debug.LogWarning($"[ShelfRestorer] Shelf не знайдена: '{entry.shelfID}'");
     }
+
+    Debug.Log("[ShelfRestorer] All shelves restored.");
+}
 
     public static IEnumerator RestoreAllAsync(List<ShelfSaveEntry> entries)
     {

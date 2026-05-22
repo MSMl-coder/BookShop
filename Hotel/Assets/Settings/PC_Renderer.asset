@@ -112,7 +112,7 @@ MonoBehaviour:
   m_Name: Ligne Claire Outline
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.FullScreenPassRendererFeature
   m_Active: 1
-  injectionPoint: 550
+  injectionPoint: 450
   fetchColorBuffer: 1
   requirements: 0
   passMaterial: {fileID: 2100000, guid: 6d7c6c8b8e2de4bf9bab430b94ac5e51, type: 2}

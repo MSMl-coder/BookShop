@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8acd7bd923df499ca6a5693e47a673f, type: 3}
   m_Name: BT_HarryPotter6
   m_EditorClassIdentifier: Assembly-CSharp::BookTemplate
-  bookID: 202401402650
+  bookID: 202405402650
   title: BT_HarryPotter6
   author: JKR
-  genre: 1
+  genre: 5
   rarity: 4
   writingYear: 2024
   volumeNumber: 2

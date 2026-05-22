@@ -68,6 +68,7 @@ public class Shelf : MonoBehaviour
     private BookWorldItem _materializedBook;
     [System.NonSerialized] public BookWorldItem _materializedBookRef;
 
+
     // ───────────────────────────────────────────────────────────────────
     // LIFECYCLE
     // ───────────────────────────────────────────────────────────────────

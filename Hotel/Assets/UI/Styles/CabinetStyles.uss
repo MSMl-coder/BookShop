@@ -252,3 +252,13 @@
     opacity: 0.4;
     background-color: rgb(180, 165, 130);
 }
+
+.shelf-item__genre {
+    font-size: 9px;
+    color: rgb(58, 42, 26);
+    -unity-font-style: italic;
+    flex-grow: 1;
+    white-space: normal;
+    margin-left: 6px;
+    margin-right: 4px;
+}
