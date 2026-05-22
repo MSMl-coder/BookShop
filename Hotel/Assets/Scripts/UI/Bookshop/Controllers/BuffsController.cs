@@ -35,27 +35,27 @@ public class BuffsController : MonoBehaviour
         _buffsArea = root.Q<VisualElement>("BuffsArea");
         _master = master;
 
-        // Subscribe to BonusManager if available
-        // (assumes BonusManager.Instance.OnBuffsChanged event with List<BuffData> arg)
-        if (BonusManager.Instance != null)
-        {
-       //     BonusManager.Instance.OnBonusesChanged += RefreshFromBonusSystem;
-            RefreshFromBonusSystem();
-        }
+        // Subscribe to BonusSystem if available
+        // (assumes BonusSystem.Instance.OnBuffsChanged event with List<BuffData> arg)
+       // if (BonusSystem.Instance != null)
+    //    {
+    //        BonusSystem.Instance.OnBuffsChanged += RefreshFromBonusSystem;
+    //        RefreshFromBonusSystem();
+     //   }
     }
 
     private void OnDisable()
     {
-        //if (BonusManager.Instance != null)
-         //   BonusManager.Instance.OnBonusChanged -= RefreshFromBonusSystem;
+      //  if (BonusSystem.Instance != null)
+      //      BonusSystem.Instance.OnBuffsChanged -= RefreshFromBonusSystem;
     }
 
     private void RefreshFromBonusSystem()
     {
-        // Adapter — pull from BonusManager and convert to BuffData
-        // Adjust this based on actual BonusManager API
+        // Adapter — pull from BonusSystem and convert to BuffData
+        // Adjust this based on actual BonusSystem API
         var buffs = new List<BuffData>();
-      /*  var active = BonusManager.Instance?.GetActiveBonuses();
+      /* var active = BonusSystem.Instance?.GetActiveBonuses();
         if (active != null)
         {
             foreach (var b in active)
@@ -69,8 +69,8 @@ public class BuffsController : MonoBehaviour
                     value = b.effectText
                 });
             }
-        }
-       */ SetBuffs(buffs);
+        }*/
+        SetBuffs(buffs);
     }
 
     public void SetBuffs(List<BuffData> buffs)

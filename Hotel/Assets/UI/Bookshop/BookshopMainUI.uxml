@@ -1,65 +1,104 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopVariables.uss?fileID=7433441132597879392&amp;guid=369a1b68400fe44ce81391dca56686d3&amp;type=3#BookshopVariables"/>
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopShared.uss?fileID=7433441132597879392&amp;guid=1ac6c6e6a236a4d21bf44fab53c85b19&amp;type=3#BookshopShared"/>
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopHUD.uss?fileID=7433441132597879392&amp;guid=10bc2c07a8aed403cb3adbc98f15b7db&amp;type=3#BookshopHUD"/>
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopModals.uss?fileID=7433441132597879392&amp;guid=f1611821e700f422a9544d6c4ec5b785&amp;type=3#BookshopModals"/>
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopInventory.uss?fileID=7433441132597879392&amp;guid=1e28576a76957430ca41329fd0a73335&amp;type=3#BookshopInventory"/>
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopCatalog.uss?fileID=7433441132597879392&amp;guid=68bdb9d6eb9b7453e8faeb6bf4c20a26&amp;type=3#BookshopCatalog"/>
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopDecor.uss?fileID=7433441132597879392&amp;guid=ac4b65887a5e8451dae23c6ba3b7930e&amp;type=3#BookshopDecor"/>
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopNPC.uss?fileID=7433441132597879392&amp;guid=83a08865bcd21487684ab33fbcc17d53&amp;type=3#BookshopNPC"/>
-    <Style src="project://database/Assets/UI/Bookshop/Styles/BookshopAwards.uss?fileID=7433441132597879392&amp;guid=7fca2eda2780e4f91a0ef33173696738&amp;type=3#BookshopAwards"/>
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Bookshop/BookshopUI.uss?fileID=7433441132597879392&amp;guid=6ad77ad8555184da6ad2a4f6d868a39d&amp;type=3#BookshopUI"/>
     <ui:VisualElement name="Root" picking-mode="Ignore" class="root">
         <ui:VisualElement name="HUD" picking-mode="Ignore" class="hud">
-            <ui:VisualElement name="ClubCard" picking-mode="Position" class="club-card">
-                <ui:VisualElement picking-mode="Ignore" class="tag-cord club-card__cord"/>
-                <ui:VisualElement name="ClubCardInner" picking-mode="Ignore" class="flip-inner">
-                    <ui:VisualElement name="ClubCardFront" picking-mode="Position" class="flip-face club-card__face">
-                        <ui:VisualElement picking-mode="Ignore" class="flip-face__border-outer"/>
-                        <ui:VisualElement picking-mode="Ignore" class="flip-face__border-inner"/>
-                        <ui:Label name="ClubName" text="«Cozy Corner»" class="club-card__name"/>
-                        <ui:Label name="ClubStars" text="★★★ ☆ ☆" class="club-card__stars"/>
-                        <ui:Label text="📚" class="club-card__emblem" style="position: relative; top: 4px; left: 6px; height: 31px; width: 44px;"/>
-                        <ui:Label name="ClubPrestige" text="PRESTIGE · III" class="club-card__prestige"/>
-                        <ui:VisualElement class="club-card__stats" style="height: 46px; align-content: center; align-self: stretch; -unity-text-align: middle-center;">
-                            <ui:VisualElement class="club-card__stat" style="height: 23px; width: 59px;">
-                                <ui:Label text="MEMBERS" class="club-card__stat-label"/>
-                                <ui:Label name="ClubMembers" text="12" class="club-card__stat-value"/>
-                            </ui:VisualElement>
-                            <ui:VisualElement class="club-card__stat" style="height: 23px; width: 31px;">
-                                <ui:Label text="REP." class="club-card__stat-label"/>
-                                <ui:Label name="ClubReputation" text="48" class="club-card__stat-value"/>
-                            </ui:VisualElement>
-                        </ui:VisualElement>
-                        <ui:Label text="↻ FLIP" class="club-card__hint"/>
+            <ui:VisualElement name="ClubCard" picking-mode="Position" class="club-card" style="display: flex;">
+                <ui:VisualElement picking-mode="Ignore" class="club-card__cord"/>
+                <ui:VisualElement name="ClubCardFront" picking-mode="Position" class="club-card__face club-card__face--front" style="opacity: 1; top: 0; bottom: 1px; right: 0; left: 1px;">
+                    <ui:VisualElement class="club-card__name-row" style="width: 131px; align-content: stretch; -unity-text-align: upper-center; height: 54px;">
+                        <ui:Label name="ShopNameLabel" text="«Cozy Corner»" class="club-card__name" style="position: absolute; top: 10px; left: 7px;"/>
+                        <ui:Button name="BtnEditShopName" text="✎" class="club-card__edit-btn" style="position: absolute; top: -1px; left: 52px;"/>
                     </ui:VisualElement>
-                    <ui:VisualElement name="ClubCardBack" picking-mode="Position" class="flip-face flip-face--back club-card__face">
-                        <ui:VisualElement picking-mode="Ignore" class="flip-face__border-outer"/>
-                        <ui:VisualElement picking-mode="Ignore" class="flip-face__border-inner"/>
-                        <ui:Label text="INV-07" class="club-card__tag-label"/>
-                        <ui:VisualElement class="club-card__header">
-                            <ui:Label text="SHOP" class="club-card__title"/>
-                            <ui:Label text="★ Daily Ledger ★" class="club-card__sub"/>
+                    <ui:Label name="ClubStars" text="★★★ ☆ ☆" class="club-card__stars" style="height: 34px; width: 103px;"/>
+                    <ui:Label text="PRESTIGE · III" class="club-card__prestige"/>
+                    <ui:VisualElement class="club-card__stats">
+                        <ui:VisualElement class="club-card__stat">
+                            <ui:Label text="MEMBERS" class="club-card__stat-label"/>
+                            <ui:Label name="ClubMembers" text="12" class="club-card__stat-value"/>
                         </ui:VisualElement>
-                        <ui:VisualElement class="club-card__day-block">
-                            <ui:Label text="DAY" class="club-card__stat-label"/>
-                            <ui:Label name="DayLabel" text="07" class="club-card__day-num"/>
+                        <ui:VisualElement class="club-card__stat">
+                            <ui:Label text="REP." class="club-card__stat-label"/>
+                            <ui:Label name="ClubReputation" text="48" class="club-card__stat-value"/>
                         </ui:VisualElement>
-                        <ui:VisualElement class="club-card__money-block">
-                            <ui:Label text="CASH" class="club-card__stat-label"/>
-                            <ui:Label name="MoneyLabel" text="$ 1,240" class="club-card__money"/>
-                        </ui:VisualElement>
-                        <ui:Label name="PhaseLabel" text="PREPARATION" class="club-card__phase-band"/>
-                        <ui:Label text="↻ FLIP" class="club-card__hint"/>
                     </ui:VisualElement>
+                    <ui:Label text="↻ FLIP" class="club-card__hint"/>
                 </ui:VisualElement>
+                <ui:VisualElement name="ClubCardBack" picking-mode="Position" class="club-card__face club-card__face--back" style="display: flex; opacity: 0;">
+                    <ui:VisualElement class="club-card__header" style="height: 23px;">
+                        <ui:Label text="SHOP" class="club-card__title"/>
+                        <ui:Label text="★ Daily Ledger ★" class="club-card__sub"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="club-card__stat" style="align-items: center; height: 22px; width: 60px; position: absolute; top: 55px;">
+                        <ui:Label text="SHOP LEVEL" class="club-card__stat-label" style="height: 19px; width: 61px; position: absolute; top: 3px; left: -3px;"/>
+                        <ui:Label name="DayLabel" text="01" class="club-card__day-num" style="position: absolute; height: 44px; top: 23px; width: 52px; left: 1px;"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="club-card__stat" style="align-items: center; height: 21px; width: 131px;">
+                        <ui:Label name="MoneyLabel" text="$ 1,240" class="club-card__money" style="position: absolute; top: 20px; left: 20px;"/>
+                    </ui:VisualElement>
+                    <ui:Label name="PhaseLabel" text="PREPARATION" class="club-card__phase-band" style="height: 16px; width: 94px; position: absolute; top: 162px; left: 27px;"/>
+                    <ui:Label text="↻ FLIP" class="club-card__hint"/>
+                </ui:VisualElement>
+                <ui:VisualElement picking-mode="Ignore" class="tag-ring" style="top: -8px; left: 80px;"/>
             </ui:VisualElement>
             <ui:VisualElement name="BuffsArea" picking-mode="Position" class="buffs-area"/>
             <ui:VisualElement name="ClockFrame" picking-mode="Position" class="clock-frame">
                 <ui:VisualElement name="ClockBar" class="clock-bar tag">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
-                    <ui:VisualElement picking-mode="Ignore" class="flip-face__border-outer"/>
-                    <ui:Label name="ClockDigits" text="12:43" class="clock-digits"/>
+                    <ui:VisualElement name="FlipClock" class="flip-clock">
+                        <ui:VisualElement name="FlipH1" class="flip-digit">
+                            <ui:VisualElement class="flip-digit__top">
+                                <ui:Label name="FlipH1TopNext" text="1" style="height: 48px; -unity-text-align: middle-center;"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="flip-digit__bottom">
+                                <ui:Label name="FlipH1BottomCur" text="1"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement name="FlipH1Flap" class="flip-digit__flap">
+                                <ui:Label name="FlipH1FlapLabel" text="1" style="height: 48px;"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement picking-mode="Ignore" class="flip-digit__gap"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="FlipH2" class="flip-digit">
+                            <ui:VisualElement class="flip-digit__top">
+                                <ui:Label name="FlipH2TopNext" text="2"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="flip-digit__bottom">
+                                <ui:Label name="FlipH2BottomCur" text="2"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement name="FlipH2Flap" class="flip-digit__flap">
+                                <ui:Label name="FlipH2FlapLabel" text="2" style="height: 48px;"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement picking-mode="Ignore" class="flip-digit__gap"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement picking-mode="Ignore" class="flip-colon">
+                            <ui:VisualElement class="flip-colon__dot"/>
+                            <ui:VisualElement class="flip-colon__dot"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="FlipM1" class="flip-digit">
+                            <ui:VisualElement class="flip-digit__top">
+                                <ui:Label name="FlipM1TopNext" text="4"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="flip-digit__bottom">
+                                <ui:Label name="FlipM1BottomCur" text="4"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement name="FlipM1Flap" class="flip-digit__flap">
+                                <ui:Label name="FlipM1FlapLabel" text="4" style="height: 48px;"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement picking-mode="Ignore" class="flip-digit__gap"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="FlipM2" class="flip-digit">
+                            <ui:VisualElement class="flip-digit__top">
+                                <ui:Label name="FlipM2TopNext" text="3"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="flip-digit__bottom">
+                                <ui:Label name="FlipM2BottomCur" text="3"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement name="FlipM2Flap" class="flip-digit__flap">
+                                <ui:Label name="FlipM2FlapLabel" text="3" style="height: 48px;"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement picking-mode="Ignore" class="flip-digit__gap"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
                     <ui:VisualElement picking-mode="Ignore" class="clock-divider"/>
                     <ui:Button name="BtnPause" text="⏸" class="clock-key"/>
                     <ui:Button name="BtnPlay" text="▶" class="clock-key active"/>
@@ -67,8 +106,29 @@
                     <ui:VisualElement picking-mode="Ignore" class="clock-divider"/>
                     <ui:Button name="BtnSettings" text="⚙" class="clock-key"/>
                 </ui:VisualElement>
+                <ui:VisualElement name="PhaseBar" class="phase-bar">
+                    <ui:VisualElement name="PhasePointerRow" picking-mode="Ignore" class="phase-pointer-row">
+                        <ui:VisualElement name="PhasePointer" picking-mode="Ignore" class="phase-pointer">
+                            <ui:Label text="▼"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="PhaseSegPrep" class="phase-segment phase-segment--prep active">
+                        <ui:VisualElement name="PhaseFillPrep" picking-mode="Ignore" class="phase-segment__fill"/>
+                        <ui:Label text="PREP" picking-mode="Ignore" class="phase-segment__label"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement picking-mode="Ignore" class="phase-divider"/>
+                    <ui:VisualElement name="PhaseSegWork" class="phase-segment phase-segment--work">
+                        <ui:VisualElement name="PhaseFillWork" picking-mode="Ignore" class="phase-segment__fill"/>
+                        <ui:Label text="WORK" picking-mode="Ignore" class="phase-segment__label"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement picking-mode="Ignore" class="phase-divider"/>
+                    <ui:VisualElement name="PhaseSegLoot" class="phase-segment phase-segment--loot">
+                        <ui:VisualElement name="PhaseFillLoot" picking-mode="Ignore" class="phase-segment__fill"/>
+                        <ui:Label text="LOOT" picking-mode="Ignore" class="phase-segment__label"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="ToastArea" picking-mode="Ignore" class="toast-area"/>
+            <ui:VisualElement name="ToastArea" picking-mode="Ignore" class="toast-area" style="height: 58px;"/>
             <ui:VisualElement name="Calendar" picking-mode="Position" class="calendar">
                 <ui:VisualElement class="calendar__month-head">
                     <ui:Label name="CalMonthName" text="September" class="calendar__month-name"/>
@@ -76,47 +136,46 @@
                 </ui:VisualElement>
                 <ui:VisualElement class="calendar__body">
                     <ui:VisualElement class="calendar__day-display">
-                        <ui:Label name="CalBigDay" text="7" class="calendar__big-day"/>
+                        <ui:Label name="CalBigDay" text="1" class="calendar__big-day"/>
                         <ui:VisualElement class="calendar__day-side">
-                            <ui:Label name="CalWeekday" text="Friday" class="calendar__weekday"/>
-                            <ui:Label name="CalDayMeta" text="To weekend · 1 day" class="calendar__day-meta"/>
+                            <ui:Label name="CalWeekday" text="Monday" class="calendar__weekday"/>
+                            <ui:Label name="CalDayMeta" text="To weekend · 5 days" class="calendar__day-meta"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement name="CalWeekStrip" class="calendar__week-strip"/>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="BookInfoCard" picking-mode="Position" class="book-info hidden" style="display: none; bottom: 96px; right: 22px; width: 200px;">
+            <ui:VisualElement name="BookInfoCard" picking-mode="Position" class="book-info hidden" style="display: flex;">
                 <ui:VisualElement class="book-info__header">
                     <ui:Label text="Book Record" class="book-info__title-head"/>
-                    <ui:Label name="BookInfoNum" text="№ 00–041" class="book-info__num"/>
+                    <ui:Label name="BookInfoNum" text="№ 00-041" class="book-info__num"/>
                 </ui:VisualElement>
                 <ui:Label text="TITLE" class="book-info__field-label"/>
-                <ui:Label name="BookInfoTitle" text="«The Master and Margarita»" class="book-info__field-value"/>
+                <ui:Label name="BookInfoTitle" text="«Title»" class="book-info__field-value"/>
                 <ui:Label text="AUTHOR" class="book-info__field-label"/>
-                <ui:Label name="BookInfoAuthor" text="Mikhail Bulgakov" class="book-info__field-value"/>
+                <ui:Label name="BookInfoAuthor" text="Author" class="book-info__field-value"/>
                 <ui:VisualElement class="book-info__row-two">
                     <ui:VisualElement>
                         <ui:Label text="PRICE" class="book-info__field-label"/>
-                        <ui:Label name="BookInfoPrice" text="$ 120" class="book-info__field-value"/>
+                        <ui:Label name="BookInfoPrice" text="$ 0" class="book-info__field-value"/>
                     </ui:VisualElement>
                     <ui:VisualElement>
                         <ui:Label text="CONDITION" class="book-info__field-label"/>
-                        <ui:Label name="BookInfoCondition" text="Excellent" class="book-info__field-value"/>
+                        <ui:Label name="BookInfoCondition" text="Good" class="book-info__field-value"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement name="BookInfoBonus" class="book-info__bonus-line">
+                <ui:VisualElement class="book-info__bonus-line">
                     <ui:VisualElement class="book-info__bonus-dot"/>
-                    <ui:Label name="BookInfoBonusText" text="+15% Reputation"/>
+                    <ui:Label name="BookInfoBonusText" text="+0% bonus"/>
                 </ui:VisualElement>
-                <ui:Label name="BookInfoStamp" text="IS&#10;SU&#10;ED" class="book-info__stamp"/>
+                <ui:Label text="IS&#10;SU&#10;ED" class="book-info__stamp"/>
             </ui:VisualElement>
             <ui:VisualElement name="FuncBar" picking-mode="Position" class="func-bar">
                 <ui:Button name="BtnInventory" class="func-btn tag">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord tilt-left"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
-                    <ui:VisualElement picking-mode="Ignore" class="flip-face__border-outer"/>
                     <ui:VisualElement class="func-btn__icon-frame">
-                        <ui:Label text="📦"/>
+                        <ui:Label text="[I]" class="func-btn__letter"/>
                     </ui:VisualElement>
                     <ui:Label text="Inv." class="func-btn__code"/>
                     <ui:Label text="Inventory" class="func-btn__tip"/>
@@ -124,9 +183,8 @@
                 <ui:Button name="BtnCatalog" class="func-btn tag">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord tilt-right"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
-                    <ui:VisualElement picking-mode="Ignore" class="flip-face__border-outer"/>
                     <ui:VisualElement class="func-btn__icon-frame">
-                        <ui:Label text="📋"/>
+                        <ui:Label text="[C]" class="func-btn__letter"/>
                     </ui:VisualElement>
                     <ui:Label text="Cat." class="func-btn__code"/>
                     <ui:Label text="Catalog" class="func-btn__tip"/>
@@ -134,9 +192,8 @@
                 <ui:Button name="BtnDecor" class="func-btn tag">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord tilt-left"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
-                    <ui:VisualElement picking-mode="Ignore" class="flip-face__border-outer"/>
                     <ui:VisualElement class="func-btn__icon-frame">
-                        <ui:Label text="🛋"/>
+                        <ui:Label text="[D]" class="func-btn__letter"/>
                     </ui:VisualElement>
                     <ui:Label text="Dec." class="func-btn__code"/>
                     <ui:Label text="Decor" class="func-btn__tip"/>
@@ -144,9 +201,8 @@
                 <ui:Button name="BtnNPC" class="func-btn tag">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord tilt-right"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
-                    <ui:VisualElement picking-mode="Ignore" class="flip-face__border-outer"/>
                     <ui:VisualElement class="func-btn__icon-frame">
-                        <ui:Label text="🐾"/>
+                        <ui:Label text="[N]" class="func-btn__letter"/>
                     </ui:VisualElement>
                     <ui:Label text="NPC" class="func-btn__code"/>
                     <ui:Label name="NPCBadge" text="2" class="func-btn__badge hidden"/>
@@ -155,216 +211,196 @@
                 <ui:Button name="BtnAwards" class="func-btn tag">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord tilt-left"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
-                    <ui:VisualElement picking-mode="Ignore" class="flip-face__border-outer"/>
                     <ui:VisualElement class="func-btn__icon-frame">
-                        <ui:Label text="🏆"/>
+                        <ui:Label text="[A]" class="func-btn__letter"/>
                     </ui:VisualElement>
                     <ui:Label text="Awa." class="func-btn__code"/>
                     <ui:Label text="Awards" class="func-btn__tip"/>
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="Overlay" picking-mode="Position" class="overlay hidden" style="display: none;"/>
-    </ui:VisualElement>
-    <ui:VisualElement name="CatModal" picking-mode="Position" class="notebook-modal notebook-modal--center hidden" style="display: none; position: absolute; top: 252px; left: 623px; height: 621px; width: 1166px;">
-        <ui:Button name="CatCloseBtn" text="✕" class="nb-close-btn"/>
-        <ui:VisualElement class="nb-modal-cover">
-            <ui:VisualElement class="nb-cover-spine"/>
-            <ui:Label text="CLUB·007" class="nb-cover-tag-top"/>
-            <ui:Label text="Buffs" class="nb-modal-title"/>
-            <ui:Label text="★ Collection Effects ★" class="nb-modal-subtitle"/>
-            <ui:Label text="ACTIVE EFFECTS" class="nb-cover-section"/>
-            <ui:ScrollView name="CatActiveBuffs" mode="Vertical" class="nb-cover-content"/>
-            <ui:VisualElement class="nb-cover-footer">
-                <ui:VisualElement class="nb-cover-stat">
-                    <ui:Label text="AUTHORS" class="nb-cover-stat-l"/>
-                    <ui:Label name="CatAuthorsCount" text="5" class="nb-cover-stat-v"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="nb-cover-stat">
-                    <ui:Label text="BOOKS" class="nb-cover-stat-l"/>
-                    <ui:Label name="CatBooksCount" text="8/18" class="nb-cover-stat-v"/>
-                </ui:VisualElement>
-            </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:VisualElement class="nb-modal-page">
-            <ui:VisualElement class="nb-page-frame"/>
-            <ui:VisualElement class="nb-page-stamp">
-                <ui:Label text="📚" class="nb-page-stamp-icon"/>
-                <ui:Label text="CATALOG" class="nb-page-stamp-text"/>
-            </ui:VisualElement>
-            <ui:VisualElement class="nb-page-header">
-                <ui:Label text="Catalog" class="nb-page-title"/>
-                <ui:Label text="— Author Collections —" class="nb-page-subtitle"/>
-            </ui:VisualElement>
-            <ui:VisualElement name="CatAuthorTabs" class="cat-author-tabs"/>
-            <ui:ScrollView name="CatContent" mode="Vertical" class="nb-page-content"/>
-            <ui:VisualElement class="nb-page-footer">
-                <ui:VisualElement style="flex-grow: 1;"/>
-                <ui:Button name="CatCloseStamp" text="Close" class="nb-close-stamp"/>
-            </ui:VisualElement>
-        </ui:VisualElement>
-    </ui:VisualElement>
-    <ui:VisualElement name="ModalsLayer" picking-mode="Ignore" class="modals-layer" style="top: 0; bottom: 0; right: 2px; left: 0;">
-        <ui:VisualElement name="InvModal" picking-mode="Position" class="notebook-modal notebook-modal--side notebook-modal--left hidden" style="display: none; height: 717px; width: 393px; position: absolute; top: 281px;">
-            <ui:Button name="InvCloseBtn" text="✕" class="nb-close-btn"/>
-            <ui:VisualElement class="nb-modal-cover">
-                <ui:VisualElement class="nb-cover-spine"/>
-                <ui:Label text="INV·07" class="nb-cover-tag-top"/>
-                <ui:Label text="Inventory" class="nb-modal-title"/>
-                <ui:Label text="★ Shop Stock ★" class="nb-modal-subtitle"/>
-                <ui:Label text="CATEGORIES" class="nb-cover-section"/>
-                <ui:ScrollView name="InvCategories" mode="Vertical" class="nb-cover-content"/>
-                <ui:VisualElement class="nb-cover-footer">
-                    <ui:VisualElement class="nb-cover-stat">
-                        <ui:Label text="TOTAL" class="nb-cover-stat-l"/>
-                        <ui:Label name="InvTotal" text="34" class="nb-cover-stat-v"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="nb-cover-stat">
-                        <ui:Label text="VALUE" class="nb-cover-stat-l"/>
-                        <ui:Label name="InvValue" text="$2,840" class="nb-cover-stat-v"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
-            </ui:VisualElement>
-            <ui:VisualElement class="nb-modal-page">
-                <ui:VisualElement class="nb-page-frame"/>
-                <ui:VisualElement class="nb-page-stamp">
-                    <ui:Label text="📦" class="nb-page-stamp-icon"/>
-                    <ui:Label text="BOOKS" class="nb-page-stamp-text"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="nb-page-header">
-                    <ui:Label name="InvPageTitle" text="Books" class="nb-page-title"/>
-                    <ui:Label name="InvPageSubtitle" text="— 24 items in stock —" class="nb-page-subtitle"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="inv-sort-row">
-                    <ui:Button name="BtnSortTitle" text="Title" class="inv-sort-key active"/>
-                    <ui:Button name="BtnSortAuthor" text="Author" class="inv-sort-key"/>
-                    <ui:Button name="BtnSortPrice" text="Price" class="inv-sort-key"/>
-                    <ui:Button name="BtnSortRarity" text="Rarity" class="inv-sort-key"/>
-                </ui:VisualElement>
-                <ui:ScrollView name="InvList" mode="Vertical" class="nb-page-content"/>
-                <ui:VisualElement class="nb-page-footer">
-                    <ui:Label name="InvPageNum" text="page 1 of 3" class="nb-page-num"/>
-                    <ui:Button name="InvCloseStamp" text="Close" class="nb-close-stamp"/>
-                </ui:VisualElement>
-            </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:VisualElement name="DecorModal" picking-mode="Position" class="notebook-modal notebook-modal--bottom hidden">
-            <ui:Button name="DecorCloseBtn" text="✕" class="nb-close-btn"/>
-            <ui:VisualElement class="decor-cats-strip">
-                <ui:ScrollView name="DecorCategories" mode="Vertical" class="decor-cats-strip__list"/>
-            </ui:VisualElement>
-            <ui:VisualElement class="decor-page">
-                <ui:VisualElement class="decor-page__header">
-                    <ui:Label name="DecorPageTitle" text="Furniture" class="decor-page__title"/>
-                    <ui:Button name="DecorCloseStamp" text="Close" class="nb-close-stamp"/>
-                </ui:VisualElement>
-                <ui:ScrollView name="DecorItems" mode="Horizontal" class="decor-items-horizontal"/>
-                <ui:VisualElement name="DecorEditor" class="decor-editor hidden">
-                    <ui:VisualElement name="DecorEditorPreview" class="decor-editor__preview">
-                        <ui:Label name="DecorEditorIcon" text="🪑"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="decor-editor__info">
-                        <ui:Label name="DecorEditorName" text="Oak Chair" class="decor-editor__name"/>
-                        <ui:Label name="DecorEditorMeta" text="$ 80 · CHR-01" class="decor-editor__meta"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="decor-editor__controls">
-                        <ui:VisualElement class="decor-editor__group">
-                            <ui:Label text="COLOR" class="decor-editor__group-label"/>
-                            <ui:VisualElement name="DecorColorSwatches" class="decor-editor__swatches"/>
+        <ui:VisualElement name="Overlay" picking-mode="Position" class="overlay hidden"/>
+        <ui:VisualElement name="ModalsLayer" picking-mode="Ignore" class="modals-layer" style="top: -8px; bottom: 10px; right: 2px; left: 0;">
+            <ui:VisualElement name="InvModal" picking-mode="Position" class="nb-modal nb-modal--inv hidden" style="display: none; top: 286px; width: 499px; position: relative; bottom: auto; height: 708px;">
+                <ui:VisualElement class="nb-cover">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
+                    <ui:Label text="Inventory" class="nb-cover__title"/>
+                    <ui:Label text="★ Shop Stock ★" class="nb-cover__sub"/>
+                    <ui:Label text="CATEGORIES" class="nb-cover__section"/>
+                    <ui:ScrollView name="InvCategories" mode="Vertical" class="nb-cover__scroll"/>
+                    <ui:VisualElement class="nb-cover__footer">
+                        <ui:VisualElement class="nb-cover__stat">
+                            <ui:Label text="TOTAL" class="nb-cover__stat-l"/>
+                            <ui:Label name="InvTotal" text="0" class="nb-cover__stat-v"/>
                         </ui:VisualElement>
-                        <ui:VisualElement class="decor-editor__group">
-                            <ui:Label text="ROTATE" class="decor-editor__group-label"/>
-                            <ui:VisualElement class="decor-editor__rot-row">
-                                <ui:Button name="DecorRotateLeft" text="↺" class="decor-editor__rot-btn"/>
-                                <ui:Button name="DecorRotateRight" text="↻" class="decor-editor__rot-btn"/>
+                        <ui:VisualElement class="nb-cover__stat">
+                            <ui:Label text="VALUE" class="nb-cover__stat-l"/>
+                            <ui:Label name="InvValue" text="$0" class="nb-cover__stat-v"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="nb-page">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame"/>
+                    <ui:VisualElement class="nb-page__head">
+                        <ui:Label name="InvPageTitle" text="Books" class="nb-page__title"/>
+                        <ui:Label name="InvPageSubtitle" text="0 items in stock" class="nb-page__sub"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="inv-sort-row">
+                        <ui:Button name="BtnSortTitle" text="Title" class="inv-sort-key active"/>
+                        <ui:Button name="BtnSortAuthor" text="Author" class="inv-sort-key"/>
+                        <ui:Button name="BtnSortPrice" text="Price" class="inv-sort-key"/>
+                        <ui:Button name="BtnSortRarity" text="Rarity" class="inv-sort-key"/>
+                    </ui:VisualElement>
+                    <ui:ScrollView name="InvList" mode="Vertical" class="nb-page__content"/>
+                    <ui:VisualElement class="nb-page__footer">
+                        <ui:Button name="BtnInvPrev" text="‹" class="nb-page-nav-btn"/>
+                        <ui:Label name="InvPageNum" text="page 1 / 1" class="nb-page__num"/>
+                        <ui:Button name="BtnInvNext" text="›" class="nb-page-nav-btn"/>
+                        <ui:Button name="InvCloseStamp" text="Close" class="nb-close-stamp"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button name="InvCloseBtn" text="✕" class="nb-close-btn"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="CatModal" picking-mode="Position" class="nb-modal nb-modal--center hidden" style="display: none;">
+                <ui:VisualElement class="nb-cover">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
+                    <ui:Label text="CLUB·007" class="nb-cover__tag"/>
+                    <ui:Label text="Buffs" class="nb-cover__title"/>
+                    <ui:Label text="★ Collection ★" class="nb-cover__sub"/>
+                    <ui:Label text="ACTIVE EFFECTS" class="nb-cover__section"/>
+                    <ui:ScrollView name="CatActiveBuffs" mode="Vertical" class="nb-cover__scroll"/>
+                    <ui:VisualElement class="nb-cover__footer">
+                        <ui:VisualElement class="nb-cover__stat">
+                            <ui:Label text="AUTHORS" class="nb-cover__stat-l"/>
+                            <ui:Label name="CatAuthorsCount" text="5" class="nb-cover__stat-v"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="nb-cover__stat">
+                            <ui:Label text="BOOKS" class="nb-cover__stat-l"/>
+                            <ui:Label name="CatBooksCount" text="0/0" class="nb-cover__stat-v"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="nb-page">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame"/>
+                    <ui:VisualElement class="nb-page__head">
+                        <ui:Label text="Catalog" class="nb-page__title"/>
+                        <ui:Label text="Author Collections" class="nb-page__sub"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="CatAuthorTabs" class="cat-author-tabs"/>
+                    <ui:ScrollView name="CatContent" mode="Vertical" class="nb-page__content"/>
+                    <ui:VisualElement class="nb-page__footer">
+                        <ui:VisualElement style="flex-grow: 1;"/>
+                        <ui:Button name="CatCloseStamp" text="Close" class="nb-close-stamp"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button name="CatCloseBtn" text="✕" class="nb-close-btn"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="DecorModal" picking-mode="Position" class="nb-modal nb-modal--bottom hidden" style="display: none;">
+                <ui:Button name="DecorCloseBtn" text="✕" class="nb-close-btn"/>
+                <ui:VisualElement class="decor-cats-strip">
+                    <ui:ScrollView name="DecorCatList" mode="Vertical" class="decor-cats-strip__list"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="decor-page">
+                    <ui:VisualElement class="decor-page__header">
+                        <ui:Label name="DecorPageTitle" text="Furniture" class="decor-page__title"/>
+                        <ui:Button name="DecorCloseStamp" text="Close" class="nb-close-stamp"/>
+                    </ui:VisualElement>
+                    <ui:ScrollView name="DecorItems" mode="Horizontal" class="decor-items-horizontal"/>
+                    <ui:VisualElement name="DecorEditor" class="decor-editor hidden">
+                        <ui:VisualElement class="decor-editor__preview">
+                            <ui:Label name="DecorEditorIcon" text="🪑"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="decor-editor__info">
+                            <ui:Label name="DecorEditorName" text="Item" class="decor-editor__name"/>
+                            <ui:Label name="DecorEditorMeta" text="$ 0" class="decor-editor__meta"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="decor-editor__controls">
+                            <ui:VisualElement class="decor-editor__group">
+                                <ui:Label text="COLOR" class="decor-editor__group-label"/>
+                                <ui:VisualElement name="DecorColorSwatches" class="decor-editor__swatches"/>
+                            </ui:VisualElement>
+                            <ui:VisualElement class="decor-editor__group">
+                                <ui:Label text="ROTATE" class="decor-editor__group-label"/>
+                                <ui:VisualElement class="decor-editor__rot-row">
+                                    <ui:Button name="DecorRotateLeft" text="↺" class="decor-editor__rot-btn"/>
+                                    <ui:Button name="DecorRotateRight" text="↻" class="decor-editor__rot-btn"/>
+                                </ui:VisualElement>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="decor-editor__actions">
-                        <ui:Button name="DecorCancel" text="Cancel" class="decor-editor__act-btn"/>
-                        <ui:Button name="DecorPlace" text="Place" class="decor-editor__act-btn primary"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
-            </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:VisualElement name="NPCModal" picking-mode="Position" class="notebook-modal notebook-modal--side notebook-modal--right hidden">
-            <ui:Button name="NPCCloseBtn" text="✕" class="nb-close-btn"/>
-            <ui:VisualElement class="nb-modal-cover">
-                <ui:VisualElement class="nb-cover-spine"/>
-                <ui:Label name="NPCTagTop" text="NPC·014" class="nb-cover-tag-top"/>
-                <ui:Label text="Visitor" class="nb-modal-title"/>
-                <ui:Label text="★ Book Panther ★" class="nb-modal-subtitle"/>
-                <ui:Label text="STATS" class="nb-cover-section"/>
-                <ui:ScrollView name="NPCStats" mode="Vertical" class="nb-cover-content"/>
-            </ui:VisualElement>
-            <ui:VisualElement class="nb-modal-page">
-                <ui:VisualElement class="nb-page-frame"/>
-                <ui:VisualElement class="nb-page-stamp">
-                    <ui:Label text="🐾" class="nb-page-stamp-icon"/>
-                    <ui:Label text="GUEST" class="nb-page-stamp-text"/>
-                </ui:VisualElement>
-                <ui:VisualElement class="nb-page-header">
-                    <ui:VisualElement class="npc-portrait">
-                        <ui:Label name="NPCPortrait" text="🐆"/>
-                    </ui:VisualElement>
-                    <ui:Label name="NPCName" text="Panther Aurora" class="npc-name"/>
-                    <ui:Label name="NPCRole" text="— Rare Book Collector —" class="npc-role"/>
-                </ui:VisualElement>
-                <ui:ScrollView mode="Vertical" class="nb-page-content">
-                    <ui:Label name="NPCDialogue" text="I heard you&apos;ve got a new batch of Bulgakov&apos;s books. My club is interested in obtaining the complete collection..." class="npc-dialogue"/>
-                    <ui:VisualElement name="NPCOptions" class="npc-options"/>
-                </ui:ScrollView>
-                <ui:VisualElement class="nb-page-footer">
-                    <ui:Label name="NPCPageNum" text="form NPC-014" class="nb-page-num"/>
-                    <ui:Button name="NPCCloseStamp" text="Close" class="nb-close-stamp"/>
-                </ui:VisualElement>
-            </ui:VisualElement>
-        </ui:VisualElement>
-        <ui:VisualElement name="AwardsModal" picking-mode="Position" class="notebook-modal notebook-modal--center notebook-modal--narrow hidden" style="display: none;">
-            <ui:Button name="AwardsCloseBtn" text="✕" class="nb-close-btn"/>
-            <ui:VisualElement class="nb-modal-cover">
-                <ui:VisualElement class="nb-cover-spine"/>
-                <ui:Label text="DIARY" class="nb-cover-tag-top"/>
-                <ui:Label text="Awards" class="nb-modal-title"/>
-                <ui:Label text="★ Book of Merits ★" class="nb-modal-subtitle"/>
-                <ui:Label text="PROGRESS" class="nb-cover-section"/>
-                <ui:VisualElement class="nb-cover-content" style="justify-content: center;">
-                    <ui:VisualElement class="ach-cover-stat">
-                        <ui:Label text="EARNED" class="ach-cover-stat-l"/>
-                        <ui:Label name="AchEarned" text="2/6" class="ach-cover-stat-v"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="ach-cover-stat">
-                        <ui:Label text="IN PROGRESS" class="ach-cover-stat-l"/>
-                        <ui:Label name="AchInProgress" text="3" class="ach-cover-stat-v"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="ach-cover-stat">
-                        <ui:Label text="LOCKED" class="ach-cover-stat-l"/>
-                        <ui:Label name="AchLocked" text="1" class="ach-cover-stat-v"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
-                <ui:VisualElement class="nb-cover-footer">
-                    <ui:VisualElement class="nb-cover-stat">
-                        <ui:Label text="POINTS" class="nb-cover-stat-l"/>
-                        <ui:Label name="AchPoints" text="240" class="nb-cover-stat-v"/>
+                        <ui:VisualElement class="decor-editor__actions">
+                            <ui:Button name="DecorCancel" text="Cancel" class="decor-editor__act-btn"/>
+                            <ui:Button name="DecorPlace" text="Place" class="decor-editor__act-btn primary"/>
+                        </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement class="nb-modal-page">
-                <ui:VisualElement class="nb-page-frame"/>
-                <ui:VisualElement class="nb-page-stamp">
-                    <ui:Label text="🏆" class="nb-page-stamp-icon"/>
-                    <ui:Label text="MERITS" class="nb-page-stamp-text"/>
+            <ui:VisualElement name="NPCModal" picking-mode="Position" class="nb-modal nb-modal--npc hidden">
+                <ui:Button name="NPCCloseBtn" text="✕" class="nb-close-btn"/>
+                <ui:VisualElement class="nb-cover">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
+                    <ui:Label name="NPCTagTop" text="NPC·014" class="nb-cover__tag"/>
+                    <ui:Label text="Visitor" class="nb-cover__title"/>
+                    <ui:Label text="★ Book Panther ★" class="nb-cover__sub"/>
+                    <ui:Label text="STATS" class="nb-cover__section"/>
+                    <ui:ScrollView name="NPCStats" mode="Vertical" class="nb-cover__scroll"/>
                 </ui:VisualElement>
-                <ui:VisualElement class="nb-page-header">
-                    <ui:Label text="Awards" class="nb-page-title"/>
-                    <ui:Label text="— Book of Achievements —" class="nb-page-subtitle"/>
+                <ui:VisualElement class="nb-page">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame"/>
+                    <ui:VisualElement class="nb-page__head">
+                        <ui:VisualElement class="npc-portrait">
+                            <ui:Label name="NPCPortrait" text="🐆"/>
+                        </ui:VisualElement>
+                        <ui:Label name="NPCName" text="Panther Aurora" class="npc-name"/>
+                        <ui:Label name="NPCRole" text="Rare Book Collector" class="npc-role"/>
+                    </ui:VisualElement>
+                    <ui:ScrollView mode="Vertical" class="nb-page__content">
+                        <ui:Label name="NPCDialogue" text="..." class="npc-dialogue"/>
+                        <ui:VisualElement name="NPCOptions" class="npc-options"/>
+                    </ui:ScrollView>
+                    <ui:VisualElement class="nb-page__footer">
+                        <ui:Label name="NPCPageNum" text="NPC-014" class="nb-page__num"/>
+                        <ui:Button name="NPCCloseStamp" text="Close" class="nb-close-stamp"/>
+                    </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:ScrollView mode="Vertical" class="nb-page-content">
-                    <ui:VisualElement name="AchGridContainer" class="ach-grid"/>
-                </ui:ScrollView>
-                <ui:VisualElement class="nb-page-footer">
-                    <ui:Label name="AchTotal" text="total: 6" class="nb-page-num"/>
-                    <ui:Button name="AwardsCloseStamp" text="Close" class="nb-close-stamp"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="AwardsModal" picking-mode="Position" class="nb-modal nb-modal--awards hidden">
+                <ui:Button name="AwardsCloseBtn" text="✕" class="nb-close-btn"/>
+                <ui:VisualElement class="nb-cover">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
+                    <ui:Label text="DIARY" class="nb-cover__tag"/>
+                    <ui:Label text="Awards" class="nb-cover__title"/>
+                    <ui:Label text="★ Merits ★" class="nb-cover__sub"/>
+                    <ui:Label text="PROGRESS" class="nb-cover__section"/>
+                    <ui:VisualElement class="nb-cover__scroll">
+                        <ui:VisualElement class="ach-cover-stat">
+                            <ui:Label text="EARNED" class="ach-cover-stat-l"/>
+                            <ui:Label name="AchEarned" text="0/0" class="ach-cover-stat-v"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement class="ach-cover-stat">
+                            <ui:Label text="IN PROGRESS" class="ach-cover-stat-l"/>
+                            <ui:Label name="AchInProgress" text="0" class="ach-cover-stat-v"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="nb-cover__footer">
+                        <ui:VisualElement class="nb-cover__stat">
+                            <ui:Label text="POINTS" class="nb-cover__stat-l"/>
+                            <ui:Label name="AchPoints" text="0" class="nb-cover__stat-v"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="nb-page">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame"/>
+                    <ui:VisualElement class="nb-page__head">
+                        <ui:Label text="Awards" class="nb-page__title"/>
+                        <ui:Label text="Book of Achievements" class="nb-page__sub"/>
+                    </ui:VisualElement>
+                    <ui:ScrollView mode="Vertical" class="nb-page__content">
+                        <ui:VisualElement name="AchGridContainer" class="ach-grid"/>
+                    </ui:ScrollView>
+                    <ui:VisualElement class="nb-page__footer">
+                        <ui:Label name="AchTotal" text="0 total" class="nb-page__num"/>
+                        <ui:Button name="AwardsCloseStamp" text="Close" class="nb-close-stamp"/>
+                    </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

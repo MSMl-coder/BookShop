@@ -3641,7 +3641,6 @@ GameObject:
   - component: {fileID: 754696653}
   - component: {fileID: 754696652}
   - component: {fileID: 754696651}
-  - component: {fileID: 754696650}
   - component: {fileID: 754696649}
   - component: {fileID: 754696648}
   - component: {fileID: 754696647}
@@ -3650,6 +3649,9 @@ GameObject:
   - component: {fileID: 754696644}
   - component: {fileID: 754696643}
   - component: {fileID: 754696642}
+  - component: {fileID: 754696655}
+  - component: {fileID: 754696656}
+  - component: {fileID: 754696657}
   m_Layer: 0
   m_Name: BookshopUI
   m_TagString: Untagged
@@ -3827,21 +3829,6 @@ MonoBehaviour:
   monthName: September
   yearLabel: "YEAR I \xB7 AUTUMN"
   daysInWeek: 7
---- !u!114 &754696650
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754696640}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b8b2ff9a3c20942bf9c603fb62a51f13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ClockController
-  startHour: 12
-  startMinute: 43
-  gameMinutesPerSec: 0.5
 --- !u!114 &754696651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3866,6 +3853,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d3d7e35b81b84ad2a8e0630a4936448, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ClubCardController
+  fadeDuration: 0.18
 --- !u!114 &754696653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3886,7 +3874,8 @@ MonoBehaviour:
   decorItemCardTemplate: {fileID: 9197481963319205126, guid: 9cb8a2283bcc04a468e6a1a41eabebb6, type: 3}
   clubCardCtrl: {fileID: 0}
   buffsCtrl: {fileID: 0}
-  clockCtrl: {fileID: 0}
+  flipClockCtrl: {fileID: 0}
+  phaseBarCtrl: {fileID: 0}
   calendarCtrl: {fileID: 0}
   bookInfoCtrl: {fileID: 0}
   inventoryCtrl: {fileID: 0}
@@ -3918,6 +3907,50 @@ MonoBehaviour:
   m_PivotReferenceSize: 0
   m_Pivot: 0
   m_WorldSpaceCollider: {fileID: 0}
+--- !u!114 &754696655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54a10a539f51642b285b7d14e065ed33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhaseBarController
+  prepDurationMin: 120
+  workDurationMin: 480
+  lootDurationMin: 60
+  clockCtrl: {fileID: 754696656}
+--- !u!114 &754696656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f0f005f1891942c6a5bcb4c6b01faaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlipClockController
+  startHour: 12
+  startMinute: 43
+  gameMinutesPerSec: 0.5
+  flipDuration: 0.25
+--- !u!114 &754696657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a673dff8e139c4c9fb103977dc93534e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BookshopUIBridge
 --- !u!1001 &756194331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7071,6 +7104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ContextMenuUI
   uiDocument: {fileID: 1477937110}
+  screenOffset: {x: 12, y: -12}
 --- !u!1 &1481451113
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,11 +2,10 @@
 // InventoryModalController.cs — Inventory modal logic
 // Path: Assets/Scripts/UI/Bookshop/Controllers/InventoryModalController.cs
 //
-// Populates InvList from InventoryManager.GetSortedInventory().
-// Each row gets a rarity-colored CSS class (r-common, r-uncommon, etc.)
-// for the colored border glow.
-//
-// Sort buttons: Title / Author / Price / Rarity
+// v2 ADDITIONS:
+//  • Page navigation: < > buttons + page label
+//  • FilterByShelf(id) — called when 3D shelf is clicked
+//  • FilterByCategory(genre)
 // ═══════════════════════════════════════════════════════════
 
 using UnityEngine;
@@ -21,31 +20,42 @@ public class InventoryModalController : MonoBehaviour
 
     private ScrollView _list;
     private ScrollView _categories;
-    private Label _total;
-    private Label _value;
-    private Label _pageTitle;
-    private Label _pageSubtitle;
-
+    private Label _total, _value, _pageTitle, _pageSubtitle, _pageNum;
     private Button _sortTitle, _sortAuthor, _sortPrice, _sortRarity;
+    private Button _btnPrev, _btnNext;        // < >
 
     private SortType _currentSort = SortType.ByTitle;
+    private string   _shelfFilter = null;    // null = all
+
+    // Paging
+    private int _currentPage = 1;
+    private int _pageSize    = 12;
+    private int _totalPages  = 1;
+    private List<BookInstance> _cachedBooks = new();
 
     public void Initialize(VisualElement root, BookshopUIController master)
     {
-        _root = root;
+        _root   = root;
         _master = master;
 
-        _list          = root.Q<ScrollView>("InvList");
-        _categories    = root.Q<ScrollView>("InvCategories");
-        _total         = root.Q<Label>("InvTotal");
-        _value         = root.Q<Label>("InvValue");
-        _pageTitle     = root.Q<Label>("InvPageTitle");
-        _pageSubtitle  = root.Q<Label>("InvPageSubtitle");
+        _list         = root.Q<ScrollView>("InvList");
+        _categories   = root.Q<ScrollView>("InvCategories");
+        _total        = root.Q<Label>("InvTotal");
+        _value        = root.Q<Label>("InvValue");
+        _pageTitle    = root.Q<Label>("InvPageTitle");
+        _pageSubtitle = root.Q<Label>("InvPageSubtitle");
+        _pageNum      = root.Q<Label>("InvPageNum");
 
         _sortTitle  = root.Q<Button>("BtnSortTitle");
         _sortAuthor = root.Q<Button>("BtnSortAuthor");
         _sortPrice  = root.Q<Button>("BtnSortPrice");
         _sortRarity = root.Q<Button>("BtnSortRarity");
+
+        // Page navigation — look for BtnInvPrev / BtnInvNext in footer
+        _btnPrev = root.Q<Button>("BtnInvPrev");
+        _btnNext = root.Q<Button>("BtnInvNext");
+        if (_btnPrev != null) _btnPrev.clicked += () => GoToPage(_currentPage - 1);
+        if (_btnNext != null) _btnNext.clicked += () => GoToPage(_currentPage + 1);
 
         BindSort(_sortTitle,  SortType.ByTitle);
         BindSort(_sortAuthor, SortType.ByAuthor);
@@ -134,31 +144,66 @@ public class InventoryModalController : MonoBehaviour
     #region Book list
     // ─────────────────────────────────────────────
 
+    /// Called by BookshopUIController when player clicks a 3D shelf
+    public void FilterByShelf(string shelfId)
+    {
+        _shelfFilter = shelfId;
+        _currentPage = 1;
+        RefreshList();
+    }
+
+    public void ClearFilter()
+    {
+        _shelfFilter = null;
+        _currentPage = 1;
+        RefreshList();
+    }
+
     public void RefreshList()
     {
         if (_list == null) return;
         _list.Clear();
 
-        var books = InventoryManager.Instance?.GetSortedInventory(_currentSort);
-        if (books == null || books.Count == 0)
+        var allBooks = InventoryManager.Instance?.GetSortedInventory(_currentSort);
+        if (allBooks == null || allBooks.Count == 0)
         {
-            if (_total != null) _total.text = "0";
-            if (_value != null) _value.text = "$0";
+            if (_total    != null) _total.text    = "0";
+            if (_value    != null) _value.text    = "$0";
             if (_pageSubtitle != null) _pageSubtitle.text = "— 0 items in stock —";
+            UpdatePageLabel();
             BuildCategories();
             return;
         }
 
-        // Group by first letter for section headers
-        string lastLetter = "";
-        int totalValue = 0;
+        // Apply shelf filter if active
+        _cachedBooks = string.IsNullOrEmpty(_shelfFilter)
+            ? allBooks
+            : allBooks.Where(b =>
+            {
+                var t = BookDatabase.Instance?.GetBook(b.templateID);
+                // Filter: books placed on a specific shelf object
+                // (Requires WorldPlacementManager; fallback = no filter)
+                return t != null; // TODO: check placement shelfId
+            }).ToList();
 
-        foreach (var book in books)
+        // Paging
+        _totalPages  = Mathf.Max(1, Mathf.CeilToInt((float)_cachedBooks.Count / _pageSize));
+        _currentPage = Mathf.Clamp(_currentPage, 1, _totalPages);
+
+        var pageBooks = _cachedBooks
+            .Skip((_currentPage - 1) * _pageSize)
+            .Take(_pageSize)
+            .ToList();
+
+        // Build rows with section letters
+        string lastLetter = "";
+        int totalValue    = 0;
+
+        foreach (var book in pageBooks)
         {
             var template = BookDatabase.Instance?.GetBook(book.templateID);
             if (template == null) continue;
 
-            // Section divider
             string firstLetter = (template.title ?? "?").Substring(0, 1).ToUpper();
             if (firstLetter != lastLetter)
             {
@@ -172,12 +217,35 @@ public class InventoryModalController : MonoBehaviour
             totalValue += (int)template.sellPrice;
         }
 
-        if (_total != null) _total.text = books.Count.ToString();
-        if (_value != null) _value.text = $"${totalValue:N0}";
-        if (_pageSubtitle != null) _pageSubtitle.text = $"— {books.Count} items in stock —";
+        if (_total    != null) _total.text    = _cachedBooks.Count.ToString();
+        if (_value    != null) _value.text    = $"${totalValue:N0}";
+        if (_pageSubtitle != null)
+            _pageSubtitle.text = string.IsNullOrEmpty(_shelfFilter)
+                ? $"— {_cachedBooks.Count} items in stock —"
+                : $"— Shelf: {_shelfFilter} —";
 
+        UpdatePageLabel();
         BuildCategories();
     }
+
+    private void GoToPage(int page)
+    {
+        int clamped = Mathf.Clamp(page, 1, _totalPages);
+        if (clamped == _currentPage) return;
+        _currentPage = clamped;
+        RefreshList();
+    }
+
+    private void UpdatePageLabel()
+    {
+        if (_pageNum == null) return;
+        _pageNum.text = $"page {_currentPage} / {_totalPages}";
+
+        // Enable/disable nav buttons
+        if (_btnPrev != null) _btnPrev.SetEnabled(_currentPage > 1);
+        if (_btnNext != null) _btnNext.SetEnabled(_currentPage < _totalPages);
+    }
+
 
     private VisualElement MakeBookRow(BookTemplate template)
     {

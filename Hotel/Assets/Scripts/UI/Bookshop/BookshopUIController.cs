@@ -1,21 +1,14 @@
-// ═══════════════════════════════════════════════════════════
-// BookshopUIController.cs — Main UI controller
+// ═══════════════════════════════════════════════════════════════════
+// BookshopUIController.cs — Master UI orchestrator v3
 // Path: Assets/Scripts/UI/Bookshop/BookshopUIController.cs
 //
-// PURPOSE:
-//   Master controller that wires up the entire bookshop UI.
-//   Replaces the legacy ShopUIManager when using Bookshop UI prefab.
-//   Holds references to all sub-controllers and templates.
-//
-// UNITY SETUP:
-//   1. Create empty GameObject "BookshopUI" in scene
-//   2. Add UIDocument component, assign BookshopMainUI.uxml
-//   3. Add this script
-//   4. Assign all VisualTreeAsset templates from Templates/ folder
-//   5. Optional: PanelSettings — Scale Mode=ConstantPixelSize, Match=1.0
-//
-// HOTKEY: ESC closes any open modal
-// ═══════════════════════════════════════════════════════════
+// FIXED in v3:
+//  • Modal names match new UXML (nb-modal--inv etc.)
+//  • OpenInventoryFromShelf() properly opens InvModal
+//  • No blur on overlay — inventory uses inv-open (lighter dim)
+//  • ClubCard uses fade flip, not scaleX
+//  • FlipClock replaces old ClockController
+// ═══════════════════════════════════════════════════════════════════
 
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,7 +21,7 @@ public class BookshopUIController : MonoBehaviour
     [Header("UI Document")]
     [SerializeField] private UIDocument uiDocument;
 
-    [Header("Templates (assign in Inspector)")]
+    [Header("UXML Templates")]
     [SerializeField] private VisualTreeAsset buffCardTemplate;
     [SerializeField] private VisualTreeAsset inventoryRowTemplate;
     [SerializeField] private VisualTreeAsset catalogBookCardTemplate;
@@ -38,7 +31,8 @@ public class BookshopUIController : MonoBehaviour
     [Header("Sub-controllers (auto-found on same GameObject)")]
     [SerializeField] private ClubCardController       clubCardCtrl;
     [SerializeField] private BuffsController          buffsCtrl;
-    [SerializeField] private ClockController          clockCtrl;
+    [SerializeField] private FlipClockController      flipClockCtrl;
+    [SerializeField] private PhaseBarController       phaseBarCtrl;
     [SerializeField] private CalendarController       calendarCtrl;
     [SerializeField] private BookInfoController       bookInfoCtrl;
     [SerializeField] private InventoryModalController inventoryCtrl;
@@ -48,27 +42,26 @@ public class BookshopUIController : MonoBehaviour
     [SerializeField] private AwardsModalController    awardsCtrl;
     [SerializeField] private ToastController          toastCtrl;
 
-    // ── Root references ──
+    // Root & overlay
     private VisualElement _root;
     private VisualElement _overlay;
 
-    // Modal name → element map for toggling
+    // Modal map: logical id → VisualElement
     private System.Collections.Generic.Dictionary<string, VisualElement> _modals;
-
-    private string _activeModal;
+    private string        _activeModal;
     private VisualElement _activeButton;
 
-    // Public accessors for sub-controllers
-    public VisualTreeAsset BuffCardTemplate              => buffCardTemplate;
-    public VisualTreeAsset InventoryRowTemplate          => inventoryRowTemplate;
-    public VisualTreeAsset CatalogBookCardTemplate       => catalogBookCardTemplate;
-    public VisualTreeAsset CatalogAuthorSectionTemplate  => catalogAuthorSectionTemplate;
-    public VisualTreeAsset DecorItemCardTemplate         => decorItemCardTemplate;
-    public BookInfoController BookInfo => bookInfoCtrl;
-    public ToastController Toast => toastCtrl;
+    // Accessors for sub-controllers
+    public VisualTreeAsset BuffCardTemplate             => buffCardTemplate;
+    public VisualTreeAsset InventoryRowTemplate         => inventoryRowTemplate;
+    public VisualTreeAsset CatalogBookCardTemplate      => catalogBookCardTemplate;
+    public VisualTreeAsset CatalogAuthorSectionTemplate => catalogAuthorSectionTemplate;
+    public VisualTreeAsset DecorItemCardTemplate        => decorItemCardTemplate;
+    public BookInfoController BookInfo                  => bookInfoCtrl;
+    public ToastController    Toast                     => toastCtrl;
 
     // ─────────────────────────────────────────────
-    #region Unity Lifecycle
+    #region Lifecycle
     // ─────────────────────────────────────────────
 
     private void Awake()
@@ -76,18 +69,19 @@ public class BookshopUIController : MonoBehaviour
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
 
-        // Auto-find sub-controllers if not assigned
-        if (clubCardCtrl    == null) clubCardCtrl    = GetComponent<ClubCardController>();
-        if (buffsCtrl       == null) buffsCtrl       = GetComponent<BuffsController>();
-        if (clockCtrl       == null) clockCtrl       = GetComponent<ClockController>();
-        if (calendarCtrl    == null) calendarCtrl    = GetComponent<CalendarController>();
-        if (bookInfoCtrl    == null) bookInfoCtrl    = GetComponent<BookInfoController>();
-        if (inventoryCtrl   == null) inventoryCtrl   = GetComponent<InventoryModalController>();
-        if (catalogCtrl     == null) catalogCtrl     = GetComponent<CatalogModalController>();
-        if (decorCtrl       == null) decorCtrl       = GetComponent<DecorModalController>();
-        if (npcCtrl         == null) npcCtrl         = GetComponent<NPCModalController>();
-        if (awardsCtrl      == null) awardsCtrl      = GetComponent<AwardsModalController>();
-        if (toastCtrl       == null) toastCtrl       = GetComponent<ToastController>();
+        // Auto-find sub-controllers
+        clubCardCtrl  = clubCardCtrl  ?? GetComponent<ClubCardController>();
+        buffsCtrl     = buffsCtrl     ?? GetComponent<BuffsController>();
+        flipClockCtrl = flipClockCtrl ?? GetComponent<FlipClockController>();
+        phaseBarCtrl  = phaseBarCtrl  ?? GetComponent<PhaseBarController>();
+        calendarCtrl  = calendarCtrl  ?? GetComponent<CalendarController>();
+        bookInfoCtrl  = bookInfoCtrl  ?? GetComponent<BookInfoController>();
+        inventoryCtrl = inventoryCtrl ?? GetComponent<InventoryModalController>();
+        catalogCtrl   = catalogCtrl   ?? GetComponent<CatalogModalController>();
+        decorCtrl     = decorCtrl     ?? GetComponent<DecorModalController>();
+        npcCtrl       = npcCtrl       ?? GetComponent<NPCModalController>();
+        awardsCtrl    = awardsCtrl    ?? GetComponent<AwardsModalController>();
+        toastCtrl     = toastCtrl     ?? GetComponent<ToastController>();
     }
 
     private void OnEnable()
@@ -99,28 +93,33 @@ public class BookshopUIController : MonoBehaviour
         }
 
         _root = uiDocument.rootVisualElement;
-        if (_root == null) { Debug.LogWarning("[BookshopUI] Root is null"); return; }
+        if (_root == null) { Debug.LogError("[BookshopUI] Root is null"); return; }
 
         _overlay = _root.Q<VisualElement>("Overlay");
 
-        // Map modals by their nameId
+        // Modal elements — names match UXML
         _modals = new System.Collections.Generic.Dictionary<string, VisualElement>
         {
-            { "inv-modal",     _root.Q<VisualElement>("InvModal")     },
-            { "cat-modal",     _root.Q<VisualElement>("CatModal")     },
-            { "decor-modal",   _root.Q<VisualElement>("DecorModal")   },
-            { "npc-modal",     _root.Q<VisualElement>("NPCModal")     },
-            { "awards-modal",  _root.Q<VisualElement>("AwardsModal")  },
+            { "inv",    _root.Q<VisualElement>("InvModal")    },
+            { "cat",    _root.Q<VisualElement>("CatModal")    },
+            { "decor",  _root.Q<VisualElement>("DecorModal")  },
+            { "npc",    _root.Q<VisualElement>("NPCModal")    },
+            { "awards", _root.Q<VisualElement>("AwardsModal") },
         };
+
+        // Log missing modals
+        foreach (var kv in _modals)
+            if (kv.Value == null) Debug.LogWarning($"[BookshopUI] Modal '{kv.Key}' not found in UXML");
 
         BindFuncBar();
         BindCloseButtons();
         BindOverlay();
 
-        // Initialize all sub-controllers
-        clubCardCtrl?.Initialize(_root);
+        // Init sub-controllers
+        clubCardCtrl?.Initialize(_root, this);
         buffsCtrl?.Initialize(_root, this);
-        clockCtrl?.Initialize(_root, this);
+        flipClockCtrl?.Initialize(_root, this);
+        phaseBarCtrl?.Initialize(_root, flipClockCtrl);
         calendarCtrl?.Initialize(_root);
         bookInfoCtrl?.Initialize(_root);
         inventoryCtrl?.Initialize(_root, this);
@@ -131,15 +130,13 @@ public class BookshopUIController : MonoBehaviour
         toastCtrl?.Initialize(_root);
 
         CloseAllModals();
-        Debug.Log("[BookshopUI] Initialized");
+        Debug.Log("[BookshopUI] Initialized v3");
     }
 
     private void Update()
     {
         if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
-        {
             if (_activeModal != null) CloseModal(_activeModal);
-        }
     }
 
     #endregion
@@ -150,113 +147,120 @@ public class BookshopUIController : MonoBehaviour
 
     private void BindFuncBar()
     {
-        BindModalButton("BtnInventory", "inv-modal");
-        BindModalButton("BtnCatalog",   "cat-modal");
-        BindModalButton("BtnDecor",     "decor-modal");
-        BindModalButton("BtnNPC",       "npc-modal");
-        BindModalButton("BtnAwards",    "awards-modal");
+        BindModalButton("BtnInventory", "inv");
+        BindModalButton("BtnCatalog",   "cat");
+        BindModalButton("BtnDecor",     "decor");
+        BindModalButton("BtnNPC",       "npc");
+        BindModalButton("BtnAwards",    "awards");
     }
 
-    private void BindModalButton(string buttonName, string modalId)
+    private void BindModalButton(string btnName, string modalKey)
     {
-        var btn = _root.Q<Button>(buttonName);
-        if (btn == null) { Debug.LogWarning($"[BookshopUI] Button '{buttonName}' not found"); return; }
+        var btn = _root.Q<Button>(btnName);
+        if (btn == null) { Debug.LogWarning($"[BookshopUI] Button '{btnName}' not found"); return; }
 
         btn.clicked += () =>
         {
-            var modal = _modals[modalId];
-            if (!modal.ClassListContains("hidden"))
-            {
-                CloseModal(modalId);
-            }
+            if (_modals.TryGetValue(modalKey, out var m) && m != null && !m.ClassListContains("hidden"))
+                CloseModal(modalKey);
             else
-            {
-                OpenModal(modalId, btn);
-            }
+                OpenModal(modalKey, btn);
         };
     }
 
     private void BindCloseButtons()
     {
-        // ✕ buttons
-        BindClose("InvCloseBtn",     "inv-modal");
-        BindClose("CatCloseBtn",     "cat-modal");
-        BindClose("DecorCloseBtn",   "decor-modal");
-        BindClose("NPCCloseBtn",     "npc-modal");
-        BindClose("AwardsCloseBtn",  "awards-modal");
-        // Stamp buttons
-        BindClose("InvCloseStamp",    "inv-modal");
-        BindClose("CatCloseStamp",    "cat-modal");
-        BindClose("DecorCloseStamp",  "decor-modal");
-        BindClose("NPCCloseStamp",    "npc-modal");
-        BindClose("AwardsCloseStamp", "awards-modal");
+        BindClose("InvCloseBtn",      "inv");
+        BindClose("CatCloseBtn",      "cat");
+        BindClose("DecorCloseBtn",    "decor");
+        BindClose("NPCCloseBtn",      "npc");
+        BindClose("AwardsCloseBtn",   "awards");
+        BindClose("InvCloseStamp",    "inv");
+        BindClose("CatCloseStamp",    "cat");
+        BindClose("DecorCloseStamp",  "decor");
+        BindClose("NPCCloseStamp",    "npc");
+        BindClose("AwardsCloseStamp", "awards");
     }
 
-    private void BindClose(string buttonName, string modalId)
+    private void BindClose(string btnName, string modalKey)
     {
-        var btn = _root.Q<Button>(buttonName);
-        if (btn != null) btn.clicked += () => CloseModal(modalId);
+        var btn = _root.Q<Button>(btnName);
+        if (btn != null) btn.clicked += () => CloseModal(modalKey);
     }
 
     private void BindOverlay()
     {
-        if (_overlay == null) return;
-        _overlay.RegisterCallback<ClickEvent>(_ => CloseAllModals());
+        // Clicking overlay only closes non-inventory modals
+        _overlay?.RegisterCallback<ClickEvent>(_ =>
+        {
+            if (_activeModal == "inv") return; // inventory overlay is light, don't auto-close
+            CloseAllModals();
+        });
     }
 
-    public void OpenModal(string modalId, VisualElement triggerButton = null)
+    public void OpenModal(string modalKey, VisualElement triggerBtn = null)
     {
-        if (!_modals.TryGetValue(modalId, out var modal) || modal == null) return;
+        if (!_modals.TryGetValue(modalKey, out var modal) || modal == null)
+        {
+            Debug.LogWarning($"[BookshopUI] OpenModal: key '{modalKey}' not found");
+            return;
+        }
 
-        // Close currently open modal first
-        if (_activeModal != null && _activeModal != modalId)
+        // Close previous modal (unless same)
+        if (_activeModal != null && _activeModal != modalKey)
             CloseModal(_activeModal);
 
         modal.RemoveFromClassList("hidden");
-        _overlay?.RemoveFromClassList("hidden");
-        _activeModal = modalId;
 
-        // Highlight button
-        _activeButton?.RemoveFromClassList("active");
-        if (triggerButton != null)
+        // Overlay: lighter for inventory
+        if (_overlay != null)
         {
-            triggerButton.AddToClassList("active");
-            _activeButton = triggerButton;
+            _overlay.RemoveFromClassList("hidden");
+            _overlay.RemoveFromClassList("inv-open");
+            if (modalKey == "inv")
+                _overlay.AddToClassList("inv-open");
         }
 
-        // Inventory shows book info card alongside
-        if (modalId == "inv-modal")
-            bookInfoCtrl?.Show();
+        _activeModal = modalKey;
 
-        Debug.Log($"[BookshopUI] Opened modal: {modalId}");
+        _activeButton?.RemoveFromClassList("active");
+        if (triggerBtn != null)
+        {
+            triggerBtn.AddToClassList("active");
+            _activeButton = triggerBtn;
+        }
+
+        // Show book info card when inventory opens
+        if (modalKey == "inv") bookInfoCtrl?.Show();
+
+        Debug.Log($"[BookshopUI] Opened: {modalKey}");
     }
 
-    public void CloseModal(string modalId)
+    public void CloseModal(string modalKey)
     {
-        if (!_modals.TryGetValue(modalId, out var modal) || modal == null) return;
+        if (!_modals.TryGetValue(modalKey, out var modal) || modal == null) return;
 
         modal.AddToClassList("hidden");
 
-        if (_activeModal == modalId)
+        if (_activeModal == modalKey)
         {
             _activeModal = null;
             _overlay?.AddToClassList("hidden");
+            _overlay?.RemoveFromClassList("inv-open");
         }
 
         _activeButton?.RemoveFromClassList("active");
         _activeButton = null;
 
-        if (modalId == "inv-modal")
-            bookInfoCtrl?.Hide();
-        if (modalId == "decor-modal")
-            decorCtrl?.CloseEditor();
+        if (modalKey == "inv")    bookInfoCtrl?.Hide();
+        if (modalKey == "decor")  decorCtrl?.CloseEditor();
     }
 
     public void CloseAllModals()
     {
-        foreach (var key in _modals.Keys)
-            _modals[key]?.AddToClassList("hidden");
+        foreach (var kv in _modals) kv.Value?.AddToClassList("hidden");
         _overlay?.AddToClassList("hidden");
+        _overlay?.RemoveFromClassList("inv-open");
         _activeModal = null;
         _activeButton?.RemoveFromClassList("active");
         _activeButton = null;
@@ -265,20 +269,47 @@ public class BookshopUIController : MonoBehaviour
 
     #endregion
 
-    #region Public API for external systems
+    // ─────────────────────────────────────────────
+    #region External API (called from 3D world)
+    // ─────────────────────────────────────────────
 
-    /// Open inventory with book info card pre-populated
+    /// Called by CabinetClickHandler / InteractionRouter when player opens a shelf.
+    /// Opens inventory modal and optionally filters by shelf ID.
+    ///
+    /// Example usage:
+    ///   BookshopUIController.Instance.OpenInventoryFromShelf("ShelfA");
+    public void OpenInventoryFromShelf(string shelfId = null)
+    {
+        var invBtn = _root?.Q<Button>("BtnInventory");
+        OpenModal("inv", invBtn);
+
+        if (!string.IsNullOrEmpty(shelfId))
+            inventoryCtrl?.FilterByShelf(shelfId);
+        else
+            inventoryCtrl?.ClearFilter();
+
+        toastCtrl?.Show("📚", $"Shelf opened{(string.IsNullOrEmpty(shelfId) ? "" : $": {shelfId}")}", ToastType.Info);
+    }
+
+    /// Open inventory showing a specific book
     public void OpenInventoryFor(BookTemplate template)
     {
-        OpenModal("inv-modal");
+        var invBtn = _root?.Q<Button>("BtnInventory");
+        OpenModal("inv", invBtn);
         bookInfoCtrl?.Show(template);
     }
 
-    /// Trigger NPC modal with given NPC data
-    public void OpenNPCDialog(BookHunterData npc) // expects existing BookHunterData type
+    /// Open NPC dialogue panel
+    public void OpenNPCDialog(BookHunterData npc)
     {
-        OpenModal("npc-modal");
+        OpenModal("npc");
         npcCtrl?.LoadNPC(npc);
+    }
+
+    /// Update shop name on club card front face
+    public void SetShopName(string name)
+    {
+        clubCardCtrl?.SetShopName(name);
     }
 
     #endregion

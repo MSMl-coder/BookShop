@@ -1,69 +1,114 @@
 /* ═══════════════════════════════════════════════════
-   BookshopModals.uss — Notebook-style modals
-   Path: Assets/UI/Bookshop/Styles/BookshopModals.uss
+   BookshopModals.uss — Notebook-style modals v3
+   CRITICAL: nb-modal uses flex-direction ROW
+             nb-cover = fixed 210px left
+             nb-page  = flex-grow:1 right
 ═══════════════════════════════════════════════════ */
 
-.notebook-modal {
+/* ── Base modal ── */
+.nb-modal {
     position: absolute;
-    flex-direction: row;
+    flex-direction: row;       /* MUST be row: cover left + page right */
     background-color: var(--board-dark);
-    opacity: 0;
-    transition-property: opacity, scale, translate;
-    transition-duration: 0.3s;
+    display: none;             /* hidden by default */
+    overflow: hidden;
 }
-.notebook-modal:not(.hidden) {
-    opacity: 1;
+.nb-modal:not(.hidden) {
+    display: flex;             /* show when not hidden */
 }
 
-/* ── Side-positioned (Inventory/NPC) ── */
-.notebook-modal--side {
-    top: 40px;
+/* Inventory: left side, tall */
+.nb-modal--inv {
+    top: 46px;
     bottom: 104px;
-    width: 656px;
-}
-.notebook-modal--left { left: 22px; }
-.notebook-modal--right { right: 22px; }
-
-/* ── Centered (Catalog, Awards) ── */
-.notebook-modal--center {
-    top: 50%; left: 50%;
-    width: 960px;
-    height: 576px;
-    margin-left: -480px;
-    margin-top: -288px;
-}
-.notebook-modal--narrow {
-    width: 656px;
-    height: 544px;
-    margin-left: -328px;
-    margin-top: -272px;
+    left: 22px;
+    width: 660px;
+    max-width: 660px;
 }
 
-/* ── Bottom strip (Decor) ── */
-.notebook-modal--bottom {
-    bottom: 0; left: 0; right: 0;
-    height: 288px;
+/* NPC: right side, tall */
+.nb-modal--npc {
+    top: 46px;
+    bottom: 104px;
+    right: 22px;
+    width: 540px;
+    max-width: 540px;
 }
 
-/* ── Notebook cover (left side) ── */
-.nb-modal-cover {
-    width: 184px;
+/* Catalog / Awards: centered */
+.nb-modal--center {
+    top: 50%;
+    left: 50%;
+    width: 980px;
+    height: 600px;
+    margin-left: -490px;
+    margin-top: -300px;
+}
+.nb-modal--awards {
+    top: 50%;
+    left: 50%;
+    width: 680px;
+    height: 560px;
+    margin-left: -340px;
+    margin-top: -280px;
+}
+
+/* Decor: bottom strip */
+.nb-modal--bottom {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 300px;
+    flex-direction: row;
+}
+
+/* Close X button */
+.nb-close-btn {
+    position: absolute;
+    top: -12px; right: -12px;
+    width: 28px; height: 28px;
+    border-radius: 14px;
     background-color: var(--board);
-    padding-top: 21px; padding-bottom: 14px;
+    border-width: 2px;
+    border-color: var(--gold-soft);
+    color: var(--page);
+    font-size: 13px;
+    padding: 0;
+    z-index: 10;
+}
+.nb-close-btn:hover {
+    background-color: var(--accent);
+    border-color: var(--gold-bright);
+}
+
+/* ─────────────────────────────────────────────────
+   NOTEBOOK COVER (left dark panel — FIXED width)
+───────────────────────────────────────────────── */
+.nb-cover {
+    width: 210px;
+    min-width: 210px;
+    max-width: 210px;
+    flex-shrink: 0;
+    background-color: var(--board);
+    padding-top: 22px; padding-bottom: 14px;
     padding-left: 14px; padding-right: 14px;
     flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
-.nb-cover-spine {
+/* Spine shadow */
+.nb-cover__spine {
     position: absolute;
     top: 0; bottom: 0; right: 0;
-    width: 16px;
-    background-color: rgba(0,0,0,0.3);
+    width: 18px;
+    background-color: rgba(0,0,0,0.35);
 }
-.nb-cover-tag-top {
+/* Hanging tag */
+.nb-cover__tag {
     position: absolute;
     top: -14px; left: 22px;
-    width: 45px;
-    padding-top: 4px; padding-bottom: 6px;
+    width: 48px;
+    padding-top: 4px; padding-bottom: 5px;
     background-color: var(--page-shadow);
     border-width: 1px;
     border-color: var(--gold-deep);
@@ -73,15 +118,16 @@
     -unity-font-style: bold;
     -unity-text-align: middle-center;
 }
-.nb-modal-title {
-    font-size: 19px;
+.nb-cover__title {
+    font-size: 20px;
     color: var(--page);
-    letter-spacing: 3.2px;
+    letter-spacing: 3px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    margin-top: 3px;
+    margin-top: 4px;
+    margin-bottom: 2px;
 }
-.nb-modal-subtitle {
+.nb-cover__sub {
     font-size: 11px;
     color: var(--gold-bright);
     letter-spacing: 1.5px;
@@ -89,104 +135,101 @@
     -unity-text-align: middle-center;
     margin-bottom: 6px;
 }
-.nb-cover-section {
-    font-size: 10px;
+.nb-cover__section {
+    font-size: 9px;
     color: var(--gold);
-    letter-spacing: 2.4px;
+    letter-spacing: 2px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     border-top-width: 1px;
     border-bottom-width: 1px;
-    border-color: rgba(184, 144, 42, 0.4);
-    padding-top: 4px; padding-bottom: 4px;
+    border-color: rgba(212,168,67,0.4);
+    padding-top: 3px; padding-bottom: 3px;
     margin-bottom: 6px;
 }
-.nb-cover-content {
+.nb-cover__scroll {
     flex-grow: 1;
+    overflow: hidden;
 }
-.nb-cover-content .unity-scroll-view__content-container {
+.nb-cover__scroll .unity-scroll-view__content-container {
     flex-direction: column;
 }
-.nb-cover-footer {
+.nb-cover__footer {
     flex-direction: row;
     justify-content: space-around;
     padding-top: 8px;
     border-top-width: 1px;
-    border-top-color: rgba(212, 168, 67, 0.3);
+    border-top-color: rgba(212,168,67,0.3);
+    flex-shrink: 0;
 }
-.nb-cover-stat {
-    align-items: center;
-}
-.nb-cover-stat-l {
-    font-size: 8px;
-    color: var(--gold);
-    letter-spacing: 1.5px;
+.nb-cover__stat { align-items: center; }
+.nb-cover__stat-l {
+    font-size: 8px; color: var(--gold); letter-spacing: 1.5px;
     -unity-font-style: bold;
 }
-.nb-cover-stat-v {
-    font-size: 16px;
-    color: var(--page);
-    -unity-font-style: bold;
+.nb-cover__stat-v {
+    font-size: 16px; color: var(--page); -unity-font-style: bold;
 }
 
-/* ── Notebook page (right side, paper) ── */
-.nb-modal-page {
+/* ─────────────────────────────────────────────────
+   NOTEBOOK PAGE (right paper panel — GROWS)
+───────────────────────────────────────────────── */
+.nb-page {
     flex-grow: 1;
+    flex-shrink: 1;
     background-color: var(--page);
     padding-top: 22px; padding-bottom: 14px;
-    padding-left: 26px; padding-right: 26px;
+    padding-left: 24px; padding-right: 24px;
     flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
-.nb-page-frame {
+/* Decorative inner border */
+.nb-page__frame {
     position: absolute;
-    top: 11px; right: 14px; bottom: 11px; left: 18px;
+    top: 12px; right: 14px; bottom: 12px; left: 18px;
     border-width: 1px;
     border-color: var(--gold-soft);
-    opacity: 0.5;
+    opacity: 0.45;
 }
-.nb-page-stamp {
+/* Rotated stamp top-right */
+.nb-page__stamp {
     position: absolute;
-    top: 14px; right: 29px;
-    width: 45px; height: 51px;
+    top: 14px; right: 28px;
+    width: 48px; height: 54px;
     background-color: var(--page-fold);
     border-width: 1px;
     border-color: var(--gold-deep);
-    align-items: center;
-    justify-content: center;
+    align-items: center; justify-content: center;
     rotate: -6deg;
-}
-.nb-page-stamp-icon {
-    font-size: 19px;
-}
-.nb-page-stamp-text {
-    font-size: 6px;
-    color: var(--ink);
-    letter-spacing: 0.8px;
-    -unity-font-style: bold;
-}
-.nb-page-header {
-    align-items: center;
-    margin-bottom: 10px;
-}
-.nb-page-title {
-    font-size: 21px;
-    color: var(--ink);
-    letter-spacing: 4px;
-    -unity-font-style: bold;
-}
-.nb-page-subtitle {
-    font-size: 12px;
-    color: var(--ink-mute);
-    letter-spacing: 1.2px;
-    -unity-font-style: italic;
-}
-.nb-page-content {
-    flex-grow: 1;
-}
-.nb-page-content .unity-scroll-view__content-container {
     flex-direction: column;
 }
-.nb-page-footer {
+.nb-page__stamp-icon { font-size: 20px; }
+.nb-page__stamp-text { font-size: 7px; color: var(--ink); letter-spacing: 0.8px; -unity-font-style: bold; }
+/* Page header */
+.nb-page__head {
+    align-items: center;
+    margin-bottom: 10px;
+    position: relative; z-index: 1;
+}
+.nb-page__title {
+    font-size: 22px; color: var(--ink);
+    letter-spacing: 5px; -unity-font-style: bold;
+}
+.nb-page__sub {
+    font-size: 12px; color: var(--ink-mute);
+    letter-spacing: 1.2px; -unity-font-style: italic;
+}
+/* Scrollable content area */
+.nb-page__content {
+    flex-grow: 1;
+    position: relative; z-index: 1;
+}
+.nb-page__content .unity-scroll-view__content-container {
+    flex-direction: column;
+}
+/* Footer with nav + close */
+.nb-page__footer {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
@@ -194,39 +237,48 @@
     border-top-width: 1px;
     border-top-color: var(--gold-soft);
     margin-top: 8px;
+    flex-shrink: 0;
+    position: relative; z-index: 1;
 }
-.nb-page-num {
-    font-size: 11px;
-    color: var(--ink-mute);
-    -unity-font-style: italic;
+.nb-page__num {
+    font-size: 11px; color: var(--ink-mute); -unity-font-style: italic;
 }
-.nb-close-stamp {
-    padding: 4px 13px;
+/* Inventory page nav < > */
+.nb-page-nav-btn {
+    width: 28px; height: 28px;
+    background-color: var(--page-light);
     border-width: 1px;
-    border-color: var(--accent);
+    border-color: var(--gold-soft);
+    color: var(--ink);
+    font-size: 16px; padding: 0;
+    -unity-text-align: middle-center;
+}
+.nb-page-nav-btn:hover {
+    background-color: var(--board);
+    color: var(--page);
+    border-color: var(--gold);
+}
+.nb-page-nav-btn:disabled {
+    opacity: 0.3;
+}
+/* Close stamp */
+.nb-close-stamp {
+    padding-top: 4px; padding-bottom: 4px;
+    padding-left: 12px; padding-right: 12px;
+    border-width: 1.5px; border-color: var(--accent);
     color: var(--accent);
     background-color: rgba(0,0,0,0);
-    font-size: 10px;
-    letter-spacing: 2px;
-    -unity-font-style: bold;
+    font-size: 10px; letter-spacing: 2px; -unity-font-style: bold;
 }
 .nb-close-stamp:hover {
-    background-color: var(--accent);
-    color: var(--page-light);
+    background-color: var(--accent); color: var(--page-light);
 }
-.nb-close-btn {
+
+/* ── OVERLAY (dim only, NO BLUR) ── */
+.overlay {
     position: absolute;
-    top: -11px; right: -11px;
-    width: 30px; height: 30px;
-    border-radius: 15px;
-    background-color: var(--board);
-    border-width: 2px;
-    border-color: var(--gold-soft);
-    color: var(--page);
-    font-size: 13px;
-    padding: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(20, 12, 4, 0.30);
 }
-.nb-close-btn:hover {
-    background-color: var(--accent);
-    border-color: var(--gold-bright);
-}
+.overlay.hidden { display: none; }
+.overlay.inv-open { background-color: rgba(20, 12, 4, 0.14); }
