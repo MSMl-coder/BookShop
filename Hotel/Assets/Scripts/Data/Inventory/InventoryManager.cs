@@ -133,9 +133,25 @@ public class InventoryManager : MonoBehaviour
 
     public void AddBook(string templateID)
     {
+
+          if (string.IsNullOrEmpty(templateID)) return;
+    
+        var template = BookDatabase.Instance?.GetBook(templateID);
+        if (template == null) return;
+        
+        // Пропускаємо SO з порожнім title
+        if (string.IsNullOrEmpty(template.title)) 
+        {
+            Debug.LogWarning($"[Inventory] Skipped book with empty title: {templateID}");
+            return;
+        }
+
+
+
+
         if (!ValidateDatabase()) return;
 
-        BookTemplate template = database.GetBook(templateID);
+       // BookTemplate template = database.GetBook(templateID);
         if (template == null)
         {
             Debug.LogError($"[Inventory] Book not found: {templateID}");

@@ -195,7 +195,7 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="Overlay" picking-mode="Ignore" class="overlay hidden"/>
-        <ui:VisualElement name="ModalsLayer" picking-mode="Ignore" class="modals-layer" style="top: 0; bottom: 0; right: 0; left: 0;">
+        <ui:VisualElement name="ModalsLayer" picking-mode="Ignore" class="modals-layer" style="top: 0; bottom: 0; right: 0; left: 0; display: flex;">
             <ui:VisualElement name="InvModal" picking-mode="Position" class="nb-modal nb-modal--inv nb-modal--gold-border hidden" style="top: 285px; width: 555px; bottom: 270px;">
                 <ui:VisualElement class="nb-cover" style="width: 210px;">
                     <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
@@ -236,20 +236,13 @@
                 </ui:VisualElement>
                 <ui:Button name="InvCloseBtn" text="✕" class="nb-close-btn"/>
             </ui:VisualElement>
-            <!-- ══ ShelfManagerPanel v2.2 ══ -->
-            <ui:VisualElement name="ShelfManagerPanel" picking-mode="Position" class="shelf-mgr-v2 hidden">
+            <ui:VisualElement name="ShelfManagerPanel" picking-mode="Position" class="shelf-mgr-v2 hidden" style="display: none; bottom: 143px; right: 547px; top: 155px; left: 525px;">
                 <ui:Button name="ShelfMgrCloseBtn" text="✕" class="nb-close-btn"/>
-
-                <!-- Заголовок -->
-                <ui:VisualElement class="shelf-mgr-v2__header">
+                <ui:VisualElement class="shelf-mgr-v2__header" style="-unity-text-align: upper-center; height: 43px;">
                     <ui:Label name="ShelfMgrCabinetName" text="CABINET" class="shelf-mgr-v2__title"/>
-                    <ui:Label name="ShelfMgrShelfInfo"   text=""        class="shelf-mgr-v2__sub"/>
+                    <ui:Label name="ShelfMgrShelfInfo" text="" class="shelf-mgr-v2__sub"/>
                 </ui:VisualElement>
-
-                <!-- Тіло -->
                 <ui:VisualElement class="shelf-mgr-v2__body">
-
-                    <!-- Ліво: інвентар -->
                     <ui:VisualElement class="shelf-mgr-v2__inv-col">
                         <ui:VisualElement picking-mode="Ignore" class="shelf-mgr-v2__inv-col-spine"/>
                         <ui:VisualElement class="shelf-mgr-v2__col-head">
@@ -262,44 +255,31 @@
                             <ui:Label name="ShelfMgrInvCount" text="0" class="shelf-mgr-v2__foot-v"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-
-                    <!-- Центр: кнопки -->
                     <ui:VisualElement class="shelf-mgr-v2__btn-col">
-                        <ui:Button name="BtnTransferAllToShelf" text="»" class="shelf-mgr-v2__btn" tooltip="Всі → полиця"/>
-                        <ui:Button name="BtnTransferOneToShelf" text="›" class="shelf-mgr-v2__btn shelf-mgr-v2__btn--primary" tooltip="Вибрану → полиця"/>
+                        <ui:Button name="BtnTransferAllToShelf" text="»" tooltip="Всі → полиця" class="shelf-mgr-v2__btn"/>
+                        <ui:Button name="BtnTransferOneToShelf" text="›" tooltip="Вибрану → полиця" class="shelf-mgr-v2__btn shelf-mgr-v2__btn--primary"/>
                         <ui:VisualElement class="shelf-mgr-v2__divider"/>
-                        <ui:Button name="BtnTransferOneToInv"   text="‹" class="shelf-mgr-v2__btn shelf-mgr-v2__btn--primary" tooltip="Вибрану → інвентар"/>
-                        <ui:Button name="BtnTransferAllToInv"   text="«" class="shelf-mgr-v2__btn" tooltip="Всі → інвентар"/>
+                        <ui:Button name="BtnTransferOneToInv" text="‹" tooltip="Вибрану → інвентар" class="shelf-mgr-v2__btn shelf-mgr-v2__btn--primary"/>
+                        <ui:Button name="BtnTransferAllToInv" text="«" tooltip="Всі → інвентар" class="shelf-mgr-v2__btn"/>
                     </ui:VisualElement>
-
-                    <!-- Право: полиці + sel-bar всередині -->
                     <ui:VisualElement class="shelf-mgr-v2__shelves-col">
                         <ui:VisualElement picking-mode="Ignore" class="shelf-mgr-v2__shelves-frame"/>
-
-                        <!-- Заголовок правої колонки -->
-                        <ui:VisualElement class="shelf-mgr-v2__col-head">
+                        <ui:VisualElement name="VisualElement" class="shelf-mgr-v2__col-head">
                             <ui:Label text="SHELVES" class="shelf-mgr-v2__col-title"/>
                         </ui:VisualElement>
-
-                        <!-- Середня зона: ScrollView + sel-bar -->
-                        <ui:VisualElement class="shelf-mgr-v2__shelves-body">
-                            <ui:ScrollView name="ShelfMgrAllShelvesView" mode="Vertical" class="shelf-mgr-v2__all-shelves"/>
-
-                            <!-- Вибрана книга — всередині правої колонки, ≤25% висоти -->
-                            <ui:VisualElement name="ShelfMgrSelectedInfo" class="shelf-mgr-v2__sel-bar hidden">
-                                <ui:VisualElement name="ShelfMgrSelIcon" class="shelf-mgr-v2__sel-icon"/>
-                                <ui:Label name="ShelfMgrSelTitle" text="" class="shelf-mgr-v2__sel-title"/>
-                                <ui:Label name="ShelfMgrSelMeta"  text="" class="shelf-mgr-v2__sel-meta"/>
-                            </ui:VisualElement>
+                        <ui:VisualElement class="shelf-mgr-v2__shelves-body" style="position: relative; height: 595px; width: 768px; top: auto; left: auto;">
+                            <ui:ScrollView name="ShelfMgrAllShelvesView" mode="Vertical" class="shelf-mgr-v2__all-shelves" style="width: 737px; position: absolute; height: 728px; left: 31px; top: 0; align-self: center;"/>
                         </ui:VisualElement>
-
-                        <!-- Підвал правої колонки -->
+                        <ui:VisualElement name="ShelfMgrSelectedInfo" class="shelf-mgr-v2__sel-bar hidden">
+                            <ui:VisualElement name="ShelfMgrSelIcon" class="shelf-mgr-v2__sel-icon"/>
+                            <ui:Label name="ShelfMgrSelTitle" text="" class="shelf-mgr-v2__sel-title"/>
+                            <ui:Label name="ShelfMgrSelMeta" text="" class="shelf-mgr-v2__sel-meta"/>
+                        </ui:VisualElement>
                         <ui:VisualElement class="shelf-mgr-v2__col-foot">
                             <ui:Label name="ShelfMgrShelfInfo" text="" class="shelf-mgr-v2__foot-l"/>
                             <ui:Button name="ShelfMgrCloseStamp" text="Close" class="nb-close-stamp"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="CatModal" picking-mode="Position" class="nb-modal nb-modal--center nb-modal--gold-border hidden">

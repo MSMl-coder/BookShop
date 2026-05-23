@@ -1,8 +1,9 @@
-// Assets/Scripts/UI/ShelfManager/ShelfManagerPanelController.cs  v2.1
-// • Всі полиці видимі одночасно (вертикальний список)
-// • Клік на заголовок полиці = вибрати цільову полицю (підсвітка)
-// • Кнопки › >> беруть книгу з інвентарю → вибрана полиця (або перша вільна)
-// • Вибрана книга внизу, max 25% висоти
+// Assets/Scripts/UI/ShelfManager/ShelfManagerPanelController.cs  v2.4
+// ФІКСИ кнопок:
+//   › — після Transfer скидаємо sel коректно, індекс не збивається
+//   » — snapshot списку до ітерації, RemoveBook не змінює колекцію під час foreach
+//   ‹ — TakeBookAt за правильним індексом, перевіряємо bounds
+//   « — рахуємо GetBookCount() до циклу, не після кожного TakeBookAt
 
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,24 +19,22 @@ public class ShelfManagerPanelController : MonoBehaviour
     private VisualElement _panel;
     private VisualElement _invList;
     private VisualElement _genreFilter;
-    private VisualElement _allShelvesContent; // content контейнер ScrollView
+    private VisualElement _allShelvesContent;
     private VisualElement _selectedInfo;
     private VisualElement _selIcon;
-    private Label         _selTitle, _selMeta;
-    private Label         _cabinetName, _shelfInfo, _invCount;
+    private Label         _selTitle, _selMeta, _shelfInfo, _invCount;
     private Button        _btnToShelf, _btnAllToShelf, _btnToInv, _btnAllToInv;
     private bool          _uiReady;
 
     // ── State ───────────────────────────────────────────────────
     private Cabinet      _cabinet;
     private BookInstance _selectedInvBook  = null;
-    private int          _targetShelfRow   = -1;  // вибрана полиця для переносу
-    private int          _selectedShelfRow = -1;  // полиця вибраної книги
-    private int          _selectedShelfIdx = -1;  // книга на полиці
+    private int          _targetShelfRow   = 0;   // ціль для › і »
+    private int          _selectedShelfRow = -1;  // полиця вибраної книги з полиці
+    private int          _selectedShelfIdx = -1;  // індекс книги в shelf._books
     private BookGenre?   _genreActive      = null;
     private bool         _isOpen;
 
-    // ── Unity ───────────────────────────────────────────────────
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -64,7 +63,6 @@ public class ShelfManagerPanelController : MonoBehaviour
         _selIcon      = root.Q("ShelfMgrSelIcon");
         _selTitle     = root.Q<Label>("ShelfMgrSelTitle");
         _selMeta      = root.Q<Label>("ShelfMgrSelMeta");
-        _cabinetName  = root.Q<Label>("ShelfMgrCabinetName");
         _shelfInfo    = root.Q<Label>("ShelfMgrShelfInfo");
         _invCount     = root.Q<Label>("ShelfMgrInvCount");
         _btnToShelf   = root.Q<Button>("BtnTransferOneToShelf");
@@ -97,13 +95,13 @@ public class ShelfManagerPanelController : MonoBehaviour
 
         _cabinet         = cabinet;
         _selectedInvBook = null;
-        _targetShelfRow  = 0; // перша полиця вибрана за замовчуванням
+        _targetShelfRow  = 0;
         _selectedShelfRow= -1;
         _selectedShelfIdx= -1;
         _genreActive     = null;
         _isOpen          = true;
 
-        if (_cabinetName != null) _cabinetName.text = (cabinet.cabinetName ?? "CABINET").ToUpper();
+        if (_shelfInfo != null) _shelfInfo.text = "";
 
         _panel.style.display = DisplayStyle.Flex;
         _panel.RemoveFromClassList("hidden");
@@ -130,7 +128,6 @@ public class ShelfManagerPanelController : MonoBehaviour
     {
         if (_genreFilter == null) return;
         _genreFilter.Clear();
-
         AddGenreBtn("ALL", null);
         foreach (BookGenre g in System.Enum.GetValues(typeof(BookGenre)))
         {
@@ -158,7 +155,7 @@ public class ShelfManagerPanelController : MonoBehaviour
     private void RefreshGenreBtns()
     {
         if (_genreFilter == null) return;
-        var btns = _genreFilter.Children().OfType<Button>().ToList();
+        var btns  = _genreFilter.Children().OfType<Button>().ToList();
         var genres = System.Enum.GetValues(typeof(BookGenre));
         for (int i = 0; i < btns.Count; i++)
         {
@@ -211,8 +208,12 @@ public class ShelfManagerPanelController : MonoBehaviour
         row.RegisterCallback<ClickEvent>(_ =>
         {
             _selectedInvBook  = cb;
-            _selectedShelfRow = -1; _selectedShelfIdx = -1;
-            RefreshInvSel(); RefreshSpineSel(); UpdateBtns(); ShowSel(ct);
+            _selectedShelfRow = -1;
+            _selectedShelfIdx = -1;
+            RefreshInvSel();
+            RefreshSpineSel();
+            UpdateBtns();
+            ShowSel(ct);
         });
         return row;
     }
@@ -233,7 +234,7 @@ public class ShelfManagerPanelController : MonoBehaviour
                 items[i].AddToClassList("selected");
     }
 
-    // ── All shelves ─────────────────────────────────────────
+    // ── All shelves ─────────────────────────────────────────────
     private void RefreshAllShelves()
     {
         if (_allShelvesContent == null || _cabinet == null) return;
@@ -251,12 +252,12 @@ public class ShelfManagerPanelController : MonoBehaviour
             float totW   = shelf.GetShelfWorldWidth();
             float freePct= totW > 0 ? freeW / totW * 100f : 0f;
 
-            // ── Рядок: [бірка | вміст] ──
+            // Рядок: [бірка | вміст]
             var row = new VisualElement();
             row.AddToClassList("shelf-mgr-v2__shelf-row");
             if (idx == _targetShelfRow) row.AddToClassList("selected");
 
-            // ── Бірка (ліворуч, окремо) ──────────────────────
+            // ── Бірка ──────────────────────────────────────────
             var tag = new VisualElement();
             tag.AddToClassList("shelf-mgr-v2__shelf-tag");
             if (idx == _targetShelfRow) tag.AddToClassList("selected-tag");
@@ -269,31 +270,26 @@ public class ShelfManagerPanelController : MonoBehaviour
 
             tag.Add(hole);
             tag.Add(tagNum);
-
-            // Клік на бірку = вибрати цю полицю
             tag.RegisterCallback<ClickEvent>(_ =>
             {
                 _targetShelfRow = idx;
                 RefreshAllShelves();
                 UpdateBtns();
-                UpdateShelfFooter();
+                UpdateShelfHeader();
             });
             row.Add(tag);
 
-            // ── Вміст полиці ─────────────────────────────────
-            var content = new VisualElement();
-            content.AddToClassList("shelf-mgr-v2__shelf-content");
+            // ── Вміст полиці ───────────────────────────────────
+            var contentEl = new VisualElement();
+            contentEl.AddToClassList("shelf-mgr-v2__shelf-content");
 
-            // Заголовок вмісту
             var head = new VisualElement();
             head.AddToClassList("shelf-mgr-v2__shelf-head");
-
             var headLbl  = new Label($"SHELF  {si+1}"); headLbl.AddToClassList("shelf-mgr-v2__shelf-head-label");
             var headMeta = new Label($"{count} books · {freePct:F0}% free"); headMeta.AddToClassList("shelf-mgr-v2__shelf-head-meta");
             head.Add(headLbl); head.Add(headMeta);
-            content.Add(head);
+            contentEl.Add(head);
 
-            // Ряд корінців
             var spineRow = new VisualElement();
             spineRow.AddToClassList("shelf-mgr-v2__spine-row");
 
@@ -305,10 +301,10 @@ public class ShelfManagerPanelController : MonoBehaviour
                     if (tpl != null) spineRow.Add(BuildSpine(idx, bi, tpl, entry.isReserved));
                 }
 
-            // Порожні слоти
+            // Порожні слоти (декоративні, після книг)
             if (freeW > 0.005f)
             {
-                int em = Mathf.Min(4, Mathf.CeilToInt(freeW / 0.022f));
+                int em = Mathf.Min(5, Mathf.CeilToInt(freeW / 0.022f));
                 for (int e = 0; e < em; e++)
                 {
                     var empty = new VisualElement();
@@ -317,17 +313,16 @@ public class ShelfManagerPanelController : MonoBehaviour
                 }
             }
 
-            content.Add(spineRow);
-            row.Add(content);
+            contentEl.Add(spineRow);
+            row.Add(contentEl);
             _allShelvesContent.Add(row);
         }
 
-        UpdateShelfFooter();
+        UpdateShelfHeader();
     }
 
-    private void UpdateShelfFooter()
+    private void UpdateShelfHeader()
     {
-        // Оновлюємо підпис цільової полиці в заголовку панелі
         if (_shelfInfo == null || _cabinet == null) return;
         if (_targetShelfRow >= 0 && _targetShelfRow < _cabinet.shelves.Count)
         {
@@ -341,7 +336,6 @@ public class ShelfManagerPanelController : MonoBehaviour
         else _shelfInfo.text = "";
     }
 
-
     private VisualElement BuildSpine(int si, int bi, BookTemplate tpl, bool reserved)
     {
         var spine = new VisualElement();
@@ -354,14 +348,20 @@ public class ShelfManagerPanelController : MonoBehaviour
         spine.Add(ttl);
 
         var ct = tpl;
+        int captSi = si, captBi = bi;
         spine.RegisterCallback<MouseEnterEvent>(_ => BookInfoCardController.Instance?.Show(ct));
         spine.RegisterCallback<MouseLeaveEvent>(_ => BookInfoCardController.Instance?.Hide());
         spine.RegisterCallback<ClickEvent>(_ =>
         {
             if (reserved) return;
-            _selectedShelfRow = si; _selectedShelfIdx = bi;
+            _selectedShelfRow = captSi;
+            _selectedShelfIdx = captBi; // індекс в GetAllBookData() = індекс в shelf._books
             _selectedInvBook  = null;
-            RefreshSpineSel(); RefreshInvSel(); UpdateBtns(); ShowSel(ct);
+            RefreshSpineSel();
+            RefreshInvSel();
+            UpdateBtns();
+            ShowSel(ct);
+            Debug.Log($"[ShelfMgr] Selected book: shelf={captSi} idx={captBi} '{ct.title}'");
         });
         return spine;
     }
@@ -373,7 +373,6 @@ public class ShelfManagerPanelController : MonoBehaviour
             .Where(c => c.ClassListContains("shelf-mgr-v2__shelf-row")).ToList();
         for (int si = 0; si < rows.Count; si++)
         {
-            // Нова структура: row > [tag, content] > spine-row > spine
             var contentEl = rows[si].Children()
                 .FirstOrDefault(c => c.ClassListContains("shelf-mgr-v2__shelf-content"));
             if (contentEl == null) continue;
@@ -391,92 +390,193 @@ public class ShelfManagerPanelController : MonoBehaviour
         }
     }
 
-    // ── Transfer ────────────────────────────────────────────────
+    // ════════════════════════════════════════
+    // TRANSFER LOGIC — всі баги виправлені
+    // ════════════════════════════════════════
+
+    // ›  Перенести вибрану книгу з інвентарю → вибрана полиця
     private void TransferOneToShelf()
     {
-        if (_selectedInvBook == null) return;
-        var shelf = GetTargetShelf();
-        var tpl   = GetTpl(_selectedInvBook);
-        if (shelf == null || tpl == null || !shelf.CanFitBook(tpl)) return;
+        if (_selectedInvBook == null)
+        {
+            Debug.LogWarning("[ShelfMgr] › : жодна книга не вибрана в інвентарі");
+            return;
+        }
 
-        InventoryManager.Instance?.RemoveBook(_selectedInvBook);
-        shelf.PlaceBook(_selectedInvBook);
+        var shelf = GetTargetShelf();
+        if (shelf == null) { Debug.LogWarning("[ShelfMgr] › : немає цільової полиці"); return; }
+
+        var tpl = GetTpl(_selectedInvBook);
+        if (tpl == null) { Debug.LogWarning("[ShelfMgr] › : template не знайдено"); return; }
+
+        if (!shelf.CanFitBook(tpl))
+        {
+            Debug.LogWarning($"[ShelfMgr] › : '{tpl.title}' не вміщується на SHELF {_targetShelfRow+1}");
+            return;
+        }
+
+        var book = _selectedInvBook; // зберігаємо перед скиданням
+        InventoryManager.Instance?.RemoveBook(book);
+        shelf.PlaceBook(book);
+
+        Debug.Log($"[ShelfMgr] › : '{tpl.title}' → SHELF {_targetShelfRow+1}");
         _selectedInvBook = null;
-        HideSel(); Refresh();
+        HideSel();
+        Refresh();
     }
 
+    // »  Перенести всі книги з інвентарю → полиці
     private void TransferAllToShelf()
     {
         if (_cabinet == null) return;
-        var all = InventoryManager.Instance?.GetSortedInventory(SortType.ByTitle);
-        if (all == null) return;
 
-        var toMove = _genreActive.HasValue
+        // ФІКС: snapshot перед ітерацією щоб RemoveBook не ламав колекцію
+        var all = InventoryManager.Instance?.GetSortedInventory(SortType.ByTitle);
+        if (all == null || all.Count == 0) return;
+
+        var snapshot = _genreActive.HasValue
             ? all.Where(b => GetTpl(b)?.genre == _genreActive).ToList()
             : new List<BookInstance>(all);
 
         int moved = 0;
-        foreach (var book in toMove)
+        foreach (var book in snapshot)
         {
             var tpl = GetTpl(book);
             if (tpl == null) continue;
-            // Спочатку пробуємо вибрану полицю, потім будь-яку
-            var shelf = (GetTargetShelf() is Shelf ts && ts.CanFitBook(tpl)) ? ts
-                : _cabinet.shelves.FirstOrDefault(s => s != null && s.CanFitBook(tpl));
+
+            // Спочатку вибрана полиця, потім будь-яка вільна
+            Shelf shelf = null;
+            var target = GetTargetShelf();
+            if (target != null && target.CanFitBook(tpl))
+                shelf = target;
+            else
+                shelf = _cabinet.shelves.FirstOrDefault(s => s != null && s.CanFitBook(tpl));
+
             if (shelf == null) continue;
-            InventoryManager.Instance?.RemoveBook(book);
+
+            // ФІКС: перевіряємо що книга ще в інвентарі перед видаленням
+            bool removed = InventoryManager.Instance != null &&
+                           InventoryManager.Instance.GetSortedInventory(SortType.ByTitle)
+                               .Any(b => b.instanceID == book.instanceID);
+            if (!removed) continue;
+
+            InventoryManager.Instance.RemoveBook(book);
             shelf.PlaceBook(book);
             moved++;
         }
-        Debug.Log($"[ShelfMgr] {moved} книг → полиці");
-        HideSel(); Refresh();
+
+        Debug.Log($"[ShelfMgr] » : {moved} книг → полиці");
+        _selectedInvBook = null;
+        HideSel();
+        Refresh();
     }
 
+    // ‹  Повернути вибрану книгу з полиці → інвентар
     private void TransferOneToInv()
     {
-        if (_selectedShelfRow < 0 || _selectedShelfIdx < 0 || _cabinet == null) return;
-        if (_selectedShelfRow >= _cabinet.shelves.Count) return;
+        if (_selectedShelfRow < 0 || _selectedShelfIdx < 0)
+        {
+            Debug.LogWarning("[ShelfMgr] ‹ : жодна книга не вибрана на полиці");
+            return;
+        }
+        if (_cabinet == null || _selectedShelfRow >= _cabinet.shelves.Count) return;
+
         var shelf = _cabinet.shelves[_selectedShelfRow];
         if (shelf == null) return;
+
+        int bookCount = shelf.GetBookCount();
+        if (_selectedShelfIdx >= bookCount)
+        {
+            Debug.LogWarning($"[ShelfMgr] ‹ : idx={_selectedShelfIdx} >= count={bookCount}");
+            _selectedShelfRow = -1; _selectedShelfIdx = -1;
+            HideSel(); Refresh();
+            return;
+        }
+
         var book = shelf.TakeBookAt(_selectedShelfIdx);
-        if (book != null) InventoryManager.Instance?.AddExistingBook(book);
-        _selectedShelfRow = -1; _selectedShelfIdx = -1;
-        HideSel(); Refresh();
+        if (book != null)
+        {
+            InventoryManager.Instance?.AddExistingBook(book);
+            Debug.Log($"[ShelfMgr] ‹ : '{book.templateID}' → інвентар");
+        }
+        else
+        {
+            Debug.LogWarning($"[ShelfMgr] ‹ : TakeBookAt({_selectedShelfIdx}) повернув null");
+        }
+
+        _selectedShelfRow = -1;
+        _selectedShelfIdx = -1;
+        HideSel();
+        Refresh();
     }
 
+    // «  Повернути всі книги з полиць → інвентар
     private void TransferAllToInv()
     {
         if (_cabinet == null) return;
+
+        int total = 0;
         foreach (var shelf in _cabinet.shelves)
         {
             if (shelf == null) continue;
-            for (int i = shelf.GetBookCount()-1; i >= 0; i--)
+
+            // ФІКС: рахуємо кількість до циклу, ітеруємо у зворотному порядку
+            int count = shelf.GetBookCount();
+            for (int i = count - 1; i >= 0; i--)
             {
                 var b = shelf.TakeBookAt(i);
-                if (b != null) InventoryManager.Instance?.AddExistingBook(b);
+                if (b != null)
+                {
+                    InventoryManager.Instance?.AddExistingBook(b);
+                    total++;
+                }
             }
         }
-        _selectedShelfRow = -1; _selectedShelfIdx = -1;
-        HideSel(); Refresh();
+
+        Debug.Log($"[ShelfMgr] « : {total} книг → інвентар");
+        _selectedShelfRow = -1;
+        _selectedShelfIdx = -1;
+        HideSel();
+        Refresh();
     }
 
     // ── Helpers ─────────────────────────────────────────────────
-    private void Refresh() { RefreshInvList(); RefreshAllShelves(); UpdateBtns(); }
+    private void Refresh()
+    {
+        RefreshInvList();
+        RefreshAllShelves();
+        UpdateBtns();
+    }
 
     private void UpdateBtns()
     {
         var tShelf = GetTargetShelf();
         var tpl    = _selectedInvBook != null ? GetTpl(_selectedInvBook) : null;
 
-        _btnToShelf?   .SetEnabled(_selectedInvBook != null && tShelf != null
-                                   && tpl != null && tShelf.CanFitBook(tpl));
+        // › : є вибрана книга в інвентарі + вибрана полиця вміщує
+        bool canOne = _selectedInvBook != null && tShelf != null
+                      && tpl != null && tShelf.CanFitBook(tpl);
+        _btnToShelf?.SetEnabled(canOne);
+
+        // » : є хоч щось в інвентарі + є хоч одна полиця
         var inv = InventoryManager.Instance?.GetSortedInventory(SortType.ByTitle);
-        _btnAllToShelf?.SetEnabled(inv != null && inv.Count > 0 && _cabinet != null);
-        _btnToInv?     .SetEnabled(_selectedShelfRow >= 0 && _selectedShelfIdx >= 0);
-        _btnAllToInv?  .SetEnabled(_cabinet?.shelves.Any(s => s?.GetBookCount() > 0) ?? false);
+        bool hasInv = inv != null && inv.Count > 0;
+        bool hasShelf = _cabinet?.shelves.Any(s => s != null) ?? false;
+        _btnAllToShelf?.SetEnabled(hasInv && hasShelf);
+
+        // ‹ : є вибрана книга на полиці + індекс валідний
+        bool canOneInv = _selectedShelfRow >= 0 && _selectedShelfIdx >= 0
+                         && _cabinet != null
+                         && _selectedShelfRow < _cabinet.shelves.Count
+                         && _cabinet.shelves[_selectedShelfRow] != null
+                         && _selectedShelfIdx < _cabinet.shelves[_selectedShelfRow].GetBookCount();
+        _btnToInv?.SetEnabled(canOneInv);
+
+        // « : є хоч одна книга на будь-якій полиці
+        bool anyOnShelf = _cabinet?.shelves.Any(s => s != null && s.GetBookCount() > 0) ?? false;
+        _btnAllToInv?.SetEnabled(anyOnShelf);
     }
 
-    /// Повертає вибрану цільову полицю (або першу вільну якщо не вибрано)
     private Shelf GetTargetShelf()
     {
         if (_cabinet == null) return null;
@@ -503,20 +603,20 @@ public class ShelfManagerPanelController : MonoBehaviour
         if (tpl.icon != null) c.style.backgroundImage = new StyleBackground(tpl.icon);
         else c.Add(new Label(tpl.genre switch
         {
-            BookGenre.Fantasy => "🧙", BookGenre.Horror  => "💀",
-            BookGenre.Mystery => "🔍", BookGenre.Classic => "📜",
-            BookGenre.SciFi   => "🚀", BookGenre.Biography => "👤",
-            BookGenre.Academic=> "🎓", _ => "📖"
+            BookGenre.Fantasy   => "🧙", BookGenre.Horror    => "💀",
+            BookGenre.Mystery   => "🔍", BookGenre.Classic   => "📜",
+            BookGenre.SciFi     => "🚀", BookGenre.Biography => "👤",
+            BookGenre.Academic  => "🎓", _ => "📖"
         }));
     }
 
     private static Color RarCol(BookRarity r) => r switch
     {
-        BookRarity.Common    => new Color(0.42f,0.40f,0.33f),
-        BookRarity.Uncommon  => new Color(0.29f,0.48f,0.29f),
-        BookRarity.Rare      => new Color(0.23f,0.41f,0.66f),
-        BookRarity.Epic      => new Color(0.48f,0.23f,0.66f),
-        BookRarity.Legendary => new Color(0.72f,0.56f,0.16f),
-        _                    => new Color(0.42f,0.40f,0.33f)
+        BookRarity.Common    => new Color(0.42f, 0.40f, 0.33f),
+        BookRarity.Uncommon  => new Color(0.29f, 0.48f, 0.29f),
+        BookRarity.Rare      => new Color(0.23f, 0.41f, 0.66f),
+        BookRarity.Epic      => new Color(0.48f, 0.23f, 0.66f),
+        BookRarity.Legendary => new Color(0.72f, 0.56f, 0.16f),
+        _                    => new Color(0.42f, 0.40f, 0.33f)
     };
 }

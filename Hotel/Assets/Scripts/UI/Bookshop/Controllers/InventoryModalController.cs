@@ -204,7 +204,8 @@ public class InventoryModalController : MonoBehaviour
             var template = BookDatabase.Instance?.GetBook(book.templateID);
             if (template == null) continue;
 
-            string firstLetter = (template.title ?? "?").Substring(0, 1).ToUpper();
+            string raw = template.title ?? "";
+            string firstLetter = raw.Length > 0 ? raw.Substring(0, 1).ToUpper() : "?";
             if (firstLetter != lastLetter)
             {
                 var sect = new Label(firstLetter);

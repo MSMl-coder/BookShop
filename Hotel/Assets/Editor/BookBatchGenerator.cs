@@ -810,9 +810,6 @@ public class BookBatchGenerator : EditorWindow
     new BookEntry("Introduction to Psychoanalysis",         "Sigmund Freud",        BookGenre.Academic, 1917, BookRarity.Common),
     new BookEntry("Beyond the Pleasure Principle",          "Sigmund Freud",        BookGenre.Academic, 1920, BookRarity.Common),
     new BookEntry("Introductory Lectures on Psychoanalysis","Sigmund Freud",        BookGenre.Academic, 1917, BookRarity.Common),
-
-        // ...
-        // ↑↑↑ КІНЕЦЬ СПИСКУ ↑↑↑
     };
 
     // ─────────────────────────────────────────────────────────────────────
