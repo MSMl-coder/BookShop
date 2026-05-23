@@ -90,7 +90,14 @@ public class Shelf : MonoBehaviour
         if (geometry == null)
             Debug.LogError($"[Shelf] BookGeometryProfile не призначено на '{gameObject.name}'!");
     }
-
+    private void Start()
+    {
+        if (_books != null && _books.Count > 0)
+        {
+            RebuildLayout();
+            PushToRenderer();
+        }
+    }
     private void OnEnable()  => ShelfRegistry.Instance?.Register(this);
     private void OnDisable()
     {

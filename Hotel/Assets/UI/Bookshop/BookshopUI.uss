@@ -1182,3 +1182,266 @@
 .ach-track { height: 5px; background-color: rgba(0,0,0,0.1); border-width: 0.5px; border-color: rgb(184,144,42); }
 .ach-fill { height: 100%; background-color: rgb(212,168,67); }
 .ach-count { font-size: 10px; color: rgb(138,106,40); letter-spacing:.8px; -unity-font-style:bold; margin-top: 3px; }
+
+/* ══════════════════════════════════════
+   PATCH: Gold border для всіх модалів
+══════════════════════════════════════ */
+.nb-modal--gold-border {
+    border-width: 2px;
+    border-color: rgb(184, 144, 42);
+}
+
+/* Золота рамка сторінки — підвищена видимість */
+.nb-page__frame--gold {
+    position: absolute;
+    top: 8px; right: 10px; bottom: 8px; left: 14px;
+    border-width: 1.5px;
+    border-color: rgb(184, 144, 42);
+    opacity: 0.7;
+}
+
+/* ══════════════════════════════════════
+   PATCH: Overlay більше не блокує world
+   (picking-mode="Ignore" в UXML достатньо,
+    але залишаємо pointer-events на випадок)
+══════════════════════════════════════ */
+.overlay { pointer-events: none; }
+
+/* ══════════════════════════════════════
+   SHELF MANAGER PANEL
+══════════════════════════════════════ */
+
+/* Позиція: права частина екрану, від середини вгору-вниз */
+.nb-modal--shelf-mgr {
+    top: 46px; bottom: 100px; right: 22px;
+    width: 780px;
+    flex-direction: row;
+}
+
+/* Обкладинка інвентарю (ліва частина) — ширша ніж стандартна */
+.shelf-mgr__inv-cover {
+    width: 230px;
+    min-width: 230px;
+    max-width: 230px;
+}
+
+/* Список книг інвентарю всередині cover */
+.shelf-mgr__inv-list { flex-grow: 1; }
+.shelf-mgr__inv-list .unity-scroll-view__content-container { flex-direction: column; }
+
+/* Фільтр жанрів */
+.shelf-mgr__genre-filter {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+.shelf-mgr__genre-btn {
+    font-size: 8px; letter-spacing: 1px;
+    padding: 2px 6px;
+    border-width: 1px; border-color: rgba(212,168,67,0.4);
+    background-color: rgba(0,0,0,0);
+    color: rgb(184,144,42); margin: 2px;
+}
+.shelf-mgr__genre-btn:hover { background-color: rgba(212,168,67,0.1); }
+.shelf-mgr__genre-btn.active {
+    background-color: rgb(184,144,42);
+    color: rgb(20,32,42);
+}
+
+/* Колонка кнопок переміщення (центр) */
+.shelf-mgr__transfer-col {
+    width: 64px;
+    min-width: 64px;
+    max-width: 64px;
+    flex-shrink: 0;
+    background-color: rgb(31, 48, 51);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 8px; padding-bottom: 8px;
+    border-left-width: 1px; border-left-color: rgb(184,144,42);
+    border-right-width: 1px; border-right-color: rgb(184,144,42);
+}
+
+.shelf-mgr__cabinet-name {
+    font-size: 9px; color: rgb(232,196,90);
+    letter-spacing: 1.5px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-bottom: 10px;
+    white-space: normal; -unity-text-overflow-position: end;
+}
+
+/* Таби вибору полиці */
+.shelf-mgr__shelf-tabs {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 12px;
+    width: 52px;
+}
+.shelf-mgr__shelf-tab {
+    font-size: 9px; letter-spacing: 1px;
+    padding: 4px 6px;
+    border-width: 1px; border-color: rgba(184,144,42,0.3);
+    background-color: rgba(0,0,0,0);
+    color: rgb(184,144,42);
+    margin-bottom: 2px;
+    -unity-text-align: middle-center;
+}
+.shelf-mgr__shelf-tab:hover { background-color: rgba(212,168,67,0.1); }
+.shelf-mgr__shelf-tab.active {
+    background-color: rgb(184,144,42);
+    color: rgb(20,32,42);
+    border-color: rgb(138,106,40);
+}
+
+/* Кнопки >>> <<< */
+.shelf-mgr__transfer-btn {
+    width: 44px; height: 36px;
+    font-size: 18px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgb(42,67,71);
+    border-width: 1px; border-color: rgb(184,144,42);
+    color: rgb(184,144,42);
+    margin-bottom: 4px; padding: 0;
+}
+.shelf-mgr__transfer-btn:hover {
+    background-color: rgb(184,144,42);
+    color: rgb(20,32,42);
+}
+.shelf-mgr__transfer-btn:disabled { opacity: 0.3; }
+.shelf-mgr__transfer-btn--primary {
+    width: 44px; height: 44px;
+    font-size: 24px;
+    background-color: rgb(31,48,51);
+    border-color: rgb(232,196,90);
+    color: rgb(232,196,90);
+}
+.shelf-mgr__transfer-btn--primary:hover {
+    background-color: rgb(232,196,90);
+    color: rgb(20,32,42);
+}
+.shelf-mgr__transfer-divider {
+    width: 36px; height: 1px;
+    background-color: rgba(184,144,42,0.4);
+    margin-top: 6px; margin-bottom: 6px;
+}
+
+/* Права частина — shelf view */
+.shelf-mgr__shelf-page { flex-grow: 1; }
+
+/* Горизонтальний ScrollView з книгами */
+.shelf-mgr__shelf-view {
+    flex-grow: 1;
+    flex-shrink: 1;
+    background-color: rgb(216, 186, 136);
+    border-width: 2px; border-color: rgb(138,106,40);
+    margin-top: 8px; margin-bottom: 8px;
+    min-height: 120px; max-height: 160px;
+}
+.shelf-mgr__shelf-view .unity-scroll-view__content-container {
+    flex-direction: row;
+    align-items: flex-end;
+    padding-left: 8px; padding-right: 8px;
+    padding-bottom: 6px;
+    /* Дерев'яна поличка знизу */
+    border-bottom-width: 6px;
+    border-bottom-color: rgb(138,106,40);
+}
+
+/* Окрема книга на полиці — spine view */
+.shelf-book-spine {
+    width: 24px;
+    min-width: 24px;
+    max-width: 24px;
+    height: 96px;
+    margin-right: 3px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    border-width: 1px;
+    border-color: rgba(0,0,0,0.25);
+    cursor: link;
+    overflow: hidden;
+}
+.shelf-book-spine:hover {
+    border-color: rgb(232,196,90);
+    border-width: 2px;
+    translate: 0 -4px;
+}
+.shelf-book-spine.selected {
+    border-color: rgb(232,196,90);
+    border-width: 2px;
+    translate: 0 -8px;
+}
+/* Заголовок книги вертикально */
+.shelf-book-spine__title {
+    font-size: 7px;
+    color: rgb(245,236,214);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    rotate: -90deg;
+    white-space: nowrap;
+    width: 80px;
+    overflow: hidden;
+}
+
+/* Книга в інвентарі (компактний рядок в cover) */
+.shelf-mgr__inv-item {
+    flex-direction: row; align-items: center;
+    padding: 5px 6px;
+    border-width: 1px; border-color: rgba(0,0,0,0);
+    margin-bottom: 2px;
+}
+.shelf-mgr__inv-item:hover { border-color: rgb(184,144,42); background-color: rgba(212,168,67,0.06); }
+.shelf-mgr__inv-item.selected { border-color: rgb(232,196,90); background-color: rgba(212,168,67,0.15); }
+
+/* Іконка книги (Sprite або emoji fallback) */
+.shelf-mgr__inv-item__icon {
+    width: 32px; height: 32px;
+    border-width: 1px; border-color: rgba(184,144,42,0.5);
+    background-color: rgba(0,0,0,0.2);
+    align-items: center; justify-content: center;
+    margin-right: 6px; flex-shrink: 0;
+    background-size: contain;
+    background-position: center;
+}
+.shelf-mgr__inv-item__icon > Label { font-size: 16px; color: rgb(245,236,214); }
+
+.shelf-mgr__inv-item__info { flex-grow: 1; flex-direction: column; overflow: hidden; }
+.shelf-mgr__inv-item__title {
+    font-size: 11px; color: rgb(245,236,214);
+    -unity-font-style: bold-and-italic;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.shelf-mgr__inv-item__meta {
+    font-size: 8px; color: rgb(184,144,42);
+    letter-spacing: 0.8px; -unity-font-style: bold;
+}
+
+/* Інформація про виділену книгу внизу shelf page */
+.shelf-mgr__selected-info {
+    flex-direction: row; align-items: center;
+    padding: 8px 12px;
+    background-color: rgb(250,243,223);
+    border-top-width: 1px; border-top-color: rgb(184,144,42);
+    flex-shrink: 0;
+}
+.shelf-mgr__selected-info__icon {
+    width: 40px; height: 40px;
+    border-width: 1px; border-color: rgb(184,144,42);
+    background-color: rgba(0,0,0,0.04);
+    background-size: contain; background-position: center;
+    margin-right: 10px; flex-shrink: 0;
+}
+.shelf-mgr__selected-info__text { flex-direction: column; flex-grow: 1; }
+.shelf-mgr__sel-title { font-size: 13px; color: rgb(42,31,14); -unity-font-style: bold-and-italic; }
+.shelf-mgr__sel-meta  { font-size: 10px; color: rgb(107,90,58); letter-spacing: 1px; -unity-font-style: bold; }
+
+/* ══════════════════════════════════════
+   PATCH: inv-row__icon підтримка Sprite
+   (background-image задається з C#)
+══════════════════════════════════════ */
+.inv-row__icon {
+    background-size: contain;
+    background-position: center;
+}

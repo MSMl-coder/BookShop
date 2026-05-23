@@ -60,7 +60,7 @@ public class BookshopUIBridge : MonoBehaviour
     {
         if (BookshopUIController.Instance != null)
             BookshopUIController.Instance.OpenInventoryFromShelf();
-        else
-            ShopUIManager.Instance?.OpenInventoryPanel();
+       // else
+           // ShopUIManager.Instance?.OpenInventoryPanel();
     }
 }

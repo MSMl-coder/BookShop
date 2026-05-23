@@ -4,8 +4,8 @@
         <ui:VisualElement name="HUD" picking-mode="Ignore" class="hud">
             <ui:VisualElement name="ClubCard" picking-mode="Position" class="club-card" style="display: flex;">
                 <ui:VisualElement picking-mode="Ignore" class="club-card__cord"/>
-                <ui:VisualElement name="ClubCardFront" picking-mode="Position" class="club-card__face club-card__face--front" style="opacity: 1; top: 0; bottom: 1px; right: 0; left: 1px;">
-                    <ui:VisualElement class="club-card__name-row" style="width: 131px; align-content: stretch; -unity-text-align: upper-center; height: 54px;">
+                <ui:VisualElement name="ClubCardFront" picking-mode="Position" class="club-card__face club-card__face--front">
+                    <ui:VisualElement class="club-card__name-row" style="width: 131px; height: 54px;">
                         <ui:Label name="ShopNameLabel" text="«Cozy Corner»" class="club-card__name" style="position: absolute; top: 10px; left: 7px;"/>
                         <ui:Button name="BtnEditShopName" text="✎" class="club-card__edit-btn" style="position: absolute; top: -1px; left: 52px;"/>
                     </ui:VisualElement>
@@ -32,7 +32,7 @@
                         <ui:Label text="SHOP LEVEL" class="club-card__stat-label" style="height: 19px; width: 61px; position: absolute; top: 3px; left: -3px;"/>
                         <ui:Label name="DayLabel" text="01" class="club-card__day-num" style="position: absolute; height: 44px; top: 23px; width: 52px; left: 1px;"/>
                     </ui:VisualElement>
-                    <ui:VisualElement class="club-card__stat" style="align-items: center; height: 21px; width: 131px;">
+                    <ui:VisualElement class="club-card__stat" style="align-items: center; height: 21px; width: 119px; -unity-text-align: upper-center;">
                         <ui:Label name="MoneyLabel" text="$ 1,240" class="club-card__money" style="position: absolute; top: 20px; left: 20px;"/>
                     </ui:VisualElement>
                     <ui:Label name="PhaseLabel" text="PREPARATION" class="club-card__phase-band" style="height: 16px; width: 94px; position: absolute; top: 162px; left: 27px;"/>
@@ -42,10 +42,10 @@
             </ui:VisualElement>
             <ui:VisualElement name="BuffsArea" picking-mode="Position" class="buffs-area"/>
             <ui:VisualElement name="ClockFrame" picking-mode="Position" class="clock-frame">
-                <ui:VisualElement name="ClockBar" class="clock-bar tag" style="height: 67px; width: 355px;">
+                <ui:VisualElement name="ClockBar" class="clock-bar tag">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
-                    <ui:VisualElement name="FlipClock" class="flip-clock" style="height: 57px; width: 159px;">
+                    <ui:VisualElement name="FlipClock" class="flip-clock">
                         <ui:VisualElement name="FlipH1" class="flip-digit">
                             <ui:VisualElement class="flip-digit__top">
                                 <ui:Label name="FlipH1TopNext" text="1" style="height: 48px; -unity-text-align: middle-center;"/>
@@ -130,45 +130,20 @@
             </ui:VisualElement>
             <ui:VisualElement name="ToastArea" picking-mode="Ignore" class="toast-area" style="height: 58px;"/>
             <ui:VisualElement name="Calendar" picking-mode="Position" class="calendar">
-                <ui:VisualElement class="calendar__month-head" style="height: 35px;">
+                <ui:VisualElement class="calendar__month-head">
                     <ui:Label name="CalMonthName" text="September" class="calendar__month-name"/>
-                    <ui:Label name="CalYear" text="YEAR I · AUTUMN" class="calendar__year" style="height: 22px; width: 90px;"/>
+                    <ui:Label name="CalYear" text="YEAR I · AUTUMN" class="calendar__year"/>
                 </ui:VisualElement>
-                <ui:VisualElement class="calendar__body" style="height: 122px; width: 191px;">
-                    <ui:VisualElement class="calendar__day-display" style="height: 65px; width: 165px;">
+                <ui:VisualElement class="calendar__body">
+                    <ui:VisualElement class="calendar__day-display">
                         <ui:Label name="CalBigDay" text="1" class="calendar__big-day"/>
                         <ui:VisualElement class="calendar__day-side">
                             <ui:Label name="CalWeekday" text="Monday" class="calendar__weekday"/>
                             <ui:Label name="CalDayMeta" text="To weekend · 5 days" class="calendar__day-meta"/>
                         </ui:VisualElement>
                     </ui:VisualElement>
-                    <ui:VisualElement name="CalWeekStrip" class="calendar__week-strip" style="height: 24px; width: 163px; -unity-text-align: upper-center;"/>
+                    <ui:VisualElement name="CalWeekStrip" class="calendar__week-strip"/>
                 </ui:VisualElement>
-            </ui:VisualElement>
-            <ui:VisualElement name="BookInfoCard" picking-mode="Position" class="book-info hidden" style="display: flex;">
-                <ui:VisualElement class="book-info__header">
-                    <ui:Label text="Book Record" class="book-info__title-head"/>
-                    <ui:Label name="BookInfoNum" text="№ 00-041" class="book-info__num"/>
-                </ui:VisualElement>
-                <ui:Label text="TITLE" class="book-info__field-label"/>
-                <ui:Label name="BookInfoTitle" text="«Title»" class="book-info__field-value"/>
-                <ui:Label text="AUTHOR" class="book-info__field-label"/>
-                <ui:Label name="BookInfoAuthor" text="Author" class="book-info__field-value"/>
-                <ui:VisualElement class="book-info__row-two">
-                    <ui:VisualElement>
-                        <ui:Label text="PRICE" class="book-info__field-label"/>
-                        <ui:Label name="BookInfoPrice" text="$ 0" class="book-info__field-value"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement>
-                        <ui:Label text="CONDITION" class="book-info__field-label"/>
-                        <ui:Label name="BookInfoCondition" text="Good" class="book-info__field-value"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
-                <ui:VisualElement class="book-info__bonus-line">
-                    <ui:VisualElement class="book-info__bonus-dot"/>
-                    <ui:Label name="BookInfoBonusText" text="+0% bonus"/>
-                </ui:VisualElement>
-                <ui:Label text="IS&#10;SU&#10;ED" class="book-info__stamp"/>
             </ui:VisualElement>
             <ui:VisualElement name="FuncBar" picking-mode="Position" class="func-bar">
                 <ui:Button name="BtnInventory" class="func-btn tag">
@@ -219,10 +194,10 @@
                 </ui:Button>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="Overlay" picking-mode="Position" class="overlay hidden"/>
-        <ui:VisualElement name="ModalsLayer" picking-mode="Ignore" class="modals-layer" style="top: -8px; bottom: 10px; right: 2px; left: 0;">
-            <ui:VisualElement name="InvModal" picking-mode="Position" class="nb-modal nb-modal--inv hidden" style="top: 286px; width: 502px; display: none;">
-                <ui:VisualElement class="nb-cover">
+        <ui:VisualElement name="Overlay" picking-mode="Ignore" class="overlay hidden"/>
+        <ui:VisualElement name="ModalsLayer" picking-mode="Ignore" class="modals-layer" style="top: 0; bottom: 0; right: 0; left: 0;">
+            <ui:VisualElement name="InvModal" picking-mode="Position" class="nb-modal nb-modal--inv nb-modal--gold-border hidden" style="top: 285px; width: 555px; bottom: 270px;">
+                <ui:VisualElement class="nb-cover" style="width: 210px;">
                     <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
                     <ui:Label text="Inventory" class="nb-cover__title"/>
                     <ui:Label text="★ Shop Stock ★" class="nb-cover__sub"/>
@@ -240,7 +215,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="nb-page">
-                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame"/>
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame nb-page__frame--gold" style="right: 8px; left: 7px;"/>
                     <ui:VisualElement class="nb-page__head">
                         <ui:Label name="InvPageTitle" text="Books" class="nb-page__title"/>
                         <ui:Label name="InvPageSubtitle" text="0 items in stock" class="nb-page__sub"/>
@@ -251,7 +226,7 @@
                         <ui:Button name="BtnSortPrice" text="Price" class="inv-sort-key"/>
                         <ui:Button name="BtnSortRarity" text="Rarity" class="inv-sort-key"/>
                     </ui:VisualElement>
-                    <ui:ScrollView name="InvList" mode="Vertical" class="nb-page__content"/>
+                    <ui:ScrollView name="InvList" mode="Vertical" class="nb-page__content" style="width: 261px;"/>
                     <ui:VisualElement class="nb-page__footer">
                         <ui:Button name="BtnInvPrev" text="‹" class="nb-page-nav-btn"/>
                         <ui:Label name="InvPageNum" text="page 1 / 1" class="nb-page__num"/>
@@ -261,7 +236,52 @@
                 </ui:VisualElement>
                 <ui:Button name="InvCloseBtn" text="✕" class="nb-close-btn"/>
             </ui:VisualElement>
-            <ui:VisualElement name="CatModal" picking-mode="Position" class="nb-modal nb-modal--center hidden">
+            <ui:VisualElement name="ShelfManagerPanel" picking-mode="Position" class="nb-modal nb-modal--shelf-mgr nb-modal--gold-border hidden" style="display: none; top: 231px; width: 490px; bottom: 368px;">
+                <ui:Button name="ShelfMgrCloseBtn" text="✕" class="nb-close-btn"/>
+                <ui:VisualElement class="nb-cover shelf-mgr__inv-cover" style="display: none;">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
+                    <ui:Label name="ShelfMgrInvTitle" text="Inventory" class="nb-cover__title"/>
+                    <ui:Label text="★ Stock ★" class="nb-cover__sub"/>
+                    <ui:Label text="BOOKS" class="nb-cover__section"/>
+                    <ui:VisualElement name="ShelfMgrGenreFilter" class="shelf-mgr__genre-filter"/>
+                    <ui:ScrollView name="ShelfMgrInvList" mode="Vertical" class="nb-cover__scroll shelf-mgr__inv-list"/>
+                    <ui:VisualElement class="nb-cover__footer">
+                        <ui:VisualElement class="nb-cover__stat">
+                            <ui:Label text="TOTAL" class="nb-cover__stat-l"/>
+                            <ui:Label name="ShelfMgrInvCount" text="0" class="nb-cover__stat-v"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="shelf-mgr__transfer-col">
+                    <ui:Label name="ShelfMgrCabinetName" text="Cabinet" class="shelf-mgr__cabinet-name"/>
+                    <ui:VisualElement name="ShelfMgrShelfTabs" class="shelf-mgr__shelf-tabs"/>
+                    <ui:Button name="BtnTransferAllToShelf" text="»" tooltip="Перемістити всі підходящі книги на полицю" class="shelf-mgr__transfer-btn"/>
+                    <ui:Button name="BtnTransferOneToShelf" text="›" tooltip="Перемістити вибрану книгу на полицю" class="shelf-mgr__transfer-btn shelf-mgr__transfer-btn--primary"/>
+                    <ui:VisualElement class="shelf-mgr__transfer-divider"/>
+                    <ui:Button name="BtnTransferOneToInv" text="‹" tooltip="Повернути вибрану книгу в інвентар" class="shelf-mgr__transfer-btn shelf-mgr__transfer-btn--primary"/>
+                    <ui:Button name="BtnTransferAllToInv" text="«" tooltip="Повернути всі книги з полиці в інвентар" class="shelf-mgr__transfer-btn"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="nb-page shelf-mgr__shelf-page">
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame nb-page__frame--gold"/>
+                    <ui:VisualElement class="nb-page__head">
+                        <ui:Label name="ShelfMgrShelfName" text="Shelf 1" class="nb-page__title"/>
+                        <ui:Label name="ShelfMgrShelfInfo" text="0 / 8 books" class="nb-page__sub"/>
+                    </ui:VisualElement>
+                    <ui:ScrollView name="ShelfMgrShelfView" mode="Horizontal" class="shelf-mgr__shelf-view"/>
+                    <ui:VisualElement name="ShelfMgrSelectedInfo" class="shelf-mgr__selected-info hidden">
+                        <ui:VisualElement name="ShelfMgrSelIcon" class="shelf-mgr__selected-info__icon"/>
+                        <ui:VisualElement class="shelf-mgr__selected-info__text">
+                            <ui:Label name="ShelfMgrSelTitle" text="" class="shelf-mgr__sel-title"/>
+                            <ui:Label name="ShelfMgrSelMeta" text="" class="shelf-mgr__sel-meta"/>
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="nb-page__footer">
+                        <ui:Label name="ShelfMgrPageNum" text="shelf 1 / 1" class="nb-page__num"/>
+                        <ui:Button name="ShelfMgrCloseStamp" text="Close" class="nb-close-stamp"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="CatModal" picking-mode="Position" class="nb-modal nb-modal--center nb-modal--gold-border hidden">
                 <ui:VisualElement class="nb-cover">
                     <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
                     <ui:Label text="CLUB·007" class="nb-cover__tag"/>
@@ -281,7 +301,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="nb-page">
-                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame"/>
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame nb-page__frame--gold"/>
                     <ui:VisualElement class="nb-page__head">
                         <ui:Label text="Catalog" class="nb-page__title"/>
                         <ui:Label text="Author Collections" class="nb-page__sub"/>
@@ -295,7 +315,7 @@
                 </ui:VisualElement>
                 <ui:Button name="CatCloseBtn" text="✕" class="nb-close-btn"/>
             </ui:VisualElement>
-            <ui:VisualElement name="DecorModal" picking-mode="Position" class="nb-modal nb-modal--bottom hidden">
+            <ui:VisualElement name="DecorModal" picking-mode="Position" class="nb-modal nb-modal--bottom nb-modal--gold-border hidden">
                 <ui:Button name="DecorCloseBtn" text="✕" class="nb-close-btn"/>
                 <ui:VisualElement class="decor-cats-strip">
                     <ui:ScrollView name="DecorCatList" mode="Vertical" class="decor-cats-strip__list"/>
@@ -334,7 +354,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="NPCModal" picking-mode="Position" class="nb-modal nb-modal--npc hidden">
+            <ui:VisualElement name="NPCModal" picking-mode="Position" class="nb-modal nb-modal--npc nb-modal--gold-border hidden">
                 <ui:Button name="NPCCloseBtn" text="✕" class="nb-close-btn"/>
                 <ui:VisualElement class="nb-cover">
                     <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
@@ -345,7 +365,7 @@
                     <ui:ScrollView name="NPCStats" mode="Vertical" class="nb-cover__scroll"/>
                 </ui:VisualElement>
                 <ui:VisualElement class="nb-page">
-                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame"/>
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame nb-page__frame--gold"/>
                     <ui:VisualElement class="nb-page__head">
                         <ui:VisualElement class="npc-portrait">
                             <ui:Label name="NPCPortrait" text="🐆"/>
@@ -363,7 +383,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="AwardsModal" picking-mode="Position" class="nb-modal nb-modal--awards hidden">
+            <ui:VisualElement name="AwardsModal" picking-mode="Position" class="nb-modal nb-modal--awards nb-modal--gold-border hidden">
                 <ui:Button name="AwardsCloseBtn" text="✕" class="nb-close-btn"/>
                 <ui:VisualElement class="nb-cover">
                     <ui:VisualElement picking-mode="Ignore" class="nb-cover__spine"/>
@@ -389,7 +409,7 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="nb-page">
-                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame"/>
+                    <ui:VisualElement picking-mode="Ignore" class="nb-page__frame nb-page__frame--gold"/>
                     <ui:VisualElement class="nb-page__head">
                         <ui:Label text="Awards" class="nb-page__title"/>
                         <ui:Label text="Book of Achievements" class="nb-page__sub"/>
