@@ -76,12 +76,13 @@ public class Shelf : MonoBehaviour
     private void Awake()
     {
         gameObject.layer = LayerMask.NameToLayer("Shelves");
+ 
+    // НЕ вимикаємо компонент якщо startPoint не призначено — 
+    // це вимикає і BookInstancedRenderer на тому ж GO
+    if (startPoint == null)
+        Debug.LogError($"[Shelf] StartPoint not assigned on {gameObject.name}! Assign it in Inspector.");
+    // enabled = false; // ← ВИДАЛИТИ ЦЕЙ РЯДОК
 
-        if (startPoint == null)
-        {
-            Debug.LogError($"[Shelf] StartPoint не призначено на {gameObject.name}!");
-            enabled = false; return;
-        }
 
         _renderer = GetComponent<BookInstancedRenderer>();
         if (_renderer == null)

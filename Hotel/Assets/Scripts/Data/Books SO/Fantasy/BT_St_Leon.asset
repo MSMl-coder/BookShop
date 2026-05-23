@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8acd7bd923df499ca6a5693e47a673f, type: 3}
+  m_Name: BT_St_Leon
+  m_EditorClassIdentifier: Assembly-CSharp::BookTemplate
+  bookID: 179901001820
+  title: St. Leon
+  author: William Godwin
+  genre: 1
+  rarity: 0
+  writingYear: 1799
+  volumeNumber: 1
+  containerPrefab: {fileID: 7792499953618239303, guid: e21cee72b3dc74b158c880b521836087, type: 3}
+  icon: {fileID: 0}
+  bookSize: 1
+  colorIndex: 7
+  buyPrice: 8
+  sellPrice: 15

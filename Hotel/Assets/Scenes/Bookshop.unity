@@ -3083,6 +3083,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1347757504842826012, guid: e4d0ce6e42fbf448e89768721f84b058, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2812142280505310345, guid: e4d0ce6e42fbf448e89768721f84b058, type: 3}
       propertyPath: m_Name
       value: BookShelf010NEW
@@ -3126,6 +3130,18 @@ PrefabInstance:
     - target: {fileID: 3192326654320993843, guid: e4d0ce6e42fbf448e89768721f84b058, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5211528304339895363, guid: e4d0ce6e42fbf448e89768721f84b058, type: 3}
+      propertyPath: m_CastShadows
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5211528304339895363, guid: e4d0ce6e42fbf448e89768721f84b058, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5211528304339895363, guid: e4d0ce6e42fbf448e89768721f84b058, type: 3}
+      propertyPath: m_StaticShadowCaster
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6463,7 +6479,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!1001 &1367268081
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6590,9 +6605,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48dfbd794806c4bcc9b697b5c72f0a34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CabinetCullingSystem
-  mainCamera: {fileID: 330585545}
-  cullDistance: 20
-  updateInterval: 0.1
 --- !u!114 &1372819792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6980,7 +6992,6 @@ MonoBehaviour:
   shelves:
   - {fileID: 1886625123}
   - {fileID: 231563883}
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &1426669570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7145,7 +7156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ContextMenuUI
   uiDocument: {fileID: 1477937110}
-  offset: {x: 8, y: 8}
+  offset: {x: 2, y: 2}
 --- !u!1 &1481451113
 GameObject:
   m_ObjectHideFlags: 0
@@ -8822,7 +8833,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4306643203051859313, guid: eb76b724add5043d5bf69b289dbbee1c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.02
       objectReference: {fileID: 0}
     - target: {fileID: 4306643203051859313, guid: eb76b724add5043d5bf69b289dbbee1c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -8858,7 +8869,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4865064391339405807, guid: eb76b724add5043d5bf69b289dbbee1c, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.02000021
       objectReference: {fileID: 0}
     - target: {fileID: 4865064391339405807, guid: eb76b724add5043d5bf69b289dbbee1c, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10178,7 +10189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66d3345d15abe44d2844ce70dacff3c5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LightingManager
-  mainDirectionalLight: {fileID: 0}
+  mainDirectionalLight: {fileID: 1604818608}
   skyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1 &1893147883 stripped
 GameObject:

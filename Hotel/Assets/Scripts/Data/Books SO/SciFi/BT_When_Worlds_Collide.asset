@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8acd7bd923df499ca6a5693e47a673f, type: 3}
+  m_Name: BT_When_Worlds_Collide
+  m_EditorClassIdentifier: Assembly-CSharp::BookTemplate
+  bookID: 193302101716
+  title: When Worlds Collide
+  author: Philip Wylie
+  genre: 2
+  rarity: 1
+  writingYear: 1933
+  volumeNumber: 1
+  containerPrefab: {fileID: 7792499953618239303, guid: fe21339794fe74730a68a3fb4d262b83, type: 3}
+  icon: {fileID: 0}
+  bookSize: 1
+  colorIndex: 6
+  buyPrice: 20
+  sellPrice: 36

@@ -73,30 +73,26 @@ public class ContextMenuUI : MonoBehaviour
             btns.Add(new ContextButton("🔒 Зарезервована NPC", null, disabled: true));
         }
 
-        ShowAtCursor(btns);
+        ShowAtWorldPoint(worldPos, btns);
     }
 
     public void ShowForCabinet(Cabinet cabinet, Vector3 worldPos, GameState state)
     {
+        Debug.Log($"[ContextMenu] ShowForCabinet: {cabinet?.cabinetName} | state={state}");
+    
         if (state == GameState.LootPhase || state == GameState.DayStats)
         { Hide(); return; }
-
+    
         var btns = new List<ContextButton>();
-
+    
         if (state == GameState.Preparation || state == GameState.WorkDay)
         {
             btns.Add(new ContextButton("📚 Управління полицями", () =>
             {
+                Debug.Log($"[ContextMenu] → Open ShelfManager for {cabinet?.cabinetName}");
+                Debug.Log($"[ContextMenu] ShelfMgrInstance: {ShelfManagerPanelController.Instance != null}");
+    
                 ShelfManagerPanelController.Instance?.Open(cabinet);
-                Hide();
-            }));
-        }
-
-        if (state == GameState.Preparation || state == GameState.EditMode || state == GameState.WorkDay)
-        {
-            btns.Add(new ContextButton("ℹ️ Інформація", () =>
-            {
-                Debug.Log($"[ContextMenu] Шафа: {cabinet.cabinetName}");
                 Hide();
             }));
         }
@@ -125,14 +121,15 @@ public class ContextMenuUI : MonoBehaviour
             }));
         }
 
-        ShowAtCursor(btns);
+        ShowAtWorldPoint(worldPos, btns);
+        Debug.Log($"[ContextMenu] Menu shown with {btns.Count} buttons");
     }
 
     public void ShowForNPC(NPCBrain npc, Vector3 worldPos, GameState state)
     {
         if (state != GameState.WorkDay) { Hide(); return; }
 
-        ShowAtCursor(new List<ContextButton>
+        ShowAtWorldPoint(worldPos, new List<ContextButton>
         {
             new ContextButton("💬 Говорити", () =>
             {
@@ -145,11 +142,11 @@ public class ContextMenuUI : MonoBehaviour
     // ── Internal ─────────────────────────────────────────────────
 
     /// Показати меню точно біля курсора миші (не через worldPos → screen конвертацію)
-    private void ShowAtCursor(List<ContextButton> buttons)
+   private void ShowAtWorldPoint(Vector3 worldPos, List<ContextButton> buttons)
     {
         if (!_isReady || _panel == null || buttons == null || buttons.Count == 0)
         { Hide(); return; }
-
+    
         _container?.Clear();
         foreach (var btn in buttons)
         {
@@ -167,23 +164,33 @@ public class ContextMenuUI : MonoBehaviour
                 _container?.Add(b);
             }
         }
-
-        // Позиція = поточний cursor у screen-space → UIToolkit-space
-        Vector2 mouseScreen = Mouse.current?.position.ReadValue() ?? Vector2.zero;
-
-        // UIToolkit: Y = 0 зверху, Screen: Y = 0 знизу → інвертуємо
-        float uiX = mouseScreen.x + offset.x;
-        float uiY = (Screen.height - mouseScreen.y) + offset.y;
-
-        // Клампуємо щоб не вилізти за край екрану
-        // Розмір панелі невідомий заздалегідь — беремо запас 200×300
-        float panelW = 200f;
-        float panelH = 300f;
-        uiX = Mathf.Clamp(uiX, 0f, Screen.width  - panelW);
-        uiY = Mathf.Clamp(uiY, 0f, Screen.height - panelH);
-
-        _panel.style.left = uiX;
-        _panel.style.top  = uiY;
+    
+        // 1. Конвертуємо world → screen (пікселі, Y=0 знизу)
+        Camera cam = Camera.main;
+        Vector2 screenPos = cam != null
+            ? (Vector2)cam.WorldToScreenPoint(worldPos)
+            : Mouse.current?.position.ReadValue() ?? Vector2.zero;
+    
+        // 2. Screen → UIToolkit (Y інвертований: 0 зверху)
+        float uiX = screenPos.x;
+        float uiY = Screen.height - screenPos.y;
+    
+        // 3. Зсуваємо від точки кліку трохи вправо-вниз
+        uiX += 12f;
+        uiY += 12f;
+    
+        // 4. Клампуємо щоб не вилізти за край
+        // Беремо розміри панелі після layout — або fallback 200×250
+        float pw = _panel.resolvedStyle.width;
+        float ph = _panel.resolvedStyle.height;
+        if (pw < 10f) pw = 200f;
+        if (ph < 10f) ph = 250f;
+    
+        uiX = Mathf.Clamp(uiX, 4f, Screen.width  - pw - 4f);
+        uiY = Mathf.Clamp(uiY, 4f, Screen.height - ph - 4f);
+    
+        _panel.style.left    = uiX;
+        _panel.style.top     = uiY;
         _panel.style.display = DisplayStyle.Flex;
     }
 

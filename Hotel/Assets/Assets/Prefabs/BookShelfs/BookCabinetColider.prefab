@@ -160,7 +160,7 @@ MonoBehaviour:
   startPoint: {fileID: 806035650887797169}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.005
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
@@ -254,7 +254,7 @@ MonoBehaviour:
   startPoint: {fileID: 4880670519824039522}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.005
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
@@ -526,7 +526,7 @@ MonoBehaviour:
   startPoint: {fileID: 7471921006132059728}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.005
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
@@ -620,7 +620,7 @@ MonoBehaviour:
   startPoint: {fileID: 1336246676651107513}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.005
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
@@ -1040,7 +1040,7 @@ MonoBehaviour:
   startPoint: {fileID: 7254780374498491181}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.005
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
@@ -1134,7 +1134,7 @@ MonoBehaviour:
   startPoint: {fileID: 3314454565701552137}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.005
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24

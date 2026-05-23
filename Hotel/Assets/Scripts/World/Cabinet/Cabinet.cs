@@ -1,62 +1,9 @@
 // Assets/Scripts/World/Cabinet/Cabinet.cs
-// ДОПОВНЕННЯ: додано SetRenderingEnabled() та GetBounds() для CabinetCullingSystem.
-// Решта коду залишається без змін — лише дописати ці методи в існуючий клас.
-//
-// ⚠️  НЕ замінювати весь файл — додати тільки методи нижче до існуючого Cabinet.cs
-//
-// Що додати до існуючого Cabinet.cs:
-// ─────────────────────────────────────────────────────────────
-//
-//    [Header("Optimization")]
-//    [SerializeField] private BookInstancedRenderer _instancedRenderer;
-//
-//    // Кешований Bounds — перераховується при потребі
-//    private Bounds _cachedBounds;
-//    private bool   _boundsValid = false;
-//
-//    // Викликається CabinetCullingSystem
-//    public void SetRenderingEnabled(bool active)
-//    {
-//        if (_instancedRenderer != null)
-//            _instancedRenderer.SetEnabled(active);
-//
-//        // Якщо renderer не призначений — шукаємо у дітях
-//        if (_instancedRenderer == null)
-//        {
-//            _instancedRenderer = GetComponentInChildren<BookInstancedRenderer>();
-//            if (_instancedRenderer != null)
-//                _instancedRenderer.SetEnabled(active);
-//        }
-//    }
-//
-//    public Bounds GetBounds()
-//    {
-//        if (_boundsValid) return _cachedBounds;
-//
-//        // Збираємо bounds з усіх Renderer у шафі
-//        var renderers = GetComponentsInChildren<Renderer>();
-//        if (renderers.Length == 0)
-//        {
-//            _cachedBounds = new Bounds(transform.position, Vector3.one * 2f);
-//        }
-//        else
-//        {
-//            _cachedBounds = renderers[0].bounds;
-//            for (int i = 1; i < renderers.Length; i++)
-//                _cachedBounds.Encapsulate(renderers[i].bounds);
-//        }
-//
-//        _boundsValid = true;
-//        return _cachedBounds;
-//    }
-//
-//    // Скидаємо кеш якщо шафа переміщується (у OnTransformChildrenChanged або OnEnable)
-//    private void OnEnable() => _boundsValid = false;
-//
-// ─────────────────────────────────────────────────────────────
-// Також: _materializedBookRef — публічне поле додане в Shelf.cs (не тут).
+// FIX:
+//   1. SetRenderingEnabled — вмикає/вимикає ВСІ BookInstancedRenderer у шафі (не тільки перший)
+//   2. GetBounds — враховує позиції всіх полиць як fallback якщо Renderer не знайдено
+//   3. _allRenderers — кешований масив всіх рендерерів щоб не робити GetComponentsInChildren кожен кадр
 
-// Нижче — повна версія доповненого Cabinet.cs якщо потрібно замінити файл повністю:
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -68,79 +15,85 @@ public class Cabinet : MonoBehaviour
     [Header("Shelves")]
     public List<Shelf> shelves = new List<Shelf>();
 
-    [Header("Optimization")]
-    [SerializeField] private BookInstancedRenderer _instancedRenderer;
-
-    // ── Culling bounds cache ──────────────────────────────────────────────────
+    // ── Culling cache ─────────────────────────────────────────────
+    private BookInstancedRenderer[] _allRenderers;
     private Bounds _cachedBounds;
     private bool   _boundsValid = false;
 
-    // ── Unity Lifecycle ───────────────────────────────────────────────────────
+    // ── Unity ─────────────────────────────────────────────────────
+
     private void Awake()
     {
-        // Авто-знаходження полиць у дочірніх якщо не призначені (оригінальна логіка)
         if (shelves == null || shelves.Count == 0)
             shelves = new List<Shelf>(GetComponentsInChildren<Shelf>());
 
-        // Перевірка collider
         if (GetComponent<Collider>() == null)
             Debug.LogWarning($"[Cabinet] {cabinetName} не має Collider!");
 
-        // Автоматично знаходимо renderer якщо не призначено
-        if (_instancedRenderer == null)
-            _instancedRenderer = GetComponentInChildren<BookInstancedRenderer>();
+        // Кешуємо ВСІ рендерери одразу
+        _allRenderers = GetComponentsInChildren<BookInstancedRenderer>(includeInactive: true);
+        Debug.Log($"[Cabinet] {cabinetName}: {shelves.Count} полиць, {_allRenderers.Length} рендерерів");
     }
 
     private void OnEnable()
     {
-        _boundsValid = false; // скидаємо кеш при активації
+        _boundsValid  = false;
+        // Перекешовуємо рендерери якщо шафа реактивується
+        _allRenderers = GetComponentsInChildren<BookInstancedRenderer>(includeInactive: true);
     }
 
-    // ── Public API (нові методи для CabinetCullingSystem) ────────────────────
+    // ── Culling API ───────────────────────────────────────────────
 
-    /// Вмикає або вимикає BookInstancedRenderer.
-    /// Викликається CabinetCullingSystem кожні updateInterval секунд.
+    /// Вмикає або вимикає ВСІ BookInstancedRenderer у шафі.
+    /// FIX: GetComponentInChildren знаходив тільки ПЕРШИЙ — Shelf_01 завжди вимикався.
     public void SetRenderingEnabled(bool active)
     {
-        if (_instancedRenderer != null)
-        {
-            _instancedRenderer.SetEnabled(active);
-            return;
-        }
+        if (_allRenderers == null || _allRenderers.Length == 0)
+            _allRenderers = GetComponentsInChildren<BookInstancedRenderer>(includeInactive: true);
 
-        // Ліниво знаходимо renderer
-        _instancedRenderer = GetComponentInChildren<BookInstancedRenderer>();
-        _instancedRenderer?.SetEnabled(active);
+        foreach (var r in _allRenderers)
+            if (r != null) r.SetEnabled(active);
     }
 
-    /// Повертає Bounds шафи для frustum culling (з кешуванням).
+    /// Bounds для frustum culling.
+    /// FIX: використовує позиції полиць як fallback бо BookInstancedRenderer
+    /// не має Renderer компонента → GetComponentsInChildren<Renderer> його не бачить.
     public Bounds GetBounds()
     {
         if (_boundsValid) return _cachedBounds;
 
-        var renderers = GetComponentsInChildren<Renderer>();
-        if (renderers.Length == 0)
+        // Спочатку пробуємо mesh renderers шафи (меблі)
+        var meshRenderers = GetComponentsInChildren<Renderer>();
+        if (meshRenderers.Length > 0)
         {
-            _cachedBounds = new Bounds(transform.position, Vector3.one * 2f);
+            _cachedBounds = meshRenderers[0].bounds;
+            for (int i = 1; i < meshRenderers.Length; i++)
+                _cachedBounds.Encapsulate(meshRenderers[i].bounds);
         }
         else
         {
-            _cachedBounds = renderers[0].bounds;
-            for (int i = 1; i < renderers.Length; i++)
-                _cachedBounds.Encapsulate(renderers[i].bounds);
+            // Fallback: bounds по трансформу полиць
+            _cachedBounds = new Bounds(transform.position, Vector3.one * 0.1f);
+            foreach (var shelf in shelves)
+            {
+                if (shelf == null) continue;
+                _cachedBounds.Encapsulate(shelf.transform.position);
+            }
+            // Розширюємо bounds до мінімум 1м щоб frustum culling не давав false negative
+            _cachedBounds.Expand(Mathf.Max(1f, _cachedBounds.size.magnitude * 0.3f));
         }
 
         _boundsValid = true;
         return _cachedBounds;
     }
 
-    // ── Existing methods (без змін) ───────────────────────────────────────────
+    // ── Utils ─────────────────────────────────────────────────────
 
     [ContextMenu("Auto-find Shelves")]
     public void AutoFindShelves()
     {
         shelves = new List<Shelf>(GetComponentsInChildren<Shelf>());
-        Debug.Log($"[Cabinet] Found {shelves.Count} shelves in {cabinetName}");
+        Debug.Log($"[Cabinet] {cabinetName}: знайдено {shelves.Count} полиць");
     }
 
     public int GetTotalBookCount()

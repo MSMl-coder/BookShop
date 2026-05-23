@@ -39,7 +39,11 @@ public class BookInstancedRenderer : MonoBehaviour
     }
 
     private void Awake()  => EnsureArrays();
+    
 
+        private void OnDisable() => Debug.LogError($"[BIR] DISABLED on {gameObject.name}", this);
+     
+    
     /// Start: якщо RebuildFromEntries вже викликали — перемальовуємо.
     /// Це вирішує баг з першою полицею де Awake ще не завершився.
     private void Start()

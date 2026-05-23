@@ -1207,241 +1207,338 @@
 ══════════════════════════════════════ */
 .overlay { pointer-events: none; }
 
-/* ══════════════════════════════════════
-   SHELF MANAGER PANEL
-══════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   ShelfManager v2.3 — вставити в КІНЕЦЬ BookshopUI.uss
+   ═══════════════════════════════════════════════════════════════ */
 
-/* Позиція: права частина екрану, від середини вгору-вниз */
-.nb-modal--shelf-mgr {
-    top: 46px; bottom: 100px; right: 22px;
-    width: 780px;
+/* ── Панель: менша, не перекриває HUD ──────────────────────── */
+.shelf-mgr-v2 {
+    position: absolute;
+    top: 80px; bottom: 80px;
+    left: 80px; right: 80px;
+    flex-direction: column;
+    background-color: rgb(20, 32, 42);
+    border-width: 2px;
+    border-color: rgb(184, 144, 42);
+}
+
+/* ── Заголовок ──────────────────────────────────────────────── */
+.shelf-mgr-v2__header {
     flex-direction: row;
-}
-
-/* Обкладинка інвентарю (ліва частина) — ширша ніж стандартна */
-.shelf-mgr__inv-cover {
-    width: 230px;
-    min-width: 230px;
-    max-width: 230px;
-}
-
-/* Список книг інвентарю всередині cover */
-.shelf-mgr__inv-list { flex-grow: 1; }
-.shelf-mgr__inv-list .unity-scroll-view__content-container { flex-direction: column; }
-
-/* Фільтр жанрів */
-.shelf-mgr__genre-filter {
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
-}
-.shelf-mgr__genre-btn {
-    font-size: 8px; letter-spacing: 1px;
-    padding: 2px 6px;
-    border-width: 1px; border-color: rgba(212,168,67,0.4);
-    background-color: rgba(0,0,0,0);
-    color: rgb(184,144,42); margin: 2px;
-}
-.shelf-mgr__genre-btn:hover { background-color: rgba(212,168,67,0.1); }
-.shelf-mgr__genre-btn.active {
-    background-color: rgb(184,144,42);
-    color: rgb(20,32,42);
-}
-
-/* Колонка кнопок переміщення (центр) */
-.shelf-mgr__transfer-col {
-    width: 64px;
-    min-width: 64px;
-    max-width: 64px;
-    flex-shrink: 0;
+    align-items: center;
+    padding: 6px 48px 6px 16px;
     background-color: rgb(31, 48, 51);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding-top: 8px; padding-bottom: 8px;
-    border-left-width: 1px; border-left-color: rgb(184,144,42);
-    border-right-width: 1px; border-right-color: rgb(184,144,42);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(138, 106, 40);
+    flex-shrink: 0;
+}
+.shelf-mgr-v2__title {
+    font-size: 13px; color: rgb(232, 196, 90);
+    -unity-font-style: bold; letter-spacing: 4px; flex-grow: 1;
+}
+.shelf-mgr-v2__sub {
+    font-size: 8px; color: rgb(184, 144, 42);
+    letter-spacing: 1px; -unity-font-style: italic;
 }
 
-.shelf-mgr__cabinet-name {
-    font-size: 9px; color: rgb(232,196,90);
-    letter-spacing: 1.5px; -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    margin-bottom: 10px;
-    white-space: normal; -unity-text-overflow-position: end;
-}
-
-/* Таби вибору полиці */
-.shelf-mgr__shelf-tabs {
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 12px;
-    width: 52px;
-}
-.shelf-mgr__shelf-tab {
-    font-size: 9px; letter-spacing: 1px;
-    padding: 4px 6px;
-    border-width: 1px; border-color: rgba(184,144,42,0.3);
-    background-color: rgba(0,0,0,0);
-    color: rgb(184,144,42);
-    margin-bottom: 2px;
-    -unity-text-align: middle-center;
-}
-.shelf-mgr__shelf-tab:hover { background-color: rgba(212,168,67,0.1); }
-.shelf-mgr__shelf-tab.active {
-    background-color: rgb(184,144,42);
-    color: rgb(20,32,42);
-    border-color: rgb(138,106,40);
-}
-
-/* Кнопки >>> <<< */
-.shelf-mgr__transfer-btn {
-    width: 44px; height: 36px;
-    font-size: 18px; -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    background-color: rgb(42,67,71);
-    border-width: 1px; border-color: rgb(184,144,42);
-    color: rgb(184,144,42);
-    margin-bottom: 4px; padding: 0;
-}
-.shelf-mgr__transfer-btn:hover {
-    background-color: rgb(184,144,42);
-    color: rgb(20,32,42);
-}
-.shelf-mgr__transfer-btn:disabled { opacity: 0.3; }
-.shelf-mgr__transfer-btn--primary {
-    width: 44px; height: 44px;
-    font-size: 24px;
-    background-color: rgb(31,48,51);
-    border-color: rgb(232,196,90);
-    color: rgb(232,196,90);
-}
-.shelf-mgr__transfer-btn--primary:hover {
-    background-color: rgb(232,196,90);
-    color: rgb(20,32,42);
-}
-.shelf-mgr__transfer-divider {
-    width: 36px; height: 1px;
-    background-color: rgba(184,144,42,0.4);
-    margin-top: 6px; margin-bottom: 6px;
-}
-
-/* Права частина — shelf view */
-.shelf-mgr__shelf-page { flex-grow: 1; }
-
-/* Горизонтальний ScrollView з книгами */
-.shelf-mgr__shelf-view {
-    flex-grow: 1;
-    flex-shrink: 1;
-    background-color: rgb(216, 186, 136);
-    border-width: 2px; border-color: rgb(138,106,40);
-    margin-top: 8px; margin-bottom: 8px;
-    min-height: 120px; max-height: 160px;
-}
-.shelf-mgr__shelf-view .unity-scroll-view__content-container {
+/* ── Тіло ───────────────────────────────────────────────────── */
+.shelf-mgr-v2__body {
     flex-direction: row;
-    align-items: flex-end;
-    padding-left: 8px; padding-right: 8px;
-    padding-bottom: 6px;
-    /* Дерев'яна поличка знизу */
-    border-bottom-width: 6px;
-    border-bottom-color: rgb(138,106,40);
+    flex-grow: 1;
+    overflow: hidden;
 }
 
-/* Окрема книга на полиці — spine view */
-.shelf-book-spine {
-    width: 24px;
-    min-width: 24px;
-    max-width: 24px;
-    height: 96px;
-    margin-right: 3px;
+/* Підвал колонки */
+.shelf-mgr-v2__col-foot {
+    flex-direction: row; align-items: center;
+    padding: 5px 12px;
+    border-top-width: 1px; border-top-color: rgb(138, 106, 40);
+    background-color: rgb(31, 48, 51);
+    flex-shrink: 0; min-height: 32px;
+}
+.shelf-mgr-v2__foot-l {
+    font-size: 8px; letter-spacing: 1px;
+    color: rgb(212, 168, 67); -unity-font-style: bold; flex-grow: 1;
+}
+.shelf-mgr-v2__foot-v { font-size: 14px; color: rgb(232, 196, 90); -unity-font-style: bold; }
+
+/* ══════════════════════════════════════
+   ЛІВО — інвентар
+══════════════════════════════════════ */
+.shelf-mgr-v2__inv-col {
+    width: 220px; min-width: 220px;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    border-width: 1px;
-    border-color: rgba(0,0,0,0.25);
-    cursor: link;
-    overflow: hidden;
+    border-right-width: 2px; border-right-color: rgb(138, 106, 40);
+    background-color: rgb(31, 48, 51);
+    position: relative; overflow: hidden;
 }
-.shelf-book-spine:hover {
-    border-color: rgb(232,196,90);
-    border-width: 2px;
-    translate: 0 -4px;
+.shelf-mgr-v2__inv-col-spine {
+    position: absolute;
+    top: 0; bottom: 0; right: 0; width: 12px;
+    background-color: rgba(0,0,0,0.25);
 }
-.shelf-book-spine.selected {
-    border-color: rgb(232,196,90);
-    border-width: 2px;
-    translate: 0 -8px;
+.shelf-mgr-v2__inv-col-head {
+    padding: 6px 12px 4px 12px;
+    border-bottom-width: 1px; border-bottom-color: rgb(138, 106, 40);
+    background-color: rgb(31, 48, 51); flex-shrink: 0;
 }
-/* Заголовок книги вертикально */
-.shelf-book-spine__title {
-    font-size: 7px;
-    color: rgb(245,236,214);
-    -unity-font-style: bold;
-    -unity-text-align: middle-center;
-    rotate: -90deg;
-    white-space: nowrap;
-    width: 80px;
-    overflow: hidden;
+.shelf-mgr-v2__inv-section {
+    font-size: 7px; letter-spacing: 2px; color: rgb(212, 168, 67);
+    -unity-font-style: bold; -unity-text-align: middle-center;
+    border-top-width: 1px; border-bottom-width: 1px;
+    border-color: rgba(212,168,67,0.3);
+    padding: 2px 0; margin-bottom: 4px;
 }
 
-/* Книга в інвентарі (компактний рядок в cover) */
+/* Фільтр */
+.shelf-mgr-v2__genre-row { flex-direction: row; flex-wrap: wrap; }
+.shelf-mgr__genre-btn {
+    font-size: 7px; padding: 1px 4px; margin: 1px;
+    border-width: 1px; border-color: rgba(184,144,42,0.4);
+    background-color: rgba(0,0,0,0); color: rgb(184,144,42);
+}
+.shelf-mgr__genre-btn:hover  { background-color: rgba(212,168,67,0.12); }
+.shelf-mgr__genre-btn.active { background-color: rgb(184,144,42); color: rgb(20,32,42); }
+
+.shelf-mgr-v2__inv-list { flex-grow: 1; overflow: hidden; }
+.shelf-mgr-v2__inv-list > .unity-scroll-view__content-container { flex-direction: column; }
+
+/* Рядок книги */
 .shelf-mgr__inv-item {
     flex-direction: row; align-items: center;
-    padding: 5px 6px;
-    border-width: 1px; border-color: rgba(0,0,0,0);
-    margin-bottom: 2px;
+    padding: 3px 18px 3px 8px;
+    border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.04);
 }
-.shelf-mgr__inv-item:hover { border-color: rgb(184,144,42); background-color: rgba(212,168,67,0.06); }
-.shelf-mgr__inv-item.selected { border-color: rgb(232,196,90); background-color: rgba(212,168,67,0.15); }
-
-/* Іконка книги (Sprite або emoji fallback) */
+.shelf-mgr__inv-item:hover    { background-color: rgba(212,168,67,0.08); }
+.shelf-mgr__inv-item.selected { background-color: rgba(212,168,67,0.16); border-left-width: 2px; border-left-color: rgb(232,196,90); }
 .shelf-mgr__inv-item__icon {
-    width: 32px; height: 32px;
-    border-width: 1px; border-color: rgba(184,144,42,0.5);
-    background-color: rgba(0,0,0,0.2);
+    width: 24px; height: 24px;
+    border-width: 1px; border-color: rgba(184,144,42,0.35);
+    background-color: rgba(0,0,0,0.18);
     align-items: center; justify-content: center;
     margin-right: 6px; flex-shrink: 0;
-    background-size: contain;
-    background-position: center;
-}
-.shelf-mgr__inv-item__icon > Label { font-size: 16px; color: rgb(245,236,214); }
-
-.shelf-mgr__inv-item__info { flex-grow: 1; flex-direction: column; overflow: hidden; }
-.shelf-mgr__inv-item__title {
-    font-size: 11px; color: rgb(245,236,214);
-    -unity-font-style: bold-and-italic;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.shelf-mgr__inv-item__meta {
-    font-size: 8px; color: rgb(184,144,42);
-    letter-spacing: 0.8px; -unity-font-style: bold;
-}
-
-/* Інформація про виділену книгу внизу shelf page */
-.shelf-mgr__selected-info {
-    flex-direction: row; align-items: center;
-    padding: 8px 12px;
-    background-color: rgb(250,243,223);
-    border-top-width: 1px; border-top-color: rgb(184,144,42);
-    flex-shrink: 0;
-}
-.shelf-mgr__selected-info__icon {
-    width: 40px; height: 40px;
-    border-width: 1px; border-color: rgb(184,144,42);
-    background-color: rgba(0,0,0,0.04);
     background-size: contain; background-position: center;
-    margin-right: 10px; flex-shrink: 0;
 }
-.shelf-mgr__selected-info__text { flex-direction: column; flex-grow: 1; }
-.shelf-mgr__sel-title { font-size: 13px; color: rgb(42,31,14); -unity-font-style: bold-and-italic; }
-.shelf-mgr__sel-meta  { font-size: 10px; color: rgb(107,90,58); letter-spacing: 1px; -unity-font-style: bold; }
+.shelf-mgr__inv-item__icon > Label { font-size: 12px; }
+.shelf-mgr__inv-item__info  { flex-grow: 1; flex-direction: column; overflow: hidden; }
+.shelf-mgr__inv-item__title { font-size: 9px; color: rgb(245,236,214); -unity-font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shelf-mgr__inv-item__meta  { font-size: 7px; color: rgb(184,144,42); }
 
 /* ══════════════════════════════════════
-   PATCH: inv-row__icon підтримка Sprite
-   (background-image задається з C#)
+   ЦЕНТР — кнопки переносу
 ══════════════════════════════════════ */
-.inv-row__icon {
-    background-size: contain;
-    background-position: center;
+.shelf-mgr-v2__btn-col {
+    width: 46px; min-width: 46px; flex-shrink: 0;
+    flex-direction: column; align-items: center; justify-content: center;
+    background-color: rgb(20, 32, 42);
+    border-right-width: 2px; border-right-color: rgb(138, 106, 40);
+    padding: 8px 0;
 }
+.shelf-mgr-v2__btn {
+    width: 34px; height: 28px; font-size: 14px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgb(31,48,51);
+    border-width: 1px; border-color: rgb(184,144,42);
+    color: rgb(184,144,42); margin-bottom: 3px; padding: 0;
+}
+.shelf-mgr-v2__btn:hover    { background-color: rgb(184,144,42); color: rgb(20,32,42); }
+.shelf-mgr-v2__btn:disabled { opacity: 0.22; }
+.shelf-mgr-v2__btn--primary {
+    width: 34px; height: 36px; font-size: 19px;
+    border-color: rgb(232,196,90); color: rgb(232,196,90);
+}
+.shelf-mgr-v2__btn--primary:hover { background-color: rgb(232,196,90); color: rgb(20,32,42); }
+.shelf-mgr-v2__divider { width: 24px; height: 1px; background-color: rgba(184,144,42,0.35); margin: 4px 0; }
+
+/* ══════════════════════════════════════
+   ПРАВО — полиці (nb-page кремовий)
+══════════════════════════════════════ */
+.shelf-mgr-v2__shelves-col {
+    flex-grow: 1; flex-direction: column;
+    background-color: rgb(245, 236, 214);
+    position: relative; overflow: hidden;
+}
+/* Gold рамка поверх */
+.shelf-mgr-v2__shelves-frame {
+    position: absolute;
+    top: 32px; bottom: 0; left: 10px; right: 10px;
+    border-width: 1px; border-color: rgb(184,144,42); opacity: 0.28;
+}
+/* Заголовок правої колонки */
+.shelf-mgr-v2__shelves-head {
+    flex-direction: row; align-items: center;
+    padding: 4px 14px;
+    background-color: rgb(216, 200, 154);
+    border-bottom-width: 1px; border-bottom-color: rgb(184, 144, 42);
+    flex-shrink: 0;
+}
+.shelf-mgr-v2__shelves-head-title {
+    font-size: 8px; letter-spacing: 3px;
+    color: rgb(42, 31, 14); -unity-font-style: bold; flex-grow: 1;
+}
+/* Підвал правої колонки */
+.shelf-mgr-v2__shelves-foot {
+    flex-direction: row; align-items: center;
+    padding: 4px 14px;
+    background-color: rgb(216, 200, 154);
+    border-top-width: 1px; border-top-color: rgb(184, 144, 42);
+    flex-shrink: 0; min-height: 32px;
+}
+.shelf-mgr-v2__shelves-foot-info {
+    font-size: 8px; color: rgb(107,90,58); -unity-font-style: italic; flex-grow: 1;
+}
+
+/* Середня зона */
+.shelf-mgr-v2__shelves-body {
+    flex-grow: 1; flex-direction: column; overflow: hidden;
+}
+
+/* ScrollView полиць */
+.shelf-mgr-v2__all-shelves { flex-grow: 1; overflow: hidden; }
+.shelf-mgr-v2__all-shelves > .unity-scroll-view__content-container {
+    flex-direction: column;
+    padding: 10px 16px 6px 8px;  /* ліворуч менше — там бірки */
+}
+
+/* ── Один рядок полиці ──────────────────────────────────────── */
+/* Горизонтальне компонування: [бірка] [вміст полиці] */
+.shelf-mgr-v2__shelf-row {
+    flex-direction: row;
+    align-items: stretch;
+    margin-bottom: 8px;
+}
+.shelf-mgr-v2__shelf-row.selected > .shelf-mgr-v2__shelf-content {
+    border-width: 2px;
+    border-color: rgb(232, 196, 90);
+}
+
+/* ── БІРКА — окремий елемент ліворуч ───────────────────────── */
+.shelf-mgr-v2__shelf-tag {
+    width: 32px;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 4px;
+    margin-right: 6px;
+    background-color: rgb(216, 200, 154);
+    border-width: 1px;
+    border-color: rgb(138, 106, 40);
+    cursor: link;
+}
+.shelf-mgr-v2__shelf-tag.selected-tag {
+    background-color: rgb(232, 196, 90);
+    border-color: rgb(100, 76, 20);
+}
+.shelf-mgr-v2__shelf-tag:hover { background-color: rgb(228, 210, 160); }
+.shelf-mgr-v2__shelf-tag-hole {
+    width: 7px; height: 7px;
+    border-width: 1px; border-color: rgb(138,106,40);
+    border-radius: 4px;
+    background-color: rgba(42,31,14,0.15);
+    margin-bottom: 4px;
+}
+/* Вертикальний текст номера */
+.shelf-mgr-v2__shelf-tag-num {
+    font-size: 8px; color: rgb(42,31,14);
+    -unity-font-style: bold; letter-spacing: 0;
+    -unity-text-align: middle-center;
+    rotate: -90deg;
+    width: 40px;
+    margin-top: 6px;
+}
+
+/* ── Вміст полиці (заголовок + корінці) ────────────────────── */
+.shelf-mgr-v2__shelf-content {
+    flex-grow: 1; flex-direction: column;
+    border-width: 1px; border-color: rgba(138,106,40,0.25);
+    background-color: rgb(250, 243, 223);
+    overflow: hidden;
+}
+
+/* Заголовок вмісту */
+.shelf-mgr-v2__shelf-head {
+    flex-direction: row; align-items: center;
+    padding: 2px 8px;
+    background-color: rgba(42,31,14,0.06);
+    border-bottom-width: 1px; border-bottom-color: rgba(138,106,40,0.2);
+    flex-shrink: 0;
+}
+.shelf-mgr-v2__shelf-head-label {
+    font-size: 8px; letter-spacing: 2px;
+    color: rgb(107,90,58); -unity-font-style: bold; flex-grow: 1;
+}
+.shelf-mgr-v2__shelf-head-meta {
+    font-size: 7px; color: rgb(184,144,42);
+}
+
+/* Ряд корінців */
+.shelf-mgr-v2__spine-row {
+    flex-direction: row; align-items: flex-end;
+    min-height: 56px;
+    background-color: rgb(208, 175, 116);
+    border-bottom-width: 5px; border-bottom-color: rgb(138, 106, 40);
+    padding: 3px 8px 0 8px;
+}
+
+/* ── Корінці книг ───────────────────────────────────────────── */
+.shelf-book-spine {
+    width: 18px; min-width: 18px; max-width: 18px;
+    height: 60px; margin-right: 2px;
+    border-width: 1px; border-color: rgba(0,0,0,0.15);
+    overflow: hidden; flex-shrink: 0; cursor: link;
+    align-items: center; justify-content: flex-end;
+}
+.shelf-book-spine:hover    { border-color: rgb(232,196,90); border-width: 2px; translate: 0 -3px; }
+.shelf-book-spine.selected { border-color: rgb(232,196,90); border-width: 2px; translate: 0 -6px; }
+.shelf-book-spine__title {
+    font-size: 6px; color: rgba(255,255,255,0.9); -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    rotate: -90deg; white-space: nowrap;
+    width: 54px; overflow: hidden;
+}
+.shelf-spine-empty {
+    width: 18px; min-width: 18px; height: 60px;
+    margin-right: 2px; flex-shrink: 0;
+    background-color: rgba(100,78,40,0.07);
+    border-width: 1px; border-color: rgba(100,78,40,0.1);
+}
+
+/* ══════════════════════════════════════
+   Sel-bar — інфо вибраної книги (≤25%)
+   Всередині правої колонки, під shelves-body
+══════════════════════════════════════ */
+.shelf-mgr-v2__sel-bar {
+    flex-direction: row; align-items: center;
+    padding: 8px 18px;
+    max-height: 25%; min-height: 60px;
+    border-top-width: 1.5px; border-top-color: rgb(184, 144, 42);
+    background-color: rgb(245, 236, 214);
+    flex-shrink: 0;
+}
+.shelf-mgr-v2__sel-icon {
+    width: 40px; height: 40px;
+    border-width: 1.5px; border-color: rgb(184,144,42);
+    background-color: rgba(42,31,14,0.05);
+    background-size: contain; background-position: center;
+    margin-right: 14px; flex-shrink: 0;
+}
+.shelf-mgr-v2__sel-title {
+    font-size: 13px; color: rgb(42, 31, 14);
+    -unity-font-style: bold-and-italic;
+    flex-grow: 1; margin-right: 12px;
+}
+.shelf-mgr-v2__sel-meta {
+    font-size: 9px; color: rgb(107, 90, 58);
+    letter-spacing: 1.5px; -unity-font-style: bold;
+}
+/* Кнопка "Продати" в sel-bar */
+.shelf-mgr-v2__sel-action {
+    padding: 4px 10px;
+    border-width: 1px; border-color: rgb(139,58,58);
+    background-color: rgba(139,58,58,0.08);
+    color: rgb(139,58,58); font-size: 9px; -unity-font-style: bold;
+    margin-left: 12px; flex-shrink: 0;
+}
+.shelf-mgr-v2__sel-action:hover { background-color: rgb(139,58,58); color: rgb(245,236,214); }
+

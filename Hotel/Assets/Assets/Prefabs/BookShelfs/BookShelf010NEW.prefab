@@ -338,13 +338,13 @@ MonoBehaviour:
   startPoint: {fileID: 5435482100300779547}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -521,13 +521,13 @@ MonoBehaviour:
   startPoint: {fileID: 2313419256994371452}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -971,13 +971,13 @@ MonoBehaviour:
   startPoint: {fileID: 2892997533670578283}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -1065,13 +1065,13 @@ MonoBehaviour:
   startPoint: {fileID: 9193111104867392879}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -1192,7 +1192,7 @@ GameObject:
   - component: {fileID: 5967547369407903993}
   - component: {fileID: 2974267140172130779}
   - component: {fileID: 8103045047690852941}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01 (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1307,7 +1307,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &2974267140172130779
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1405,13 +1404,13 @@ MonoBehaviour:
   startPoint: {fileID: 4604099977451785918}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -1456,7 +1455,7 @@ GameObject:
   - component: {fileID: 5336486808880678193}
   - component: {fileID: 9148791530235639281}
   - component: {fileID: 252261010854019921}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1571,7 +1570,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &9148791530235639281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1668,13 +1666,13 @@ MonoBehaviour:
   startPoint: {fileID: 5260193173519135227}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -2030,13 +2028,13 @@ MonoBehaviour:
   startPoint: {fileID: 4544502787554228026}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -2196,7 +2194,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &2088276711778554233
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2293,13 +2290,13 @@ MonoBehaviour:
   startPoint: {fileID: 6446430297015595001}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -2387,13 +2384,13 @@ MonoBehaviour:
   startPoint: {fileID: 2865319818206381460}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -2570,13 +2567,13 @@ MonoBehaviour:
   startPoint: {fileID: 632349701133052487}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -2786,7 +2783,7 @@ GameObject:
   - component: {fileID: 1179160521405942982}
   - component: {fileID: 3189046379247356893}
   - component: {fileID: 7398733365860799012}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01 (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2901,7 +2898,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &3189046379247356893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2942,7 +2938,7 @@ GameObject:
   - component: {fileID: 8728681467871322679}
   - component: {fileID: 5050782507770362400}
   - component: {fileID: 5776837254259061256}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01 (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3057,7 +3053,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &5050782507770362400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3456,13 +3451,13 @@ MonoBehaviour:
   startPoint: {fileID: 8067882815864364006}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -3741,13 +3736,13 @@ MonoBehaviour:
   startPoint: {fileID: 157281006221412667}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -4047,13 +4042,13 @@ MonoBehaviour:
   startPoint: {fileID: 4419351163979579161}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -4142,13 +4137,13 @@ MonoBehaviour:
   startPoint: {fileID: 3674812990122656724}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -4427,13 +4422,13 @@ MonoBehaviour:
   startPoint: {fileID: 1923160200246845709}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -4647,13 +4642,13 @@ MonoBehaviour:
   startPoint: {fileID: 8434900340884652583}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -4741,13 +4736,13 @@ MonoBehaviour:
   startPoint: {fileID: 1498410305355437974}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -4835,13 +4830,13 @@ MonoBehaviour:
   startPoint: {fileID: 4886448807450674100}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -5322,13 +5317,13 @@ MonoBehaviour:
   startPoint: {fileID: 311780366822618808}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -5417,13 +5412,13 @@ MonoBehaviour:
   startPoint: {fileID: 6080721677644793944}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -5468,7 +5463,7 @@ GameObject:
   - component: {fileID: 3923711281981527539}
   - component: {fileID: 459743339209283822}
   - component: {fileID: 4405655092560073132}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01 (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5583,7 +5578,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &459743339209283822
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5770,13 +5764,13 @@ MonoBehaviour:
   startPoint: {fileID: 159009725724750501}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -5936,7 +5930,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &9138900761657612455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6034,13 +6027,13 @@ MonoBehaviour:
   startPoint: {fileID: 4255306304555405885}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -6200,7 +6193,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &9060577284358008496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6564,13 +6556,13 @@ MonoBehaviour:
   startPoint: {fileID: 7332864156401391806}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -6925,13 +6917,13 @@ MonoBehaviour:
   startPoint: {fileID: 1149589510178112506}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -7019,13 +7011,13 @@ MonoBehaviour:
   startPoint: {fileID: 3467192834214196558}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -7113,13 +7105,13 @@ MonoBehaviour:
   startPoint: {fileID: 9837637331367285}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -7456,13 +7448,13 @@ MonoBehaviour:
   startPoint: {fileID: 850058867056159837}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -7551,13 +7543,13 @@ MonoBehaviour:
   startPoint: {fileID: 3877826722517741999}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -7658,13 +7650,13 @@ MonoBehaviour:
   startPoint: {fileID: 191581586769328340}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -7753,13 +7745,13 @@ MonoBehaviour:
   startPoint: {fileID: 6354783480382019754}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -7949,13 +7941,13 @@ MonoBehaviour:
   startPoint: {fileID: 5118473744003291935}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -8043,13 +8035,13 @@ MonoBehaviour:
   startPoint: {fileID: 8493805549975704761}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -8650,13 +8642,13 @@ MonoBehaviour:
   startPoint: {fileID: 7182670232065918530}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -8744,13 +8736,13 @@ MonoBehaviour:
   startPoint: {fileID: 439070376845760714}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -8838,13 +8830,13 @@ MonoBehaviour:
   startPoint: {fileID: 1363366768003077708}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -9092,13 +9084,13 @@ MonoBehaviour:
   startPoint: {fileID: 7490857862555324985}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -9186,13 +9178,13 @@ MonoBehaviour:
   startPoint: {fileID: 8186275644219138222}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -9280,13 +9272,13 @@ MonoBehaviour:
   startPoint: {fileID: 1660569385589889770}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -9590,13 +9582,13 @@ MonoBehaviour:
   startPoint: {fileID: 4019243791953891109}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -9697,13 +9689,13 @@ MonoBehaviour:
   startPoint: {fileID: 5863692767467675424}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -9791,13 +9783,13 @@ MonoBehaviour:
   startPoint: {fileID: 6769933292620472438}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -9886,13 +9878,13 @@ MonoBehaviour:
   startPoint: {fileID: 5386150741957734241}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -10254,7 +10246,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &4105577763398282346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10351,13 +10342,13 @@ MonoBehaviour:
   startPoint: {fileID: 6436982658005594671}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -10445,13 +10436,13 @@ MonoBehaviour:
   startPoint: {fileID: 5226611003019743678}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -10573,13 +10564,13 @@ MonoBehaviour:
   startPoint: {fileID: 1748366726129509526}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -10667,13 +10658,13 @@ MonoBehaviour:
   startPoint: {fileID: 5119341178007738215}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -11063,13 +11054,13 @@ MonoBehaviour:
   startPoint: {fileID: 206187823239563595}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -11259,13 +11250,13 @@ MonoBehaviour:
   startPoint: {fileID: 8710848780472423035}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -11297,7 +11288,7 @@ GameObject:
   - component: {fileID: 6117534792291400698}
   - component: {fileID: 3740035844563284235}
   - component: {fileID: 51792756049357370}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01 (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11412,7 +11403,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &3740035844563284235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11599,13 +11589,13 @@ MonoBehaviour:
   startPoint: {fileID: 6779787436554651798}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -11743,13 +11733,13 @@ MonoBehaviour:
   startPoint: {fileID: 6590619564474746705}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -11837,13 +11827,13 @@ MonoBehaviour:
   startPoint: {fileID: 4430930154532776823}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -12021,13 +12011,13 @@ MonoBehaviour:
   startPoint: {fileID: 5481549356025208631}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -12072,7 +12062,7 @@ GameObject:
   - component: {fileID: 5247532692947248925}
   - component: {fileID: 7542570243282942493}
   - component: {fileID: 6024456419623176208}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01 (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12187,7 +12177,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &7542570243282942493
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12284,13 +12273,13 @@ MonoBehaviour:
   startPoint: {fileID: 8586515455364648579}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -12501,13 +12490,13 @@ MonoBehaviour:
   startPoint: {fileID: 7252590426439321350}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -12595,13 +12584,13 @@ MonoBehaviour:
   startPoint: {fileID: 8008127773161705968}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -12690,13 +12679,13 @@ MonoBehaviour:
   startPoint: {fileID: 7538935990232855330}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -12887,13 +12876,13 @@ MonoBehaviour:
   startPoint: {fileID: 8008313661567840658}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -12994,13 +12983,13 @@ MonoBehaviour:
   startPoint: {fileID: 5954551320912737599}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -13088,13 +13077,13 @@ MonoBehaviour:
   startPoint: {fileID: 4081817511359477367}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -13182,13 +13171,13 @@ MonoBehaviour:
   startPoint: {fileID: 5946525974407086180}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -13277,13 +13266,13 @@ MonoBehaviour:
   startPoint: {fileID: 5020857432045787139}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -13473,13 +13462,13 @@ MonoBehaviour:
   startPoint: {fileID: 3971420602299866421}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -13567,13 +13556,13 @@ MonoBehaviour:
   startPoint: {fileID: 7716441020367690682}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -13661,13 +13650,13 @@ MonoBehaviour:
   startPoint: {fileID: 5882876522709553465}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -13877,7 +13866,7 @@ GameObject:
   - component: {fileID: 2272404445945878032}
   - component: {fileID: 7487993852985771277}
   - component: {fileID: 2434133386291853973}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01 (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13992,7 +13981,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &7487993852985771277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14089,13 +14077,13 @@ MonoBehaviour:
   startPoint: {fileID: 282449703514907351}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -14450,13 +14438,13 @@ MonoBehaviour:
   startPoint: {fileID: 8075903589213076194}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -14544,13 +14532,13 @@ MonoBehaviour:
   startPoint: {fileID: 4616977935540135262}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -14764,13 +14752,13 @@ MonoBehaviour:
   startPoint: {fileID: 2095426781157472912}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -14858,13 +14846,13 @@ MonoBehaviour:
   startPoint: {fileID: 4590765211545006625}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -15131,13 +15119,13 @@ MonoBehaviour:
   startPoint: {fileID: 4127374834875027322}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -15334,7 +15322,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &1264796417290472409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15527,7 +15514,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &3521672951907743371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15802,13 +15788,13 @@ MonoBehaviour:
   startPoint: {fileID: 6095144859591317701}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -16163,13 +16149,13 @@ MonoBehaviour:
   startPoint: {fileID: 391802175598132071}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -16613,13 +16599,13 @@ MonoBehaviour:
   startPoint: {fileID: 3059715027391099903}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -16885,13 +16871,13 @@ MonoBehaviour:
   startPoint: {fileID: 3154501336301739665}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -16979,13 +16965,13 @@ MonoBehaviour:
   startPoint: {fileID: 3725550564358866133}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -17073,13 +17059,13 @@ MonoBehaviour:
   startPoint: {fileID: 8289138688623134462}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -17315,7 +17301,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &2506644614634910185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17412,13 +17397,13 @@ MonoBehaviour:
   startPoint: {fileID: 1190991071969077263}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -17506,13 +17491,13 @@ MonoBehaviour:
   startPoint: {fileID: 6319537844263047436}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -17600,13 +17585,13 @@ MonoBehaviour:
   startPoint: {fileID: 7613503918937610806}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -17872,13 +17857,13 @@ MonoBehaviour:
   startPoint: {fileID: 3060971846693896746}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 2
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -17910,7 +17895,7 @@ GameObject:
   - component: {fileID: 1847434724196918940}
   - component: {fileID: 6544991805195546453}
   - component: {fileID: 3775364774876861460}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cabinet01 (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18025,7 +18010,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &6544991805195546453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18211,13 +18195,13 @@ MonoBehaviour:
   startPoint: {fileID: 3169215486524461147}
   geometry: {fileID: 11400000, guid: 2d71a1509f4c540a8a1d961dc3aba0ba, type: 2}
   maxRandomTilt: 2
-  spacingOffset: 0.0001
+  spacingOffset: 0.003
   maxBookSize: 1
   defaultBookThickness: 0.03
   defaultBookHeight: 0.24
   defaultBookDepth: 0.15
   bookLayer: 10
-  ghostZOffset: 0.001
+  ghostZOffset: 0.003
   _debugHitTest: 1
   hoverGhostLayer: PlacedBooks
   hoverColliderScale: 1.05
@@ -18453,7 +18437,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &1120583619937312497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18719,7 +18702,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Cabinet
   cabinetName: Cabinet
   shelves: []
-  _instancedRenderer: {fileID: 0}
 --- !u!114 &8116310472146351099
 MonoBehaviour:
   m_ObjectHideFlags: 0
