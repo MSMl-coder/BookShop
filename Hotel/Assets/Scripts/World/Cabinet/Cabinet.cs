@@ -1,15 +1,12 @@
 // Assets/Scripts/World/Cabinet/Cabinet.cs
+// FIX:
+//   1. SetRenderingEnabled — вмикає/вимикає ВСІ BookInstancedRenderer у шафі (не тільки перший)
+//   2. GetBounds — враховує позиції всіх полиць як fallback якщо Renderer не знайдено
+//   3. _allRenderers — кешований масив всіх рендерерів щоб не робити GetComponentsInChildren кожен кадр
+
 using UnityEngine;
 using System.Collections.Generic;
 
-/// Шафа в 3D-сцені. Клік відкриває UI крамниці з вибраною шафою.
-///
-/// UNITY SETUP:
-/// 1. На Cabinet GameObject ОБОВ'ЯЗКОВО має бути Collider
-///    (Box Collider або Mesh Collider — не Trigger)
-/// 2. Шар (Layer) має бути в маску що зчитує камера
-/// 3. У сцені має бути Camera з PhysicsRaycaster + EventSystem
-///    АБО окремий CabinetClickHandler (нижче)
 public class Cabinet : MonoBehaviour
 {
     [Header("Identity")]
@@ -18,24 +15,92 @@ public class Cabinet : MonoBehaviour
     [Header("Shelves")]
     public List<Shelf> shelves = new List<Shelf>();
 
+    // ── Culling cache ─────────────────────────────────────────────
+    private BookInstancedRenderer[] _allRenderers;
+    private Bounds _cachedBounds;
+    private bool   _boundsValid = false;
+
+    // ── Unity ─────────────────────────────────────────────────────
+
     private void Awake()
     {
-        // Авто-знаходження полиць у дочірніх якщо не призначені
         if (shelves == null || shelves.Count == 0)
             shelves = new List<Shelf>(GetComponentsInChildren<Shelf>());
 
-        // Перевірка collider
         if (GetComponent<Collider>() == null)
-            Debug.LogWarning($"[Cabinet] {cabinetName} не має Collider! Кліки не будуть працювати.");
+            Debug.LogWarning($"[Cabinet] {cabinetName} не має Collider!");
+
+        // Кешуємо ВСІ рендерери одразу
+        _allRenderers = GetComponentsInChildren<BookInstancedRenderer>(includeInactive: true);
+        Debug.Log($"[Cabinet] {cabinetName}: {shelves.Count} полиць, {_allRenderers.Length} рендерерів");
     }
 
-    /// Викликається з CabinetClickHandler коли гравець клікає на шафу
-    public void OnClicked()
+    private void OnEnable()
     {
-        Debug.Log($"[Cabinet] Клік: {cabinetName}");
-        if (ShopUIManager.Instance != null)
-            ShopUIManager.Instance.OpenCabinetUI(this);
+        _boundsValid  = false;
+        // Перекешовуємо рендерери якщо шафа реактивується
+        _allRenderers = GetComponentsInChildren<BookInstancedRenderer>(includeInactive: true);
+    }
+
+    // ── Culling API ───────────────────────────────────────────────
+
+    /// Вмикає або вимикає ВСІ BookInstancedRenderer у шафі.
+    /// FIX: GetComponentInChildren знаходив тільки ПЕРШИЙ — Shelf_01 завжди вимикався.
+    public void SetRenderingEnabled(bool active)
+    {
+        if (_allRenderers == null || _allRenderers.Length == 0)
+            _allRenderers = GetComponentsInChildren<BookInstancedRenderer>(includeInactive: true);
+
+        foreach (var r in _allRenderers)
+            if (r != null) r.SetEnabled(active);
+    }
+
+    /// Bounds для frustum culling.
+    /// FIX: використовує позиції полиць як fallback бо BookInstancedRenderer
+    /// не має Renderer компонента → GetComponentsInChildren<Renderer> його не бачить.
+    public Bounds GetBounds()
+    {
+        if (_boundsValid) return _cachedBounds;
+
+        // Спочатку пробуємо mesh renderers шафи (меблі)
+        var meshRenderers = GetComponentsInChildren<Renderer>();
+        if (meshRenderers.Length > 0)
+        {
+            _cachedBounds = meshRenderers[0].bounds;
+            for (int i = 1; i < meshRenderers.Length; i++)
+                _cachedBounds.Encapsulate(meshRenderers[i].bounds);
+        }
         else
-            Debug.LogError("[Cabinet] ShopUIManager.Instance не знайдено!");
+        {
+            // Fallback: bounds по трансформу полиць
+            _cachedBounds = new Bounds(transform.position, Vector3.one * 0.1f);
+            foreach (var shelf in shelves)
+            {
+                if (shelf == null) continue;
+                _cachedBounds.Encapsulate(shelf.transform.position);
+            }
+            // Розширюємо bounds до мінімум 1м щоб frustum culling не давав false negative
+            _cachedBounds.Expand(Mathf.Max(1f, _cachedBounds.size.magnitude * 0.3f));
+        }
+
+        _boundsValid = true;
+        return _cachedBounds;
+    }
+
+    // ── Utils ─────────────────────────────────────────────────────
+
+    [ContextMenu("Auto-find Shelves")]
+    public void AutoFindShelves()
+    {
+        shelves = new List<Shelf>(GetComponentsInChildren<Shelf>());
+        Debug.Log($"[Cabinet] {cabinetName}: знайдено {shelves.Count} полиць");
+    }
+
+    public int GetTotalBookCount()
+    {
+        int total = 0;
+        foreach (var shelf in shelves)
+            if (shelf != null) total += shelf.GetBookCount();
+        return total;
     }
 }

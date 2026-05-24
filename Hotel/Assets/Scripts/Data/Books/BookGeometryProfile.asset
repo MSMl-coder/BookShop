@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb0df5cd46ce4c0fb27ba465af86833, type: 3}
+  m_Name: BookGeometryProfile
+  m_EditorClassIdentifier: Assembly-CSharp::BookGeometryProfile
+  baseMesh: {fileID: -66333826979096818, guid: a54b406ceb8af4e379dabe2655f4d77f, type: 3}
+  coverMaterials:
+  - {fileID: 2100000, guid: 7fad1dec0900141e595c70c4b0d5057b, type: 2}
+  - {fileID: 2100000, guid: 0dd75b8b3ee054a868bae1907c0634b0, type: 2}
+  - {fileID: 2100000, guid: a03a04994e8be4a2b8ad7e2cc2f41cb0, type: 2}
+  - {fileID: 2100000, guid: 8370da13f0cf644f9ab55cb52e135031, type: 2}
+  - {fileID: 2100000, guid: c62e99e899aa7435799b0ec4e9f86ede, type: 2}
+  - {fileID: 2100000, guid: 8e50ba648c65d4cedbee0c8e341be9ff, type: 2}
+  - {fileID: 2100000, guid: 889012d5d5b9e48e29c0fef86275f4e3, type: 2}
+  - {fileID: 2100000, guid: 34ed09c5c924442a4a6ac3b4344bc050, type: 2}
+  - {fileID: 2100000, guid: 7062f3043c8d5482c88f64da047d514f, type: 2}
+  - {fileID: 2100000, guid: 15c153733fb394e0ba6742db0baa8a0d, type: 2}
+  - {fileID: 2100000, guid: fcdc1fd2d582f491da8378afed5a1d75, type: 2}
+  - {fileID: 2100000, guid: 74df6857593ad4b3595abdaf70f727b3, type: 2}
+  - {fileID: 2100000, guid: 24416ad5641c84ae0bbfca9b18d7b9a4, type: 2}
+  - {fileID: 2100000, guid: f601e719b70924be4960949df418366d, type: 2}
+  - {fileID: 2100000, guid: eed8a3eeae84c485f9e5f2e0e43c456a, type: 2}
+  - {fileID: 2100000, guid: 385f46c61f0ee4fd0bf12e450b9d5392, type: 2}
+  pagesMaterial: {fileID: 2100000, guid: 1b9f2f8ab78494857a08184ce0a0ebb4, type: 2}
+  baseSize: {x: 0.03, y: 0.215, z: 0.145}
+  meshRotationFix: {x: 0, y: 90, z: 0}
+  shadowMode: 0
+  receiveShadows: 1

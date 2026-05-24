@@ -1,33 +1,31 @@
+// Assets/Scripts/World/NPC/ShelfScanner.cs
 using UnityEngine;
 
-// Scans a shelf for a book matching genre and budget
 public class ShelfScanner : MonoBehaviour
 {
-    // ВИПРАВЛЕНО: перевірка shelf == null тепер виконується ПЕРШОЮ
-    // Раніше shelf.ZoneType зверталось до shelf до null-перевірки — NullReferenceException
-    public BookTemplate FindBookOnShelf(Shelf shelf,  BookGenre genre, float maxBudget)
+public BookTemplate FindBookOnShelf(Shelf shelf, NPCPersonality personality)
+{
+    if (shelf == null || personality == null) return null;
+    if (shelf.ZoneType != ShopZoneType.Storefront) return null;
+
+    var allBooks = shelf.GetAllBookData();
+    if (allBooks == null) return null;
+
+    for (int i = 0; i < allBooks.Count; i++)
     {
-        if (shelf == null) return null;
+        var entry = allBooks[i];
+        if (entry.isReserved) continue;
 
-        // NPC не може купити книгу з Book Club зони
-        if (shelf.ZoneType != ShopZoneType.Storefront) return null;
+        BookTemplate template = BookDatabase.Instance?.GetBook(entry.templateID);
+        if (template == null) continue;
 
-        var bookItems = shelf.GetComponentsInChildren<BookWorldItem>();
+        if (template.genre       != personality.DesiredGenre)      continue;
+        if (template.sellPrice    > personality.MaxBudget)          continue;
+        if (!personality.AcceptsRarity(template.rarity))           continue;
 
-        foreach (var item in bookItems)
-        {
-            if (item?.instance == null) continue;
-
-            BookTemplate template = BookDatabase.Instance?.GetBook(item.instance.templateID);
-            if (template == null) continue;
-
-            if (template.genre == genre && template.sellPrice <= maxBudget)
-            {
-                Debug.Log($"[Scanner] Found match: {template.title} ({genre}) ${template.sellPrice}");
-                return template;
-            }
-        }
-
-        return null;
+        Debug.Log($"[Scanner] Match: {template.title} ({template.rarity}) ${template.sellPrice}");
+        return template;
     }
+    return null;
+}
 }

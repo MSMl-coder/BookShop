@@ -37,9 +37,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Depth_Threshold: 0.001
-    - _Normal_Threshold: 0.45
-    - _Outline_Thickness: 0.9
+    - _Depth_Threshold: 1
+    - _Normal_Threshold: 3
+    - _Outline_Thickness: 1
     - _Pencil_Noise_Speed: 0.46
     - _Pencil_Scale: 200
     - _Sketchiness: 0.33

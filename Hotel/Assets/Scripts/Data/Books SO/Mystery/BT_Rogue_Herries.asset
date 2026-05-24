@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8acd7bd923df499ca6a5693e47a673f, type: 3}
+  m_Name: BT_Rogue_Herries
+  m_EditorClassIdentifier: Assembly-CSharp::BookTemplate
+  bookID: 193004001339
+  title: Rogue Herries
+  author: Hugh Walpole
+  genre: 4
+  rarity: 0
+  writingYear: 1930
+  volumeNumber: 1
+  containerPrefab: {fileID: 7792499953618239303, guid: 770b44c64b87347d6b5295563eca25bc, type: 3}
+  icon: {fileID: 0}
+  bookSize: 1
+  colorIndex: 10
+  buyPrice: 6
+  sellPrice: 10

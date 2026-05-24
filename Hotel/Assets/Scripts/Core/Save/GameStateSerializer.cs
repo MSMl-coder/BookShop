@@ -113,7 +113,10 @@ public class GameStateSerializer : MonoBehaviour
         }
 
         // Books: полиці
+        if (data.placedBooks != null && data.placedBooks.Count > 0)
         ShelfRestorer.RestoreAll(data.placedBooks);
+        else
+        DefaultShelfFiller.FillAll(); // нова гра
 
         // Furniture
         RestoreFurniture(data);

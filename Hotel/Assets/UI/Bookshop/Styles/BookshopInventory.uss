@@ -1,0 +1,161 @@
+/* ═══════════════════════════════════════════════════
+   BookshopInventory.uss — Inventory modal
+   Path: Assets/UI/Bookshop/Styles/BookshopInventory.uss
+═══════════════════════════════════════════════════ */
+
+/* ── Cover categories list ── */
+.inv-cover-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px;
+    border-width: 1px;
+    border-color: rgba(0,0,0,0);
+}
+.inv-cover-item:hover {
+    border-color: var(--gold-soft);
+    background-color: rgba(212, 168, 67, 0.06);
+}
+.inv-cover-item.active {
+    border-color: var(--gold);
+    background-color: rgba(212, 168, 67, 0.12);
+}
+.inv-cover-cat-icon {
+    width: 29px; height: 29px;
+    border-width: 1px;
+    border-color: var(--gold-soft);
+    background-color: rgba(212, 168, 67, 0.08);
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+}
+.inv-cover-cat-icon > Label {
+    font-size: 14px;
+}
+.inv-cover-cat-info {
+    flex-grow: 1;
+}
+.inv-cover-cat-name {
+    font-size: 10px;
+    color: var(--page);
+    letter-spacing: 1.5px;
+    -unity-font-style: bold;
+}
+.inv-cover-cat-count {
+    font-size: 13px;
+    color: var(--gold-bright);
+    -unity-font-style: bold;
+}
+
+/* ── Sort row ── */
+.inv-sort-row {
+    flex-direction: row;
+    padding: 5px 3px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--gold-soft);
+    margin-bottom: 10px;
+    align-items: center;
+}
+.inv-sort-key {
+    padding: 3px 10px;
+    border-width: 1px;
+    border-color: var(--gold-soft);
+    background-color: rgba(0,0,0,0);
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    color: var(--ink-mute);
+    margin-right: 4px;
+    -unity-font-style: bold;
+}
+.inv-sort-key:hover {
+    background-color: rgba(212, 168, 67, 0.08);
+}
+.inv-sort-key.active {
+    background-color: var(--board);
+    color: var(--page);
+    border-color: var(--board-dark);
+}
+
+/* ── Inventory book row with RARITY rim glow ── */
+.inv-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    background-color: var(--page-light);
+    border-width: 2px;
+    border-color: var(--gold-soft);
+}
+.inv-row:hover {
+    translate: 3px 0;
+}
+
+/* Rarity colored rims */
+.inv-row.r-common    { border-color: var(--r-common); }
+.inv-row.r-uncommon  { border-color: var(--r-uncommon); }
+.inv-row.r-rare      { border-color: var(--r-rare); }
+.inv-row.r-epic      { border-color: var(--r-epic); }
+.inv-row.r-legend    { border-color: var(--r-legend); }
+
+.inv-row__icon {
+    width: 38px; height: 38px;
+    border-width: 1px;
+    border-color: var(--gold-soft);
+    background-color: var(--page-light);
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+.inv-row__icon > Label {
+    font-size: 21px;
+}
+.inv-row__info {
+    flex-grow: 1;
+    flex-direction: column;
+}
+.inv-row__title {
+    font-size: 14px;
+    color: var(--ink);
+    -unity-font-style: bold-and-italic;
+}
+.inv-row__author {
+    font-size: 9px;
+    color: var(--ink-mute);
+    letter-spacing: 1.2px;
+    -unity-font-style: bold;
+}
+.inv-row__pills {
+    flex-direction: row;
+    margin-top: 3px;
+}
+.inv-row__pills > .inv-pill {
+    margin-right: 4px;
+}
+.inv-row__price-block {
+    flex-direction: column;
+    align-items: flex-end;
+}
+.inv-row__price {
+    font-size: 16px;
+    color: var(--accent);
+    -unity-font-style: bold;
+}
+.inv-row__stock {
+    font-size: 8px;
+    color: var(--ink-mute);
+    letter-spacing: 1.2px;
+    -unity-font-style: bold;
+}
+
+/* Section letter divider */
+.inv-section-letter {
+    font-size: 22px;
+    color: var(--ink);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--gold);
+    padding-bottom: 3px;
+    margin-top: 11px;
+    margin-bottom: 6px;
+    letter-spacing: 3.2px;
+}

@@ -15,6 +15,15 @@ MonoBehaviour:
   furnitureID: 2
   furnitureName: "\u0414\u0443\u0431\u043E\u0432\u0430 \u0428\u0430\u0444\u0430"
   furnitureClass: 0
-  prefab: {fileID: 5493938757749610537, guid: 9c7f116436c6b4fe888eb5497328cdbf, type: 3}
+  prefab: {fileID: 919132149155446097, guid: a17c991140cb346e29929661be45612c, type: 3}
   icon: {fileID: 0}
   basePrice: 100
+  setID: 
+  bonusDescription: 
+  unlockCondition: 
+  unlockedByDefault: 0
+  canSnapToWall: 0
+  canSnapToShelf: 0
+  pivotOffset: 0
+  wallOffset: 0.05
+  shelfOffset: 0.01

@@ -1,4 +1,3 @@
- 
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
@@ -231,6 +230,44 @@ public class ShopUIManager : MonoBehaviour
 
         RefreshInventory();
         RefreshCabinetList();
+    }
+
+    /// <summary>
+    /// Відкриває інтерфейс шафи і одразу вибирає конкретну полицю.
+    /// Викликається з ContextMenuUI коли гравець натискає "Інвентар шафи" на книзі.
+    /// </summary>
+    public void OpenCabinetUI(Cabinet cabinet, Shelf shelf)
+    {
+        // Базовий відкриття
+        _selectedCabinet = cabinet;
+        _selectedShelf   = shelf;
+
+        SetDisplay(_inventoryPanel, true);
+        SetDisplay(_cabinetPanel,   true);
+
+        if (_cabZoneLabel != null && cabinet != null)
+            _cabZoneLabel.text = cabinet.cabinetName;
+
+        RefreshInventory();
+        RefreshCabinetList(); // RefreshShelfList() викликається всередині
+
+        // RefreshShelfList вже знає про _selectedShelf і підсвітить її.
+        // Прокручуємо ShelfList до вибраної полиці.
+        if (shelf != null && cabinet != null)
+            ScrollShelfListToSelected(cabinet, shelf);
+    }
+
+    /// <summary>Прокрутити ShelfList до вибраної полиці.</summary>
+    private void ScrollShelfListToSelected(Cabinet cabinet, Shelf target)
+    {
+        if (_shelfList == null || cabinet == null || target == null) return;
+
+        int idx = cabinet.shelves.IndexOf(target);
+        if (idx < 0) return;
+
+        // Кожен рядок полиці ≈ 52px (емпіричне значення — підлаштуй якщо треба)
+        const float itemHeight = 52f;
+        _shelfList.scrollOffset = new UnityEngine.Vector2(0f, idx * itemHeight);
     }
 
     public void ToggleInventory()

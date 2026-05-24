@@ -1,0 +1,44 @@
+/* ═══════════════════════════════════════════════════
+   BookshopVariables.uss — Design tokens
+   Path: Assets/UI/Bookshop/Styles/BookshopVariables.uss
+═══════════════════════════════════════════════════ */
+
+:root {
+    /* Notebook board/cover — deep teal */
+    --board:        rgb(31, 48, 51);
+    --board-light:  rgb(42, 67, 71);
+    --board-dark:   rgb(20, 32, 42);
+
+    /* Paper page */
+    --page:         rgb(245, 236, 214);
+    --page-light:   rgb(250, 243, 223);
+    --page-shadow:  rgb(216, 200, 154);
+    --page-fold:    rgb(201, 178, 126);
+
+    /* Gold accents */
+    --gold:         rgb(212, 168, 67);
+    --gold-bright:  rgb(232, 196, 90);
+    --gold-soft:    rgb(184, 144, 42);
+    --gold-deep:    rgb(138, 106, 40);
+
+    /* Ink */
+    --ink:          rgb(42, 31, 14);
+    --ink-soft:     rgb(74, 58, 36);
+    --ink-mute:     rgb(107, 90, 58);
+    --ink-faint:    rgb(154, 138, 106);
+
+    /* Accents */
+    --accent:       rgb(139, 58, 58);
+    --accent-soft:  rgb(168, 90, 74);
+    --rose:         rgb(200, 152, 136);
+
+    /* Rarity colors */
+    --r-common:     rgb(107, 102, 85);
+    --r-uncommon:   rgb(74, 122, 74);
+    --r-rare:       rgb(58, 104, 168);
+    --r-epic:       rgb(122, 58, 168);
+    --r-legend:     rgb(184, 144, 42);
+
+    /* Cord */
+    --cord:         rgb(138, 122, 90);
+}

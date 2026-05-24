@@ -17,6 +17,6 @@ MonoBehaviour:
   icon: {fileID: 0}
   type: 0
   isGold: 0
-  furniturePayload: {fileID: 11400000, guid: dbf73c632fec34513971d27eaab9480a, type: 2}
+  furniturePayload: {fileID: 11400000, guid: 105b097105711479d995a348fe44b5f6, type: 2}
   moneyPayload: 200
   cost: 0

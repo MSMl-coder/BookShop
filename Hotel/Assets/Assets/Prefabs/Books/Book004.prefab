@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1184021147884147476}
-  m_Layer: 20
+  m_Layer: 10
   m_Name: Book004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26,7 +26,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.83, y: 0.7, z: 1.36}
+  m_LocalScale: {x: 0.83, y: 0.7, z: 1.18}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6364085618281624673}
@@ -87,7 +87,7 @@ PrefabInstance:
     - target: {fileID: 8138374726523066343, guid: f25dccc38c455406bbac605430432ca3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: e4961807044c542c6b3181db1350060a, type: 2}
+      objectReference: {fileID: 2100000, guid: 257a112b889814e928b2dfc8e9c5a0c0, type: 2}
     - target: {fileID: 8138374726523066343, guid: f25dccc38c455406bbac605430432ca3, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 

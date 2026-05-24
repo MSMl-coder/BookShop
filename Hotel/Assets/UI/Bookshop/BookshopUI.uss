@@ -1,0 +1,1544 @@
+/* ═══════════════════════════════════════════════════════════════
+   BookshopUI.uss  — COMPLETE styles, NO CSS variables
+   Path: Assets/UI/Bookshop/BookshopUI.uss
+
+   Colors (hardcoded, Unity UIToolkit compatible):
+     Board dark:    rgb(31,48,51)
+     Board light:   rgb(42,67,71)
+     Board darker:  rgb(20,32,42)
+     Page cream:    rgb(245,236,214)
+     Page light:    rgb(250,243,223)
+     Page shadow:   rgb(216,200,154)
+     Gold:          rgb(212,168,67)
+     Gold bright:   rgb(232,196,90)
+     Gold soft:     rgb(184,144,42)
+     Gold deep:     rgb(138,106,40)
+     Ink:           rgb(42,31,14)
+     Ink muted:     rgb(107,90,58)
+     Accent red:    rgb(139,58,58)
+     Rarity common: rgb(107,102,85)
+     Rarity uncommon:rgb(74,122,74)
+     Rarity rare:   rgb(58,104,168)
+     Rarity epic:   rgb(122,58,168)
+     Rarity legend: rgb(184,144,42)
+   ═══════════════════════════════════════════════════════════════ */
+
+
+/* ── THEME VARIABLES (edit here to retheme the entire UI) ─────────── */
+:root {
+    --board:        rgb(31, 48, 51);
+    --board-light:  rgb(42, 67, 71);
+    --board-dark:   rgb(20, 32, 42);
+    --page:         rgb(245, 236, 214);
+    --page-light:   rgb(250, 243, 223);
+    --page-shadow:  rgb(216, 200, 154);
+    --gold:         rgb(212, 168, 67);
+    --gold-bright:  rgb(232, 196, 90);
+    --gold-soft:    rgb(184, 144, 42);
+    --gold-deep:    rgb(138, 106, 40);
+    --ink:          rgb(42, 31, 14);
+    --ink-muted:    rgb(107, 90, 58);
+    --accent:       rgb(139, 58, 58);
+    --r-common:     rgb(107, 102, 85);
+    --r-uncommon:   rgb(74, 122, 74);
+    --r-rare:       rgb(58, 104, 168);
+    --r-epic:       rgb(122, 58, 168);
+    --r-legend:     rgb(184, 144, 42);
+}
+
+
+/* ══════════════════════════════════════
+   ROOT & HUD
+══════════════════════════════════════ */
+.root {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    flex-direction: column;
+}
+.hud {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+}
+.hidden {
+    display: none;
+}
+.modals-layer {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* ══════════════════════════════════════
+   TAG DECORATION (hanging tag style)
+══════════════════════════════════════ */
+.tag {
+    background-color: rgb(31, 48, 51);
+    border-width: 1px;
+    border-color: rgb(184, 144, 42);
+    color: rgb(245, 236, 214);
+}
+.tag-ring {
+    position: absolute;
+    top: -10px; left: 50%;
+    margin-left: -7px;
+    width: 14px; height: 14px;
+    border-radius: 7px;
+    background-color: rgb(184, 144, 42);
+    border-width: 1px;
+    border-color: rgb(138, 106, 40);
+}
+.tag-cord {
+    position: absolute;
+    top: -34px; left: 50%;
+    margin-left: -1px;
+    width: 2px; height: 26px;
+    background-color: rgb(138, 122, 90);
+}
+.tilt-left  { rotate: 4deg;  transform-origin: bottom; }
+.tilt-right { rotate: -4deg; transform-origin: bottom; }
+
+/* ══════════════════════════════════════
+   CLUB CARD
+══════════════════════════════════════ */
+.club-card {
+    position: absolute;
+    top: 26px; left: 19px;
+    width: 160px; height: 232px;
+}
+.club-card__cord {
+    position: absolute;
+    top: -30px; left: 50%; margin-left: -1px;
+    width: 2px; height: 24px;
+    background-color: rgb(138, 122, 90);
+}
+
+/* Face: absolute, fill card, stacked on top of each other */
+.club-card__face {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgb(31, 48, 51);
+    border-width: 2px;
+    border-color: rgb(184, 144, 42);
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px; padding-bottom: 12px;
+    padding-left: 12px; padding-right: 12px;
+    overflow: hidden;
+}
+/* Opacity-driven flip — C# sets opacity values */
+.club-card__face--front { opacity: 1; }
+.club-card__face--back  { opacity: 0; }
+
+.club-card__tag-label {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 9px; color: rgb(212, 168, 67);
+    letter-spacing: 1.5px;
+    -unity-font-style: bold;
+}
+.club-card__header { align-items: center; }
+.club-card__title {
+    font-size: 20px; color: rgb(245, 236, 214);
+    letter-spacing: 2px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+.club-card__sub {
+    font-size: 11px; color: rgb(232, 196, 90);
+    letter-spacing: 1.5px; -unity-font-style: italic;
+    -unity-text-align: middle-center;
+}
+.club-card__emblem {
+    font-size: 36px; -unity-text-align: middle-center;
+}
+.club-card__name-row {
+    flex-direction: row; align-items: center; justify-content: center;
+    max-width: 100%;
+}
+.club-card__name {
+    font-size: 14px; color: rgb(245, 236, 214);
+    -unity-font-style: bold-and-italic;
+    -unity-text-align: middle-center;
+    white-space: normal; flex-shrink: 1;
+}
+.club-card__edit-btn {
+    width: 18px; height: 18px;
+    background-color: rgba(0,0,0,0); border-width: 0;
+    color: rgb(184, 144, 42); font-size: 12px; padding: 0;
+    margin-left: 4px; flex-shrink: 0;
+}
+.club-card__edit-btn:hover { color: rgb(212, 168, 67); }
+.club-card__stars {
+    color: rgb(232, 196, 90); font-size: 13px; letter-spacing: 2px;
+    -unity-text-align: middle-center;
+}
+.club-card__prestige {
+    font-size: 9px; letter-spacing: 2px; color: rgb(212, 168, 67);
+    padding-top: 3px; padding-bottom: 3px;
+    padding-left: 10px; padding-right: 10px;
+    border-top-width: 1px; border-bottom-width: 1px;
+    border-color: rgb(184, 144, 42);
+    -unity-font-style: bold; -unity-text-align: middle-center; width: 100%;
+}
+.club-card__stats {
+    flex-direction: row; width: 100%; justify-content: space-around;
+}
+.club-card__stat { align-items: center; }
+.club-card__stat-label {
+    font-size: 9px; color: rgb(212, 168, 67);
+    letter-spacing: 1.5px; -unity-font-style: bold;
+}
+.club-card__stat-value {
+    font-size: 16px; color: rgb(245, 236, 214); -unity-font-style: bold;
+}
+.club-card__hint {
+    font-size: 8px; letter-spacing: 1.5px;
+    color: rgb(184, 144, 42); -unity-font-style: bold;
+}
+.club-card__money {
+    font-size: 20px; color: rgb(232, 196, 90);
+    -unity-font-style: bold; -unity-text-align: middle-center;
+}
+.club-card__day-num {
+    font-size: 50px; color: rgb(245, 236, 214);
+    -unity-font-style: bold; -unity-text-align: middle-center;
+    width: 100%;
+}
+.club-card__phase-band {
+    font-size: 9px; letter-spacing: 2px;
+    color: rgb(31, 48, 51); background-color: rgb(212, 168, 67);
+    padding-top: 3px; padding-bottom: 3px;
+    padding-left: 10px; padding-right: 10px;
+    -unity-font-style: bold; -unity-text-align: middle-center; width: 100%;
+}
+
+/* ══════════════════════════════════════
+   BUFFS AREA
+══════════════════════════════════════ */
+.buffs-area {
+    position: absolute;
+    top: 30px; left: 196px;
+    flex-direction: row;
+    align-items: flex-start;
+}
+.buff-card {
+    width: 42px; height: 50px;
+    margin-left: -5px;
+    padding-top: 5px; padding-bottom: 4px;
+    padding-left: 3px; padding-right: 3px;
+    background-color: rgb(31, 48, 51);
+    border-width: 1px; border-color: rgb(184, 144, 42);
+    align-items: center; justify-content: center;
+    transition-property: width, height, margin-left, margin-right;
+    transition-duration: 0.25s;
+}
+.buff-card.first { margin-left: 0; }
+.buff-card:hover {
+    width: 62px; height: 62px;
+    margin-left: 3px; margin-right: 3px;
+    border-color: rgb(212, 168, 67);
+}
+.buff-card__icon {
+    font-size: 15px; -unity-text-align: middle-center;
+    transition-property: font-size; transition-duration: 0.2s;
+}
+.buff-card:hover > .buff-card__icon { font-size: 22px; }
+.buff-card__name {
+    font-size: 6px; color: rgb(245, 236, 214);
+    -unity-font-style: bold; opacity: 0;
+    -unity-text-align: middle-center;
+    transition-property: opacity; transition-duration: 0.15s;
+}
+.buff-card:hover > .buff-card__name { opacity: 1; }
+.buff-card__value {
+    font-size: 10px; color: rgb(232, 196, 90); -unity-font-style: bold;
+    transition-property: font-size; transition-duration: 0.2s;
+}
+.buff-card:hover > .buff-card__value { font-size: 13px; }
+.buff-card__tip {
+    position: absolute; top: 100%; left: 0;
+    margin-top: 8px;
+    background-color: rgb(20, 32, 42);
+    color: rgb(245, 236, 214);
+    font-size: 11px; -unity-font-style: italic;
+    padding-top: 4px; padding-bottom: 4px;
+    padding-left: 9px; padding-right: 9px;
+    border-width: 1px; border-color: rgb(184, 144, 42);
+    opacity: 0; white-space: nowrap;
+    transition-property: opacity; transition-duration: 0.15s;
+}
+.buff-card:hover > .buff-card__tip { opacity: 1; }
+
+
+/* ══════════════════════════════════════
+   CLOCK FRAME (centered top)
+══════════════════════════════════════ */
+.clock-frame {
+    position: absolute;
+    top: 19px; left: 50%;
+    margin-left: -210px;
+    width: 420px;
+    align-items: center;
+    flex-direction: column;
+}
+.clock-bar {
+    padding-top: 6px; padding-bottom: 6px;
+    padding-left: 14px; padding-right: 14px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(31, 48, 51);
+    border-width: 1px;
+    border-color: rgb(184, 144, 42);
+}
+
+/* Flip clock container */
+.flip-clock {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 4px;
+    margin-right: 8px;
+}
+
+/* ── Single flip digit ──
+   STRUCTURE:
+     .flip-digit  (44×56 box, overflow:hidden)
+       .flip-digit__bottom   (bottom half, shows current digit clipped)
+       .flip-digit__top      (top half, shows next digit clipped)
+       .flip-digit__flap     (animated: covers top half, C# shrinks height 28→0)
+       .flip-digit__gap      (center line, always on top)
+
+   C# animation:
+     1. Set FlipXTopNext = nextVal
+     2. Animate FlipXFlap height: 28px → 0px  (fold down, reveals top next)
+     3. Swap: set FlipXBottomCur = nextVal, set FlipXFlap height back to 28px
+              but now FlipXFlap shows nextVal (bottom half folding in from above)
+     4. Animate FlipXFlap height: 28px → 28px  (already done by swap — instant)
+
+   SIMPLIFIED C# approach (no negative positioning needed):
+     - top half shows UPPER part of digit via overflow:hidden + fixed 28px height
+     - bottom half shows LOWER part via overflow:hidden + translate digit label up 28px
+       but we do this by making the label height=56 and clipping at 28
+*/
+
+.flip-digit {
+    width: 44px;
+    height: 56px;
+    margin-left: 2px;
+    margin-right: 2px;
+    background-color: rgb(20, 32, 42);
+    border-width: 1px;
+    border-color: rgb(184, 144, 42);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Bottom half — permanent, shows current value */
+.flip-digit__bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 28px;
+    background-color: rgb(20, 32, 42);
+    overflow: hidden;
+    align-items: center;
+    justify-content: flex-start; /* top-align so digit hangs into clip */
+}
+/* The label must be FULL height (56px) positioned so only bottom half shows */
+.flip-digit__bottom > Label {
+    position: absolute;
+    top: -28px;           /* shift full label up so bottom half is visible */
+    left: 0; right: 0;
+    height: 56px;
+    font-size: 38px;
+    color: rgb(245, 236, 214);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* Top half — permanent, shows next value */
+.flip-digit__top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 28px;
+    background-color: rgb(28, 44, 48);
+    overflow: hidden;
+    align-items: center;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.5);
+}
+.flip-digit__top > Label {
+    position: absolute;
+    top: 0;
+    left: 0; right: 0;
+    height: 56px;
+    font-size: 38px;
+    color: rgb(245, 236, 214);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* Flap — animated panel, covers top half, folds down to reveal next */
+/* C# starts it at height=28, shrinks to 0, then swap values, restore to 28 */
+.flip-digit__flap {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 28px;
+    background-color: rgb(24, 38, 42);
+    overflow: hidden;
+    align-items: center;
+    /* Darker to simulate shadow during fold */
+}
+.flip-digit__flap > Label {
+    position: absolute;
+    top: 0;
+    left: 0; right: 0;
+    height: 56px;
+    font-size: 38px;
+    color: rgb(245, 236, 214);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* Horizontal center gap line */
+.flip-digit__gap {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 2px;
+    margin-top: -1px;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Colon separator */
+.flip-colon {
+    width: 14px;
+    height: 56px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-left: 1px;
+    margin-right: 1px;
+}
+.flip-colon__dot {
+    width: 6px; height: 6px;
+    border-radius: 3px;
+    background-color: rgb(212, 168, 67);
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+/* Clock divider & buttons (unchanged) */
+.clock-divider {
+    width: 1px; height: 22px;
+    background-color: rgb(184, 144, 42);
+    opacity: 0.5;
+    margin-left: 8px; margin-right: 8px;
+}
+.clock-key {
+    width: 26px; height: 26px;
+    background-color: rgb(42, 67, 71);
+    border-width: 1px;
+    border-color: rgb(184, 144, 42);
+    color: rgb(245, 236, 214);
+    font-size: 12px;
+    margin-left: 2px; margin-right: 2px;
+    padding: 0;
+}
+.clock-key:hover {
+    background-color: rgb(20, 32, 42);
+    border-color: rgb(212, 168, 67);
+}
+.clock-key.active {
+    background-color: rgb(212, 168, 67);
+    color: rgb(20, 32, 42);
+    border-color: rgb(232, 196, 90);
+}
+
+
+/* ══════════════════════════════════════
+   PHASE BAR (stained glass)
+══════════════════════════════════════ */
+.phase-bar {
+    width: 100%; height: 30px;
+    flex-direction: row;
+    margin-top: 5px; position: relative;
+}
+.phase-segment {
+    flex: 1; height: 22px;
+    align-items: center; justify-content: center;
+    position: relative;
+    border-width: 1px; border-color: rgba(0,0,0,0.3);
+}
+.phase-segment:first-child { border-radius: 2px 0 0 2px; }
+.phase-segment:last-child  { border-radius: 0 2px 2px 0; }
+.phase-segment--prep { background-color: rgb(58, 110, 58); }
+.phase-segment--work { background-color: rgb(40, 80, 148); }
+.phase-segment--loot { background-color: rgb(138, 106, 40); }
+.phase-segment.active {
+    border-width: 2px;
+    border-color: rgba(255,255,255,0.5);
+}
+.phase-segment__label {
+    font-size: 7px; color: rgba(255,255,255,0.7);
+    letter-spacing: 1px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+}
+.phase-segment.active > .phase-segment__label {
+    color: rgba(255,255,255,0.95);
+}
+.phase-segment__fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 0%; background-color: rgba(255,255,255,0.15);
+}
+.phase-divider { width: 2px; height: 22px; background-color: rgba(0,0,0,0.5); }
+.phase-pointer-row {
+    position: absolute;
+    top: -9px; left: 0; right: 0; height: 10px;
+}
+.phase-pointer {
+    position: absolute;
+    top: 0; left: 0;
+    width: 14px; height: 10px;
+    margin-left: -7px;
+    align-items: center; justify-content: center;
+}
+.phase-pointer > Label {
+    font-size: 10px; color: rgb(232, 196, 90);
+    -unity-text-align: middle-center; -unity-font-style: bold;
+}
+
+/* ══════════════════════════════════════
+   TOASTS
+══════════════════════════════════════ */
+.toast-area {
+    position: absolute;
+    top: 110px; left: 0; right: 0;
+    flex-direction: column; align-items: center;
+}
+.toast {
+    font-size: 17px; color: rgb(245, 236, 214);
+    -unity-font-style: bold-and-italic; letter-spacing: 0.8px;
+    margin-bottom: 4px;
+}
+.toast.warn { color: rgb(200, 152, 136); }
+.toast.good { color: rgb(232, 196, 90); }
+
+/* ══════════════════════════════════════
+   CALENDAR
+══════════════════════════════════════ */
+.calendar {
+    position: absolute;
+    top: 26px; right: 22px; width: 190px;
+    background-color: rgb(250, 243, 223);
+    border-width: 2px; border-color: rgb(184, 144, 42);
+}
+.calendar__month-head {
+    background-color: rgb(31, 48, 51);
+    padding-top: 6px; padding-bottom: 5px;
+    padding-left: 11px; padding-right: 11px;
+    align-items: center;
+    border-bottom-width: 1px; border-bottom-color: rgb(212, 168, 67);
+}
+.calendar__month-name {
+    font-size: 14px; color: rgb(245, 236, 214);
+    letter-spacing: 3px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+.calendar__year {
+    font-size: 9px; color: rgb(212, 168, 67);
+    letter-spacing: 1.5px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+.calendar__body {
+    padding-top: 10px; padding-bottom: 11px;
+    padding-left: 11px; padding-right: 11px;
+}
+.calendar__day-display {
+    flex-direction: row; align-items: center;
+    justify-content: center; margin-bottom: 8px;
+}
+.calendar__big-day {
+    font-size: 50px; color: rgb(42, 31, 14);
+    -unity-font-style: bold; margin-right: 11px;
+}
+.calendar__day-side { align-items: flex-start; }
+.calendar__weekday {
+    font-size: 15px; color: rgb(42, 31, 14);
+    -unity-font-style: bold-and-italic;
+}
+.calendar__day-meta {
+    font-size: 9px; color: rgb(107, 90, 58);
+    letter-spacing: 1.2px; -unity-font-style: bold;
+}
+.calendar__week-strip {
+    flex-direction: row; justify-content: space-between;
+    border-top-width: 1px; border-top-color: rgb(184, 144, 42);
+    padding-top: 6px;
+}
+.cal-tick {
+    width: 20px; height: 20px;
+    align-items: center; justify-content: center;
+    font-size: 10px; color: rgb(107, 90, 58); -unity-font-style: bold;
+}
+.cal-tick.past { opacity: 0.35; }
+.cal-tick.today { background-color: rgb(139, 58, 58); color: rgb(245, 236, 214); }
+
+/* ══════════════════════════════════════
+   BOOK INFO CARD
+══════════════════════════════════════ */
+.book-info {
+    position: absolute;
+    bottom: 100px; right: 22px; width: 210px;
+    padding-top: 10px; padding-bottom: 11px;
+    padding-left: 13px; padding-right: 13px;
+    background-color: rgb(250, 243, 223);
+    border-width: 2px; border-color: rgb(184, 144, 42);
+    translate: 242px 0;
+    transition-property: translate; transition-duration: 0.4s;
+}
+.book-info.visible { translate: 0 0; }
+.book-info__header { align-items: center; margin-bottom: 6px; }
+.book-info__title-head {
+    font-size: 10px; letter-spacing: 2.4px; color: rgb(42, 31, 14);
+    -unity-font-style: bold;
+}
+.book-info__num {
+    font-size: 10px; color: rgb(107, 90, 58); -unity-font-style: italic;
+}
+.book-info__field-label {
+    font-size: 8px; letter-spacing: 2px; color: rgb(107, 90, 58);
+    -unity-font-style: bold; margin-top: 6px;
+}
+.book-info__field-value {
+    font-size: 14px; color: rgb(42, 31, 14); -unity-font-style: bold-and-italic;
+    border-bottom-width: 1px; border-bottom-color: rgb(184, 144, 42);
+    padding-bottom: 2px;
+}
+.book-info__row-two { flex-direction: row; margin-top: 6px; }
+.book-info__row-two > * { flex-grow: 1; margin-right: 8px; }
+.book-info__bonus-line {
+    flex-direction: row; align-items: center;
+    margin-top: 10px; padding: 4px 7px;
+    background-color: rgba(212, 168, 67, 0.12);
+    border-width: 1px; border-color: rgb(184, 144, 42);
+}
+.book-info__bonus-dot {
+    width: 3px; height: 10px;
+    background-color: rgb(139, 58, 58); margin-right: 5px;
+}
+.book-info__stamp {
+    position: absolute; bottom: 11px; right: 14px;
+    width: 35px; height: 35px;
+    border-width: 2px; border-color: rgb(139, 58, 58);
+    color: rgb(139, 58, 58); opacity: 0.45;
+    font-size: 7px; -unity-text-align: middle-center;
+    -unity-font-style: bold; rotate: -10deg;
+    white-space: normal;
+}
+
+/* ══════════════════════════════════════
+   FUNCTION BAR (bottom center)
+══════════════════════════════════════ */
+
+.func-bar {
+    position: absolute;
+    bottom: 22px; left: 0; right: 0;
+    flex-direction: row;
+    justify-content: center;
+}
+.func-btn {
+    width: 72px; height: 72px;
+    margin-left: 8px; margin-right: 8px;
+    background-color: rgb(31, 48, 51);
+    border-width: 1px;
+    border-color: rgb(184, 144, 42);
+    padding-top: 8px; padding-bottom: 6px;
+    padding-left: 4px; padding-right: 4px;
+    align-items: center;
+    justify-content: center;
+    color: rgb(245, 236, 214);
+    flex-direction: column;
+}
+.func-btn:hover {
+    translate: 0 -3px;
+    border-color: rgb(212, 168, 67);
+}
+.func-btn.active {
+    background-color: rgb(139, 58, 58);
+    border-color: rgb(232, 196, 90);
+}
+
+/* Icon frame — квадрат із золотою рамкою (без emoji всередині) */
+.func-btn__icon-frame {
+    width: 36px; height: 36px;
+    border-width: 1px;
+    border-color: rgb(184, 144, 42);
+    background-color: rgba(212, 168, 67, 0.1);
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+}
+/* Замість emoji — текст-іконки що гарантовано рендеряться */
+.func-btn__icon-frame > Label {
+    font-size: 0; /* Ховаємо emoji label */
+}
+
+/* Велика букова іконка замість emoji */
+.func-btn__letter {
+    font-size: 20px;
+    color: rgb(212, 168, 67);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.func-btn__code {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: rgb(212, 168, 67);
+    -unity-font-style: bold;
+    margin-top: 2px;
+}
+.func-btn.active .func-btn__code { color: rgb(232, 196, 90); }
+
+.func-btn__badge {
+    position: absolute; top: -5px; right: -5px;
+    width: 18px; height: 18px;
+    background-color: rgb(139, 58, 58);
+    color: rgb(245, 236, 214);
+    font-size: 10px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-width: 2px; border-color: rgb(232, 196, 90);
+    border-radius: 9px;
+}
+.func-btn__tip {
+    position: absolute; bottom: 100%;
+    margin-bottom: 10px;
+    background-color: rgb(20, 32, 42);
+    color: rgb(245, 236, 214);
+    font-size: 13px; -unity-font-style: bold-and-italic;
+    padding-top: 3px; padding-bottom: 3px;
+    padding-left: 10px; padding-right: 10px;
+    border-width: 1px; border-color: rgb(212, 168, 67);
+    opacity: 0; white-space: nowrap;
+    transition-property: opacity;
+    transition-duration: 0.15s;
+}
+.func-btn:hover > .func-btn__tip { opacity: 1; }
+
+/* ══════════════════════════════════════
+   OVERLAY
+══════════════════════════════════════ */
+.overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(20, 12, 4, 0.30);
+}
+.overlay.inv-open { background-color: rgba(20, 12, 4, 0.14); }
+
+/* ══════════════════════════════════════
+   MODALS — BASE
+   IMPORTANT: flex-direction: row is DEFAULT in UIToolkit
+   Cover (left) = fixed width, Page (right) = flex-grow:1
+══════════════════════════════════════ */
+.nb-modal {
+    position: absolute;
+    flex-direction: row;
+    background-color: rgb(20, 32, 42);
+    /* display: none is set by .hidden class */
+}
+
+/* Inventory modal — left side of screen */
+.nb-modal--inv {
+    top: 46px; bottom: 100px; left: 22px;
+    width: 650px;
+}
+
+/* NPC modal — right side */
+.nb-modal--npc {
+    top: 46px; bottom: 100px; right: 22px;
+    width: 520px;
+}
+
+/* Catalog — center */
+.nb-modal--center {
+    top: 50%; left: 50%;
+    width: 960px; height: 600px;
+    margin-left: -480px; margin-top: -300px;
+}
+
+/* Awards — center narrow */
+.nb-modal--awards {
+    top: 50%; left: 50%;
+    width: 680px; height: 560px;
+    margin-left: -340px; margin-top: -280px;
+}
+
+/* Decor — bottom strip */
+.nb-modal--bottom {
+    bottom: 0; left: 0; right: 0; height: 296px;
+    flex-direction: row;
+}
+
+/* ── COVER (dark left panel — STRICTLY fixed width) ── */
+.nb-cover {
+    width: 210px;
+    min-width: 210px;
+    max-width: 210px;
+    flex-shrink: 0;
+    background-color: rgb(31, 48, 51);
+    padding-top: 22px; padding-bottom: 14px;
+    padding-left: 14px; padding-right: 14px;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+.nb-cover__spine {
+    position: absolute; top: 0; bottom: 0; right: 0; width: 18px;
+    background-color: rgba(0,0,0,0.35);
+}
+.nb-cover__tag {
+    position: absolute; top: -14px; left: 22px;
+    width: 48px;
+    padding-top: 4px; padding-bottom: 5px;
+    background-color: rgb(216, 200, 154);
+    border-width: 1px; border-color: rgb(138, 106, 40);
+    font-size: 9px; color: rgb(20, 32, 42);
+    letter-spacing: 1px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+.nb-cover__title {
+    font-size: 19px; color: rgb(245, 236, 214);
+    letter-spacing: 3px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-top: 4px; margin-bottom: 2px;
+}
+.nb-cover__sub {
+    font-size: 11px; color: rgb(232, 196, 90);
+    letter-spacing: 1.5px; -unity-font-style: italic;
+    -unity-text-align: middle-center; margin-bottom: 6px;
+}
+.nb-cover__section {
+    font-size: 9px; color: rgb(212, 168, 67);
+    letter-spacing: 2px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-top-width: 1px; border-bottom-width: 1px;
+    border-color: rgba(212,168,67,0.4);
+    padding-top: 3px; padding-bottom: 3px; margin-bottom: 6px;
+}
+.nb-cover__scroll { flex-grow: 1; overflow: hidden; }
+.nb-cover__scroll .unity-scroll-view__content-container { flex-direction: column; }
+.nb-cover__footer {
+    flex-direction: row; justify-content: space-around;
+    padding-top: 8px;
+    border-top-width: 1px; border-top-color: rgba(212,168,67,0.3);
+    flex-shrink: 0;
+}
+.nb-cover__stat { align-items: center; }
+.nb-cover__stat-l { font-size: 8px; color: rgb(212,168,67); letter-spacing:1.5px; -unity-font-style:bold; }
+.nb-cover__stat-v { font-size: 16px; color: rgb(245,236,214); -unity-font-style:bold; }
+
+/* ── PAGE (paper right — grows) ── */
+.nb-page {
+    flex-grow: 1;
+    flex-shrink: 1;
+    background-color: rgb(245, 236, 214);
+    padding-top: 22px; padding-bottom: 14px;
+    padding-left: 24px; padding-right: 24px;
+    flex-direction: column;
+    overflow: hidden; position: relative;
+}
+.nb-page__frame {
+    position: absolute;
+    top: 12px; right: 14px; bottom: 12px; left: 18px;
+    border-width: 1px; border-color: rgb(184,144,42); opacity: 0.4;
+}
+.nb-page__stamp {
+    position: absolute; top: 14px; right: 28px;
+    width: 48px; height: 54px;
+    background-color: rgb(201,178,126);
+    border-width: 1px; border-color: rgb(138,106,40);
+    align-items: center; justify-content: center;
+    rotate: -6deg; flex-direction: column;
+}
+.nb-page__stamp-icon { font-size: 20px; }
+.nb-page__stamp-text {
+    font-size: 7px; color: rgb(42,31,14);
+    letter-spacing: 0.8px; -unity-font-style: bold;
+}
+.nb-page__head {
+    align-items: center; margin-bottom: 10px; position: relative; z-index: 1;
+}
+.nb-page__title {
+    font-size: 22px; color: rgb(42,31,14);
+    letter-spacing: 5px; -unity-font-style: bold;
+}
+.nb-page__sub {
+    font-size: 12px; color: rgb(107,90,58);
+    letter-spacing: 1.2px; -unity-font-style: italic;
+}
+.nb-page__content { flex-grow: 1; position: relative; z-index: 1; }
+.nb-page__content .unity-scroll-view__content-container { flex-direction: column; }
+.nb-page__footer {
+    flex-direction: row; justify-content: space-between; align-items: center;
+    padding-top: 8px;
+    border-top-width: 1px; border-top-color: rgb(184,144,42);
+    margin-top: 8px; flex-shrink: 0; position: relative; z-index: 1;
+}
+.nb-page__num { font-size: 11px; color: rgb(107,90,58); -unity-font-style: italic; }
+.nb-page-nav-btn {
+    width: 28px; height: 28px;
+    background-color: rgb(250,243,223);
+    border-width: 1px; border-color: rgb(184,144,42);
+    color: rgb(42,31,14); font-size: 16px; padding: 0;
+    -unity-text-align: middle-center;
+}
+.nb-page-nav-btn:hover { background-color: rgb(31,48,51); color: rgb(245,236,214); }
+.nb-page-nav-btn:disabled { opacity: 0.3; }
+.nb-close-stamp {
+    padding-top: 4px; padding-bottom: 4px;
+    padding-left: 12px; padding-right: 12px;
+    border-width: 1.5px; border-color: rgb(139,58,58);
+    color: rgb(139,58,58); background-color: rgba(0,0,0,0);
+    font-size: 10px; letter-spacing: 2px; -unity-font-style: bold;
+}
+.nb-close-stamp:hover { background-color: rgb(139,58,58); color: rgb(250,243,223); }
+.nb-close-btn {
+    position: absolute; top: -12px; right: -12px;
+    width: 28px; height: 28px; border-radius: 14px;
+    background-color: rgb(31,48,51);
+    border-width: 2px; border-color: rgb(184,144,42);
+    color: rgb(245,236,214); font-size: 13px; padding: 0; z-index: 10;
+}
+.nb-close-btn:hover { background-color: rgb(139,58,58); }
+
+/* ══════════════════════════════════════
+   INVENTORY SPECIFIC
+══════════════════════════════════════ */
+.inv-sort-row {
+    flex-direction: row; padding-top: 5px; padding-bottom: 5px;
+    border-bottom-width: 1px; border-bottom-color: rgb(184,144,42);
+    margin-bottom: 10px; flex-shrink: 0; position: relative; z-index: 1;
+}
+.inv-sort-key {
+    padding-top: 3px; padding-bottom: 3px;
+    padding-left: 10px; padding-right: 10px;
+    border-width: 1px; border-color: rgb(184,144,42);
+    background-color: rgba(0,0,0,0);
+    font-size: 9px; letter-spacing: 1px; color: rgb(107,90,58);
+    margin-right: 4px; -unity-font-style: bold;
+}
+.inv-sort-key:hover { background-color: rgba(212,168,67,0.08); }
+.inv-sort-key.active {
+    background-color: rgb(31,48,51); color: rgb(245,236,214);
+    border-color: rgb(20,32,42);
+}
+.inv-cover-item {
+    flex-direction: row; align-items: center;
+    padding: 6px; border-width: 1px; border-color: rgba(0,0,0,0);
+    margin-bottom: 2px;
+}
+.inv-cover-item:hover { border-color: rgb(184,144,42); background-color: rgba(212,168,67,0.06); }
+.inv-cover-item.active { border-color: rgb(212,168,67); background-color: rgba(212,168,67,0.12); }
+.inv-cover-cat-icon {
+    width: 28px; height: 28px;
+    border-width: 1px; border-color: rgb(184,144,42);
+    background-color: rgba(212,168,67,0.08);
+    align-items: center; justify-content: center; margin-right: 8px;
+}
+.inv-cover-cat-icon > Label { font-size: 14px; }
+.inv-cover-cat-info { flex-grow: 1; }
+.inv-cover-cat-name { font-size: 10px; color: rgb(245,236,214); letter-spacing:1.5px; -unity-font-style:bold; }
+.inv-cover-cat-count { font-size: 13px; color: rgb(232,196,90); -unity-font-style:bold; }
+.inv-row {
+    flex-direction: row; align-items: center;
+    padding-top: 8px; padding-bottom: 8px;
+    padding-left: 10px; padding-right: 10px;
+    margin-bottom: 5px;
+    background-color: rgb(250,243,223);
+    border-width: 2px; border-color: rgb(184,144,42);
+}
+.inv-row:hover { translate: 3px 0; }
+.inv-row.rc { border-color: rgb(107,102,85); }
+.inv-row.ru { border-color: rgb(74,122,74);  }
+.inv-row.rr { border-color: rgb(58,104,168); }
+.inv-row.re { border-color: rgb(122,58,168); }
+.inv-row.rl { border-color: rgb(184,144,42); }
+.inv-row__icon {
+    width: 40px; height: 40px;
+    border-width: 1px; border-color: rgb(184,144,42);
+    background-color: rgb(250,243,223);
+    align-items: center; justify-content: center; margin-right: 10px;
+}
+.inv-row__icon > Label { font-size: 20px; }
+.inv-row__info { flex-grow: 1; flex-direction: column; }
+.inv-row__title { font-size: 14px; color: rgb(42,31,14); -unity-font-style: bold-and-italic; }
+.inv-row__author { font-size: 9px; color: rgb(107,90,58); letter-spacing:1.2px; -unity-font-style:bold; }
+.inv-row__pills { flex-direction: row; margin-top: 3px; }
+.inv-pill {
+    font-size: 8px; letter-spacing: 1px;
+    padding-top: 2px; padding-bottom: 2px;
+    padding-left: 7px; padding-right: 7px;
+    border-width: 1px; margin-right: 4px;
+    -unity-font-style: bold;
+}
+.inv-pill--genre { color: rgb(74,58,36); border-color: rgb(74,58,36); }
+.inv-pill.common    { color: rgb(107,102,85); border-color: rgb(107,102,85); }
+.inv-pill.uncommon  { color: rgb(74,122,74);  border-color: rgb(74,122,74);  }
+.inv-pill.rare      { color: rgb(58,104,168); border-color: rgb(58,104,168); }
+.inv-pill.epic      { color: rgb(122,58,168); border-color: rgb(122,58,168); }
+.inv-pill.legend    { color: rgb(184,144,42); border-color: rgb(184,144,42); }
+.inv-row__price-block { flex-direction: column; align-items: flex-end; }
+.inv-row__price { font-size: 16px; color: rgb(139,58,58); -unity-font-style: bold; }
+.inv-row__stock { font-size: 8px; color: rgb(107,90,58); letter-spacing:1.2px; -unity-font-style:bold; }
+.inv-section-letter {
+    font-size: 22px; color: rgb(42,31,14); -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    border-bottom-width: 1px; border-bottom-color: rgb(212,168,67);
+    padding-bottom: 3px; margin-top: 11px; margin-bottom: 6px; letter-spacing: 3px;
+}
+
+/* ══════════════════════════════════════
+   CATALOG
+══════════════════════════════════════ */
+.cat-author-tabs {
+    flex-direction: row; justify-content: center; margin-bottom: 10px;
+    border-bottom-width: 1px; border-bottom-color: rgb(184,144,42);
+    flex-shrink: 0; position: relative; z-index: 1;
+}
+.cat-author-tab {
+    padding-top: 6px; padding-bottom: 6px;
+    padding-left: 14px; padding-right: 14px;
+    font-size: 10px; color: rgb(107,90,58);
+    letter-spacing: 1.5px; background-color: rgba(0,0,0,0);
+    border-width: 0; -unity-font-style: bold;
+}
+.cat-author-tab:hover { color: rgb(42,31,14); }
+.cat-author-tab.active {
+    color: rgb(139,58,58); font-weight: bold;
+    border-bottom-width: 2px; border-bottom-color: rgb(139,58,58);
+}
+
+/* ══════════════════════════════════════
+   DECOR
+══════════════════════════════════════ */
+.decor-cats-strip {
+    width: 190px; min-width: 190px; max-width: 190px;
+    flex-shrink: 0;
+    background-color: rgb(31,48,51);
+    padding-top: 16px; padding-bottom: 12px;
+    padding-left: 12px; padding-right: 12px;
+    flex-direction: column; overflow: hidden; position: relative;
+}
+.decor-cats-strip__list { flex-grow: 1; }
+.decor-cats-strip__list .unity-scroll-view__content-container { flex-direction: column; }
+.decor-cat-row {
+    flex-direction: row; align-items: center;
+    padding: 5px 6px; border-width: 1px;
+    border-color: rgba(0,0,0,0); margin-bottom: 3px;
+}
+.decor-cat-row:hover { border-color: rgb(184,144,42); background-color: rgba(212,168,67,0.06); }
+.decor-cat-row.active { border-color: rgb(212,168,67); background-color: rgba(212,168,67,0.12); }
+.decor-cat-row .dcri {
+    width: 28px; height: 28px;
+    border-width: 1px; border-color: rgb(184,144,42);
+    align-items: center; justify-content: center; margin-right: 7px;
+}
+.decor-cat-row .dcri > Label { font-size: 14px; }
+.decor-cat-row .dcrn { font-size: 11px; color: rgb(245,236,214); flex-grow: 1; -unity-font-style:bold; }
+.decor-cat-row .dcrnum { font-size: 13px; color: rgb(232,196,90); -unity-font-style:bold; }
+.decor-page {
+    flex-grow: 1; background-color: rgb(245,236,214);
+    padding: 12px 20px 10px; flex-direction: column; overflow: hidden;
+}
+.decor-page__header {
+    flex-direction: row; justify-content: space-between; align-items: center;
+    border-bottom-width: 1px; border-bottom-color: rgb(184,144,42);
+    padding-bottom: 7px; margin-bottom: 9px; flex-shrink: 0;
+}
+.decor-page__title {
+    font-size: 19px; color: rgb(42,31,14);
+    letter-spacing: 3px; -unity-font-style: bold;
+}
+.decor-items-horizontal { flex-grow: 1; flex-shrink: 1; }
+.decor-items-horizontal .unity-scroll-view__content-container { flex-direction: row; }
+.decor-item-card {
+    min-width: 100px; background-color: rgb(250,243,223);
+    border-width: 1px; border-color: rgb(184,144,42);
+    padding: 9px 5px 5px;
+    flex-direction: column; align-items: center; flex-shrink: 0;
+    margin-right: 10px;
+}
+.decor-item-card:hover { translate: 0 -2px; border-color: rgb(212,168,67); }
+.decor-item-card.selected { background-color: rgb(250,236,196); border-width: 2px; border-color: rgb(212,168,67); }
+.decor-item-card .di-icon {
+    width: 50px; height: 50px;
+    border-width: 1px; border-color: rgb(107,90,58);
+    background-color: rgb(250,243,223); align-items: center; justify-content: center;
+}
+.decor-item-card .di-icon > Label { font-size: 26px; }
+.decor-item-card .di-nm { font-size: 11px; color: rgb(42,31,14); -unity-font-style: bold-and-italic; -unity-text-align: middle-center; }
+.decor-item-card .di-pr { font-size: 11px; color: rgb(139,58,58); -unity-font-style: bold; }
+.decor-editor {
+    background-color: rgb(250,243,223);
+    border-top-width: 1px; border-top-color: rgb(212,168,67);
+    flex-direction: row; align-items: center; flex-shrink: 0;
+    max-height: 0; overflow: hidden;
+    transition-property: max-height; transition-duration: 0.3s;
+}
+.decor-editor.open { max-height: 90px; padding: 10px 14px; }
+.decor-editor__preview {
+    width: 56px; height: 56px; border-width: 1px; border-color: rgb(42,31,14);
+    background-color: rgb(250,243,223); align-items: center; justify-content: center; margin-right: 12px;
+}
+.decor-editor__preview > Label { font-size: 28px; }
+.decor-editor__info { min-width: 110px; margin-right: 16px; }
+.decor-editor__name { font-size: 13px; color: rgb(42,31,14); -unity-font-style: bold-and-italic; }
+.decor-editor__meta { font-size: 9px; color: rgb(107,90,58); letter-spacing:1.2px; -unity-font-style:bold; }
+.decor-editor__controls { flex-direction: row; flex-grow: 1; }
+.decor-editor__group { margin-right: 16px; }
+.decor-editor__group-label { font-size: 9px; color: rgb(107,90,58); letter-spacing:1.5px; -unity-font-style:bold; margin-bottom: 4px; }
+.decor-editor__swatches { flex-direction: row; }
+.decor-editor__swatch { width: 22px; height: 22px; border-width: 1px; border-color: rgb(107,90,58); margin-right: 3px; }
+.decor-editor__swatch.active { border-color: rgb(212,168,67); border-width: 2px; }
+.decor-editor__rot-row { flex-direction: row; }
+.decor-editor__rot-btn {
+    width: 26px; height: 26px; background-color: rgb(250,243,223);
+    border-width: 1px; border-color: rgb(184,144,42);
+    font-size: 13px; color: rgb(42,31,14); -unity-font-style:bold;
+    margin-right: 2px; align-items: center; justify-content: center;
+}
+.decor-editor__rot-btn:hover { background-color: rgb(31,48,51); color: rgb(245,236,214); }
+.decor-editor__actions { margin-left: auto; flex-direction: row; }
+.decor-editor__act-btn {
+    padding: 6px 14px; font-size: 9px; letter-spacing: 1.5px;
+    background-color: rgb(250,243,223); border-width: 1px; border-color: rgb(184,144,42);
+    color: rgb(42,31,14); margin-left: 5px; -unity-font-style: bold;
+}
+.decor-editor__act-btn:hover { background-color: rgb(31,48,51); color: rgb(245,236,214); }
+.decor-editor__act-btn.primary { background-color: rgb(139,58,58); color: rgb(245,236,214); border-color: rgb(139,58,58); }
+
+/* ══════════════════════════════════════
+   NPC
+══════════════════════════════════════ */
+.npc-portrait {
+    width: 76px; height: 76px; border-radius: 38px;
+    background-color: rgb(31,48,51);
+    align-items: center; justify-content: center;
+    border-width: 3px; border-color: rgb(212,168,67);
+    margin-top: 6px; margin-bottom: 12px; align-self: center;
+}
+.npc-portrait > Label { font-size: 40px; }
+.npc-name { font-size: 21px; color: rgb(42,31,14); -unity-text-align: middle-center; -unity-font-style:bold-and-italic; }
+.npc-role { font-size: 10px; letter-spacing: 2px; color: rgb(107,90,58); -unity-text-align: middle-center; -unity-font-style:bold; margin-top: 2px; }
+.npc-dialogue {
+    background-color: rgba(212,168,67,0.12);
+    border-left-width: 3px; border-left-color: rgb(212,168,67);
+    padding: 12px 14px; margin-top: 12px; margin-bottom: 12px;
+    font-size: 14px; color: rgb(74,58,36); -unity-font-style:italic; white-space: normal;
+}
+.npc-options { flex-direction: column; }
+.npc-option {
+    padding: 9px 14px; margin-bottom: 4px;
+    border-width: 1px; border-color: rgb(184,144,42);
+    background-color: rgba(212,168,67,0.04);
+    font-size: 13px; color: rgb(42,31,14); -unity-font-style: italic;
+}
+.npc-option:hover { background-color: rgba(212,168,67,0.14); border-color: rgb(212,168,67); padding-left: 20px; }
+.npc-stat {
+    flex-direction: row; justify-content: space-between;
+    padding-top: 4px; padding-bottom: 4px;
+    font-size: 10px; color: rgb(245,236,214);
+    border-bottom-width: 1px; border-bottom-color: rgba(212,168,67,0.2);
+    -unity-font-style: bold;
+}
+.npc-stat .v { color: rgb(232,196,90); -unity-font-style: bold; }
+
+/* ══════════════════════════════════════
+   AWARDS
+══════════════════════════════════════ */
+.ach-cover-stat { align-items: center; padding-top: 8px; padding-bottom: 8px; }
+.ach-cover-stat-l { font-size: 9px; color: rgb(212,168,67); letter-spacing:1.5px; -unity-font-style:bold; }
+.ach-cover-stat-v { font-size: 26px; color: rgb(245,236,214); -unity-font-style:bold; margin-top: 2px; }
+.ach-grid { flex-direction: row; flex-wrap: wrap; }
+.ach-item {
+    width: 48%; background-color: rgb(250,243,223);
+    border-width: 1px; border-color: rgb(184,144,42);
+    padding: 11px; margin-right: 2%; margin-bottom: 11px;
+    flex-direction: row;
+}
+.ach-item:hover { translate: -1px -2px; border-color: rgb(212,168,67); }
+.ach-plate {
+    width: 48px; height: 48px;
+    background-color: rgb(216,200,154);
+    border-width: 1px; border-color: rgb(138,106,40);
+    align-items: center; justify-content: center; margin-right: 10px;
+    flex-shrink: 0;
+}
+.ach-plate > Label { font-size: 22px; }
+.ach-plate.locked { opacity: 0.5; }
+.ach-info { flex-grow: 1; min-width: 0; }
+.ach-name { font-size: 14px; color: rgb(42,31,14); -unity-font-style:bold-and-italic; }
+.ach-desc { font-size: 9px; color: rgb(107,90,58); letter-spacing:.8px; -unity-font-style:bold; margin-top: 2px; margin-bottom: 5px; white-space: normal; }
+.ach-track { height: 5px; background-color: rgba(0,0,0,0.1); border-width: 0.5px; border-color: rgb(184,144,42); }
+.ach-fill { height: 100%; background-color: rgb(212,168,67); }
+.ach-count { font-size: 10px; color: rgb(138,106,40); letter-spacing:.8px; -unity-font-style:bold; margin-top: 3px; }
+
+/* ══════════════════════════════════════
+   PATCH: Gold border для всіх модалів
+══════════════════════════════════════ */
+.nb-modal--gold-border {
+    border-width: 2px;
+    border-color: rgb(184, 144, 42);
+}
+
+/* Золота рамка сторінки — підвищена видимість */
+.nb-page__frame--gold {
+    position: absolute;
+    top: 8px; right: 10px; bottom: 8px; left: 14px;
+    border-width: 1.5px;
+    border-color: rgb(184, 144, 42);
+    opacity: 0.7;
+}
+
+/* ══════════════════════════════════════
+   PATCH: Overlay більше не блокує world
+   (picking-mode="Ignore" в UXML достатньо,
+    але залишаємо pointer-events на випадок)
+══════════════════════════════════════ */
+.overlay { pointer-events: none; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ShelfManager v2.3 — вставити в КІНЕЦЬ BookshopUI.uss
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Панель: менша, не перекриває HUD ──────────────────────── */
+.shelf-mgr-v2 {
+    position: absolute;
+    top: 80px; bottom: 80px;
+    left: 80px; right: 80px;
+    flex-direction: column;
+    background-color: rgb(20, 32, 42);
+    border-width: 2px;
+    border-color: rgb(184, 144, 42);
+}
+
+/* ── Заголовок ──────────────────────────────────────────────── */
+.shelf-mgr-v2__header {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 48px 6px 16px;
+    background-color: rgb(31, 48, 51);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(138, 106, 40);
+    flex-shrink: 0;
+}
+.shelf-mgr-v2__title {
+    font-size: 13px; color: rgb(232, 196, 90);
+    -unity-font-style: bold; letter-spacing: 4px; flex-grow: 1;
+}
+.shelf-mgr-v2__sub {
+    font-size: 8px; color: rgb(184, 144, 42);
+    letter-spacing: 1px; -unity-font-style: italic;
+}
+
+/* ── Тіло ───────────────────────────────────────────────────── */
+.shelf-mgr-v2__body {
+    flex-direction: row;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* Підвал колонки */
+.shelf-mgr-v2__col-foot {
+    flex-direction: row; align-items: center;
+    padding: 5px 12px;
+    border-top-width: 1px; border-top-color: rgb(138, 106, 40);
+    background-color: rgb(31, 48, 51);
+    flex-shrink: 0; min-height: 32px;
+}
+.shelf-mgr-v2__foot-l {
+    font-size: 8px; letter-spacing: 1px;
+    color: rgb(212, 168, 67); -unity-font-style: bold; flex-grow: 1;
+}
+.shelf-mgr-v2__foot-v { font-size: 14px; color: rgb(232, 196, 90); -unity-font-style: bold; }
+
+/* ══════════════════════════════════════
+   ЛІВО — інвентар
+══════════════════════════════════════ */
+.shelf-mgr-v2__inv-col {
+    width: 220px; min-width: 220px;
+    flex-direction: column;
+    border-right-width: 2px; border-right-color: rgb(138, 106, 40);
+    background-color: rgb(31, 48, 51);
+    position: relative; overflow: hidden;
+}
+.shelf-mgr-v2__inv-col-spine {
+    position: absolute;
+    top: 0; bottom: 0; right: 0; width: 12px;
+    background-color: rgba(0,0,0,0.25);
+}
+.shelf-mgr-v2__inv-col-head {
+    padding: 6px 12px 4px 12px;
+    border-bottom-width: 1px; border-bottom-color: rgb(138, 106, 40);
+    background-color: rgb(31, 48, 51); flex-shrink: 0;
+}
+.shelf-mgr-v2__inv-section {
+    font-size: 7px; letter-spacing: 2px; color: rgb(212, 168, 67);
+    -unity-font-style: bold; -unity-text-align: middle-center;
+    border-top-width: 1px; border-bottom-width: 1px;
+    border-color: rgba(212,168,67,0.3);
+    padding: 2px 0; margin-bottom: 4px;
+}
+
+/* Фільтр */
+.shelf-mgr-v2__genre-row { flex-direction: row; flex-wrap: wrap; }
+.shelf-mgr__genre-btn {
+    font-size: 7px; padding: 1px 4px; margin: 1px;
+    border-width: 1px; border-color: rgba(184,144,42,0.4);
+    background-color: rgba(0,0,0,0); color: rgb(184,144,42);
+}
+.shelf-mgr__genre-btn:hover  { background-color: rgba(212,168,67,0.12); }
+.shelf-mgr__genre-btn.active { background-color: rgb(184,144,42); color: rgb(20,32,42); }
+
+.shelf-mgr-v2__inv-list { flex-grow: 1; overflow: hidden; }
+.shelf-mgr-v2__inv-list > .unity-scroll-view__content-container { flex-direction: column; }
+
+/* Рядок книги */
+.shelf-mgr__inv-item {
+    flex-direction: row; align-items: center;
+    padding: 3px 18px 3px 8px;
+    border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.04);
+}
+.shelf-mgr__inv-item:hover    { background-color: rgba(212,168,67,0.08); }
+.shelf-mgr__inv-item.selected { background-color: rgba(212,168,67,0.16); border-left-width: 2px; border-left-color: rgb(232,196,90); }
+.shelf-mgr__inv-item__icon {
+    width: 24px; height: 24px;
+    border-width: 1px; border-color: rgba(184,144,42,0.35);
+    background-color: rgba(0,0,0,0.18);
+    align-items: center; justify-content: center;
+    margin-right: 6px; flex-shrink: 0;
+    background-size: contain; background-position: center;
+}
+.shelf-mgr__inv-item__icon > Label { font-size: 12px; }
+.shelf-mgr__inv-item__info  { flex-grow: 1; flex-direction: column; overflow: hidden; }
+.shelf-mgr__inv-item__title { font-size: 9px; color: rgb(245,236,214); -unity-font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shelf-mgr__inv-item__meta  { font-size: 7px; color: rgb(184,144,42); }
+
+/* ══════════════════════════════════════
+   ЦЕНТР — кнопки переносу
+══════════════════════════════════════ */
+.shelf-mgr-v2__btn-col {
+    width: 46px; min-width: 46px; flex-shrink: 0;
+    flex-direction: column; align-items: center; justify-content: center;
+    background-color: rgb(20, 32, 42);
+    border-right-width: 2px; border-right-color: rgb(138, 106, 40);
+    padding: 8px 0;
+}
+.shelf-mgr-v2__btn {
+    width: 34px; height: 28px; font-size: 14px; -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    background-color: rgb(31,48,51);
+    border-width: 1px; border-color: rgb(184,144,42);
+    color: rgb(184,144,42); margin-bottom: 3px; padding: 0;
+}
+.shelf-mgr-v2__btn:hover    { background-color: rgb(184,144,42); color: rgb(20,32,42); }
+.shelf-mgr-v2__btn:disabled { opacity: 0.22; }
+.shelf-mgr-v2__btn--primary {
+    width: 34px; height: 36px; font-size: 19px;
+    border-color: rgb(232,196,90); color: rgb(232,196,90);
+}
+.shelf-mgr-v2__btn--primary:hover { background-color: rgb(232,196,90); color: rgb(20,32,42); }
+.shelf-mgr-v2__divider { width: 24px; height: 1px; background-color: rgba(184,144,42,0.35); margin: 4px 0; }
+
+/* ══════════════════════════════════════
+   ПРАВО — полиці (nb-page кремовий)
+══════════════════════════════════════ */
+.shelf-mgr-v2__shelves-col {
+    flex-grow: 1; flex-direction: column;
+    background-color: rgb(245, 236, 214);
+    position: relative; overflow: hidden;
+}
+/* Gold рамка поверх */
+.shelf-mgr-v2__shelves-frame {
+    position: absolute;
+    top: 32px; bottom: 0; left: 10px; right: 10px;
+    border-width: 1px; border-color: rgb(184,144,42); opacity: 0.28;
+}
+/* Заголовок правої колонки */
+.shelf-mgr-v2__shelves-head {
+    flex-direction: row; align-items: center;
+    padding: 4px 14px;
+    background-color: rgb(216, 200, 154);
+    border-bottom-width: 1px; border-bottom-color: rgb(184, 144, 42);
+    flex-shrink: 0;
+}
+.shelf-mgr-v2__shelves-head-title {
+    font-size: 8px; letter-spacing: 3px;
+    color: rgb(42, 31, 14); -unity-font-style: bold; flex-grow: 1;
+}
+/* Підвал правої колонки */
+.shelf-mgr-v2__shelves-foot {
+    flex-direction: row; align-items: center;
+    padding: 4px 14px;
+    background-color: rgb(216, 200, 154);
+    border-top-width: 1px; border-top-color: rgb(184, 144, 42);
+    flex-shrink: 0; min-height: 32px;
+}
+.shelf-mgr-v2__shelves-foot-info {
+    font-size: 8px; color: rgb(107,90,58); -unity-font-style: italic; flex-grow: 1;
+}
+
+/* Середня зона */
+.shelf-mgr-v2__shelves-body {
+    flex-grow: 1; flex-direction: column; overflow: hidden;
+}
+
+/* ScrollView полиць */
+.shelf-mgr-v2__all-shelves { flex-grow: 1; overflow: hidden; }
+.shelf-mgr-v2__all-shelves > .unity-scroll-view__content-container {
+    flex-direction: column;
+    padding: 10px 16px 6px 8px;  /* ліворуч менше — там бірки */
+}
+
+/* ── Один рядок полиці ──────────────────────────────────────── */
+/* Горизонтальне компонування: [бірка] [вміст полиці] */
+.shelf-mgr-v2__shelf-row {
+    flex-direction: row;
+    align-items: stretch;
+    margin-bottom: 8px;
+}
+.shelf-mgr-v2__shelf-row.selected > .shelf-mgr-v2__shelf-content {
+    border-width: 2px;
+    border-color: rgb(232, 196, 90);
+}
+
+/* ── БІРКА — окремий елемент ліворуч ───────────────────────── */
+.shelf-mgr-v2__shelf-tag {
+    width: 32px;
+    flex-shrink: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 4px;
+    margin-right: 6px;
+    background-color: rgb(216, 200, 154);
+    border-width: 1px;
+    border-color: rgb(138, 106, 40);
+    cursor: link;
+}
+.shelf-mgr-v2__shelf-tag.selected-tag {
+    background-color: rgb(232, 196, 90);
+    border-color: rgb(100, 76, 20);
+}
+.shelf-mgr-v2__shelf-tag:hover { background-color: rgb(228, 210, 160); }
+.shelf-mgr-v2__shelf-tag-hole {
+    width: 7px; height: 7px;
+    border-width: 1px; border-color: rgb(138,106,40);
+    border-radius: 4px;
+    background-color: rgba(42,31,14,0.15);
+    margin-bottom: 4px;
+}
+/* Вертикальний текст номера */
+.shelf-mgr-v2__shelf-tag-num {
+    font-size: 8px; color: rgb(42,31,14);
+    -unity-font-style: bold; letter-spacing: 0;
+    -unity-text-align: middle-center;
+    rotate: -90deg;
+    width: 40px;
+    margin-top: 6px;
+}
+
+/* ── Вміст полиці (заголовок + корінці) ────────────────────── */
+.shelf-mgr-v2__shelf-content {
+    flex-grow: 1; flex-direction: column;
+    border-width: 1px; border-color: rgba(138,106,40,0.25);
+    background-color: rgb(250, 243, 223);
+    overflow: hidden;
+}
+
+/* Заголовок вмісту */
+.shelf-mgr-v2__shelf-head {
+    flex-direction: row; align-items: center;
+    padding: 2px 8px;
+    background-color: rgba(42,31,14,0.06);
+    border-bottom-width: 1px; border-bottom-color: rgba(138,106,40,0.2);
+    flex-shrink: 0;
+}
+.shelf-mgr-v2__shelf-head-label {
+    font-size: 8px; letter-spacing: 2px;
+    color: rgb(107,90,58); -unity-font-style: bold; flex-grow: 1;
+}
+.shelf-mgr-v2__shelf-head-meta {
+    font-size: 7px; color: rgb(184,144,42);
+}
+
+/* Ряд корінців */
+.shelf-mgr-v2__spine-row {
+    flex-direction: row; align-items: flex-end;
+    min-height: 56px;
+    background-color: rgb(208, 175, 116);
+    border-bottom-width: 5px; border-bottom-color: rgb(138, 106, 40);
+    padding: 3px 8px 0 8px;
+}
+
+/* ── Корінці книг ───────────────────────────────────────────── */
+.shelf-book-spine {
+    width: 18px; min-width: 18px; max-width: 18px;
+    height: 60px; margin-right: 2px;
+    border-width: 1px; border-color: rgba(0,0,0,0.15);
+    overflow: hidden; flex-shrink: 0; cursor: link;
+    align-items: center; justify-content: flex-end;
+}
+.shelf-book-spine:hover    { border-color: rgb(232,196,90); border-width: 2px; translate: 0 -3px; }
+.shelf-book-spine.selected { border-color: rgb(232,196,90); border-width: 2px; translate: 0 -6px; }
+.shelf-book-spine__title {
+    font-size: 6px; color: rgba(255,255,255,0.9); -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    rotate: -90deg; white-space: nowrap;
+    width: 54px; overflow: hidden;
+}
+.shelf-spine-empty {
+    width: 18px; min-width: 18px; height: 60px;
+    margin-right: 2px; flex-shrink: 0;
+    background-color: rgba(100,78,40,0.07);
+    border-width: 1px; border-color: rgba(100,78,40,0.1);
+}
+
+/* ══════════════════════════════════════
+   Sel-bar — інфо вибраної книги (≤25%)
+   Всередині правої колонки, під shelves-body
+══════════════════════════════════════ */
+.shelf-mgr-v2__sel-bar {
+    flex-direction: row; align-items: center;
+    padding: 8px 18px;
+    max-height: 25%; min-height: 60px;
+    border-top-width: 1.5px; border-top-color: rgb(184, 144, 42);
+    background-color: rgb(245, 236, 214);
+    flex-shrink: 0;
+}
+.shelf-mgr-v2__sel-icon {
+    width: 40px; height: 40px;
+    border-width: 1.5px; border-color: rgb(184,144,42);
+    background-color: rgba(42,31,14,0.05);
+    background-size: contain; background-position: center;
+    margin-right: 14px; flex-shrink: 0;
+}
+.shelf-mgr-v2__sel-title {
+    font-size: 13px; color: rgb(42, 31, 14);
+    -unity-font-style: bold-and-italic;
+    flex-grow: 1; margin-right: 12px;
+}
+.shelf-mgr-v2__sel-meta {
+    font-size: 9px; color: rgb(107, 90, 58);
+    letter-spacing: 1.5px; -unity-font-style: bold;
+}
+/* Кнопка "Продати" в sel-bar */
+.shelf-mgr-v2__sel-action {
+    padding: 4px 10px;
+    border-width: 1px; border-color: rgb(139,58,58);
+    background-color: rgba(139,58,58,0.08);
+    color: rgb(139,58,58); font-size: 9px; -unity-font-style: bold;
+    margin-left: 12px; flex-shrink: 0;
+}
+.shelf-mgr-v2__sel-action:hover { background-color: rgb(139,58,58); color: rgb(245,236,214); }
+

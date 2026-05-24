@@ -1,73 +1,72 @@
-// Assets/Scripts/World/Shelf/BookWorldItem.cs  [ВИПРАВЛЕНО v2 — Фаза 1]
-// ВИПРАВЛЕННЯ:
-//   - CustomerBrain → NPCBrain
+// Assets/Scripts/World/Items/BookWorldItem.cs
+// ОНОВЛЕНО: додано властивості-делегати IsReserved, Reserve(), Unreserve()
+// що перенаправляють виклики з NPCBrain/ContextMenuUI до Shelf._books (data layer).
 //
-// ЗМІНИ відносно оригіналу:
-//   + bool IsReserved { get; private set; }
-//   + NPCBrain ReservedBy { get; private set; }
-//   + bool Reserve(NPCBrain reserver)
-//   + void Unreserve()
-//   + reservationMarkerPrefab — іконка над книгою
-
+// Стара поведінка збережена:
+//   NPCBrain:     targetBook.Reserve(npcID)   ✓
+//                 targetBook.Unreserve()       ✓
+//                 targetBook.IsReserved        ✓
+//   ContextMenu:  item.IsReserved              ✓
+//                 shelf.RemoveBook(item)        → замінено на shelf.TakeBookAt(item.bookIndex)
 using UnityEngine;
 
 public class BookWorldItem : MonoBehaviour
 {
-    // ── Існуючі поля (без змін) ────────────────────────────────
+    // ── Основні поля (без змін — сумісність із усім існуючим кодом) ──────────
     public BookInstance instance;
     public Shelf        parentShelf;
-    public float        savedTilt;
 
-    // ── Резервація — НОВЕ (Фаза 1) ────────────────────────────
-    public bool     IsReserved { get; private set; }
-    public NPCBrain ReservedBy { get; private set; }
+    [HideInInspector] public float savedTilt;
 
-    [Header("Reservation Marker")]
-    [SerializeField] private GameObject reservationMarkerPrefab;
-    [SerializeField] private Vector3    markerOffset = new Vector3(0f, 0.12f, 0f);
+    // ── Нові поля (Ghost-on-Demand архітектура) ────────────────────────────
+    /// Індекс у Shelf._books — потрібен для TakeBookAt() і DematerializeBook()
+    [HideInInspector] public int  bookIndex         = -1;
 
-    private GameObject _markerInstance;
+    /// True поки гравець або NPC активно взаємодіє з цією книгою
+    [HideInInspector] public bool isBeingInteracted = false;
 
-    // ── Unity ──────────────────────────────────────────────────
+    // ── Резервування — делегати до Shelf data layer ────────────────────────
+    // NPCBrain викликає: targetBook.Reserve(npcID) / targetBook.Unreserve()
+    // Ці методи перенаправляють до Shelf.ReserveBook(index, npcID).
+
+    /// Чи книга зарезервована NPC.
+    public bool IsReserved
+    {
+        get
+        {
+            if (parentShelf == null || bookIndex < 0) return false;
+            var data = parentShelf.GetBookData(bookIndex);
+            return data.isReserved;
+        }
+    }
+
+    /// Резервує книгу для NPC (викликається з NPCBrain.InspectShelf).
+    public bool Reserve(string npcID = "")
+    {
+        if (parentShelf == null || bookIndex < 0) return false;
+        return parentShelf.ReserveBook(bookIndex, npcID);
+    }
+
+    /// Знімає резервацію (викликається з NPCBrain при виході / відмові).
+    public void Unreserve()
+    {
+        if (parentShelf == null || bookIndex < 0) return;
+        parentShelf.UnreserveBook(bookIndex);
+    }
+
+    // ── Lifecycle ──────────────────────────────────────────────────────────
     private void Awake()
     {
-        if (reservationMarkerPrefab != null)
-        {
-            _markerInstance = Instantiate(reservationMarkerPrefab, transform);
-            _markerInstance.transform.localPosition = markerOffset;
-            _markerInstance.SetActive(false);
-        }
+        // savedTilt тепер призначається ззовні (з ShelfBookEntry.tilt).
+        // Генеруємо тільки як fallback якщо не призначено.
+        if (savedTilt == 0f && parentShelf != null)
+            savedTilt = Random.Range(-parentShelf.maxRandomTilt, parentShelf.maxRandomTilt);
     }
 
     private void OnDestroy()
     {
-        if (IsReserved) Unreserve();
-    }
-
-    // ── Public API ─────────────────────────────────────────────
-
-    /// Зарезервувати книгу. Повертає false якщо вже зайнята.
-    public bool Reserve(NPCBrain reserver)
-    {
-        if (IsReserved)
-        {
-            Debug.LogWarning($"[BookWorldItem] '{instance?.templateID}' вже зарезервована {ReservedBy?.name}!");
-            return false;
-        }
-        IsReserved = true;
-        ReservedBy = reserver;
-        if (_markerInstance != null) _markerInstance.SetActive(true);
-        Debug.Log($"[BookWorldItem] '{instance?.templateID}' → зарезервована для {reserver?.name}.");
-        return true;
-    }
-
-    /// Зняти резервацію.
-    public void Unreserve()
-    {
-        if (!IsReserved) return;
-        Debug.Log($"[BookWorldItem] '{instance?.templateID}' → резервацію знято.");
-        IsReserved = false;
-        ReservedBy = null;
-        if (_markerInstance != null) _markerInstance.SetActive(false);
+        // Повідомляємо Shelf що GO знищено (на випадок якщо не через DematerializeBook)
+        if (parentShelf != null && parentShelf._materializedBookRef == this)
+            parentShelf._materializedBookRef = null;
     }
 }
