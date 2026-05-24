@@ -5188,6 +5188,7 @@ Transform:
   - {fileID: 961640013}
   - {fileID: 959406892}
   - {fileID: 1678736979}
+  - {fileID: 1852122187}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1082644673 stripped
@@ -5362,6 +5363,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopUIManager
   uiDocument: {fileID: 1118481608}
+  bookItemTemplate: {fileID: 0}
 --- !u!114 &1118481608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6637,7 +6639,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1050368
   interactDistance: 25
-  hoverCursor: {fileID: 0}
+  hoverCursor: {fileID: 2800000, guid: e8b49b58965214e8a8fba853508852b2, type: 3}
   hoverCursorHotspot: {x: 8, y: 8}
 --- !u!114 &1372819793
 MonoBehaviour:
@@ -6664,12 +6666,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldHoverInfoTrigger
   mainCamera: {fileID: 330585545}
-  bookLayer:
-    serializedVersion: 2
-    m_Bits: 1024
-  cabinetLayer:
-    serializedVersion: 2
-    m_Bits: 0
   maxDistance: 25
 --- !u!1001 &1393894419
 PrefabInstance:
@@ -7171,7 +7167,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ContextMenuUI
   uiDocument: {fileID: 1477937110}
-  offset: {x: 2, y: 2}
 --- !u!1 &1481451113
 GameObject:
   m_ObjectHideFlags: 0
@@ -9069,7 +9064,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1678736979
 Transform:
   m_ObjectHideFlags: 0
@@ -10042,6 +10037,52 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.087770745, y: 0.40079582, z: 0.085925534}
   m_Center: {x: 0.00034187175, y: 0.20009589, z: 0.0005117059}
+--- !u!1 &1852122186
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1852122187}
+  - component: {fileID: 1852122188}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &1852122187
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852122186}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1050338995}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1852122188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1852122186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c5e9f2e63fb4922b3e48837277d968, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldHoverInfoTrigger
+  mainCamera: {fileID: 330585545}
+  maxDistance: 25
 --- !u!1 &1871374050 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8416272007918961125, guid: b48e87fb4783441009a9e6a402980515, type: 3}

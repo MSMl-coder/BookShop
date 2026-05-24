@@ -1,20 +1,16 @@
 // Assets/Scripts/World/Shelf/ShelfInteractionHandler.cs
+// ═══════════════════════════════════════════════════════════════════
+// v4.1 — Розв'язка від ContextMenuUI
 //
-// v4.0 — hover використовує той самий підхід що InteractionRouter для кліків:
-//   Physics.RaycastAll → шукаємо BookWorldItem → підсвічуємо
+// ЗМІНИ vs v4.0:
+//   • HandleShelfClick() більше НЕ викликає ContextMenuUI.ShowForBook напряму.
+//     Тепер тільки матеріалізує ghost. ContextMenuUI викликається з InteractionRouter.
+//   • Це дозволяє InteractionRouter зібрати book+shelf в одному ShowFromHits().
 //
-// СУТЬ:
-//   Щоб hover-ghost знаходився через RaycastAll, він має бути вже заспавнений.
-//   Тому порядок такий:
-//     1. RaycastAll → шукаємо ІСНУЮЧИЙ BookWorldItem (попередній hover ghost)
-//        АБО Cabinet (якщо книги немає)
-//     2. Паралельно: шукаємо Shelf серед hits → якщо знайшли → матеріалізуємо новий hover ghost
-//     3. Наступного кадру цей ghost вже буде в hits і HoverHighlighter його підсвітить
-//
-// Спрощений підхід:
-//   - Hover: RaycastAll → шукаємо Shelf collider → питаємо InteractionRouter-подібний пошук
-//     але через GetBookIndexAtPoint (простий, без OBB math) → ShowHoverCube
-//   - Tooltip + cursor при знаходженні книги
+// HOVER (без змін):
+//   • RaycastAll → шукаємо Shelf → GetBookIndexAtPoint → ShowHoverCube
+//   • Tooltip + cursor при знаходженні книги
+// ═══════════════════════════════════════════════════════════════════
 
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,7 +22,7 @@ public class ShelfInteractionHandler : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Camera    mainCamera;
-    [SerializeField] private LayerMask interactionLayer; // той самий що в InteractionRouter і HoverHighlighter
+    [SerializeField] private LayerMask interactionLayer;
 
     [Header("Interaction")]
     [SerializeField] private float interactDistance = 25f;
@@ -35,7 +31,7 @@ public class ShelfInteractionHandler : MonoBehaviour
     [SerializeField] private Texture2D hoverCursor;
     [SerializeField] private Vector2   hoverCursorHotspot = new Vector2(8, 8);
 
-    // ── State ────────────────────────────────────────────────────────────────
+    // ── State ─────────────────────────────────────────────────────
     private Shelf _hoveredShelf;
     private int   _hoveredBookIndex = -1;
     private bool  _cursorChanged    = false;
@@ -51,7 +47,7 @@ public class ShelfInteractionHandler : MonoBehaviour
 
     private void Update() => UpdateHover();
 
-    // ── Hover ────────────────────────────────────────────────────────────────
+    // ── Hover ──────────────────────────────────────────────────────
     private void UpdateHover()
     {
         if (mainCamera == null || Mouse.current == null) return;
@@ -59,32 +55,23 @@ public class ShelfInteractionHandler : MonoBehaviour
 
         Ray ray = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
-        // Той самий RaycastAll що в InteractionRouter — бачить всі collider-и
         RaycastHit[] hits = Physics.RaycastAll(ray, interactDistance, interactionLayer,
                                                QueryTriggerInteraction.Collide);
 
         Shelf shelf    = null;
         int   bookIdx  = -1;
 
-        // Шукаємо Shelf серед hits (той самий шар що Cabinet/Shelves)
         foreach (var hit in hits)
         {
-            // Шукаємо Shelf в parent chain (може бути BookShelfColider → BookShelf004L → нема Shelf,
-            // тому шукаємо в children теж)
             Shelf s = hit.collider.GetComponentInParent<Shelf>();
-            if (s == null)
-                s = hit.collider.GetComponentInChildren<Shelf>();
+            if (s == null) s = hit.collider.GetComponentInChildren<Shelf>();
             if (s == null)
             {
-                // Ще варіант: шукаємо в siblings через спільного parent
                 var parent = hit.collider.transform.parent;
-                if (parent != null)
-                    s = parent.GetComponentInChildren<Shelf>();
+                if (parent != null) s = parent.GetComponentInChildren<Shelf>();
             }
-
             if (s == null) continue;
 
-            // Знайшли Shelf — визначаємо яка книга під hitPoint
             int idx = s.GetBookIndexAtPoint(hit.point);
             if (idx >= 0)
             {
@@ -107,53 +94,67 @@ public class ShelfInteractionHandler : MonoBehaviour
         if (shelf == null || bookIdx < 0)
         {
             BookInfoCardController.Instance?.Hide();
-            SetCursorHover(false);
+            ResetCursor();
             return;
         }
 
-        // Показуємо hover ghost (він з BookWorldItem → HoverHighlighter підсвітить)
+        // Показуємо hover cube
         shelf.ShowHoverCube(bookIdx);
 
-        // Tooltip
-        var data     = shelf.GetBookData(bookIdx);
-        var template = BookDatabase.Instance?.GetBook(data.templateID);
-        if (template != null)
-            BookInfoCardController.Instance?.Show(template);
+        // Показуємо tooltip
+        var entry = shelf.GetBookData(bookIdx);
+        var tpl   = BookDatabase.Instance?.GetBook(entry.templateID);
+        BookInfoCardController.Instance?.Show(tpl);
 
-        SetCursorHover(true);
-    }
-
-    // ── Cursor ───────────────────────────────────────────────────────────────
-    private void SetCursorHover(bool on)
-    {
-        if (on == _cursorChanged) return;
-        _cursorChanged = on;
-        if (on) Cursor.SetCursor(hoverCursor, hoverCursorHotspot, CursorMode.Auto);
-        else    Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        // Змінюємо курсор
+        if (hoverCursor != null && !_cursorChanged)
+        {
+            Cursor.SetCursor(hoverCursor, hoverCursorHotspot, CursorMode.Auto);
+            _cursorChanged = true;
+        }
     }
 
     private void ResetHover()
     {
-        if (_hoveredShelf != null) _hoveredShelf.HideHoverCube();
-        _hoveredShelf     = null;
-        _hoveredBookIndex = -1;
+        if (_hoveredShelf != null)
+        {
+            _hoveredShelf.HideHoverCube();
+            _hoveredShelf     = null;
+            _hoveredBookIndex = -1;
+        }
         BookInfoCardController.Instance?.Hide();
-        SetCursorHover(false);
+        ResetCursor();
     }
 
-    // ── Public: клік ─────────────────────────────────────────────────────────
+    private void ResetCursor()
+    {
+        if (_cursorChanged)
+        {
+            Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+            _cursorChanged = false;
+        }
+    }
+
+    // ── Click (виклик з InteractionRouter) ───────────────────────
+    /// <summary>
+    /// Матеріалізує ghost BookWorldItem для вказаної книги на полиці.
+    /// ContextMenuUI відкривається окремо через InteractionRouter.ShowFromHits().
+    /// </summary>
     public void HandleShelfClick(Shelf shelf, Vector3 hitPoint)
     {
-        if (shelf == null || mainCamera == null) return;
+        if (shelf == null) return;
 
-        // GetBookIndexAtPoint — простий X-проекційний метод (той самий що знаходить hover)
-        int idx = shelf.GetBookIndexAtPoint(hitPoint);
-        if (idx < 0) return;
+        int bookIdx = shelf.GetBookIndexAtPoint(hitPoint);
+        if (bookIdx < 0)
+        {
+            Debug.Log($"[ShelfInteractionHandler] HandleShelfClick: книга не знайдена у {shelf.name}");
+            return;
+        }
 
-        BookWorldItem worldItem = shelf.GetOrMaterializeBookForInteraction(idx);
-        if (worldItem == null) return;
+        Debug.Log($"[ShelfInteractionHandler] Матеріалізую ghost для {shelf.name}[{bookIdx}]");
 
-        GameState state = EditModeManager.GetEffectiveState();
-        ContextMenuUI.Instance?.ShowForBook(worldItem, hitPoint, state);
+        // Матеріалізуємо ghost (або отримуємо існуючий)
+        // InteractionRouter отримає BookWorldItem з ghost і покаже меню
+        shelf.GetOrMaterializeBookForInteraction(bookIdx);
     }
 }

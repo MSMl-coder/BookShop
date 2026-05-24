@@ -263,7 +263,7 @@ public class Shelf : MonoBehaviour
     // ───────────────────────────────────────────────────────────────────
     // HIT-TEST
     // ───────────────────────────────────────────────────────────────────
-
+/*
     public int GetBookIndexAtPoint(Vector3 worldPoint)
     {
         if (startPoint == null || _books.Count == 0) return -1;
@@ -280,7 +280,7 @@ public class Shelf : MonoBehaviour
         }
         return -1;
     }
-
+*/
     /// <summary>Точний OBB hit-test з поверненням відстані входу tMin.
     /// Використовується ShelfInteractionHandler для вибору найближчої книги по всіх Shelf.</summary>
     public bool HitTestRayWithDistance(Ray worldRay, out int bookIndex, out float tMin)
@@ -567,6 +567,29 @@ public class Shelf : MonoBehaviour
         float w = GetShelfWorldWidth();
         return w > 0f ? Mathf.Clamp01(GetTotalUsedWidth() / w) : 0f;
     }
+
+    public int GetBookIndexAtPoint(Vector3 worldPoint)
+    {
+        if (startPoint == null || _books == null || _books.Count == 0) return -1;
+    
+        // Переводимо world point у локальний простір startPoint
+        Vector3 localPoint = startPoint.InverseTransformPoint(worldPoint);
+    
+        // Шукаємо книгу чий X-діапазон містить localPoint.x
+        float cursor = 0f;
+        for (int i = 0; i < _books.Count; i++)
+        {
+            float left  = cursor;
+            float right = cursor + _books[i].thickness;
+    
+            if (localPoint.x >= left && localPoint.x <= right)
+                return i;
+    
+            cursor = right + spacingOffset;
+        }
+        return -1;
+    }
+
 
     public ShopZoneType ZoneType
     {

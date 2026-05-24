@@ -1,15 +1,16 @@
-// Assets/Scripts/Core/InteractionRouter.cs  [Фаза 1 — v3, RaycastAll]
-// ВИПРАВЛЕННЯ:
-//   - Замість Physics.Raycast (перший hit) → Physics.RaycastAll + сортування по відстані
-//   - Пріоритет: BookWorldItem > Cabinet > NPCBrain
-//     (книга завжди важливіша за шафу навіть якщо шафа ближче до камери)
-//   - Шафа більше не "з'їдає" клік по книзі що знаходиться всередині неї
+// Assets/Scripts/World/Interaction/InteractionRouter.cs
+// v3.1 — Без легасі, з підтримкою book+shelf в одному кліку
+//
+// ЗМІНИ vs оригінал:
+//   • Пріоритет 1Б (shelf math) тепер НЕ робить ранній return після матеріалізації ghost.
+//     Замість цього відразу викликає ShowForBook через BookWorldItem з ghost.
+//   • Пріоритет 3 (Cabinet) спрацьовує навіть коли книга вже знайдена через shelf math
+//     НЕ потрібен — ShowForBook сам додає кнопку "Переглянути полицю" через parentShelf.
+//   • BookshopUIBridge — ВИДАЛЕНО, не використовується.
 
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
-using System.Collections.Generic;
 
 [DefaultExecutionOrder(-5)]
 public class InteractionRouter : MonoBehaviour
@@ -39,9 +40,6 @@ public class InteractionRouter : MonoBehaviour
         var mouse = Mouse.current;
         if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
 
-        // Діагностика
-        Debug.Log($"[InteractionRouter] ЛКМ | UIToolkit block: {IsPointerOverUIToolkit()}");
-
         if (IsPointerOverUIToolkit()) return;
 
         HandleClick(mouse.position.ReadValue());
@@ -54,71 +52,71 @@ public class InteractionRouter : MonoBehaviour
         if (mainCamera == null) return;
 
         Ray ray = mainCamera.ScreenPointToRay(screenPos);
-
-        // Debug: малюємо промінь в Scene View (видно через Gizmos)
         Debug.DrawRay(ray.origin, ray.direction * 200f, Color.red, 2f);
-        Debug.Log($"[InteractionRouter] Ray origin:{ray.origin:F1} dir:{ray.direction:F2} cam:{mainCamera.name} ortho:{mainCamera.orthographic}");
-        // QueryTriggerInteraction.Collide — бачить і звичайні і trigger collider-и
+
         RaycastHit[] hits = Physics.RaycastAll(ray, maxDistance, interactionLayer,
                                                QueryTriggerInteraction.Collide);
 
-        // Діагностика
         if (hits.Length == 0)
         {
-            Debug.Log($"[InteractionRouter] Hits: 0 — нічого в interactionLayer ({interactionLayer.value})");
-
-            // Діагностика: що взагалі є під курсором (без маски)?
+            // Діагностика без маски
             RaycastHit[] allHits = Physics.RaycastAll(ray, maxDistance, ~0,
                                                       QueryTriggerInteraction.Collide);
             if (allHits.Length > 0)
             {
-                Debug.Log($"[InteractionRouter] Але БЕЗ маски знайдено {allHits.Length} об'єктів:");
+                Debug.Log($"[InteractionRouter] 0 hits в interactionLayer. БЕЗ маски: {allHits.Length}:");
                 foreach (var h in allHits)
-                    Debug.Log($"  → {h.collider.gameObject.name} layer:{h.collider.gameObject.layer} ({LayerMask.LayerToName(h.collider.gameObject.layer)})");
+                    Debug.Log($"  → {h.collider.gameObject.name} layer:{LayerMask.LayerToName(h.collider.gameObject.layer)}");
             }
             else
             {
-                Debug.Log("[InteractionRouter] Взагалі нічого під курсором — перевір позицію камери або collider.");
+                Debug.Log("[InteractionRouter] Взагалі нічого під курсором.");
             }
 
             ContextMenuUI.Instance?.Hide();
             return;
         }
 
-        Debug.Log($"[InteractionRouter] Hits: {hits.Length} об'єктів:");
-        foreach (var h in hits)
-            Debug.Log($"  → {h.collider.gameObject.name} (layer: {LayerMask.LayerToName(h.collider.gameObject.layer)})");
-
         System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
 
-        // Враховуємо EditMode (підстан Preparation)
         GameState state = EditModeManager.GetEffectiveState();
 
-        // Пріоритет 0 — LootBox (стартові коробки, відкриваються одразу без меню)
+        // ── Пріоритет 0: LootBox ──────────────────────────────────────────
         foreach (var hit in hits)
         {
             var lootBox = hit.collider.GetComponentInParent<LootBox>();
             if (lootBox != null && !lootBox.IsOpened)
             {
-                Debug.Log($"[InteractionRouter] LootBox hit: {hit.collider.name}");
                 lootBox.OpenBox();
                 return;
             }
         }
 
-        // Пріоритет 1А — BookWorldItem через collider (якщо книга в interactionLayer)
+        // ── Пріоритет 1: NPC (тільки WorkDay) ────────────────────────────
+        foreach (var hit in hits)
+        {
+            var npc = hit.collider.GetComponentInParent<NPCBrain>();
+            if (npc != null && state == GameState.WorkDay)
+            {
+                ContextMenuUI.Instance?.ShowForNPC(npc, hit.point, state);
+                return;
+            }
+        }
+
+        // ── Пріоритет 2А: BookWorldItem через collider (ghost вже є) ──────
         foreach (var hit in hits)
         {
             var bookItem = hit.collider.GetComponentInParent<BookWorldItem>();
             if (bookItem != null)
             {
-                Debug.Log($"[InteractionRouter] Book hit (collider): {hit.collider.name} | State: {state}");
+                Debug.Log($"[InteractionRouter] Book (collider): {hit.collider.name}");
+                // ShowForBook сам додає кнопку полиці через bookItem.parentShelf
                 ContextMenuUI.Instance?.ShowForBook(bookItem, hit.point, state);
                 return;
             }
         }
 
-        // Пріоритет 1Б — книга через ShelfInteractionHandler (математика по товщинах)
+        // ── Пріоритет 2Б: Книга через Shelf math (ghost ще не матеріалізований) ──
         foreach (var hit in hits)
         {
             var shelf = hit.collider.GetComponentInParent<Shelf>();
@@ -127,43 +125,45 @@ public class InteractionRouter : MonoBehaviour
             int bookIdx = shelf.GetBookIndexAtPoint(hit.point);
             if (bookIdx < 0) continue;
 
-            Debug.Log($"[InteractionRouter] Book hit (shelf math): {shelf.name}[{bookIdx}] | State: {state}");
-            ShelfInteractionHandler.Instance?.HandleShelfClick(shelf, hit.point);
+            Debug.Log($"[InteractionRouter] Book (shelf math): {shelf.name}[{bookIdx}]");
+
+            // Матеріалізуємо ghost і отримуємо BookWorldItem
+            var ghost = shelf.GetOrMaterializeBookForInteraction(bookIdx);
+            if (ghost != null)
+            {
+                var bookItem = ghost.GetComponent<BookWorldItem>();
+                if (bookItem != null)
+                {
+                    // parentShelf вже встановлений в ghost → ShowForBook додасть кнопку полиці
+                    ContextMenuUI.Instance?.ShowForBook(bookItem, hit.point, state);
+                    return;
+                }
+            }
+
+            // Ghost без BookWorldItem — показуємо меню шафи
+            var cabinet = shelf.GetComponentInParent<Cabinet>();
+            if (cabinet != null)
+                ContextMenuUI.Instance?.ShowForCabinet(cabinet, hit.point, state);
             return;
         }
 
-        // Пріоритет 2 — NPC (тільки WorkDay)
-        foreach (var hit in hits)
-        {
-            var npc = hit.collider.GetComponentInParent<NPCBrain>();
-            if (npc != null && state == GameState.WorkDay)
-            {
-                Debug.Log($"[InteractionRouter] NPC hit: {hit.collider.name}");
-                ContextMenuUI.Instance?.ShowForNPC(npc, hit.point, state);
-                return;
-            }
-        }
-
-        // Пріоритет 3 — Cabinet
+        // ── Пріоритет 3: Cabinet (якщо книги немає) ───────────────────────
         foreach (var hit in hits)
         {
             var cabinet = hit.collider.GetComponentInParent<Cabinet>();
             if (cabinet != null)
             {
-                Debug.Log($"[InteractionRouter] Cabinet hit: {hit.collider.name} | State: {state}");
+                Debug.Log($"[InteractionRouter] Cabinet: {hit.collider.name}");
                 ContextMenuUI.Instance?.ShowForCabinet(cabinet, hit.point, state);
                 return;
             }
         }
 
-        // Нічого не знайдено
         ContextMenuUI.Instance?.Hide();
     }
 
-    // ── UIToolkit перевірка ─────────────────────────────────────
+    // ── UIToolkit перевірка ────────────────────────────────────────────────
 
-    /// Перевіряє чи курсор знаходиться над UIToolkit елементом що блокує кліки.
-    /// На відміну від EventSystem.IsPointerOverGameObject() — працює з UIToolkit.
     private static bool IsPointerOverUIToolkit()
     {
         var mouse = Mouse.current;
@@ -171,22 +171,17 @@ public class InteractionRouter : MonoBehaviour
 
         Vector2 screenPos = mouse.position.ReadValue();
 
-        // Перебираємо всі активні UIDocument в сцені
         foreach (var doc in Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude))
         {
             if (doc == null || doc.rootVisualElement == null) continue;
-
-            // Конвертуємо screen coordinates в UIToolkit panel coordinates
             var panel = doc.rootVisualElement.panel;
             if (panel == null) continue;
 
-            // UIToolkit Y-вісь інвертована відносно Screen
             Vector2 panelPos = RuntimePanelUtils.ScreenToPanel(
                 panel,
                 new Vector2(screenPos.x, Screen.height - screenPos.y)
             );
 
-            // Перевіряємо чи є під курсором елемент з picking-mode != Ignore
             var picked = doc.rootVisualElement.panel.Pick(panelPos);
             if (picked != null && picked.pickingMode != PickingMode.Ignore)
                 return true;

@@ -1,25 +1,15 @@
 // Assets/Scripts/UI/WorldHoverInfoTrigger.cs
-// Показує BookInfoCard при наведенні миші на BookWorldItem у 3D сцені.
-// v4.2: ghost матеріалізується автоматично через ShelfInteractionHandler при hover.
-// Цей скрипт ловить будь-який hover на colider-i в bookLayer і показує картку.
-//
-// UNITY SETUP:
-//   Додай на той самий GO що InteractionRouter.
-//   bookLayer — той самий layer що в Shelf.bookLayer (де спавняться ghost-и).
-
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 public class WorldHoverInfoTrigger : MonoBehaviour
 {
-    [SerializeField] private Camera    mainCamera;
-    [SerializeField] private LayerMask bookLayer;     // layer ghost-книг (з Shelf.bookLayer)
-    [SerializeField] private LayerMask cabinetLayer;  // layer шаф (Cabinet collider)
-    [SerializeField] private float     maxDistance = 100f;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private float  maxDistance = 200f;
 
-    private BookWorldItem _lastHovered;
-    private Cabinet       _lastCabinet;
+    private BookTemplate _lastShown;
+    private bool         _isShowing;
 
     private void Awake()
     {
@@ -28,102 +18,74 @@ public class WorldHoverInfoTrigger : MonoBehaviour
 
     private void Update()
     {
-        // Не показуємо в EditMode або фаза не та
         var state = EditModeManager.GetEffectiveState();
         if (state == GameState.LootPhase || state == GameState.DayStats)
-        {
-            ClearAll();
-            return;
-        }
+        { HideCard(); return; }
 
         var mouse = Mouse.current;
-        if (mouse == null) return;
+        if (mouse == null) { HideCard(); return; }
 
-        // Не реагуємо якщо курсор над UI
-        if (IsPointerOverUI()) { ClearAll(); return; }
+        if (IsPointerOverUI()) { HideCard(); return; }
 
+        if (mainCamera == null) { mainCamera = Camera.main; return; }
+
+        // Той самий ray що InteractionRouter — працює і для ortho і perspective
         Ray ray = mainCamera.ScreenPointToRay(mouse.position.ReadValue());
 
-        // ── 1. Перевіряємо ghost-книги ──────────────────────────
-        bool foundBook = false;
-        if (Physics.Raycast(ray, out RaycastHit bookHit, maxDistance, bookLayer,
-                            QueryTriggerInteraction.Collide))
+        BookTemplate found = null;
+
+        // RaycastAll без маски — знаходимо все, потім фільтруємо
+        RaycastHit[] hits = Physics.RaycastAll(ray, maxDistance, ~0,
+                                               QueryTriggerInteraction.Collide);
+
+        // Сортуємо по відстані (як InteractionRouter)
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+        foreach (var hit in hits)
         {
-            var wi = bookHit.collider.GetComponentInParent<BookWorldItem>();
-            if (wi != null && wi != _lastHovered)
+            // Ghost BookWorldItem
+            var wi = hit.collider.GetComponentInParent<BookWorldItem>();
+            if (wi?.instance != null)
             {
-                ClearAll();
-                _lastHovered = wi;
-                var tpl = wi.instance != null
-                    ? BookDatabase.Instance?.GetBook(wi.instance.templateID)
-                    : null;
-                BookInfoCardController.Instance?.Show(tpl);
+                found = BookDatabase.Instance?.GetBook(wi.instance.templateID);
+                break;
             }
-            if (wi != null) foundBook = true;
-        }
 
-        if (foundBook) return;
-
-        // ── 2. Hover на Shelf — матеріалізуємо ghost ─────────────
-        // Shelf-и в layer "Shelves" — перевіряємо окремо
-        LayerMask shelvesLayer = LayerMask.GetMask("Shelves");
-        bool foundShelf = false;
-        if (Physics.Raycast(ray, out RaycastHit shelfHit, maxDistance, shelvesLayer,
-                            QueryTriggerInteraction.Collide))
-        {
-            var shelf = shelfHit.collider.GetComponentInParent<Shelf>();
+            // Shelf — hit-test по X
+            var shelf = hit.collider.GetComponentInParent<Shelf>();
             if (shelf != null)
             {
-                int idx = shelf.GetBookIndexAtPoint(shelfHit.point);
+                int idx = shelf.GetBookIndexAtPoint(hit.point);
                 if (idx >= 0)
                 {
                     var entry = shelf.GetBookData(idx);
-                    var tpl   = BookDatabase.Instance?.GetBook(entry.templateID);
-                    if (tpl != null && _lastHovered == null)
-                    {
-                        // Матеріалізуємо ghost (потрібен для context menu)
-                        var ghost = shelf.GetOrMaterializeBookForInteraction(idx);
-                        if (ghost != null && ghost != _lastHovered)
-                        {
-                            ClearAll();
-                            _lastHovered = ghost;
-                        }
-                        BookInfoCardController.Instance?.Show(tpl);
-                        foundShelf = true;
-                    }
+                    found = BookDatabase.Instance?.GetBook(entry.templateID);
+                    if (found != null) break;
                 }
             }
         }
 
-        if (foundShelf) return;
-
-        // ── 3. Hover на Cabinet ──────────────────────────────────
-        bool foundCab = false;
-        if (cabinetLayer.value != 0 &&
-            Physics.Raycast(ray, out RaycastHit cabHit, maxDistance, cabinetLayer,
-                            QueryTriggerInteraction.Collide))
+        if (found != null)
         {
-            var cab = cabHit.collider.GetComponentInParent<Cabinet>();
-            if (cab != null && cab != _lastCabinet)
+            if (found != _lastShown)
             {
-                BookInfoCardController.Instance?.Hide();
-                _lastCabinet = cab;
+                _lastShown = found;
+                _isShowing = true;
+                BookInfoCardController.Instance?.Show(found);
             }
-            if (cab != null) foundCab = true;
         }
-
-        if (foundCab) return;
-
-        // ── Нічого — ховаємо ────────────────────────────────────
-        ClearAll();
+        else
+        {
+            HideCard();
+        }
     }
 
-    private void ClearAll()
+    private void HideCard()
     {
-        bool hadAny = _lastHovered != null || _lastCabinet != null;
-        _lastHovered = null;
-        _lastCabinet = null;
-        if (hadAny) BookInfoCardController.Instance?.Hide();
+        if (!_isShowing) return;
+        _isShowing = false;
+        _lastShown = null;
+        BookInfoCardController.Instance?.Hide();
     }
 
     private static bool IsPointerOverUI()
@@ -138,7 +100,7 @@ public class WorldHoverInfoTrigger : MonoBehaviour
                 doc.rootVisualElement.panel,
                 new Vector2(pos.x, Screen.height - pos.y));
             var picked = doc.rootVisualElement.panel.Pick(panelPos);
-            if (picked != null && picked.pickingMode != UnityEngine.UIElements.PickingMode.Ignore)
+            if (picked != null && picked.pickingMode != PickingMode.Ignore)
                 return true;
         }
         return false;

@@ -1,47 +1,47 @@
-// Assets/Scripts/UI/ShopUIManager.cs
-// ВИПРАВЛЕННЯ:
-//   • FindElements — імена відповідають BookshopMainUI_patched.uxml (InvModal, InvList, etc.)
-//   • ToggleInventory → показує InvModal через .hidden клас (не display)
-//   • BtnInventory → "BtnInventory" в UXML (func-bar)
-//   • InvModal picking-mode="Position" — не блокує world (вже в UXML)
-//   • Hover BookInfoCard: підписка MouseEnter/MouseLeave на кожен inv-row
-
 using UnityEngine;
 using UnityEngine.UIElements;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Linq;
-
+ 
 public class ShopUIManager : MonoBehaviour
 {
     public static ShopUIManager Instance { get; private set; }
 
     [Header("UI Resources")]
-    [SerializeField] private UIDocument uiDocument;
+    [SerializeField] private UIDocument      uiDocument;
+    [SerializeField] private VisualTreeAsset bookItemTemplate;
 
-    // ── Modals ───────────────────────────────────────────────────
-    private VisualElement _invModal;         // "InvModal"
+    // ── Panels ──
+    private VisualElement _inventoryPanel;
+    private VisualElement _cabinetPanel;
 
-    // ── Inventory Page ───────────────────────────────────────────
-    private ScrollView    _invList;          // "InvList"
-    private Label         _invPageTitle;     // "InvPageTitle"
-    private Label         _invPageSubtitle;  // "InvPageSubtitle"
-    private Label         _invTotal;         // "InvTotal"
-    private Label         _invValue;         // "InvValue"
-    private Label         _invPageNum;       // "InvPageNum"
-    private SortType      _currentSort = SortType.ByTitle;
+    // ── Inventory ──
+    private ScrollView _inventoryGrid;
+    private Label      _invCountLabel;
+    private SortType   _currentSort = SortType.ByTitle;
 
-    // ── HUD ──────────────────────────────────────────────────────
-    private Label         _moneyLabel;       // "MoneyLabel"
-    private Label         _dayLabel;         // "DayLabel"
-    private Label         _phaseLabel;       // "PhaseLabel"
+    // ── Cabinet / Shelf ──
+    private ScrollView    _cabinetList;
+    private ScrollView    _shelfList;
+    private Label         _selectedShelfLabel;
+    private Label         _cabZoneLabel;
+    private Cabinet       _selectedCabinet;
+    private Shelf         _selectedShelf;
+    private List<Cabinet> _allCabinets = new List<Cabinet>();
 
-    // ── State ────────────────────────────────────────────────────
-    private bool _invOpen = false;
+    // ── HUD ──
+    private Label         _moneyLabel;
+    private Label         _dayLabel;
+    private Label         _phaseLabel;
+    private Label         _prestigeValue;
+    private VisualElement _prestigeFill;
 
-    // ─────────────────────────────────────────────────────────────
+    private static readonly string[] PhaseNames = { "ПІДГОТОВКА", "ТОРГІВЛЯ", "НАГОРОДИ" };
+
+    // ─────────────────────────────────────────────
     #region Unity Lifecycle
-    // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
 
     private void Awake()
     {
@@ -60,14 +60,15 @@ public class ShopUIManager : MonoBehaviour
         var root = uiDocument.rootVisualElement;
         if (root == null) { Debug.LogWarning("[ShopUI] root = null"); return; }
 
-        CacheElements(root);
-        BindFuncBar(root);
+        FindElements(root);
+        BindButtons(root);
         BindSorts(root);
+        BindNavTabs(root);
         SubscribeToManagers();
 
-        // Початковий стан — всі панелі закриті
-        HideAllModals();
+        _allCabinets = Object.FindObjectsByType<Cabinet>(FindObjectsInactive.Exclude).ToList();
 
+        CloseAllPanels();
         UpdateMoney(EconomyManager.Instance?.Money ?? 0);
         UpdatePhase(GameLoopManager.Instance?.CurrentState ?? GameState.Preparation);
 
@@ -76,99 +77,128 @@ public class ShopUIManager : MonoBehaviour
 
     private void OnDisable()
     {
-        if (InventoryManager.Instance   != null) InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
-        if (EconomyManager.Instance     != null) EconomyManager.Instance.OnMoneyChanged       -= UpdateMoney;
-        if (GameLoopManager.Instance    != null) GameLoopManager.Instance.OnStateChanged      -= HandleStateChanged;
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnInventoryChanged -= RefreshInventory;
+        if (EconomyManager.Instance != null)
+            EconomyManager.Instance.OnMoneyChanged -= UpdateMoney;
+        if (GameLoopManager.Instance != null)
+            GameLoopManager.Instance.OnStateChanged -= HandleStateChanged;
     }
 
     private void Update()
     {
         if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
         {
-            HideAllModals();
+            CloseAllPanels();
             BookInfoCardController.Instance?.Hide();
         }
     }
 
     #endregion
 
-    // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
     #region Setup
-    // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
 
-    private void CacheElements(VisualElement root)
+    private void FindElements(VisualElement root)
     {
-        // Модалі (в ModalsLayer)
-        _invModal        = root.Q("InvModal");
-
-        // Інвентар — сторінка
-        _invList         = root.Q<ScrollView>("InvList");
-        _invPageTitle    = root.Q<Label>("InvPageTitle");
-        _invPageSubtitle = root.Q<Label>("InvPageSubtitle");
-        _invTotal        = root.Q<Label>("InvTotal");
-        _invValue        = root.Q<Label>("InvValue");
-        _invPageNum      = root.Q<Label>("InvPageNum");
+        _inventoryPanel     = root.Q<VisualElement>("InventoryPanel");
+        _cabinetPanel       = root.Q<VisualElement>("CabinetPanel");
+        _inventoryGrid      = root.Q<ScrollView>("InventoryGrid");
+        _invCountLabel      = root.Q<Label>("InvCount");
+        _cabinetList        = root.Q<ScrollView>("CabinetList");
+        _shelfList          = root.Q<ScrollView>("ShelfList");
+        _selectedShelfLabel = root.Q<Label>("SelectedShelfLabel");
+        _cabZoneLabel       = root.Q<Label>("CabZoneLabel");
 
         // HUD
-        _moneyLabel = root.Q<Label>("MoneyLabel");
-        _dayLabel   = root.Q<Label>("DayLabel");
-        _phaseLabel = root.Q<Label>("PhaseLabel");
+        _moneyLabel    = root.Q<Label>("MoneyLabel");
+        _dayLabel      = root.Q<Label>("DayLabel");
+        _phaseLabel    = root.Q<Label>("PhaseLabel");
+        _prestigeValue = root.Q<Label>("PrestigeValue");
+        _prestigeFill  = root.Q<VisualElement>("PrestigeBarFill");
 
-        // Діагностика
-        if (_invModal  == null) Debug.LogError("[ShopUI] 'InvModal' не знайдено у UXML!");
-        if (_invList   == null) Debug.LogError("[ShopUI] 'InvList' не знайдено у UXML!");
-        if (_moneyLabel== null) Debug.LogWarning("[ShopUI] 'MoneyLabel' не знайдено.");
+        root.Q<Button>("BtnOpenDecoration")?.RegisterCallback<ClickEvent>(_ =>
+{
+    if (EditModeManager.Instance != null && EditModeManager.Instance.IsEditMode)
+        DecorationPanelUI.Instance?.OpenInEditMode();
+    else
+        DecorationPanelUI.Instance?.Toggle();
+});
     }
 
-    private void BindFuncBar(VisualElement root)
+    private void BindButtons(VisualElement root)
     {
-        // FuncBar кнопки (імена з BookshopMainUI_patched.uxml)
-        root.Q<Button>("BtnInventory")?.RegisterCallback<ClickEvent>(_ => ToggleInventory());
-        root.Q<Button>("BtnCatalog")  ?.RegisterCallback<ClickEvent>(_ => Debug.Log("[ShopUI] Catalog TODO"));
-        root.Q<Button>("BtnDecor")    ?.RegisterCallback<ClickEvent>(_ => DecorationPanelUI.Instance?.Toggle());
-        root.Q<Button>("BtnNPC")      ?.RegisterCallback<ClickEvent>(_ => Debug.Log("[ShopUI] NPC list TODO"));
-        root.Q<Button>("BtnAwards")   ?.RegisterCallback<ClickEvent>(_ => Debug.Log("[ShopUI] Awards TODO"));
-
-        // Close кнопки в InvModal
-        root.Q<Button>("InvCloseBtn")  ?.RegisterCallback<ClickEvent>(_ => CloseInventory());
-        root.Q<Button>("InvCloseStamp")?.RegisterCallback<ClickEvent>(_ => CloseInventory());
-
-        // Пагінація (поки просто заглушка)
-        root.Q<Button>("BtnInvPrev")?.RegisterCallback<ClickEvent>(_ => { });
-        root.Q<Button>("BtnInvNext")?.RegisterCallback<ClickEvent>(_ => { });
-
-        // Settings
-        root.Q<Button>("BtnSettings")?.RegisterCallback<ClickEvent>(_ =>
-            SaveLoadPanelUI.Instance?.Open(SaveLoadMode.Save));
-
-        // EditMode / Decoration
-        root.Q<Button>("BtnOpenDecoration")?.RegisterCallback<ClickEvent>(_ =>
+        BindButton(root, "BtnPushOne", () => DoOnSelectedShelf(s => InventoryManager.Instance?.PushOneToShelf(s)));
+        BindButton(root, "BtnPushAll", () => DoOnSelectedShelf(s => InventoryManager.Instance?.PushAllToShelf(s)));
+        BindButton(root, "BtnPopOne",  () => DoOnSelectedShelf(s =>
         {
-            if (EditModeManager.Instance != null && EditModeManager.Instance.IsEditMode)
-                DecorationPanelUI.Instance?.OpenInEditMode();
-            else
-                DecorationPanelUI.Instance?.Toggle();
-        });
+            var b = s.TakeLastBook();
+            if (b != null) InventoryManager.Instance?.AddExistingBook(b);
+        }));
+        BindButton(root, "BtnPopAll",  () => DoOnSelectedShelf(s =>
+        {
+            BookInstance b;
+            do { b = s.TakeLastBook(); if (b != null) InventoryManager.Instance?.AddExistingBook(b); }
+            while (b != null);
+        }));
+
+        BindButton(root, "BtnOpenInventory", ToggleInventory);
+        BindButton(root, "BtnSettings", () => SaveLoadPanelUI.Instance?.Open(SaveLoadMode.Save));
+        BindButton(root, "BtnOpenDecoration", () => DecorationPanelUI.Instance?.Toggle());
+    }
+
+    private void BindButton(VisualElement root, string name, System.Action action)
+    {
+        var btn = root.Q<Button>(name);
+        if (btn == null) { Debug.LogWarning($"[ShopUI] Button '{name}' not found."); return; }
+        btn.clicked += action;
     }
 
     private void BindSorts(VisualElement root)
     {
-        var sortBtns = new[] {"BtnSortTitle","BtnSortAuthor","BtnSortPrice","BtnSortRarity"};
-        var sortTypes = new[] { SortType.ByTitle, SortType.ByAuthor, SortType.ByPrice, SortType.ByRarity };
+        BindSort(root, "BtnSortTitle",  SortType.ByTitle);
+        BindSort(root, "BtnSortAuthor", SortType.ByAuthor);
+        BindSort(root, "BtnSortPrice",  SortType.ByPrice);
+        BindSort(root, "BtnSortGenre",  SortType.ByGenre);
+        BindSort(root, "BtnSortRarity", SortType.ByRarity);
+    }
 
-        for (int i = 0; i < sortBtns.Length; i++)
+    private void BindSort(VisualElement root, string btnName, SortType sort)
+    {
+        var btn = root.Q<Button>(btnName);
+        if (btn == null) return;
+        btn.clicked += () =>
         {
-            int idx = i;
-            var btn = root.Q<Button>(sortBtns[i]);
+            _currentSort = sort;
+            foreach (var n in new[] {"BtnSortTitle","BtnSortAuthor","BtnSortPrice","BtnSortGenre","BtnSortRarity"})
+                root.Q<Button>(n)?.RemoveFromClassList("active");
+            btn.AddToClassList("active");
+            RefreshInventory();
+        };
+    }
+
+    private void BindNavTabs(VisualElement root)
+    {
+        string[] tabs = { "NavTabShop", "NavTabCatalog", "NavTabOrders", "NavTabCollections" };
+        foreach (var name in tabs)
+        {
+            var btn = root.Q<Button>(name);
             if (btn == null) continue;
-            btn.RegisterCallback<ClickEvent>(_ =>
+            string captured = name;
+            btn.clicked += () =>
             {
-                _currentSort = sortTypes[idx];
-                foreach (var n in sortBtns) root.Q<Button>(n)?.RemoveFromClassList("active");
-                btn.AddToClassList("active");
-                RefreshInventory();
-            });
+                foreach (var t in tabs) root.Q<Button>(t)?.RemoveFromClassList("active");
+                root.Q<Button>(captured)?.AddToClassList("active");
+                OnNavTabChanged(captured);
+            };
         }
+    }
+
+    private void OnNavTabChanged(string tabName)
+    {
+        // TODO: в майбутньому — перемикати вміст інвентаря між вкладками
+        Debug.Log($"[ShopUI] Nav tab: {tabName}");
     }
 
     private void SubscribeToManagers()
@@ -183,95 +213,141 @@ public class ShopUIManager : MonoBehaviour
 
     #endregion
 
-    // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
     #region Public API
-    // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
+
+    public void OpenCabinetUI(Cabinet cabinet)
+    {
+        _selectedCabinet = cabinet;
+        _selectedShelf   = null;
+
+        SetDisplay(_inventoryPanel, true);
+        SetDisplay(_cabinetPanel,   true);
+
+        if (_cabZoneLabel != null && cabinet != null)
+            _cabZoneLabel.text = cabinet.cabinetName;
+
+        RefreshInventory();
+        RefreshCabinetList();
+    }
+
+    /// <summary>
+    /// Відкриває інтерфейс шафи і одразу вибирає конкретну полицю.
+    /// Викликається з ContextMenuUI коли гравець натискає "Інвентар шафи" на книзі.
+    /// </summary>
+    public void OpenCabinetUI(Cabinet cabinet, Shelf shelf)
+    {
+        // Базовий відкриття
+        _selectedCabinet = cabinet;
+        _selectedShelf   = shelf;
+
+        SetDisplay(_inventoryPanel, true);
+        SetDisplay(_cabinetPanel,   true);
+
+        if (_cabZoneLabel != null && cabinet != null)
+            _cabZoneLabel.text = cabinet.cabinetName;
+
+        RefreshInventory();
+        RefreshCabinetList(); // RefreshShelfList() викликається всередині
+
+        // RefreshShelfList вже знає про _selectedShelf і підсвітить її.
+        // Прокручуємо ShelfList до вибраної полиці.
+        if (shelf != null && cabinet != null)
+            ScrollShelfListToSelected(cabinet, shelf);
+    }
+
+    /// <summary>Прокрутити ShelfList до вибраної полиці.</summary>
+    private void ScrollShelfListToSelected(Cabinet cabinet, Shelf target)
+    {
+        if (_shelfList == null || cabinet == null || target == null) return;
+
+        int idx = cabinet.shelves.IndexOf(target);
+        if (idx < 0) return;
+
+        // Кожен рядок полиці ≈ 52px (емпіричне значення — підлаштуй якщо треба)
+        const float itemHeight = 52f;
+        _shelfList.scrollOffset = new UnityEngine.Vector2(0f, idx * itemHeight);
+    }
 
     public void ToggleInventory()
     {
-        if (_invOpen) CloseInventory();
-        else          OpenInventory();
+        bool isHidden = _inventoryPanel?.style.display == DisplayStyle.None;
+        if (isHidden)
+        {
+            SetDisplay(_inventoryPanel, true);
+            SetDisplay(_cabinetPanel,   true);
+            RefreshInventory();
+            RefreshCabinetList();
+        }
+        else
+        {
+            CloseAllPanels();
+        }
     }
 
-    public void OpenInventory()
+    public void OpenInventoryPanel()
+        {
+            SetDisplay(_inventoryPanel, true);
+            SetDisplay(_cabinetPanel,   true);
+            RefreshInventory();
+            RefreshCabinetList();
+        }
+    
+    public void CloseAllPanels()
     {
-        if (_invModal == null) { Debug.LogError("[ShopUI] InvModal == null!"); return; }
-
-        _invOpen = true;
-        _invModal.RemoveFromClassList("hidden");
-
-        // Overlay — напівпрозорий (не блокує world)
-        uiDocument.rootVisualElement.Q("Overlay")?.RemoveFromClassList("hidden");
-        uiDocument.rootVisualElement.Q("Overlay")?.AddToClassList("inv-open");
-
-        RefreshInventory();
-    }
-
-    public void CloseInventory()
-    {
-        _invOpen = false;
-        _invModal?.AddToClassList("hidden");
-
-        var overlay = uiDocument?.rootVisualElement.Q("Overlay");
-        overlay?.AddToClassList("hidden");
-        overlay?.RemoveFromClassList("inv-open");
-
+        SetDisplay(_inventoryPanel, false);
+        SetDisplay(_cabinetPanel,   false);
         BookInfoCardController.Instance?.Hide();
     }
 
-    public void HideAllModals()
+    /// Викликається з InventoryPanelUI та BookInfoCard hover
+    public void ShowBookInfo(BookTemplate template)
     {
-        CloseInventory();
-        ShelfManagerPanelController.Instance?.Close();
+        BookInfoCardController.Instance?.Show(template);
+    }
+
+    /// Викликається при виході миші з картки книги
+    public void HideBookInfo()
+    {
         BookInfoCardController.Instance?.Hide();
     }
 
-    /// Відкрити ShelfManagerPanel для конкретної шафи (виклик з ContextMenuUI)
-    public void OpenShelfManager(Cabinet cabinet)
-    {
-        HideAllModals();
-        ShelfManagerPanelController.Instance?.Open(cabinet);
-    }
-
-    /// Залишаємо для сумісності зі старим кодом
-    public void OpenCabinetUI(Cabinet cabinet) => OpenShelfManager(cabinet);
-
-    public void ShowBookInfo(BookTemplate template)  => BookInfoCardController.Instance?.Show(template);
-    public void HideBookInfo()                       => BookInfoCardController.Instance?.Hide();
-
+    /// Оновити престиж (зовнішній виклик)
     public void UpdatePrestige(int current, int max)
     {
-        // Prestige labels якщо є в UXML
-        var root = uiDocument?.rootVisualElement;
-        if (root == null) return;
-        root.Q<Label>("PrestigeValue")?.text.ToString(); // no-op read
-        if (root.Q<Label>("PrestigeValue") is Label pl) pl.text = $"{current} / {max}";
-        float pct = max > 0 ? Mathf.Clamp01((float)current / max) * 100f : 0f;
-        var fill = root.Q<VisualElement>("PrestigeBarFill");
-        if (fill != null) fill.style.width = Length.Percent(pct);
+        if (_prestigeValue != null)
+            _prestigeValue.text = $"{current} / {max}";
+
+        if (_prestigeFill != null)
+        {
+            float pct = max > 0 ? Mathf.Clamp01((float)current / max) * 100f : 0f;
+            _prestigeFill.style.width = Length.Percent(pct);
+        }
     }
 
     #endregion
 
-    // ─────────────────────────────────────────────────────────────
-    #region Inventory Refresh
-    // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    #region Inventory
+    // ─────────────────────────────────────────────
 
     private void RefreshInventory()
     {
-        if (_invList == null) return;
-        _invList.Clear();
+        if (_inventoryGrid == null) return;
+        _inventoryGrid.Clear();
 
         var books = InventoryManager.Instance?.GetSortedInventory(_currentSort);
-
-        int   count = books?.Count ?? 0;
-        float value = 0f;
-
-        if (count == 0)
+         if (books == null || books.Count == 0)
         {
-            if (_invPageSubtitle != null) _invPageSubtitle.text = "Інвентар порожній";
-            if (_invTotal        != null) _invTotal.text        = "0";
-            if (_invValue        != null) _invValue.text        = "$0";
+            if (_invCountLabel != null)
+                _invCountLabel.text = "0 книг";
+            return;
+        }
+
+        if (bookItemTemplate == null)
+        {
+            Debug.LogWarning("[ShopUI] bookItemTemplate не призначено!");
             return;
         }
 
@@ -280,129 +356,179 @@ public class ShopUIManager : MonoBehaviour
             var template = BookDatabase.Instance?.GetBook(book.templateID);
             if (template == null) continue;
 
-            value += template.sellPrice;
-            var row = BuildInvRow(book, template);
-            _invList.Add(row);
-        }
+            // Використовуємо InventoryItemUI для правильного заповнення
+            var item = new InventoryItemUI(
+                book,
+                bookItemTemplate,
+                onHoverEnter: t => ShowBookInfo(t),   // ← ВИПРАВЛЕНО: тепер працює
+                onHoverExit:  () => HideBookInfo()
+            );
 
-        if (_invPageSubtitle != null) _invPageSubtitle.text = $"{count} книг у наявності";
-        if (_invTotal        != null) _invTotal.text        = count.ToString();
-        if (_invValue        != null) _invValue.text        = $"${value:F0}";
+            if (item.Root != null)
+            {
+                // Підписка на клік → виділення в UI
+                item.OnClicked += (inst, tmpl) =>
+                {
+                    Debug.Log($"[ShopUI] Обрано: {tmpl.title}");
+                    ShowBookInfo(tmpl);
+                };
+                _inventoryGrid.Add(item.Root);
+            }
+        }
     }
 
-    private VisualElement BuildInvRow(BookInstance book, BookTemplate template)
+    #endregion
+
+    // ─────────────────────────────────────────────
+    #region Cabinet / Shelf List
+    // ─────────────────────────────────────────────
+
+    private void RefreshCabinetList()
     {
-        // Контейнер — inv-row з рарністю
+        if (_cabinetList == null) return;
+        _cabinetList.Clear();
+
+        _allCabinets = Object.FindObjectsByType<Cabinet>(FindObjectsInactive.Exclude).ToList();
+
+        foreach (var cab in _allCabinets)
+            _cabinetList.Add(MakeCabinetItem(cab));
+
+        RefreshShelfList();
+    }
+
+    private VisualElement MakeCabinetItem(Cabinet cab)
+    {
         var row = new VisualElement();
-        row.AddToClassList("inv-row");
-        row.AddToClassList(RarityCss(template.rarity));
+        row.AddToClassList("cabinet-item");
+        if (cab == _selectedCabinet) row.AddToClassList("selected");
 
-        // Іконка (Sprite або emoji)
-        var icon = new VisualElement();
-        icon.AddToClassList("inv-row__icon");
-        ApplyBookIcon(icon, template);
-        row.Add(icon);
+        var nameL = new Label(cab.cabinetName);
+        nameL.AddToClassList("cabinet-item__name");
 
-        // Інфо
-        var info = new VisualElement();
-        info.AddToClassList("inv-row__info");
+        int totalBooks = 0;
+        foreach (var s in cab.shelves) if (s != null) totalBooks += s.GetBookCount();
 
-        var title = new Label(template.title);
-        title.AddToClassList("inv-row__title");
-        info.Add(title);
+        var countL = new Label($"{cab.shelves.Count} полиць · {totalBooks} книг");
+        countL.AddToClassList("cabinet-item__count");
 
-        var author = new Label(template.author ?? "");
-        author.AddToClassList("inv-row__author");
-        info.Add(author);
+        row.Add(nameL);
+        row.Add(countL);
 
-        var pills = new VisualElement();
-        pills.AddToClassList("inv-row__pills");
-
-        var genrePill = new Label(template.genre.ToString());
-        genrePill.AddToClassList("inv-pill");
-        genrePill.AddToClassList("inv-pill--genre");
-        pills.Add(genrePill);
-
-        var rarityPill = new Label(template.rarity.ToString());
-        rarityPill.AddToClassList("inv-pill");
-        rarityPill.AddToClassList(RarityCss(template.rarity));
-        pills.Add(rarityPill);
-
-        info.Add(pills);
-        row.Add(info);
-
-        // Ціна
-        var priceBlock = new VisualElement();
-        priceBlock.AddToClassList("inv-row__price-block");
-        var price = new Label($"${template.sellPrice:F0}");
-        price.AddToClassList("inv-row__price");
-        priceBlock.Add(price);
-        row.Add(priceBlock);
-
-        // ── Hover → BookInfoCard ─────────────────────────────────
-        var tpl = template;
-        row.RegisterCallback<MouseEnterEvent>(_ => BookInfoCardController.Instance?.Show(tpl));
-        row.RegisterCallback<MouseLeaveEvent>(_ => BookInfoCardController.Instance?.Hide());
-
-        // ── Click ────────────────────────────────────────────────
-        row.RegisterCallback<ClickEvent>(_ => BookInfoCardController.Instance?.Show(tpl));
+        Cabinet captured = cab;
+        row.RegisterCallback<ClickEvent>(_ =>
+        {
+            _selectedCabinet = captured;
+            _selectedShelf   = null;
+            if (_cabZoneLabel != null) _cabZoneLabel.text = captured.cabinetName;
+            RefreshCabinetList();
+        });
 
         return row;
     }
 
-    private static string RarityCss(BookRarity r) => r switch
+    private void RefreshShelfList()
     {
-        BookRarity.Common    => "rc",
-        BookRarity.Uncommon  => "ru",
-        BookRarity.Rare      => "rr",
-        BookRarity.Epic      => "re",
-        BookRarity.Legendary => "rl",
-        _                    => "rc"
-    };
+        if (_shelfList == null) return;
+        _shelfList.Clear();
+
+        if (_selectedCabinet == null)
+        {
+            foreach (var cab in _allCabinets)
+                foreach (var shelf in cab.shelves)
+                    if (shelf != null)
+                        _shelfList.Add(MakeShelfItem(shelf, cab.cabinetName));
+
+            if (_selectedShelfLabel != null)
+                _selectedShelfLabel.text = "Оберіть шафу для роботи з полицями";
+            return;
+        }
+
+        for (int i = 0; i < _selectedCabinet.shelves.Count; i++)
+        {
+            var shelf = _selectedCabinet.shelves[i];
+            if (shelf == null) continue;
+            _shelfList.Add(MakeShelfItem(shelf, $"Полиця {i + 1}"));
+        }
+
+        if (_selectedShelfLabel != null)
+            _selectedShelfLabel.text = _selectedShelf == null
+                ? $"{_selectedCabinet.cabinetName} — оберіть полицю"
+                : $"{_selectedCabinet.cabinetName} · {_selectedShelf.GetBookCount()} книг";
+    }
+
+    private VisualElement MakeShelfItem(Shelf shelf, string displayName)
+    {
+        var row = new VisualElement();
+        row.AddToClassList("shelf-item");
+        if (shelf == _selectedShelf) row.AddToClassList("selected");
+
+        var nameL = new Label(displayName);
+        nameL.AddToClassList("shelf-item__name");
+
+        // Fill bar
+        var barBg   = new VisualElement(); barBg.AddToClassList("shelf-fill-bg");
+        var barFill = new VisualElement(); barFill.AddToClassList("shelf-fill-bar");
+        float ratio = shelf.GetFillRatio();
+        barFill.style.width = Length.Percent(ratio * 100f);
+        if (ratio >= 0.95f) barFill.AddToClassList("full");
+        barBg.Add(barFill);
+
+        var cntL = new Label($"{shelf.GetBookCount()} книг");
+        cntL.AddToClassList("shelf-item__count");
+
+        row.Add(nameL);
+        row.Add(barBg);
+        row.Add(cntL);
+
+        Shelf captured = shelf;
+        row.RegisterCallback<ClickEvent>(_ =>
+        {
+            _selectedShelf = captured;
+            RefreshShelfList();
+        });
+
+        return row;
+    }
+
+    private void DoOnSelectedShelf(System.Action<Shelf> action)
+    {
+        if (_selectedShelf == null)
+        {
+            Debug.LogWarning("[ShopUI] Полиця не обрана!");
+            return;
+        }
+        action(_selectedShelf);
+        RefreshShelfList();
+    }
 
     #endregion
 
-    // ─────────────────────────────────────────────────────────────
-    #region HUD
-    // ─────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────
+    #region HUD Updates
+    // ─────────────────────────────────────────────
 
     private void UpdateMoney(int amount)
     {
-        if (_moneyLabel != null) _moneyLabel.text = $"$ {amount:N0}";
+        if (_moneyLabel != null) _moneyLabel.text = amount.ToString("N0");
     }
 
     private void UpdatePhase(GameState state)
     {
-        string[] names = { "ПІДГОТОВКА", "ТОРГІВЛЯ", "НАГОРОДИ" };
         int day = GameLoopManager.Instance?.CurrentDay ?? 1;
-        if (_dayLabel   != null) _dayLabel.text   = day.ToString("D2");
-        if (_phaseLabel != null) _phaseLabel.text = (int)state < names.Length ? names[(int)state] : state.ToString();
+        if (_dayLabel != null)   _dayLabel.text   = $"ДЕНЬ {day}";
+        if (_phaseLabel != null) _phaseLabel.text =
+            (int)state < PhaseNames.Length ? PhaseNames[(int)state] : state.ToString();
     }
 
     private void HandleStateChanged(GameState state) => UpdatePhase(state);
 
-    // ── Icon helper ──────────────────────────────────────────────
-    private static void ApplyBookIcon(VisualElement container, BookTemplate tpl)
+    #endregion
+
+    // ─────────────────────────────────────────────
+    private static void SetDisplay(VisualElement el, bool show)
     {
-        if (container == null || tpl == null) return;
-        container.Clear();
-        if (tpl.icon != null)
-            container.style.backgroundImage = new StyleBackground(tpl.icon);
-        else
-        {
-            string emoji = tpl.genre switch
-            {
-                BookGenre.Fantasy   => "🧙",
-                BookGenre.Horror    => "💀",
-                BookGenre.Mystery   => "🔍",
-                BookGenre.Classic   => "📜",
-                BookGenre.SciFi     => "🚀",
-                BookGenre.Biography => "👤",
-                BookGenre.Academic  => "🎓",
-                _                   => "📖"
-            };
-            container.Add(new Label(emoji));
-        }
+        if (el != null) el.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
     }
-     #endregion
+
+    
 }
