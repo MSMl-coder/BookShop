@@ -2563,6 +2563,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EconomyManager
   _startingMoney: 500
+  dailyRent: 100
+  debtDaysAllowed: 3
 --- !u!114 &449487886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3691,8 +3693,9 @@ GameObject:
   - component: {fileID: 754696642}
   - component: {fileID: 754696655}
   - component: {fileID: 754696656}
-  - component: {fileID: 754696657}
   - component: {fileID: 754696659}
+  - component: {fileID: 754696660}
+  - component: {fileID: 754696661}
   m_Layer: 0
   m_Name: BookshopUI
   m_TagString: Untagged
@@ -3925,6 +3928,8 @@ MonoBehaviour:
   npcCtrl: {fileID: 0}
   awardsCtrl: {fileID: 0}
   toastCtrl: {fileID: 0}
+  phaseWidgetCtrl: {fileID: 0}
+  notificationSystem: {fileID: 0}
 --- !u!114 &754696654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3961,7 +3966,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhaseBarController
   prepDurationMin: 120
-  workDurationMin: 480
+  statsDurationMin: 30
   lootDurationMin: 60
   clockCtrl: {fileID: 754696656}
 --- !u!114 &754696656
@@ -3976,22 +3981,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f0f005f1891942c6a5bcb4c6b01faaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlipClockController
-  startHour: 12
-  startMinute: 43
+  startHour: 6
+  startMinute: 30
   gameMinutesPerSec: 0.5
   flipDuration: 0.25
---- !u!114 &754696657
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754696640}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0fcd9ac91538437387ff35b6388b124, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BookshopUIBridge
 --- !u!114 &754696659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4005,6 +3998,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShelfManagerPanelController
   uiDocument: {fileID: 754696654}
+--- !u!114 &754696660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 598aa7d3c0dd947b4b377314c9fb8f87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhaseWidgetController
+--- !u!114 &754696661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8facc627be64478c86728c46feacf7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NotificationSystem
 --- !u!1001 &756194331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5495,8 +5512,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 598aa7d3c0dd947b4b377314c9fb8f87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhaseWidgetController
-  uiDocument: {fileID: 1118481608}
-  workDayDuration: 180
 --- !u!114 &1118481617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10003,7 +10018,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DebugGameController
   moneyToAdd: 1000
   targetState: 0
-  testBook: {fileID: 0}
+  testBook: {fileID: 11400000, guid: 4e8a5830151a74399a93530b734beb28, type: 2}
   bookCountToAdd: 1
   targetShelf: {fileID: 1767302785}
   targetCabinet: {fileID: 0}
@@ -15710,6 +15725,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84db423334a1b47028624f2edb9e8c01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameLoopManager
+  shopCloseHour: 19
 --- !u!1 &2096972896
 GameObject:
   m_ObjectHideFlags: 0

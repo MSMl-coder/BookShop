@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8acd7bd923df499ca6a5693e47a673f, type: 3}
+  m_Name: BT_A_Connecticut_Yankee_in_King_Arthur
+  m_EditorClassIdentifier: Assembly-CSharp::BookTemplate
+  bookID: 188900001042
+  title: A Connecticut Yankee in King Arthur
+  author: Mark Twain
+  genre: 0
+  rarity: 0
+  writingYear: 1889
+  volumeNumber: 1
+  containerPrefab: {fileID: 7792499953618239303, guid: 30ce40334bc32440dbacf7fcf84bd173, type: 3}
+  icon: {fileID: 0}
+  bookSize: 1
+  colorIndex: 14
+  buyPrice: 11
+  sellPrice: 20

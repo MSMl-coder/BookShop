@@ -41,7 +41,12 @@ public class BookshopUIController : MonoBehaviour
     [SerializeField] private NPCModalController       npcCtrl;
     [SerializeField] private AwardsModalController    awardsCtrl;
     [SerializeField] private ToastController          toastCtrl;
+    [SerializeField] private PhaseWidgetController phaseWidgetCtrl;
+    [SerializeField] private NotificationSystem       notificationSystem;
+    [SerializeField] private DayTransitionController  dayTransitionCtrl;
+    [SerializeField] private DayStatsController       dayStatsCtrl;
 
+    
     // Root & overlay
     private VisualElement _root;
     private VisualElement _overlay;
@@ -82,6 +87,9 @@ public class BookshopUIController : MonoBehaviour
         npcCtrl       = npcCtrl       ?? GetComponent<NPCModalController>();
         awardsCtrl    = awardsCtrl    ?? GetComponent<AwardsModalController>();
         toastCtrl     = toastCtrl     ?? GetComponent<ToastController>();
+        phaseWidgetCtrl = phaseWidgetCtrl ?? GetComponent<PhaseWidgetController>();
+        notificationSystem = notificationSystem ?? GetComponent<NotificationSystem>();
+         dayTransitionCtrl  = dayTransitionCtrl  ?? GetComponent<DayTransitionController>();
     }
 
     private void OnEnable()
@@ -120,6 +128,7 @@ public class BookshopUIController : MonoBehaviour
         buffsCtrl?.Initialize(_root, this);
         flipClockCtrl?.Initialize(_root, this);
         phaseBarCtrl?.Initialize(_root, flipClockCtrl);
+        phaseWidgetCtrl?.Initialize(_root, flipClockCtrl);
         calendarCtrl?.Initialize(_root);
         bookInfoCtrl?.Initialize(_root);
         inventoryCtrl?.Initialize(_root, this);
@@ -128,6 +137,9 @@ public class BookshopUIController : MonoBehaviour
         npcCtrl?.Initialize(_root, this);
         awardsCtrl?.Initialize(_root, this);
         toastCtrl?.Initialize(_root);
+        dayTransitionCtrl?.Initialize(_root);
+        dayStatsCtrl?.Initialize(_root); 
+
 
         CloseAllModals();
         Debug.Log("[BookshopUI] Initialized v3");

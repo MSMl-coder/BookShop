@@ -1,49 +1,48 @@
 // Assets/Scripts/UI/HUD/HUDController.cs
+// ВИПРАВЛЕНО (Фаза 2): PhaseNames оновлено під 5 станів GameState
+
 using UnityEngine;
 using UnityEngine.UIElements;
 
-/// Оновлює HUD-елементи (гроші, день, престиж, фаза)
-/// на основі подій від менеджерів.
-///
-/// UNITY SETUP:
-/// Додай на той самий GameObject що і ShopUIManager.
 public class HUDController : MonoBehaviour
 {
     [SerializeField] private UIDocument uiDocument;
 
-    private Label _dayLabel;
-    private Label _phaseLabel;
-    private Label _moneyLabel;
-    private Label _prestigeValue;
+    private Label         _dayLabel;
+    private Label         _phaseLabel;
+    private Label         _moneyLabel;
+    private Label         _prestigeValue;
     private VisualElement _prestigeFill;
 
+    // ВИПРАВЛЕНО: відповідає enum GameState (0..4)
     private static readonly string[] PhaseNames =
     {
-        "ПІДГОТОВКА",   // GameState.Preparation
-        "ТОРГІВЛЯ",     // GameState.WorkDay
-        "НАГОРОДИ"      // GameState.LootPhase
+        "ПІДГОТОВКА",   // 0 Preparation
+        "РЕДАГУВАННЯ",  // 1 EditMode
+        "ТОРГІВЛЯ",     // 2 WorkDay
+        "ПІДСУМКИ",     // 3 DayStats
+        "НАГОРОДИ",     // 4 LootPhase
     };
 
     private void OnEnable()
     {
         if (uiDocument == null) return;
 
-        var root    = uiDocument.rootVisualElement;
-        _dayLabel   = root.Q<Label>("DayLabel");
-        _phaseLabel = root.Q<Label>("PhaseLabel");
-        _moneyLabel = root.Q<Label>("MoneyLabel");
+        var root       = uiDocument.rootVisualElement;
+        _dayLabel      = root.Q<Label>("DayLabel");
+        _phaseLabel    = root.Q<Label>("PhaseLabel");
+        _moneyLabel    = root.Q<Label>("MoneyLabel");
         _prestigeValue = root.Q<Label>("PrestigeValue");
         _prestigeFill  = root.Q<VisualElement>("PrestigeBarFill");
 
         root.Q<Button>("BtnEditMode")?.RegisterCallback<ClickEvent>(_ =>
             EditModeManager.Instance?.ToggleEditMode());
-            
+
         if (EconomyManager.Instance != null)
             EconomyManager.Instance.OnMoneyChanged += UpdateMoney;
         if (GameLoopManager.Instance != null)
             GameLoopManager.Instance.OnStateChanged += UpdatePhase;
 
-        // Початковий стан
         UpdateMoney(EconomyManager.Instance?.Money ?? 0);
         UpdateDay(GameLoopManager.Instance?.CurrentDay ?? 1);
         UpdatePhase(GameLoopManager.Instance?.CurrentState ?? GameState.Preparation);
@@ -56,8 +55,6 @@ public class HUDController : MonoBehaviour
         if (GameLoopManager.Instance != null)
             GameLoopManager.Instance.OnStateChanged -= UpdatePhase;
     }
-
-    // ── Оновлення ──
 
     private void UpdateMoney(int amount)
     {
@@ -78,11 +75,12 @@ public class HUDController : MonoBehaviour
         if (_phaseLabel != null)
         {
             int idx = (int)state;
-            _phaseLabel.text = idx < PhaseNames.Length ? PhaseNames[idx] : state.ToString().ToUpper();
+            _phaseLabel.text = idx < PhaseNames.Length
+                ? PhaseNames[idx]
+                : state.ToString().ToUpper();
         }
     }
 
-    /// Викликай ззовні коли змінюється престиж
     public void UpdatePrestige(int current, int max)
     {
         if (_prestigeValue != null)
