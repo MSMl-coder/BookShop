@@ -1,4 +1,4 @@
-using UnityEngine;
+ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
@@ -146,7 +146,34 @@ public class DebugGameController : MonoBehaviour
             $"  Earned Today  : ${EconomyManager.Instance.MoneyEarnedToday}"
         );
     }
-
+    [ContextMenu("Economy / Apply Daily Rent")]
+    public void ApplyDailyRent()
+    {
+        if (!CheckManager(EconomyManager.Instance, "EconomyManager")) return;
+        var result = EconomyManager.Instance.ApplyDailyRent();
+        Debug.Log(
+            $"[Debug] 💸 Daily Rent Applied:\n" +
+            $"  Rent         : -{result.RentAmount}\n" +
+            $"  Before       : ${result.BalanceBefore}\n" +
+            $"  After        : ${result.BalanceAfter}\n" +
+            $"  In Debt      : {result.IsInDebt}\n" +
+            $"  Debt Day     : {result.DebtDay}/{result.DebtAllowed}\n" +
+            $"  Bankrupt     : {result.IsBankrupt}"
+        );
+    }
+    
+    [ContextMenu("Economy / Print Debt Status")]
+    public void PrintDebtStatus()
+    {
+        if (!CheckManager(EconomyManager.Instance, "EconomyManager")) return;
+        Debug.Log(
+            $"[Debug] 📋 Debt Status:\n" +
+            $"  Balance      : ${EconomyManager.Instance.Money}\n" +
+            $"  In Debt      : {EconomyManager.Instance.IsInDebt}\n" +
+            $"  Debt Days    : {EconomyManager.Instance.DebtDaysCurrent}/{EconomyManager.Instance.DebtDaysAllowed}\n" +
+            $"  Daily Rent   : ${EconomyManager.Instance.DailyRent}"
+        );
+    }
     // ═══════════════════════════════════════════════════════════════
     #endregion
     #region Game State Methods
@@ -163,6 +190,9 @@ public class DebugGameController : MonoBehaviour
     {
         ChangeState(GameState.WorkDay);
     }
+    [ContextMenu("State / → DayStats")]
+    public void GoToDayStats()  { ChangeState(GameState.DayStats);  }
+
 
     [ContextMenu("State / → Loot Phase")]
     public void GoToLootPhase()
@@ -170,11 +200,14 @@ public class DebugGameController : MonoBehaviour
         ChangeState(GameState.LootPhase);
     }
 
-    [ContextMenu("State / Skip To Next State")]
+ [ContextMenu("State / Skip To Next State")]
     public void SkipToNextState()
     {
         if (!CheckManager(GameLoopManager.Instance, "GameLoopManager")) return;
-        int next = ((int)GameLoopManager.Instance.CurrentState + 1) % 3;
+        // EditMode (1) пропускаємо — це підстан Preparation
+        int current = (int)GameLoopManager.Instance.CurrentState;
+        int next = (current + 1) % System.Enum.GetValues(typeof(GameState)).Length;
+        if (next == (int)GameState.EditMode) next++; // пропускаємо EditMode
         GameState nextState = (GameState)next;
         ChangeState(nextState);
         Debug.Log($"[Debug] ⏭ Skipped to: {nextState}");

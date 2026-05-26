@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8acd7bd923df499ca6a5693e47a673f, type: 3}
+  m_Name: BT_The_Old_Man_in_the_Corner
+  m_EditorClassIdentifier: Assembly-CSharp::BookTemplate
+  bookID: 190904101840
+  title: The Old Man in the Corner
+  author: Baroness Orczy
+  genre: 4
+  rarity: 1
+  writingYear: 1909
+  volumeNumber: 1
+  containerPrefab: {fileID: 7792499953618239303, guid: fd24bba35bae544fe9303f7a9f908815, type: 3}
+  icon: {fileID: 0}
+  bookSize: 2
+  colorIndex: 9
+  buyPrice: 25
+  sellPrice: 45

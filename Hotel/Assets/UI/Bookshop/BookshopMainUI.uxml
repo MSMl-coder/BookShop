@@ -122,6 +122,11 @@
                         <ui:Label text="WORK" picking-mode="Ignore" class="phase-segment__label"/>
                     </ui:VisualElement>
                     <ui:VisualElement picking-mode="Ignore" class="phase-divider"/>
+                    <ui:VisualElement name="PhaseSegStats" class="phase-segment phase-segment--stats">
+                        <ui:VisualElement name="PhaseFillStats" picking-mode="Ignore" class="phase-segment__fill"/>
+                        <ui:Label text="STATS" picking-mode="Ignore" class="phase-segment__label"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement picking-mode="Ignore" class="phase-divider"/>
                     <ui:VisualElement name="PhaseSegLoot" class="phase-segment phase-segment--loot">
                         <ui:VisualElement name="PhaseFillLoot" picking-mode="Ignore" class="phase-segment__fill"/>
                         <ui:Label text="LOOT" picking-mode="Ignore" class="phase-segment__label"/>
@@ -144,6 +149,21 @@
                     </ui:VisualElement>
                     <ui:VisualElement name="CalWeekStrip" class="calendar__week-strip"/>
                 </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="PhaseWidget" picking-mode="Position" class="phase-widget" style="position: absolute; top: 45px; left: 1429px;">
+                <ui:VisualElement class="phase-indicator">
+                    <ui:VisualElement class="phase-indicator__dots">
+                        <ui:VisualElement name="PhaseDot0" class="phase-dot active"/>
+                        <ui:VisualElement name="PhaseDot1" class="phase-dot"/>
+                        <ui:VisualElement name="PhaseDot2" class="phase-dot"/>
+                        <ui:VisualElement name="PhaseDot3" class="phase-dot"/>
+                    </ui:VisualElement>
+                    <ui:Label name="PhaseIndicatorLabel" text="ПІДГОТОВКА" class="phase-indicator__label"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="phase-widget__sep"/>
+                <ui:Button name="PhaseMainBtn" text="ВІДКРИТИ МАГАЗИН" class="phase-main-btn open-shop"/>
+                <ui:VisualElement class="phase-widget__sep"/>
+                <ui:Label name="PhaseTimer" text="" class="phase-timer"/>
             </ui:VisualElement>
             <ui:VisualElement name="FuncBar" picking-mode="Position" class="func-bar">
                 <ui:Button name="BtnInventory" class="func-btn tag">
@@ -424,6 +444,35 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="DayStatsOverlay" picking-mode="Ignore" class="day-stats-overlay">
+            <ui:VisualElement class="day-stats-card">
+                <ui:Label name="DayStatsDay" text="ДЕНЬ 1 ЗАВЕРШЕНО" class="day-stats__title"/>
+                <ui:VisualElement class="day-stats__divider"/>
+                <ui:VisualElement class="day-stats__row">
+                    <ui:Label text="ЗАРОБЛЕНО" class="day-stats__key"/>
+                    <ui:Label name="DayStatsEarned" text="+0₴" class="day-stats__val day-stats__val--good"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="day-stats__row">
+                    <ui:Label text="ПРОДАНО КНИГ" class="day-stats__key"/>
+                    <ui:Label name="DayStatsSold" text="0" class="day-stats__val"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="day-stats__divider"/>
+                <ui:VisualElement class="day-stats__row">
+                    <ui:Label text="ОРЕНДА" class="day-stats__key"/>
+                    <ui:Label name="DayStatsRent" text="-0₴" class="day-stats__val day-stats__val--bad"/>
+                </ui:VisualElement>
+                <ui:VisualElement class="day-stats__row day-stats__row--total">
+                    <ui:Label text="БАЛАНС" class="day-stats__key"/>
+                    <ui:Label name="DayStatsBalance" text="0₴" class="day-stats__val day-stats__val--total"/>
+                </ui:VisualElement>
+                <ui:Label name="DayStatsDebtWarning" text="" class="day-stats__debt-warning" style="display: none;"/>
+                <ui:VisualElement class="day-stats__divider"/>
+                <ui:Button name="DayStatsContinueBtn" text="ДАЛІ →" class="day-stats__continue-btn"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="DayTransitionOverlay" picking-mode="Ignore" class="day-transition-overlay">
+            <ui:Label name="DayTransitionLabel" text="ДЕНЬ 1" class="day-transition-label"/>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
