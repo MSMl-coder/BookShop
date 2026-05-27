@@ -32,6 +32,6 @@ public class CabinetInteractable : MonoBehaviour, IInteractable
     public void OnInteract()
     {
         Debug.Log($"[CabinetInteractable] Відкриваємо: {_cabinet.cabinetName}");
-        ShopUIManager.Instance?.OpenCabinetUI(_cabinet);
+        //ShopUIManager.Instance?.OpenCabinetUI(_cabinet);
     }
 }

@@ -228,7 +228,7 @@ public class PlacementController : MonoBehaviour
         Debug.Log($"[Placement] Повернуто в інвентар: templateID={obj.Instance.templateID}");
 
         // Оновлюємо панель якщо відкрита
-        DecorationPanelUI.Instance?.BuildGridPublic();
+      //  DecorationPanelUI.Instance?.BuildGridPublic();
     }
 
     /// Витягує всі книги з Cabinet компонента і повертає в інвентар

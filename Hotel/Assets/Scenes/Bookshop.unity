@@ -3696,6 +3696,8 @@ GameObject:
   - component: {fileID: 754696659}
   - component: {fileID: 754696660}
   - component: {fileID: 754696661}
+  - component: {fileID: 754696663}
+  - component: {fileID: 754696662}
   m_Layer: 0
   m_Name: BookshopUI
   m_TagString: Untagged
@@ -3930,6 +3932,8 @@ MonoBehaviour:
   toastCtrl: {fileID: 0}
   phaseWidgetCtrl: {fileID: 0}
   notificationSystem: {fileID: 0}
+  dayTransitionCtrl: {fileID: 0}
+  dayStatsCtrl: {fileID: 0}
 --- !u!114 &754696654
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4022,6 +4026,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8facc627be64478c86728c46feacf7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NotificationSystem
+--- !u!114 &754696662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 231580dbb355a47f885bb737a2204246, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DayStatsController
+  showDelay: 0.3
+  fadeIn: 0.35
+--- !u!114 &754696663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2b5b144f4d644c6ea9629aabab8d87d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DayTransitionController
+  fadeInDuration: 0.4
+  holdDuration: 1.6
+  fadeOutDuration: 0.5
 --- !u!1001 &756194331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4452,11 +4485,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InteractableBox
   boxType: 0
   possibleBooks:
-  - {fileID: 11400000, guid: ed9bf5734e20b495db0fcc914270c46d, type: 2}
-  - {fileID: 11400000, guid: 1acb5eec4e58e49f2a3747cb0c3e63fa, type: 2}
-  - {fileID: 11400000, guid: 34b7a3453d9cd4399971cd334f989af9, type: 2}
-  - {fileID: 11400000, guid: 028b41f45f18a4051b434ef8075762e9, type: 2}
-  - {fileID: 11400000, guid: 87953df12d90b4ce6bffc335fe05a4ff, type: 2}
+  - {fileID: 11400000, guid: bbbd910c79df14a5f8b723004675c115, type: 2}
+  - {fileID: 11400000, guid: c69353d38b5b24c41ab32fe9aaaad28c, type: 2}
+  - {fileID: 11400000, guid: 6292bcead5c89421f99724ff003c28c2, type: 2}
+  - {fileID: 11400000, guid: 5142cac32747747fe981d50b9a468275, type: 2}
+  - {fileID: 11400000, guid: f8979015e10e04e7f82fb52b25ce091a, type: 2}
   booksPerBox: 3
   furnitureSpawnPrefab: {fileID: 0}
   spawnOffset: {x: 0, y: 0, z: 0}
@@ -5381,6 +5414,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ShopUIManager
   uiDocument: {fileID: 1118481608}
   bookItemTemplate: {fileID: 0}
+  _currentSort: 0
+  _selectedCabinet: {fileID: 0}
+  _selectedShelf: {fileID: 0}
+  _allCabinets: []
 --- !u!114 &1118481608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5418,6 +5455,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::InventoryPanelUI
   uiDocument: {fileID: 1118481608}
   bookItemTemplate: {fileID: 9197481963319205126, guid: 1814433bc6ee242fea49493af7886191, type: 3}
+  _currentSort: 0
 --- !u!114 &1118481610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5444,6 +5482,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SettingsUIController
   uiDocument: {fileID: 1118481608}
+  _isOpen: 0
 --- !u!114 &1118481612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5471,6 +5510,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CabinetPanelUI
   uiDocument: {fileID: 1118481608}
+  _selectedCabinet: {fileID: 0}
+  _selectedShelf: {fileID: 0}
 --- !u!114 &1118481614
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5487,6 +5528,9 @@ MonoBehaviour:
   furnitureCardTemplate: {fileID: 9197481963319205126, guid: 293a635b3faf2409781acb62181e1bc4, type: 3}
   allFurniture:
   - {fileID: 11400000, guid: dbf73c632fec34513971d27eaab9480a, type: 2}
+  _filterPlaced: 0
+  _selected: {fileID: 0}
+  _isOpen: 0
 --- !u!114 &1118481615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5500,6 +5544,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSlotUI
   uiDocument: {fileID: 1118481608}
+  _targetSlot: {fileID: 0}
+  _selectedTemplate: {fileID: 0}
+  _availableOptions: []
 --- !u!114 &1118481616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5527,6 +5574,9 @@ MonoBehaviour:
   uiDocument: {fileID: 1118481608}
   tagData: {fileID: 11400000, guid: 2e983e8b698d74babb039de31c9025a3, type: 2}
   showPrestigeTag: 1
+  _tagAFlipped: 0
+  _tagBFlipped: 0
+  _phaseAnimating: 0
 --- !u!1 &1137816319
 GameObject:
   m_ObjectHideFlags: 0
