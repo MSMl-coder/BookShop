@@ -5,9 +5,9 @@ using UnityEngine;
 /// Звʼязує GameObject з FurnitureInstance.
 public class PlacedObject : MonoBehaviour
 {
-    public FurnitureInstance Instance { get; private set; }
+    public PropInstance Instance { get; private set; }
 
-    public void Init(FurnitureInstance instance)
+    public void Init(PropInstance instance)
     {
         Instance = instance;
     }

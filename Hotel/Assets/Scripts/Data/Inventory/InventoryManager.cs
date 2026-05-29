@@ -1,4 +1,13 @@
 // Assets/Scripts/Data/Inventory/InventoryManager.cs
+// FIXES v2:
+//   [1] _furnitureDB: Dictionary<int, PropTemplate>  (було PropInstance — type confusion)
+//   [2] InitFurnitureDatabase: IEnumerable<PropTemplate>  (було PropInstance)
+//   [3] GetTemplate: повертає PropTemplate  (було PropInstance)
+//   [4] UnlockProp: видалено дублювання PropInstance (створювався двічі)
+//   [5] InventoryManagerExtensions: винесено з класу (nested extension = compile error)
+//   [6] GetUnlockedFurnitureByClass: повертає List<PropTemplate>  (було PropInstance)
+//   [7] GetAllUnlockedPropTemplates / GetAllUnlockedTemplates: консолідовано в одну
+
 using UnityEngine;
 using System;
 using System.Collections.Generic;
@@ -11,12 +20,14 @@ public class InventoryManager : MonoBehaviour
     [Header("Data")]
     [SerializeField] private BookDatabase database;
 
-    // ── Books ──
+    // ── Books ──────────────────────────────────────────────────────
     private readonly List<BookInstance> _ownedBooks = new();
 
-    // ── Furniture ──
-    private readonly List<FurnitureInstance>             _furnitureInventory = new();
-    private readonly Dictionary<int, FurnitureTemplate> _furnitureDB        = new();
+    // ── Props ──────────────────────────────────────────────────────
+    // _furnitureInventory — runtime екземпляри (PropInstance)
+    // _furnitureDB        — шаблони ScriptableObject (PropTemplate), індекс по propID
+    private readonly List<PropInstance>            _furnitureInventory = new();
+    private readonly Dictionary<int, PropTemplate> _furnitureDB        = new(); // [FIX 1]
 
     public event Action OnInventoryChanged;
     public event Action OnFurnitureChanged;
@@ -28,102 +39,114 @@ public class InventoryManager : MonoBehaviour
     }
 
     // ─────────────────────────────────────────────
-    #region Furniture DB Init
+    #region Prop DB Init
     // ─────────────────────────────────────────────
 
     /// Викликається з DecorationPanelUI.OnEnable — реєструє шаблони
-    /// і авто-видає екземпляри для unlockedByDefault
-    public void InitFurnitureDatabase(IEnumerable<FurnitureTemplate> allTemplates)
+    /// і авто-видає екземпляри для unlockedByDefault.
+    public void InitFurnitureDatabase(IEnumerable<PropTemplate> allTemplates) // [FIX 2]
     {
         _furnitureDB.Clear();
         foreach (var t in allTemplates)
         {
             if (t == null) continue;
-            _furnitureDB[t.furnitureID] = t;
+            _furnitureDB[t.propID] = t;
 
-            if (t.unlockedByDefault && !HasFurnitureTemplate(t.furnitureID))
+            if (t.unlockedByDefault && !HasFurnitureTemplate(t.propID))
             {
-                var fi = new FurnitureInstance(t.furnitureID);
-                _furnitureInventory.Add(fi);
-                Debug.Log($"[Inventory] Auto-unlocked: {t.furnitureName}");
+                _furnitureInventory.Add(new PropInstance(t.propID));
+                Debug.Log($"[Inventory] Auto-unlocked: {t.propName}");
             }
         }
         OnFurnitureChanged?.Invoke();
     }
 
-    public FurnitureTemplate GetTemplate(int templateID) =>
-        _furnitureDB.TryGetValue(templateID, out var t) ? t : null;
+    /// Повертає PropTemplate за propID.
+    public PropTemplate GetTemplate(int propID) =>           // [FIX 3]
+        _furnitureDB.TryGetValue(propID, out var t) ? t : null;
+
+    /// Alias — зворотна сумісність з кодом що звав GetPropTemplate().
+    public PropTemplate GetPropTemplate(int propID) => GetTemplate(propID);
 
     #endregion
 
     // ─────────────────────────────────────────────
-    #region Furniture Inventory
+    #region Prop Inventory
     // ─────────────────────────────────────────────
 
-    public void AddFurnitureInstance(FurnitureInstance instance)
+    public void AddFurnitureInstance(PropInstance instance)
     {
         if (instance == null) return;
         _furnitureInventory.Add(instance);
         OnFurnitureChanged?.Invoke();
-        Debug.Log($"[Inventory] Furniture added: templateID={instance.templateID}");
+        Debug.Log($"[Inventory] Prop instance added: propID={instance.propID}");
     }
 
-    /// Розблокувати = додати новий екземпляр (викликається з LootManager)
-    public void UnlockFurniture(FurnitureTemplate template)
+    /// Розблокувати через LootManager — додає PropInstance.
+    public void UnlockFurniture(PropTemplate template)
     {
         if (template == null) return;
-        var fi = new FurnitureInstance(template.furnitureID);
-        _furnitureInventory.Add(fi);
 
-        // Реєструємо шаблон якщо ще не зареєстровано
-        if (!_furnitureDB.ContainsKey(template.furnitureID))
-            _furnitureDB[template.furnitureID] = template;
+        _furnitureInventory.Add(new PropInstance(template.propID));
+
+        if (!_furnitureDB.ContainsKey(template.propID))
+            _furnitureDB[template.propID] = template;
 
         OnFurnitureChanged?.Invoke();
-        Debug.Log($"[Inventory] Unlocked furniture: {template.furnitureName}");
+        Debug.Log($"[Inventory] Unlocked prop: {template.propName}");
     }
 
-    public void RemoveFurnitureInstance(FurnitureInstance instance)
+    /// Alias — зворотна сумісність.
+    public void UnlockProp(PropTemplate prop) => UnlockFurniture(prop); // [FIX 4]
+
+    public void RemoveFurnitureInstance(PropInstance instance)
     {
         if (_furnitureInventory.Remove(instance))
             OnFurnitureChanged?.Invoke();
     }
 
-    public bool HasFurnitureTemplate(int templateID) =>
-        _furnitureInventory.Any(f => f.templateID == templateID);
+    public bool HasFurnitureTemplate(int propID) =>
+        _furnitureInventory.Any(f => f.propID == propID);
 
-    public bool IsTemplateUnlocked(int templateID) =>
-        HasFurnitureTemplate(templateID);
+    public bool IsTemplateUnlocked(int propID) =>
+        HasFurnitureTemplate(propID);
 
-    /// Перший нерозміщений екземпляр шаблону (для BeginPlacement)
-    public FurnitureInstance GetFirstUnplaced(int templateID) =>
-        _furnitureInventory.FirstOrDefault(f => f.templateID == templateID && !f.isPlaced);
+    /// Перший нерозміщений екземпляр шаблону (для BeginPlacement).
+    public PropInstance GetFirstUnplaced(int propID) =>
+        _furnitureInventory.FirstOrDefault(f => f.propID == propID && !f.isPlaced);
 
-    public List<FurnitureInstance> GetUnplacedInstances() =>
+    public List<PropInstance> GetUnplacedInstances() =>
         _furnitureInventory.Where(f => !f.isPlaced).ToList();
 
-    public List<FurnitureInstance> GetPlacedInstances() =>
+    public List<PropInstance> GetPlacedInstances() =>
         _furnitureInventory.Where(f => f.isPlaced).ToList();
 
-    public List<FurnitureInstance> GetInstancesByTemplate(int templateID) =>
-        _furnitureInventory.Where(f => f.templateID == templateID).ToList();
+    public List<PropInstance> GetInstancesByTemplate(int propID) =>
+        _furnitureInventory.Where(f => f.propID == propID).ToList();
 
-    public List<FurnitureInstance> GetAllFurnitureInstances() =>
-        new List<FurnitureInstance>(_furnitureInventory);
+    public List<PropInstance> GetAllFurnitureInstances() =>
+        new List<PropInstance>(_furnitureInventory);
 
-    /// Всі унікальні шаблони що є у гравця (для DecorationPanelUI)
-    public List<FurnitureTemplate> GetAllUnlockedTemplates()
+    /// Всі унікальні PropTemplate що є у гравця.          [FIX 7 — консолідація]
+    public List<PropTemplate> GetAllUnlockedTemplates()
     {
-        var ids = _furnitureInventory.Select(f => f.templateID).Distinct();
-        return ids.Select(id => GetTemplate(id)).Where(t => t != null).ToList();
+        return _furnitureInventory
+            .Select(f => f.propID)
+            .Distinct()
+            .Select(id => GetTemplate(id))
+            .Where(t => t != null)
+            .ToList();
     }
 
-    // Сумісність зі старим кодом
-    public List<FurnitureTemplate> GetUnlockedFurnitureByClass(FurnitureClass targetClass) =>
-        GetAllUnlockedTemplates().Where(t => t.furnitureClass == targetClass).ToList();
+    /// Alias для нового API.
+    public List<PropTemplate> GetAllUnlockedPropTemplates() => GetAllUnlockedTemplates();
 
-    public List<FurnitureTemplate> GetAllUnlockedFurniture() =>
-        GetAllUnlockedTemplates();
+    /// Всі PropTemplate заданого класу що є у гравця.    [FIX 6]
+    public List<PropTemplate> GetUnlockedFurnitureByClass(PropClass targetClass) =>
+        GetAllUnlockedTemplates().Where(t => t.propClass == targetClass).ToList();
+
+    /// Alias — повертає всі розблоковані шаблони.
+    public List<PropTemplate> GetAllUnlockedFurniture() => GetAllUnlockedTemplates();
 
     #endregion
 
@@ -133,30 +156,18 @@ public class InventoryManager : MonoBehaviour
 
     public void AddBook(string templateID)
     {
+        if (string.IsNullOrEmpty(templateID)) return;
 
-          if (string.IsNullOrEmpty(templateID)) return;
-    
         var template = BookDatabase.Instance?.GetBook(templateID);
         if (template == null) return;
-        
-        // Пропускаємо SO з порожнім title
-        if (string.IsNullOrEmpty(template.title)) 
+
+        if (string.IsNullOrEmpty(template.title))
         {
             Debug.LogWarning($"[Inventory] Skipped book with empty title: {templateID}");
             return;
         }
 
-
-
-
         if (!ValidateDatabase()) return;
-
-       // BookTemplate template = database.GetBook(templateID);
-        if (template == null)
-        {
-            Debug.LogError($"[Inventory] Book not found: {templateID}");
-            return;
-        }
 
         var instance = new BookInstance(templateID);
         _ownedBooks.Add(instance);

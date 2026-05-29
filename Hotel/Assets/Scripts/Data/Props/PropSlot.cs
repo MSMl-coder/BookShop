@@ -6,12 +6,12 @@ using System.Collections.Generic;
 public class FurnitureSlot : MonoBehaviour
 {
     [Header("Settings")]
-    public FurnitureClass allowedClass;
+    public PropClass allowedClass;
 
-    [SerializeField] private FurnitureTemplate currentTemplate;
+    [SerializeField] private PropTemplate currentTemplate;
 
     // ← ЄДИНА ЗМІНА: публічний геттер для UpgradeSlotUI
-    public FurnitureTemplate CurrentTemplate => currentTemplate;
+    public PropTemplate CurrentTemplate => currentTemplate;
 
     private Cabinet _currentCabinetInstance;
 
@@ -21,11 +21,11 @@ public class FurnitureSlot : MonoBehaviour
             SpawnCabinet(currentTemplate);
     }
 
-    public void UpgradeFurniture(FurnitureTemplate newTemplate)
+    public void UpgradeFurniture(PropTemplate newTemplate)
     {
-        if (newTemplate.furnitureClass != allowedClass)
+        if (newTemplate.propClass != allowedClass)
         {
-            Debug.LogWarning("[Slot] Wrong furniture class for this slot!");
+            Debug.LogWarning("[Slot] Wrong prop class for this slot!");
             return;
         }
 
@@ -37,10 +37,10 @@ public class FurnitureSlot : MonoBehaviour
         SpawnCabinet(newTemplate);
        // RestoreBooks(savedBooks);
 
-        Debug.Log($"[Slot] Upgraded to {newTemplate.furnitureName}");
+        Debug.Log($"[Slot] Upgraded to {newTemplate.propName}");
     }
 
-    private void SpawnCabinet(FurnitureTemplate template)
+    private void SpawnCabinet(PropTemplate template)
     {
         currentTemplate = template;
         GameObject go = Instantiate(

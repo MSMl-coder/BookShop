@@ -20,7 +20,7 @@ public class SnapSystem : MonoBehaviour
     [Tooltip("Якщо нормаль майже горизонтальна — це стіна")]
     [SerializeField] private float wallDotThreshold = 0.5f;
 
-    public bool TryGetSnapPoint(Ray ray, FurnitureTemplate item, out SnapResult result)
+    public bool TryGetSnapPoint(Ray ray, PropTemplate item, out SnapResult result)
     {
         result = default;
         if (!Physics.Raycast(ray, out RaycastHit hit, maxDistance, surfaceMask))
@@ -53,13 +53,13 @@ public class SnapSystem : MonoBehaviour
         return true;
     }
 
-    private SnapResult BuildFloorSnap(RaycastHit hit, FurnitureTemplate item) => new SnapResult
+    private SnapResult BuildFloorSnap(RaycastHit hit, PropTemplate item) => new SnapResult
     {
         position = hit.point + Vector3.up * item.pivotOffset,
         rotation = Quaternion.identity
     };
 
-    private SnapResult BuildWallSnap(RaycastHit hit, FurnitureTemplate item)
+    private SnapResult BuildWallSnap(RaycastHit hit, PropTemplate item)
     {
         var rot = Quaternion.LookRotation(-hit.normal, Vector3.up);
         return new SnapResult
@@ -69,7 +69,7 @@ public class SnapSystem : MonoBehaviour
         };
     }
 
-    private SnapResult BuildShelfSnap(RaycastHit hit, FurnitureTemplate item) => new SnapResult
+    private SnapResult BuildShelfSnap(RaycastHit hit, PropTemplate item) => new SnapResult
     {
         position = hit.point + Vector3.up * item.shelfOffset,
         rotation = Quaternion.identity

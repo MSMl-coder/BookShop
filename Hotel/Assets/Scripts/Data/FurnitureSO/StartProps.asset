@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ede310f2f1c9a47b0a3a04701e3a7692, type: 3}
-  m_Name: StarttFurnitureInv
+  m_Name: StartProps
   m_EditorClassIdentifier: Assembly-CSharp::FurnitureTemplate
   furnitureID: 1
   furnitureName: 1

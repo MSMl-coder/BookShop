@@ -133,7 +133,7 @@ public class GameStateSerializer : MonoBehaviour
 
         foreach (var entry in data.furnitureInventory)
         {
-            var fi = new FurnitureInstance(entry.templateID, entry.instanceID);
+            var fi = new PropInstance(entry.templateID, entry.instanceID);
             inventoryManager.AddFurnitureInstance(fi);
 
             if (!entry.isPlaced) continue;

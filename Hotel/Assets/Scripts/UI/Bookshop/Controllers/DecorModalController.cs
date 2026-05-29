@@ -30,8 +30,8 @@ public class DecorModalController : MonoBehaviour
     private VisualElement _swatchesContainer;
     private Button _btnCancel, _btnPlace, _btnRotateLeft, _btnRotateRight;
 
-    private FurnitureClass? _activeCategory = null;
-    private FurnitureTemplate _selectedItem = null;
+    private PropClass? _activeCategory = null;
+    private PropTemplate _selectedItem = null;
 
     public void Initialize(VisualElement root, BookshopUIController master)
     {
@@ -85,8 +85,8 @@ public class DecorModalController : MonoBehaviour
         // "All" item
         _categoriesList.Add(MakeCategoryRow("🪑", "All", null, isActive: _activeCategory == null));
 
-        // FurnitureClass enum values
-        foreach (FurnitureClass cls in System.Enum.GetValues(typeof(FurnitureClass)))
+        // PropClass enum values
+        foreach (PropClass cls in System.Enum.GetValues(typeof(PropClass)))
         {
             string icon = GetClassIcon(cls);
             string name = GetClassName(cls);
@@ -95,7 +95,7 @@ public class DecorModalController : MonoBehaviour
         }
     }
 
-    private VisualElement MakeCategoryRow(string icon, string name, FurnitureClass? cls, bool isActive = false, int count = 0)
+    private VisualElement MakeCategoryRow(string icon, string name, PropClass? cls, bool isActive = false, int count = 0)
     {
         var row = new VisualElement();
         row.AddToClassList("decor-cat-row");
@@ -128,14 +128,14 @@ public class DecorModalController : MonoBehaviour
         return row;
     }
 
-    private int CountByClass(FurnitureClass cls)
+    private int CountByClass(PropClass cls)
     {
         var all = InventoryManager.Instance?.GetAllUnlockedTemplates();
         if (all == null) return 0;
-        return all.Count(t => t != null && t.furnitureClass == cls);
+        return all.Count(t => t != null && t.propClass == cls);
     }
 
-    private string GetClassIcon(FurnitureClass cls) => cls.ToString().ToLower() switch
+    private string GetClassIcon(PropClass cls) => cls.ToString().ToLower() switch
     {
         "shelf" or "cabinet" => "🗄",
         "island" or "table"  => "🪑",
@@ -145,7 +145,7 @@ public class DecorModalController : MonoBehaviour
         _ => "📜"
     };
 
-    private string GetClassName(FurnitureClass cls)
+    private string GetClassName(PropClass cls)
     {
         // Show in English
         return cls.ToString();
@@ -166,17 +166,17 @@ public class DecorModalController : MonoBehaviour
         if (templates == null) return;
 
         var filtered = _activeCategory.HasValue
-            ? templates.Where(t => t.furnitureClass == _activeCategory.Value)
+            ? templates.Where(t => t.propClass == _activeCategory.Value)
             : templates;
 
         foreach (var t in filtered)
             _itemsList.Add(MakeItemCard(t));
     }
 
-    private VisualElement MakeItemCard(FurnitureTemplate template)
+    private VisualElement MakeItemCard(PropTemplate template)
     {
         if (_master?.DecorItemCardTemplate == null)
-            return new Label(template.furnitureName);
+            return new Label(template.propName);
 
         var card = _master.DecorItemCardTemplate.Instantiate().ElementAt(0);
         if (_selectedItem == template) card.AddToClassList("selected");
@@ -186,10 +186,10 @@ public class DecorModalController : MonoBehaviour
         var priceLabel = card.Q<Label>("DecorItemPrice");
 
         if (iconLabel != null) iconLabel.text = "🪑"; // TODO: from template.icon
-        if (nameLabel != null) nameLabel.text = template.furnitureName;
+        if (nameLabel != null) nameLabel.text = template.propName;
         if (priceLabel != null) priceLabel.text = "—"; // template has no price field
 
-        FurnitureTemplate captured = template;
+        PropTemplate captured = template;
         card.RegisterCallback<ClickEvent>(_ => SelectItem(captured));
 
         return card;
@@ -201,14 +201,14 @@ public class DecorModalController : MonoBehaviour
     #region Editor
     // ─────────────────────────────────────────────
 
-    private void SelectItem(FurnitureTemplate template)
+    private void SelectItem(PropTemplate template)
     {
         _selectedItem = template;
         RefreshItems(); // re-render to show "selected" class
 
         if (_editor != null) _editor.RemoveFromClassList("hidden");
-        if (_editorName != null) _editorName.text = template.furnitureName;
-        if (_editorMeta != null) _editorMeta.text = $"ID-{template.furnitureID}";
+        if (_editorName != null) _editorName.text = template.propName;
+        if (_editorMeta != null) _editorMeta.text = $"ID-{template.propID}";
         if (_editorIcon != null) _editorIcon.text = "🪑";
     }
 
