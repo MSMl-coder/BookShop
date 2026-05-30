@@ -41,6 +41,7 @@ public class NPCSpawner : MonoBehaviour
     private int  _currentNPCCount = 0;
     private bool _isSpawning      = false;
     private bool _firstNPCSpawned = false;
+    
 
     // ── Unity ────────────────────────────────────────────────────
 

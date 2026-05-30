@@ -98,7 +98,8 @@ public class InteractionRouter : MonoBehaviour
             var npc = hit.collider.GetComponentInParent<NPCBrain>();
             if (npc != null && state == GameState.WorkDay)
             {
-                ContextMenuUI.Instance?.ShowForNPC(npc, hit.point, state);
+                npc.OnNPCClicked();           // відкриває NPCInspectorPanel (bottom-left)
+                ContextMenuUI.Instance?.Hide();
                 return;
             }
         }
