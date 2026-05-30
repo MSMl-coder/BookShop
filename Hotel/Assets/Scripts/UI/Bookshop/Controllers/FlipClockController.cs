@@ -90,10 +90,16 @@ public class FlipClockController : MonoBehaviour
 
     // Public read for PhaseBarController
     public float TotalGameMinutes => _totalMin;
+    public float Speed    => _paused ? 0f : _speed;
+    public bool  IsPaused => _paused;
+ 
+    public static FlipClockController Instance { get; private set; }
 
     // ─────────────────────────────────────────────────────────────
     public void Initialize(VisualElement root, BookshopUIController master)
     {
+         if (Instance == null) Instance = this;
+         else { Debug.LogWarning("[FlipClock] Multiple instances detected!"); }
         _totalMin = startHour * 60f + startMinute;
 
         _h1 = new Digit(root, "FlipH1");
@@ -198,13 +204,28 @@ public class FlipClockController : MonoBehaviour
         _btnPause?.RemoveFromClassList("active");
         _btnPlay?.RemoveFromClassList("active");
         _btnFast?.RemoveFromClassList("active");
-
+ 
         switch (mode)
         {
-            case 0: _paused = true;  _speed = 1f; _btnPause?.AddToClassList("active"); break;
-            case 1: _paused = false; _speed = 1f; _btnPlay?.AddToClassList("active");  break;
-            case 2: _paused = false; _speed = 3f; _btnFast?.AddToClassList("active");
-                Debug.Log("[FlipClock] Speed x3"); break;
+            case 0:
+                _paused = true;
+                _speed  = 1f;
+                _btnPause?.AddToClassList("active");
+                Time.timeScale = 0f;      // ← ЗУПИНИТИ всю гру
+                break;
+            case 1:
+                _paused = false;
+                _speed  = 1f;
+                _btnPlay?.AddToClassList("active");
+                Time.timeScale = 1f;      // ← Нормальна швидкість
+                break;
+            case 2:
+                _paused = false;
+                _speed  = 3f;
+                _btnFast?.AddToClassList("active");
+                Time.timeScale = 3f;      // ← x3 — вся гра прискорена
+                Debug.Log("[FlipClock] Speed x3");
+                break;
         }
     }
 

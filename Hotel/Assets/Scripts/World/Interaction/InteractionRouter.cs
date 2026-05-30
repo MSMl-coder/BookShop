@@ -92,17 +92,24 @@ public class InteractionRouter : MonoBehaviour
             }
         }
 
-        // ── Пріоритет 1: NPC (тільки WorkDay) ────────────────────────────
-        foreach (var hit in hits)
+        
+            // ── Пріоритет 1: NPC — WorkDay будь-який стан ────────────────
+    foreach (var hit in hits)
+    {
+        var npc = hit.collider.GetComponentInParent<NPCBrain>();
+        if (npc == null) continue;
+
+        if (state != GameState.WorkDay)
         {
-            var npc = hit.collider.GetComponentInParent<NPCBrain>();
-            if (npc != null && state == GameState.WorkDay)
-            {
-                npc.OnNPCClicked();           // відкриває NPCInspectorPanel (bottom-left)
-                ContextMenuUI.Instance?.Hide();
-                return;
-            }
+            Debug.Log($"[InteractionRouter] NPC click ignored: state={state} (потрібен WorkDay)");
+            break;
         }
+
+        Debug.Log($"[InteractionRouter] NPC clicked: {npc.Data?.npcName} → OnNPCClicked()");
+        ContextMenuUI.Instance?.Hide();
+        npc.OnNPCClicked();
+            return;
+    }
 
         // ── Пріоритет 2А: BookWorldItem через collider (ghost вже є) ──────
         foreach (var hit in hits)

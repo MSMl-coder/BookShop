@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd"
+>
+    <Style src="NPCInspectorPanel.uss"/>
+
+    <ui:VisualElement name="NPCInspectorRoot" class="npc-inspector hidden" picking-mode="Ignore">
+        <ui:VisualElement class="npc-inspector__header">
+            <ui:VisualElement class="npc-inspector__title-row">
+                <ui:Label name="NPCName" text="Відвідувач" class="npc-inspector__name"/>
+                <ui:Button name="NPCInspectorClose" text="✕" class="npc-inspector__close"/>
+            </ui:VisualElement>
+            <ui:Label name="NPCState" text="Розглядає" class="npc-inspector__state"/>
+            <ui:Label name="NPCGenre" text="Жанр: Fantasy" class="npc-inspector__genre"/>
+        </ui:VisualElement>
+
+        <ui:VisualElement class="npc-inspector__divider"/>
+
+        <ui:VisualElement class="npc-inspector__stats">
+            <ui:VisualElement class="npc-stat-row">
+                <ui:Label text="😊" class="npc-stat__icon"/>
+                <ui:Label text="Настрій" class="npc-stat__label"/>
+                <ui:VisualElement class="npc-stat__bar-track">
+                    <ui:VisualElement name="MoodBar" class="npc-stat__bar-fill mood"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="npc-stat-row">
+                <ui:Label text="🛋" class="npc-stat__icon"/>
+                <ui:Label text="Комфорт" class="npc-stat__label"/>
+                <ui:VisualElement class="npc-stat__bar-track">
+                    <ui:VisualElement name="ComfortBar" class="npc-stat__bar-fill comfort"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="npc-stat-row">
+                <ui:Label text="⏳" class="npc-stat__icon"/>
+                <ui:Label text="Терпіння" class="npc-stat__label"/>
+                <ui:VisualElement class="npc-stat__bar-track">
+                    <ui:VisualElement name="PatienceBar" class="npc-stat__bar-fill patience"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement class="npc-stat-row">
+                <ui:Label text="💰" class="npc-stat__icon"/>
+                <ui:Label text="Бюджет" class="npc-stat__label"/>
+                <ui:VisualElement class="npc-stat__bar-track">
+                    <ui:VisualElement name="WalletBar" class="npc-stat__bar-fill wallet"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -26,7 +26,7 @@
 
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.EventSystems;
+//using UnityEngine.EventSystems;
 using System;
 
 [RequireComponent(typeof(Camera))]
@@ -409,11 +409,7 @@ public class CameraController : MonoBehaviour
         _targetPos.x = Mathf.Clamp(_targetPos.x, worldBounds.xMin, worldBounds.xMax);
         _targetPos.z = Mathf.Clamp(_targetPos.z, worldBounds.yMin, worldBounds.yMax);
     }
-
-    private static bool IsPointerOverUI()
-    {
-        return EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
-    }
+    private static bool IsPointerOverUI() => UIPointerChecker.IsOverUI();
 
     #endregion
 

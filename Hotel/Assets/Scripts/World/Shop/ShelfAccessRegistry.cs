@@ -1,10 +1,7 @@
-// Assets/Scripts/World/Shop/ShelfAccessRegistry.cs
-// Singleton — обмежує кількість NPC що одночасно йдуть до однієї полиці.
-// Патерн ідентичний SeatRegistry: TryClaim / Release.
-//
-// Ліміт MAX_PER_SHELF = 2 — задається в Inspector або константою.
-// NPC резервує слот перед тим як рушити до полиці.
-// Звільняє при виході з Inspecting (або при знищенні).
+// Assets/Scripts/World/Shop/ShelfAccessRegistry.cs  v2
+// ЗМІНА: TryClaim тепер повертає Vector3 slotPosition — зміщена позиція
+// для кожного слоту щоб два NPC не стояли в одній точці і не блокували один одного.
+// Slot 0: +right * offset, Slot 1: -right * offset
 
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,11 +10,37 @@ public class ShelfAccessRegistry : MonoBehaviour
 {
     public static ShelfAccessRegistry Instance { get; private set; }
 
-    [Tooltip("Максимальна кількість NPC що одночасно можуть йти до однієї полиці.")]
     [SerializeField] [Range(1, 4)] private int maxPerShelf = 2;
 
-    // shelf → множина NPC instanceID що зараз її таргетують
-    private readonly Dictionary<Shelf, HashSet<string>> _claims = new();
+    [Tooltip("Бічне зміщення між двома NPC що стоять біля однієї полиці (метри).")]
+    [SerializeField] private float slotSideOffset = 0.55f;
+
+    [Tooltip("Відстань від полиці (вперед).")]
+    [SerializeField] private float standDistance = 1.2f;
+
+    private class ShelfRecord
+    {
+        public readonly string[] Occupants; // NPC instanceID або null
+        public ShelfRecord(int cap) { Occupants = new string[cap]; }
+
+        public int FreeSlot()
+        {
+            for (int i = 0; i < Occupants.Length; i++)
+                if (Occupants[i] == null) return i;
+            return -1;
+        }
+
+        public int SlotOf(string id)
+        {
+            for (int i = 0; i < Occupants.Length; i++)
+                if (Occupants[i] == id) return i;
+            return -1;
+        }
+
+        public bool HasFree() => FreeSlot() >= 0;
+    }
+
+    private readonly Dictionary<Shelf, ShelfRecord> _records = new();
 
     private void Awake()
     {
@@ -27,58 +50,73 @@ public class ShelfAccessRegistry : MonoBehaviour
 
     // ── Public API ────────────────────────────────────────────────
 
-    /// NPC намагається зайняти слот на полиці.
-    /// Повертає true якщо дозволено, false якщо повна.
-    public bool TryClaim(Shelf shelf, string npcInstanceID)
+    /// Резервує слот і повертає позицію де стояти NPC.
+    /// Повертає false якщо полиця повна.
+    public bool TryClaim(Shelf shelf, string npcID, out Vector3 standPos)
     {
+        standPos = shelf != null ? shelf.transform.position : Vector3.zero;
         if (shelf == null) return false;
 
-        if (!_claims.TryGetValue(shelf, out var set))
+        if (!_records.TryGetValue(shelf, out var rec))
         {
-            set = new HashSet<string>();
-            _claims[shelf] = set;
+            rec = new ShelfRecord(maxPerShelf);
+            _records[shelf] = rec;
         }
 
-        // Вже зарезервував цю полицю — повторний claim без проблем
-        if (set.Contains(npcInstanceID)) return true;
-
-        if (set.Count >= maxPerShelf)
+        // Вже зарезервував — повертаємо його позицію
+        int existing = rec.SlotOf(npcID);
+        if (existing >= 0)
         {
-            Debug.Log($"[ShelfAccess] '{shelf.name}' full ({set.Count}/{maxPerShelf}), " +
-                      $"NPC {npcInstanceID} skip");
+            standPos = SlotPosition(shelf, existing);
+            return true;
+        }
+
+        int slot = rec.FreeSlot();
+        if (slot < 0)
+        {
+            Debug.Log($"[ShelfAccess] '{shelf.name}' full, {npcID} denied");
             return false;
         }
 
-        set.Add(npcInstanceID);
-        Debug.Log($"[ShelfAccess] '{shelf.name}' claimed by {npcInstanceID} " +
-                  $"({set.Count}/{maxPerShelf})");
+        rec.Occupants[slot] = npcID;
+        standPos = SlotPosition(shelf, slot);
+        Debug.Log($"[ShelfAccess] '{shelf.name}'[{slot}] → {npcID} @ {standPos}");
         return true;
     }
 
-    /// NPC звільняє слот (перейшов у інший стан або знищений).
-    public void Release(Shelf shelf, string npcInstanceID)
+    public void Release(Shelf shelf, string npcID)
     {
-        if (shelf == null) return;
-        if (!_claims.TryGetValue(shelf, out var set)) return;
-
-        if (set.Remove(npcInstanceID))
-            Debug.Log($"[ShelfAccess] '{shelf.name}' released by {npcInstanceID} " +
-                      $"({set.Count}/{maxPerShelf})");
+        if (shelf == null || !_records.TryGetValue(shelf, out var rec)) return;
+        for (int i = 0; i < rec.Occupants.Length; i++)
+        {
+            if (rec.Occupants[i] != npcID) continue;
+            rec.Occupants[i] = null;
+            Debug.Log($"[ShelfAccess] '{shelf.name}'[{i}] released by {npcID}");
+            return;
+        }
     }
 
-    /// Звільнити всі слоти конкретного NPC (при знищенні).
-    public void ReleaseAll(string npcInstanceID)
+    public void ReleaseAll(string npcID)
     {
-        foreach (var set in _claims.Values)
-            set.Remove(npcInstanceID);
+        foreach (var rec in _records.Values)
+            for (int i = 0; i < rec.Occupants.Length; i++)
+                if (rec.Occupants[i] == npcID) rec.Occupants[i] = null;
     }
 
-    /// Скільки NPC зараз таргетують цю полицю.
-    public int GetCount(Shelf shelf)
+    public bool HasSlot(Shelf shelf)
     {
-        return (_claims.TryGetValue(shelf, out var set)) ? set.Count : 0;
+        if (shelf == null) return false;
+        return !_records.TryGetValue(shelf, out var rec) || rec.HasFree();
     }
 
-    /// Чи є вільний слот.
-    public bool HasSlot(Shelf shelf) => GetCount(shelf) < maxPerShelf;
+    // ── Helpers ───────────────────────────────────────────────────
+
+    /// Slot 0 = вліво, Slot 1 = вправо відносно полиці.
+    private Vector3 SlotPosition(Shelf shelf, int slot)
+    {
+        float side = slot == 0 ? slotSideOffset : -slotSideOffset;
+        return shelf.transform.position
+             + shelf.transform.forward * standDistance
+             + shelf.transform.right   * side;
+    }
 }

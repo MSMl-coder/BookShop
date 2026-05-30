@@ -1,0 +1,137 @@
+/* Assets/UI/NPC/NPCInspectorPanel.uss
+   Light Academia / Moonlighter palette — темний папір, золоті акценти */
+
+/* ── Root панелі ─────────────────────────────────────────────── */
+.npc-inspector {
+    position: absolute;
+    bottom: 24px;
+    left: 20px;
+    width: 240px;
+
+    background-color: rgb(30, 24, 16);
+    border-width: 1px;
+    border-color: rgb(160, 120, 50);
+    border-radius: 6px;
+
+    padding: 10px 12px;
+
+    /* slide-in анімація */
+    translate: 0 0;
+    transition-property: translate, opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out;
+    opacity: 1;
+}
+
+.npc-inspector.hidden {
+    opacity: 0;
+    translate: -20px 0;
+    /* picking-mode ignore коли прихована */
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.npc-inspector__header {
+    flex-direction: column;
+    margin-bottom: 6px;
+}
+
+.npc-inspector__title-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.npc-inspector__name {
+    font-size: 13px;
+    color: rgb(232, 210, 148);
+    -unity-font-style: bold;
+    flex-grow: 1;
+}
+
+.npc-inspector__close {
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0,0,0,0);
+    border-width: 0;
+    color: rgb(160, 120, 50);
+    font-size: 12px;
+    padding: 0;
+    -unity-text-align: middle-center;
+    cursor: link;
+}
+.npc-inspector__close:hover { color: rgb(220, 180, 80); }
+
+.npc-inspector__state {
+    font-size: 10px;
+    color: rgb(180, 160, 100);
+    margin-top: 2px;
+    letter-spacing: 0.5px;
+}
+
+.npc-inspector__genre {
+    font-size: 9px;
+    color: rgb(130, 110, 70);
+    margin-top: 1px;
+}
+
+/* ── Divider ─────────────────────────────────────────────────── */
+.npc-inspector__divider {
+    height: 1px;
+    background-color: rgb(70, 54, 28);
+    margin: 6px 0;
+}
+
+/* ── Stats section ───────────────────────────────────────────── */
+.npc-inspector__stats {
+    flex-direction: column;
+}
+
+.npc-stat-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.npc-stat__icon {
+    width: 16px;
+    font-size: 11px;
+    -unity-text-align: middle-center;
+    flex-shrink: 0;
+}
+
+.npc-stat__label {
+    width: 56px;
+    font-size: 9px;
+    color: rgb(160, 140, 90);
+    margin-left: 4px;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+}
+
+/* ── Bar ─────────────────────────────────────────────────────── */
+.npc-stat__bar-track {
+    flex-grow: 1;
+    height: 6px;
+    background-color: rgb(50, 40, 22);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-left: 6px;
+}
+
+.npc-stat__bar-fill {
+    height: 100%;
+    width: 50%; /* оновлюється з C# через style.width */
+    border-radius: 3px;
+    transition-property: width, background-color;
+    transition-duration: 0.3s;
+}
+
+/* Кольори барів */
+.npc-stat__bar-fill.mood     { background-color: rgb(80, 180, 90); }
+.npc-stat__bar-fill.comfort  { background-color: rgb(60, 140, 210); }
+.npc-stat__bar-fill.patience { background-color: rgb(220, 180, 50); }
+.npc-stat__bar-fill.wallet   { background-color: rgb(180, 140, 50); }
+
+/* Зміна кольору при низькому значенні — задається через USS class */
+.npc-stat__bar-fill.low  { background-color: rgb(210, 70, 50); }
+.npc-stat__bar-fill.mid  { background-color: rgb(210, 160, 50); }

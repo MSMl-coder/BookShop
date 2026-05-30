@@ -68,6 +68,14 @@ public class Shelf : MonoBehaviour
     private BookWorldItem _materializedBook;
     [System.NonSerialized] public BookWorldItem _materializedBookRef;
 
+    // ───────────────────────────────────────────────────────────────────
+    // EVENTS
+    // ───────────────────────────────────────────────────────────────────
+
+    /// Спрацьовує коли гравець кладе книгу на цю полицю.
+    /// NPCBrain підписується щоб видалити полицю з _visitedShelves
+    /// і дати боту шанс переглянути її знову.
+    public event System.Action<Shelf> OnBookPlaced;
 
     // ───────────────────────────────────────────────────────────────────
     // LIFECYCLE
@@ -211,6 +219,9 @@ public class Shelf : MonoBehaviour
         _books.Add(entry);
         RebuildLayout();
         PushToRenderer();
+
+        // Повідомляємо NPCBrain що на полиці з'явилась нова книга
+        OnBookPlaced?.Invoke(this);
     }
 
     /// <summary>LEGACY: prefab ігнорується.</summary>

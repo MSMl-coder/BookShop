@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Bookshop/ContextMenuUI.uss?fileID=7433441132597879392&amp;guid=5a6a04f987dd84fd3afd2d0fb16af0a6&amp;type=3#ContextMenuUI"/>
+    <ui:VisualElement name="ContextMenu" class="ctx-panel">
+        <ui:VisualElement name="ContextMenuContainer" class="ctx-container" style="height: 450px;"/>
+    </ui:VisualElement>
+</ui:UXML>
