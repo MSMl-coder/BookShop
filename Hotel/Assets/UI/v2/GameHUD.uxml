@@ -1,0 +1,89 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/v2/GameHUD.uss?fileID=7433441132597879392&amp;guid=f5d1f5d4f7cd94c76beda558f1b1be36&amp;type=3#GameHUD"/>
+    <ui:VisualElement name="HUDRoot" picking-mode="Ignore" class="hud-root" style="top: 3px; bottom: -1px; right: -1px; left: 2px;">
+        <ui:VisualElement name="TopBar" class="top-bar">
+            <ui:VisualElement class="clock-row">
+                <ui:Label name="ClockHH" text="07" class="clock-digit"/>
+                <ui:VisualElement class="clock-colon">
+                    <ui:VisualElement class="clock-colon__dot"/>
+                    <ui:VisualElement class="clock-colon__dot"/>
+                </ui:VisualElement>
+                <ui:Label name="ClockMM" text="22" class="clock-digit"/>
+                <ui:VisualElement class="clock-divider"/>
+                <ui:Button name="SpeedBtn1" text="&gt;" class="speed-btn speed-btn--active"/>
+                <ui:Button name="SpeedBtn2" text="&gt;&gt;" class="speed-btn"/>
+                <ui:Button name="SpeedBtn3" text="&gt;&gt;&gt;" class="speed-btn"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="LeftNav" picking-mode="Position" class="left-nav">
+            <ui:Button name="BtnAwards" tooltip="Awards" class="nav-btn" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
+            <ui:Button name="BtnBookHunters" tooltip="Book Hunters" class="nav-btn" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
+            <ui:Button name="BtnDecorations" tooltip="Decorations" class="nav-btn nav-btn--active" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
+            <ui:Button name="BtnCatalog" tooltip="Catalog" class="nav-btn" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
+            <ui:Button name="BtnInventory" tooltip="Inventory" class="nav-btn" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="BottomLeftCluster" picking-mode="Ignore" class="bottom-left-cluster">
+            <ui:VisualElement name="NPCInspectorPanel" picking-mode="Position" class="npc-panel hidden">
+                <ui:VisualElement class="npc-stats-section">
+                    <ui:VisualElement class="npc-stat-row">
+                        <ui:VisualElement class="npc-stat__icon-wrap">
+                            <ui:VisualElement class="npc-stat__icon npc-stat__icon--mood"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="MoodBar" class="npc-stat__bar-track">
+                            <ui:VisualElement name="MoodBarFill" class="npc-stat__bar-fill mood"/>
+                        </ui:VisualElement>
+                        <ui:Label name="MoodLabel" text="Mood" class="npc-stat__label"/>
+                        <ui:Label name="MoodTrend" text="↑" class="npc-stat__trend trend--up"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="npc-stat-row">
+                        <ui:VisualElement class="npc-stat__icon-wrap">
+                            <ui:VisualElement class="npc-stat__icon npc-stat__icon--comfort"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="ComfortBar" class="npc-stat__bar-track">
+                            <ui:VisualElement name="ComfortBarFill" class="npc-stat__bar-fill comfort"/>
+                        </ui:VisualElement>
+                        <ui:Label name="ComfortLabel" text="Comfort" class="npc-stat__label"/>
+                        <ui:Label name="ComfortTrend" text="↑" class="npc-stat__trend trend--up"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="npc-stat-row">
+                        <ui:VisualElement class="npc-stat__icon-wrap">
+                            <ui:VisualElement class="npc-stat__icon npc-stat__icon--patience"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="PatienceBar" class="npc-stat__bar-track">
+                            <ui:VisualElement name="PatienceBarFill" class="npc-stat__bar-fill patience"/>
+                        </ui:VisualElement>
+                        <ui:Label name="PatienceLabel" text="Patience" class="npc-stat__label"/>
+                        <ui:Label name="PatienceTrend" text="↓" class="npc-stat__trend trend--down"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="npc-stat-row">
+                        <ui:VisualElement class="npc-stat__icon-wrap">
+                            <ui:VisualElement class="npc-stat__icon npc-stat__icon--wallet"/>
+                        </ui:VisualElement>
+                        <ui:VisualElement name="WalletBar" class="npc-stat__bar-track">
+                            <ui:VisualElement name="WalletBarFill" class="npc-stat__bar-fill wallet"/>
+                        </ui:VisualElement>
+                        <ui:Label name="WalletLabel" text="Wallet" class="npc-stat__label"/>
+                        <ui:Label name="WalletTrend" text="" class="npc-stat__trend"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="GenreCardsRow" picking-mode="Position" class="genre-cards-row"/>
+                <ui:VisualElement name="GenreCardTooltip" picking-mode="Ignore" class="genre-card-tooltip hidden">
+                    <ui:Label name="TooltipTitle" text="Fantasy: Title" class="tooltip-title"/>
+                    <ui:Label name="TooltipPrice" text="$ 45" class="tooltip-price"/>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="CharacterDock" picking-mode="Position" class="character-dock">
+                <ui:VisualElement name="CharCard_Max" class="char-card" style="margin-right: 0;">
+                    <ui:VisualElement name="VisualElement" class="char-card__portrait char-card__portrait--placeholder" style="height: 135px; width: 100px; background-color: rgb(231, 245, 253);">
+                        <ui:Label name="CharName_Max" text="Max" class="char-card__name" style="color: rgb(0, 0, 139);"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement name="CharCard_Vika" class="char-card" style="height: 113px; width: 87px;">
+                    <ui:VisualElement class="char-card__portrait char-card__portrait--placeholder" style="height: 113px; width: 82px; background-color: rgb(231, 245, 253);">
+                        <ui:Label name="CharName_Vika" text="Vika" class="char-card__name" style="bottom: 0; justify-content: flex-start; align-items: auto; margin-bottom: 0; color: rgb(0, 0, 139); margin-left: 0; padding-left: 0;"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

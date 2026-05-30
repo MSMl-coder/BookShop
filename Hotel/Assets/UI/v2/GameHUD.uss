@@ -1,0 +1,464 @@
+/*
+    GameHUD.uss — Screen 1 styles
+    Path: Assets/UI/v2/GameHUD/GameHUD.uss
+
+    Залежить від BookshopVariables.uss (або BookshopUI.uss де задані --board, --gold тощо).
+    Підключіть через @import або додайте BookshopVariables.uss до PanelSettings StyleSheets.
+
+    АНІМАЦІЇ:
+      - Жанрові картки: USS transitions на width + opacity + translate-x
+      - Stat bars: USS transition на width
+      - NPC панель: USS transition на opacity + translate-y (slide-in знизу)
+*/
+
+/* ══════════════════════════════════════
+   ROOT
+══════════════════════════════════════ */
+.hud-root {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    flex-direction: column;
+    overflow: visible;
+}
+
+/* ══════════════════════════════════════
+   TOP BAR
+   Figma: height~40px, dark bg, centered clock + speed arrows
+══════════════════════════════════════ */
+.top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 40px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(36, 48, 42);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(184, 144, 42, 0.35);
+}
+
+.clock-row {
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+}
+
+.clock-digit {
+    font-size: 24px;
+    color: rgb(245, 236, 214);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    width: 34px;
+    letter-spacing: 1px;
+}
+
+.clock-colon {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 10px;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+.clock-colon__dot {
+    width: 4px; height: 4px;
+    border-radius: 2px;
+    background-color: rgb(212, 168, 67);
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.clock-divider {
+    width: 1px; height: 20px;
+    background-color: rgb(184, 144, 42);
+    opacity: 0.5;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.speed-btn {
+    width: 30px;
+    height: 28px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 1px;
+    border-color: rgb(150, 130, 70);
+    border-radius: 3px;
+    color: rgb(200, 175, 100);
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    margin-left: 3px;
+    padding: 0;
+    transition-property: background-color, border-color, color;
+    transition-duration: 0.15s;
+}
+.speed-btn:hover {
+    background-color: rgba(184, 144, 42, 0.2);
+    border-color: rgb(212, 168, 67);
+    color: rgb(232, 196, 90);
+}
+.speed-btn--active {
+    background-color: rgb(212, 168, 67);
+    color: rgb(28, 38, 30);
+    border-color: rgb(232, 196, 90);
+    -unity-font-style: bold;
+}
+
+/* ══════════════════════════════════════
+   LEFT NAV
+   Figma: NO background, floating buttons only.
+   Buttons: rectangular, angled feel, centered vertically.
+   Hover  = slide right (translate via USS transition).
+   Active = stays slid out (fixed position), solid gold.
+   All other buttons remain visible at all times.
+══════════════════════════════════════ */
+.left-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;   /* кнопки по центру вертикально */
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    background-color: rgba(0, 0, 0, 0);   /* прозорий фон */
+    border-right-width: 0;
+    width: 56px;               /* ширина = ширина кнопки у спокої */
+    overflow: visible;         /* дозволяє кнопкам виїжджати за межі контейнера */
+}
+
+/* Базова кнопка: прямокутна, трохи витягнута по горизонталі */
+.nav-btn {
+    width: 100px;
+    height: 42px;
+    background-color: rgb(42, 56, 68);
+    border-width: 0;
+    border-radius: 0 7px 7px 0;   /* скошена права сторона — ефект "вкладки" */
+    margin-bottom: 4px;
+    padding: 0;
+    rotate: -5deg; 
+    margin-left: -24px; 
+    margin-bottom: 4px;  /* початково зсунута вліво, видно лише 12px */
+
+    /* SLIDE RIGHT анімація через translate */
+    transition-property: translate, background-color;
+    transition-duration: 0.18s;
+    transition-timing-function: ease-out;
+    translate: 0 0;
+}
+
+/* Hover: виїжджає вправо на 12px */
+.nav-btn:hover {
+    translate: 20px 0;
+    background-color: rgb(58, 78, 94);
+}
+
+/* Active/selected: залишається висунутою на 12px — через USS клас що C# додає */
+.nav-btn--active {
+    translate: 12px 0;
+    background-color: rgb(212, 168, 67);
+    border-width: 0;
+}
+.nav-btn--active:hover {
+    background-color: rgb(225, 182, 80);
+}
+
+/* ══════════════════════════════════════
+   BOTTOM-LEFT CLUSTER
+══════════════════════════════════════ */
+.bottom-left-cluster {
+    position: absolute;
+    bottom: 16px;
+    left: 58px;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* ══════════════════════════════════════
+   NPC INSPECTOR PANEL
+══════════════════════════════════════ */
+.npc-panel {
+    background-color: rgba(20, 28, 32, 0.92);
+    border-width: 1px;
+    border-color: rgba(184, 144, 42, 0.5);
+    border-radius: 8px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
+    margin-bottom: 10px;
+    min-width: 240px;
+
+    /* Slide-in знизу при Show() */
+    transition-property: opacity, translate;
+    transition-duration: 0.28s;
+    transition-timing-function: ease-out;
+    opacity: 1;
+    translate: 0 0;
+}
+
+/* Стан "прихована" — C# додає/прибирає цей клас */
+.npc-panel.hidden {
+    opacity: 0;
+    translate: 0 16px;    /* зсунута на 16px вниз */
+    /* picking-mode=Ignore задається через C# при hidden */
+}
+
+/* ── STAT BARS ── */
+.npc-stats-section {
+    flex-direction: column;
+}
+
+.npc-stat-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 5px;
+    height: 18px;
+}
+
+.npc-stat__icon-wrap {
+    width: 16px; height: 16px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Placeholder іконки — квадрат кольору бару */
+.npc-stat__icon {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+}
+.npc-stat__icon--mood     { background-color: rgb(80, 180, 90); }
+.npc-stat__icon--comfort  { background-color: rgb(60, 140, 210); }
+.npc-stat__icon--patience { background-color: rgb(220, 180, 50); }
+.npc-stat__icon--wallet   { background-color: rgb(200, 160, 60); }
+
+.npc-stat__bar-track {
+    flex-grow: 1;
+    height: 6px;
+    background-color: rgba(50, 40, 22, 0.8);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+.npc-stat__bar-fill {
+    height: 100%;
+    width: 60%;
+    border-radius: 3px;
+    /* Плавне оновлення через C# style.width */
+    transition-property: width, background-color;
+    transition-duration: 0.35s;
+    transition-timing-function: ease-out;
+}
+.npc-stat__bar-fill.mood     { background-color: rgb(80, 180, 90); }
+.npc-stat__bar-fill.comfort  { background-color: rgb(60, 140, 210); }
+.npc-stat__bar-fill.patience { background-color: rgb(220, 180, 50); }
+.npc-stat__bar-fill.wallet   { background-color: rgb(200, 160, 60); }
+
+/* Низькі значення */
+.npc-stat__bar-fill.low { background-color: rgb(210, 70, 50); }
+.npc-stat__bar-fill.mid { background-color: rgb(210, 160, 50); }
+
+.npc-stat__label {
+    font-size: 9px;
+    color: rgba(160, 140, 90, 0.9);
+    min-width: 52px;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+}
+
+.npc-stat__trend {
+    font-size: 11px;
+    width: 14px;
+    flex-shrink: 0;
+    -unity-text-align: middle-center;
+}
+.trend--up   { color: rgb(80, 200, 90); }
+.trend--down { color: rgb(210, 70, 50); }
+
+/* ══════════════════════════════════════
+   GENRE CARDS ROW — "колода карт"
+══════════════════════════════════════ */
+.genre-cards-row {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-top: 8px;
+    /* overflow: visible — щоб картки могли виходити за межі при fan-out */
+    overflow: visible;
+    height: 52px;
+    /* Позиціонування: картки стоять щільно як колода */
+}
+
+/*
+   GENRE CARD — одна картка жанру
+   Collapsed: вузька (32px), картки перекривають одна одну
+   Expanded: ширша (72px), з'являється лейбл
+
+   Анімація: transition на width, opacity
+   Зсув вправо для ефекту "розкладення" задається через C#
+   translate на кожну картку (0 → індивідуальний offset)
+*/
+.genre-card {
+    width: 32px;
+    height: 48px;
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: rgba(212, 168, 67, 0.4);
+    background-color: rgb(42, 55, 70);
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 4px;
+    margin-right: -12px;        /* перекриття як у колоді */
+    overflow: hidden;
+
+    /* TRANSITION — серцевина анімації */
+    transition-property: width, margin-right, opacity;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-out;
+}
+
+/* Стан "розкладено" — додається C# при PointerEnter на GenreCardsRow */
+.genre-card.expanded {
+    width: 72px;
+    margin-right: 6px;           /* нормальний відступ між картками */
+}
+
+/* Hover на конкретну картку — легке виділення */
+.genre-card:hover {
+    border-color: rgb(212, 168, 67);
+    /* translate-y: -4px не підтримується як USS transition у всіх версіях Unity 6,
+       тому робимо через C# RegisterCallback<PointerEnterEvent> */
+}
+
+/* Іконка жанру — placeholder квадрат, замінити на Texture2D */
+.genre-card__icon {
+    width: 20px; height: 20px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.15);
+    margin-bottom: 2px;
+    flex-shrink: 0;
+}
+
+/* Лейбл жанру — прихований при collapsed, з'являється при expanded */
+.genre-card__label {
+    font-size: 8px;
+    color: rgb(245, 236, 214);
+    -unity-text-align: middle-center;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: 0;
+    /* Fade in разом із розширенням */
+    transition-property: opacity;
+    transition-duration: 0.2s;
+    transition-delay: 0.1s;     /* затримка: спочатку розширюється, потім з'являється текст */
+}
+.genre-card.expanded > .genre-card__label {
+    opacity: 1;
+}
+
+/* Мітка "виконано" — зелена галочка поверх картки */
+.genre-card__fulfilled {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 14px; height: 14px;
+    border-radius: 7px;
+    background-color: rgb(80, 180, 90);
+    /* Вміст (✓) додається через C# або фоновий спрайт */
+}
+
+/* ── Жанрові кольори карток ──
+   Відповідають BookGenre enum: Classic, Fantasy, SciFi, Horror, Mystery, Biography, Academic
+── */
+.genre-card--classic    { background-color: rgb(48,  40,  22); border-color: rgba(168, 144, 42,  0.6); }
+.genre-card--fantasy    { background-color: rgb(38,  28,  68); border-color: rgba(122,  58, 168, 0.6); }
+.genre-card--scifi      { background-color: rgb(18,  48,  68); border-color: rgba( 58, 168, 210, 0.6); }
+.genre-card--horror     { background-color: rgb(52,  18,  18); border-color: rgba(168,  38,  38, 0.6); }
+.genre-card--mystery    { background-color: rgb(22,  32,  58); border-color: rgba( 58, 104, 168, 0.6); }
+.genre-card--biography  { background-color: rgb(22,  52,  28); border-color: rgba( 58, 168,  80, 0.6); }
+.genre-card--academic   { background-color: rgb(52,  44,  18); border-color: rgba(184, 160,  60, 0.6); }
+
+/* Коли книжку взяв гравець — картка стає яскравішою (колір відповідає книжці) */
+.genre-card--fulfilled {
+    border-color: rgb(212, 168, 67);
+    border-width: 2px;
+}
+
+/* ════════════════════════════════════
+   GENRE CARD TOOLTIP
+════════════════════════════════════ */
+.genre-card-tooltip {
+    position: absolute;
+    /* Позиція задається C# під активну карту */
+    background-color: rgba(20, 14, 8, 0.96);
+    border-width: 1px;
+    border-color: rgb(184, 144, 42);
+    border-radius: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+    flex-direction: column;
+    min-width: 120px;
+
+    transition-property: opacity;
+    transition-duration: 0.15s;
+    opacity: 1;
+}
+.genre-card-tooltip.hidden {
+    opacity: 0;
+}
+.tooltip-title {
+    font-size: 11px;
+    color: rgb(245, 236, 214);
+    -unity-font-style: italic;
+    white-space: normal;
+}
+.tooltip-price {
+    font-size: 12px;
+    color: rgb(232, 196, 90);
+    -unity-font-style: bold;
+    margin-top: 3px;
+}
+
+/* ══════════════════════════════════════
+   CHARACTER DOCK — Max / Vika
+   Figma: великі портрети ~68x68px,
+   темно-сірий фон, ім'я знизу, rounded
+══════════════════════════════════════ */
+.character-dock {
+    flex-direction: row;
+    align-items: flex-end;
+    margin-top: 8px;
+}
+
+.char-card {
+    flex-direction: column;
+    align-items: center;
+    margin-right: 6px;
+    cursor: default;
+}
+
+.char-card__portrait--placeholder {
+    width: 68px;
+    height: 68px;
+    border-radius: 7px;
+    background-color: rgb(52, 62, 72);
+    border-width: 2px;
+    border-color: rgba(140, 150, 160, 0.5);
+}
+
+.char-card__name {
+    font-size: 11px;
+    color: rgb(200, 190, 170);
+    -unity-text-align: middle-center;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+    -unity-font-style: normal;
+}

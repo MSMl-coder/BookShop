@@ -1,0 +1,30 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/v2/EditHUD.uss?fileID=7433441132597879392&amp;guid=040856f741fcd4f96b51fc2a8390a141&amp;type=3#EditHUD"/>
+    <ui:VisualElement name="EditHUDRoot" picking-mode="Ignore" class="edit-hud-root">
+        <ui:VisualElement name="LeftPanel" picking-mode="Position" class="edit-left-panel edit-left-panel--hidden">
+            <ui:Button name="BtnClosePanel" text="✕" class="edit-close-btn"/>
+            <ui:VisualElement name="CategoryIconBar" class="category-icon-bar">
+                <ui:Button name="CatBtn_0" class="cat-icon-btn cat-icon-btn--active"/>
+                <ui:Button name="CatBtn_1" class="cat-icon-btn"/>
+                <ui:Button name="CatBtn_2" class="cat-icon-btn"/>
+                <ui:Button name="CatBtn_3" class="cat-icon-btn"/>
+                <ui:Button name="CatBtn_4" class="cat-icon-btn"/>
+            </ui:VisualElement>
+            <ui:ScrollView name="SubcategoryRow" mode="Horizontal" mouse-wheel-scroll-size="120" class="subcategory-row"/>
+            <ui:VisualElement class="edit-search-row">
+                <ui:TextField name="SearchField" placeholder-text="..." class="edit-search-field"/>
+                <ui:Button name="BtnSearch" text="🔍" class="edit-search-btn"/>
+            </ui:VisualElement>
+            <ui:ScrollView name="ItemGrid" mode="Vertical" mouse-wheel-scroll-size="80" class="edit-item-grid"/>
+        </ui:VisualElement>
+        <ui:VisualElement name="ContextToolbar" picking-mode="Position" class="context-toolbar context-toolbar--hidden">
+            <ui:VisualElement name="ToolbarItemIcon" class="ctx-item-icon"/>
+            <ui:VisualElement class="ctx-divider"/>
+            <ui:Button name="BtnMove" tooltip="Move" class="ctx-btn"/>
+            <ui:Button name="BtnDuplicate" tooltip="Duplicate" class="ctx-btn"/>
+            <ui:Button name="BtnDelete" tooltip="Delete" class="ctx-btn ctx-btn--danger"/>
+            <ui:Button name="BtnConfirm" tooltip="Confirm" class="ctx-btn ctx-btn--confirm"/>
+            <ui:Button name="BtnCancel" tooltip="Cancel" class="ctx-btn"/>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
