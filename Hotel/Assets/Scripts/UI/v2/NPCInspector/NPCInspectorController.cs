@@ -15,6 +15,11 @@ public class NPCInspectorController
     // Root — сам елемент NPCInspector
     private readonly VisualElement _root;
 
+    // Speech bubble
+    private VisualElement _speechBubble;
+    private Label         _speechBubbleText;
+    private System.Threading.CancellationTokenSource _bubbleCts;
+
     // Stat tracks — контейнери для сегментів
     private SegmentedBar _moodBar;
     private SegmentedBar _comfortBar;
@@ -72,6 +77,11 @@ public class NPCInspectorController
 
         // ── Genre cards row ──
         _genreCardsRow = _root.Q<VisualElement>("GenreCardsRow");
+
+        // Speech bubble
+        _speechBubble     = _root.Q<VisualElement>("SpeechBubble");
+        _speechBubbleText = _root.Q<Label>("SpeechBubbleText");
+
         if (_genreCardsRow != null)
         {
             _genreCardsRow.RegisterCallback<PointerEnterEvent>(_ => SetCardsExpanded(true));
@@ -95,6 +105,9 @@ public class NPCInspectorController
         // Start hidden — C# контролює видимість
         _root.AddToClassList(CLS_HIDDEN);
         _root.pickingMode = PickingMode.Ignore;
+
+        // Закриття по кліку на порожнє місце реєструється при Show()
+        // через батьківський HUDRoot (щоб не блокувати до відкриття)
     }
 
     // ── Public API ───────────────────────────────────────────────
@@ -119,12 +132,57 @@ public class NPCInspectorController
         RebuildGenreCards();
         RefreshBars();
         SetVisible(true);
+
+        // Реєструємо click-outside: клік поза панеллю закриває її.
+        // Реєструємо на HUDRoot (батьківський елемент всього HUD).
+        RegisterClickOutside();
     }
 
     public void Hide()
     {
         Detach();
         SetVisible(false);
+        HideSpeechBubble();
+    }
+
+    /// Показати хмаринку з текстом над іконкою настрою.
+    /// autoDismissSeconds: 0 = не ховати автоматично.
+    public void ShowSpeechBubble(string text, float autoDismissSeconds = 3f)
+    {
+        if (_speechBubble == null)
+        {
+            Debug.LogWarning("[NPCInspector] SpeechBubble element not found in UXML");
+            return;
+        }
+
+        if (_speechBubbleText != null)
+            _speechBubbleText.text = text;
+
+        // display:none -> flex (займає місце в flex колонці)
+        _speechBubble.style.display = DisplayStyle.Flex;
+        _speechBubble.RemoveFromClassList(CLS_HIDDEN);
+
+        _bubbleCts?.Cancel();
+        if (autoDismissSeconds > 0f)
+        {
+            _bubbleCts = new System.Threading.CancellationTokenSource();
+            var token  = _bubbleCts.Token;
+            _speechBubble.schedule.Execute(() =>
+            {
+                if (!token.IsCancellationRequested)
+                    HideSpeechBubble();
+            }).StartingIn((long)(autoDismissSeconds * 1000));
+        }
+
+        Debug.Log($"[NPCInspector] SpeechBubble shown: '{text}'");
+    }
+
+    public void HideSpeechBubble()
+    {
+        _bubbleCts?.Cancel();
+        if (_speechBubble == null) return;
+        _speechBubble.style.display = DisplayStyle.None;
+        _speechBubble.AddToClassList(CLS_HIDDEN);
     }
 
     public void HideIfShowing(NPCBrain npc)
@@ -184,6 +242,9 @@ public class NPCInspectorController
 
         SetVisible(true);
         Debug.Log("[NPCInspector] ShowForPreview called");
+
+        // Тест хмаринки — показуємо одразу з preview
+        ShowSpeechBubble("Шукаю книгу детективу!", 5f);
     }
 
     // ── Visibility ────────────────────────────────────────────────
@@ -451,6 +512,32 @@ public class NPCInspectorController
     private void HideTooltip() => _tooltip?.AddToClassList(CLS_HIDDEN);
 
     // ── Helpers ───────────────────────────────────────────────────
+
+    private void RegisterClickOutside()
+    {
+        // Знаходимо HUDRoot або batьківський елемент
+        var parent = _root.parent;
+        while (parent != null && parent.name != "HUDRoot" && parent.parent != null)
+            parent = parent.parent;
+
+        if (parent == null) return;
+
+        // Реєструємо один раз — при повторному Show() старий callback залишається
+        // але перевіряємо _isVisible перед закриттям
+        parent.RegisterCallback<PointerDownEvent>(OnClickOutside, TrickleDown.TrickleDown);
+    }
+
+    private void OnClickOutside(PointerDownEvent evt)
+    {
+        if (!_isVisible) return;
+
+        // Перевіряємо чи клік попав у нашу панель
+        var localPos = _root.WorldToLocal(evt.position);
+        if (_root.ContainsPoint(localPos)) return;
+
+        // Клік поза панеллю — закриваємо
+        Hide();
+    }
 
     private void Detach()
     {

@@ -3699,6 +3699,9 @@ GameObject:
   - component: {fileID: 754696661}
   - component: {fileID: 754696663}
   - component: {fileID: 754696662}
+  - component: {fileID: 754696666}
+  - component: {fileID: 754696665}
+  - component: {fileID: 754696664}
   m_Layer: 0
   m_Name: BookshopUI
   m_TagString: Untagged
@@ -4056,6 +4059,52 @@ MonoBehaviour:
   fadeInDuration: 0.4
   holdDuration: 1.6
   fadeOutDuration: 0.5
+--- !u!114 &754696664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e00962e70b6d48a89a9d00519a0aedb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryPanelMount
+  panelAsset: {fileID: 9197481963319205126, guid: 174319641c8bd4e00a1bde4a162f249c, type: 3}
+  posLeft: 70
+  posTop: 40
+--- !u!114 &754696665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08f010d8c116b4df79e667ccbc7368aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCInspectorMount
+  inspectorAsset: {fileID: 9197481963319205126, guid: 824ce369464b04390a98c0d6b34da796, type: 3}
+  showTestPreviewOnStart: 0
+--- !u!114 &754696666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754696640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5fb91f3581c6414ba9816013bf10e99, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameHUDController
+  uiDocument: {fileID: 754696654}
+  npcInspectorAsset: {fileID: 9197481963319205126, guid: 824ce369464b04390a98c0d6b34da796, type: 3}
+  npcInspectorLeft: 135.7
+  npcInspectorBottom: 214.3
+  showNPCPreviewOnStart: 1
 --- !u!1001 &756194331
 PrefabInstance:
   m_ObjectHideFlags: 0

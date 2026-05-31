@@ -40,6 +40,63 @@
     translate: 0 12px;
 }
 
+
+/* ===================================
+   SPEECH BUBBLE
+   Показується над іконкою настрою
+   коли NPC хоче щось сказати
+=================================== */
+.speech-bubble {
+    /* position: relative — в потоці flex колонки, перший елемент */
+    /* hidden через display:none щоб не займав місце коли прихований */
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: rgb(60, 55, 40);
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+    min-width: 80px;
+    max-width: 200px;
+    margin-bottom: 8px;
+    overflow: visible;
+
+    transition-property: opacity;
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out;
+    opacity: 1;
+}
+
+.speech-bubble.hidden {
+    /* display:none замість opacity:0 — не займає місце коли прихована */
+    display: none;
+}
+
+.speech-bubble__text {
+    font-size: 11px;
+    color: rgb(40, 35, 20);
+    white-space: normal;
+    -unity-text-align: middle-left;
+}
+
+/* Хвостик хмаринки — направлений вниз-ліво */
+.speech-bubble__tail {
+    position: absolute;
+    bottom: -10px;
+    left: 18px;
+    width: 14px;
+    height: 10px;
+    background-color: rgb(255, 255, 255);
+    /* Трикутник через border trick не підтримується в USS.
+       Використовуємо VisualElement з rotate як псевдо-трикутник */
+    border-radius: 2px;
+    border-width: 2px;
+    border-color: rgb(60, 55, 40);
+    rotate: 45deg;
+    translate: 0 -5px;
+}
+
 /* ===================================
    STAT BARS SECTION
 =================================== */
@@ -175,7 +232,7 @@
     top: 0; left: 0;
     width: 72px;
     height: 96px;
-    border-radius: 8px;
+    border-radius: 12px;
     background-color: rgba(0, 0, 0, 0.22);
     translate: 4px 5px;
 }
@@ -186,10 +243,10 @@
     top: 0; left: 0;
     width: 72px;
     height: 96px;
-    border-radius: 8px;
+    border-radius: 12px;
     border-width: 1px;
     border-color: rgba(140, 175, 210, 0.6);
-    background-color: rgba(185, 215, 240, 0.85);
+    background-color: rgb(185, 215, 240);
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-end;
@@ -254,13 +311,13 @@
 }
 
 /* Genre color variants: tinted versions of light blue */
-.genre-card.genre--Classic   { background-color: rgba(230, 215, 180, 0.90); border-color: rgba(170, 146, 80, 0.5);  }
-.genre-card.genre--Fantasy   { background-color: rgba(210, 190, 240, 0.90); border-color: rgba(140, 80, 200, 0.5);  }
-.genre-card.genre--SciFi     { background-color: rgba(180, 220, 245, 0.90); border-color: rgba(60, 160, 210, 0.5);  }
-.genre-card.genre--Horror    { background-color: rgba(240, 190, 185, 0.90); border-color: rgba(200, 60, 60, 0.5);   }
-.genre-card.genre--Mystery   { background-color: rgba(185, 205, 240, 0.90); border-color: rgba(70, 110, 200, 0.5);  }
-.genre-card.genre--Biography { background-color: rgba(190, 235, 200, 0.90); border-color: rgba(60, 170, 90, 0.5);   }
-.genre-card.genre--Academic  { background-color: rgba(235, 225, 185, 0.90); border-color: rgba(180, 155, 50, 0.5);  }
+.genre-card.genre--Classic   { background-color: rgb(230, 215, 180); border-color: rgba(170, 146, 80, 0.5);  }
+.genre-card.genre--Fantasy   { background-color: rgb(210, 190, 240); border-color: rgba(140, 80, 200, 0.5);  }
+.genre-card.genre--SciFi     { background-color: rgb(180, 220, 245); border-color: rgba(60, 160, 210, 0.5);  }
+.genre-card.genre--Horror    { background-color: rgb(240, 190, 185); border-color: rgba(200, 60, 60, 0.5);   }
+.genre-card.genre--Mystery   { background-color: rgb(185, 205, 240); border-color: rgba(70, 110, 200, 0.5);  }
+.genre-card.genre--Biography { background-color: rgb(190, 235, 200); border-color: rgba(60, 170, 90, 0.5);   }
+.genre-card.genre--Academic  { background-color: rgb(235, 225, 185); border-color: rgba(180, 155, 50, 0.5);  }
 
 /* ===================================
    TOOLTIP

@@ -1,32 +1,53 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/v2/Components/NPCInspector/NPCInspector.uss?fileID=7433441132597879392&amp;guid=6bb434f9ea251433683c2327f337a843&amp;type=3#NPCInspector"/>
-    <ui:VisualElement name="NPCInspector" picking-mode="Ignore" class="npc-inspector" style="height: 321px; bottom: 211px; left: 175px;">
+    <ui:VisualElement name="NPCInspector" picking-mode="Position" class="npc-inspector" style="left: 140px; bottom: 240px;">
+
+        <!-- SpeechBubble: position:relative flow, з'являється ВНД стат барів зверху -->
+        <!-- bottom/left з inline style прибрані — позиція через USS (bottom: 100%) -->
+        <ui:VisualElement name="SpeechBubble" picking-mode="Ignore" class="speech-bubble hidden">
+            <ui:Label name="SpeechBubbleText" text="" class="speech-bubble__text"/>
+            <ui:VisualElement picking-mode="Ignore" class="speech-bubble__tail"/>
+        </ui:VisualElement>
+
         <ui:VisualElement name="StatBarsSection" class="stat-bars-section">
+
             <ui:VisualElement class="stat-row">
-                <ui:VisualElement class="stat-icon stat-icon--mood" style="background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/mood-swing.png?fileID=2800000&amp;guid=c5765f5efe9c047da8d830dd8f1f5d23&amp;type=3#mood-swing&quot;); width: 32px; height: 32px;"/>
-                <ui:VisualElement name="MoodTrack" class="stat-track" style="right: auto; width: 110px; left: 40px; position: absolute; height: 30px;"/>
-                <ui:Label name="MoodTrend" text="" class="stat-trend" style="left: 120px; position: relative;"/>
+                <ui:VisualElement class="stat-icon stat-icon--mood"
+                    style="background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/mood-swing.png?fileID=2800000&amp;guid=c5765f5efe9c047da8d830dd8f1f5d23&amp;type=3#mood-swing&quot;); background-color: rgb(229, 229, 229); width: 32px; height: 32px;"/>
+                <ui:VisualElement name="MoodTrack" class="stat-track"/>
+                <ui:Label name="MoodTrend" text="" class="stat-trend"/>
             </ui:VisualElement>
+
             <ui:VisualElement class="stat-row">
-                <ui:VisualElement class="stat-icon stat-icon--comfort" style="background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/convenient.png?fileID=2800000&amp;guid=2e68b9469bf974e25ba3328e179542ab&amp;type=3#convenient&quot;); background-color: rgb(255, 255, 255); width: 32px; height: 32px;"/>
+                <ui:VisualElement class="stat-icon stat-icon--comfort"
+                    style="width: 32px; height: 32px; background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/convenient.png?fileID=2800000&amp;guid=2e68b9469bf974e25ba3328e179542ab&amp;type=3#convenient&quot;); background-color: rgb(255, 255, 255);"/>
                 <ui:VisualElement name="ComfortTrack" class="stat-track"/>
                 <ui:Label name="ComfortTrend" text="" class="stat-trend"/>
             </ui:VisualElement>
+
             <ui:VisualElement class="stat-row">
-                <ui:VisualElement class="stat-icon stat-icon--patience" style="background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/time-management.png?fileID=2800000&amp;guid=9481619a3442b4003a180c8a3fcf4214&amp;type=3#time-management&quot;); background-color: rgb(255, 255, 255); width: 32px; height: 32px;"/>
+                <ui:VisualElement class="stat-icon stat-icon--patience"
+                    style="width: 32px; height: 32px; background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/time-management.png?fileID=2800000&amp;guid=9481619a3442b4003a180c8a3fcf4214&amp;type=3#time-management&quot;); background-color: rgb(255, 255, 255);"/>
                 <ui:VisualElement name="PatienceTrack" class="stat-track"/>
                 <ui:Label name="PatienceTrend" text="" class="stat-trend"/>
             </ui:VisualElement>
+
             <ui:VisualElement class="stat-row">
-                <ui:VisualElement class="stat-icon stat-icon--wallet" style="background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/wallet.png?fileID=2800000&amp;guid=6c0dc6fec58244381a73c75d5414c68f&amp;type=3#wallet&quot;); background-color: rgb(255, 255, 255); width: 32px; height: 32px;"/>
+                <ui:VisualElement class="stat-icon stat-icon--wallet"
+                    style="width: 32px; height: 32px; background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/wallet.png?fileID=2800000&amp;guid=6c0dc6fec58244381a73c75d5414c68f&amp;type=3#wallet&quot;); background-color: rgb(255, 255, 255);"/>
                 <ui:VisualElement name="WalletTrack" class="stat-track"/>
                 <ui:Label name="WalletTrend" text="" class="stat-trend"/>
             </ui:VisualElement>
+
         </ui:VisualElement>
+
         <ui:VisualElement name="GenreCardsRow" picking-mode="Position" class="genre-cards-row"/>
-        <ui:VisualElement name="CardTooltip" picking-mode="Ignore" class="card-tooltip hidden" style="top: 243px; left: 8px;">
+
+        <ui:VisualElement name="CardTooltip" picking-mode="Ignore" class="card-tooltip hidden">
             <ui:Label name="TooltipBookTitle" text="Book title" class="tooltip-title"/>
-            <ui:Label name="TooltipBookPrice" text="$ 0" class="tooltip-price"/>
+            <ui:Label name="TooltipBookPrice" text="$ 0"        class="tooltip-price"/>
         </ui:VisualElement>
+
     </ui:VisualElement>
 </ui:UXML>

@@ -79,6 +79,15 @@ public class NPCInspectorMount : MonoBehaviour
     /// Сховати тільки якщо показує цього NPC.
     public void HideIfShowing(NPCBrain npc) => _controller?.HideIfShowing(npc);
 
+    /// Викликається V2HUDInjector замість OnEnable монтування.
+    /// Передає вже створений контролер (UXML змонтований зовні).
+    public void InjectController(NPCInspectorController controller)
+    {
+        _controller = controller;
+        // Instance вже встановлений в Awake
+        Debug.Log("[NPCInspectorMount] Controller injected by V2HUDInjector");
+    }
+
     [ContextMenu("Show Test Preview")]
     public void ShowTestPreview() => _controller?.ShowForPreview();
 

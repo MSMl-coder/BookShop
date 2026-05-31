@@ -86,5 +86,13 @@ public class InventoryPanelMount : MonoBehaviour
         panel.style.top  = posTop;
     }
 
+    /// Викликається V2HUDInjector замість OnEnable монтування.
+    /// Передає вже створений контролер (UXML змонтований зовні).
+    public void InjectController(InventoryPanelController controller)
+    {
+        _controller = controller;
+        Debug.Log("[InventoryPanelMount] Controller injected by V2HUDInjector");
+    }
+
     private void OnDestroy() => _controller?.Dispose();
 }
