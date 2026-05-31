@@ -1,7 +1,7 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/UI/v2/GameHUD.uss?fileID=7433441132597879392&amp;guid=f5d1f5d4f7cd94c76beda558f1b1be36&amp;type=3#GameHUD"/>
     <ui:VisualElement name="HUDRoot" picking-mode="Ignore" class="hud-root" style="top: 3px; bottom: -1px; right: -1px; left: 2px;">
-        <ui:VisualElement name="TopBar" class="top-bar">
+        <ui:VisualElement name="TopBar" class="top-bar" style="left: 843px; right: 1114px;">
             <ui:VisualElement class="clock-row">
                 <ui:Label name="ClockHH" text="07" class="clock-digit"/>
                 <ui:VisualElement class="clock-colon">
@@ -15,15 +15,17 @@
                 <ui:Button name="SpeedBtn3" text="&gt;&gt;&gt;" class="speed-btn"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="LeftNav" picking-mode="Position" class="left-nav">
-            <ui:Button name="BtnAwards" tooltip="Awards" class="nav-btn" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
-            <ui:Button name="BtnBookHunters" tooltip="Book Hunters" class="nav-btn" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
-            <ui:Button name="BtnDecorations" tooltip="Decorations" class="nav-btn nav-btn--active" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
-            <ui:Button name="BtnCatalog" tooltip="Catalog" class="nav-btn" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
-            <ui:Button name="BtnInventory" tooltip="Inventory" class="nav-btn" style="width: 100px; height: 42px; margin-left: -24px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px;"/>
+        <ui:VisualElement name="LeftNav" picking-mode="Position" class="left-nav" style="top: 485px; bottom: 485px; left: initial;">
+            <ui:Button name="BtnAwards" tooltip="Awards" class="nav-btn" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;"/>
+            <ui:Button name="BtnBookHunters" tooltip="Book Hunters" class="nav-btn" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;"/>
+            <ui:Button name="BtnDecorations" tooltip="Decorations" class="nav-btn nav-btn--active" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;">
+                <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Assets/3b5e67b9eff90f2f0d678a217b7e3123%201.png?fileID=2800000&amp;guid=7b52c4560be03433a8218165a1c76f93&amp;type=3#3b5e67b9eff90f2f0d678a217b7e3123 1&quot;); width: 42px; position: absolute; height: 36px; top: 3px; left: 33px;"/>
+            </ui:Button>
+            <ui:Button name="BtnCatalog" tooltip="Catalog" class="nav-btn" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;"/>
+            <ui:Button name="BtnInventory" tooltip="Inventory" class="nav-btn" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;"/>
         </ui:VisualElement>
         <ui:VisualElement name="BottomLeftCluster" picking-mode="Ignore" class="bottom-left-cluster">
-            <ui:VisualElement name="NPCInspectorPanel" picking-mode="Position" class="npc-panel hidden">
+            <ui:VisualElement name="NPCInspectorPanel" picking-mode="Ignore" class="npc-panel hidden" style="position: absolute; top: -172px; left: 358px; height: 274px; display: none;">
                 <ui:VisualElement class="npc-stats-section">
                     <ui:VisualElement class="npc-stat-row">
                         <ui:VisualElement class="npc-stat__icon-wrap">
@@ -55,6 +57,10 @@
                         <ui:Label name="PatienceLabel" text="Patience" class="npc-stat__label"/>
                         <ui:Label name="PatienceTrend" text="↓" class="npc-stat__trend trend--down"/>
                     </ui:VisualElement>
+                    <ui:VisualElement name="GenreCardTooltip" picking-mode="Ignore" class="genre-card-tooltip hidden">
+                        <ui:Label name="TooltipTitle" text="Fantasy: Title" class="tooltip-title"/>
+                        <ui:Label name="TooltipPrice" text="$ 45" class="tooltip-price"/>
+                    </ui:VisualElement>
                     <ui:VisualElement class="npc-stat-row">
                         <ui:VisualElement class="npc-stat__icon-wrap">
                             <ui:VisualElement class="npc-stat__icon npc-stat__icon--wallet"/>
@@ -67,10 +73,6 @@
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement name="GenreCardsRow" picking-mode="Position" class="genre-cards-row"/>
-                <ui:VisualElement name="GenreCardTooltip" picking-mode="Ignore" class="genre-card-tooltip hidden">
-                    <ui:Label name="TooltipTitle" text="Fantasy: Title" class="tooltip-title"/>
-                    <ui:Label name="TooltipPrice" text="$ 45" class="tooltip-price"/>
-                </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="CharacterDock" picking-mode="Position" class="character-dock">
                 <ui:VisualElement name="CharCard_Max" class="char-card" style="margin-right: 0;">

@@ -148,8 +148,17 @@ public class NPCBrain : MonoBehaviour
 
     public void OnNPCClicked()
     {
-        Debug.Log($"[NPCBrain] OnNPCClicked: {Data?.npcName} | panel={NPCInspectorPanel.Instance != null}");
-        NPCInspectorPanel.Instance?.Show(this);
+           Debug.Log($"[NPCBrain] OnNPCClicked: {Data?.npcName}");
+ 
+    // Новий UI v2 — NPCInspectorMount
+    if (NPCInspectorMount.Instance != null)
+    {
+        NPCInspectorMount.Instance.Show(this);
+        return;
+    }
+ 
+    // Fallback до старого UI якщо v2 не змонтований
+    NPCInspectorPanel.Instance?.Show(this);
         }
 
 

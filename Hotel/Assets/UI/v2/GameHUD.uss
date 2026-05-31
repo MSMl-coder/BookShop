@@ -115,54 +115,52 @@
 .left-nav {
     position: absolute;
     top: 0;
-    left: 0;
+    left: -32px;    /* контейнер частково за екраном — кнопки починаються за краєм */
     bottom: 0;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: center;   /* кнопки по центру вертикально */
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-    background-color: rgba(0, 0, 0, 0);   /* прозорий фон */
+    justify-content: center;
+    padding: 0;
+    background-color: rgba(0, 0, 0, 0);
     border-right-width: 0;
-    width: 56px;               /* ширина = ширина кнопки у спокої */
-    overflow: visible;         /* дозволяє кнопкам виїжджати за межі контейнера */
+    width: 84px;    /* 32px прихованих + 52px видимих */
+    overflow: visible;
 }
 
-/* Базова кнопка: прямокутна, трохи витягнута по горизонталі */
+/* Nav button — "вкладка" що виїжджає з лівого краю.
+   ВАЖЛИВО: без margin-left. Кнопка має повний width для hover-зони.
+   Початковий зсув вліво = translate: -24px 0 (не margin).
+   Так hover спрацьовує по всій ширині кнопки, а не тільки на видимій частині. */
 .nav-btn {
-    width: 100px;
+    /* Width-based animation: bounding box = видима зона = hover зона.
+       НЕ використовуємо translate — він зсуває візуал але НЕ bounding box,
+       тому hover спрацьовував тільки на межі екрану. */
+    width: 48px;
     height: 42px;
     background-color: rgb(42, 56, 68);
     border-width: 0;
-    border-radius: 0 7px 7px 0;   /* скошена права сторона — ефект "вкладки" */
+    border-radius: 0 7px 7px 0;
     margin-bottom: 4px;
     padding: 0;
-    rotate: -5deg; 
-    margin-left: -24px; 
-    margin-bottom: 4px;  /* початково зсунута вліво, видно лише 12px */
+    rotate: -5deg;
 
-    /* SLIDE RIGHT анімація через translate */
-    transition-property: translate, background-color;
+    transition-property: width, background-color;
     transition-duration: 0.18s;
     transition-timing-function: ease-out;
-    translate: 0 0;
 }
 
-/* Hover: виїжджає вправо на 12px */
 .nav-btn:hover {
-    translate: 20px 0;
+    width: 72px;
     background-color: rgb(58, 78, 94);
 }
 
-/* Active/selected: залишається висунутою на 12px — через USS клас що C# додає */
 .nav-btn--active {
-    translate: 12px 0;
+    width: 60px;
     background-color: rgb(212, 168, 67);
     border-width: 0;
 }
 .nav-btn--active:hover {
+    width: 72px;
     background-color: rgb(225, 182, 80);
 }
 

@@ -1,0 +1,298 @@
+/*
+    NPCInspector.uss
+    Path: Assets/UI/Components/NPCInspector/NPCInspector.uss
+
+    Standalone — не залежить від батьківського USS.
+
+    СЕГМЕНТОВАНІ БАРИ:
+      .stat-track не має fill — він є контейнером для сегментів.
+      Сегменти будуються в C# (SegmentedBarBuilder).
+      Кожен сегмент: .stat-segment (сірий) або .stat-segment.active (кольоровий).
+
+    ЖАНРОВІ КАРТКИ:
+      Figma: великі, світло-блакитні, без фону панелі.
+*/
+
+/* ===================================
+   ROOT — без фону, плавають над сценою
+=================================== */
+.npc-inspector {
+    position: absolute;   /* ЗАВЖДИ absolute — позиція керується ззовні через C# */
+    left: 70px;           /* дефолт, перезаписується GameHUDController */
+    bottom: 160px;        /* дефолт, перезаписується GameHUDController */
+
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 0;
+    min-width: 240px;
+    width: 260px;
+
+    transition-property: opacity, translate;
+    transition-duration: 0.22s;
+    transition-timing-function: ease-out;
+    opacity: 1;
+    translate: 0 0;
+}
+
+.npc-inspector.hidden {
+    opacity: 0;
+    translate: 0 12px;
+}
+
+/* ===================================
+   STAT BARS SECTION
+=================================== */
+.stat-bars-section {
+    flex-direction: column;
+    margin-bottom: 12px;
+}
+
+/* One row: icon + segmented bar + trend arrow */
+.stat-row {
+    flex-direction: row;
+    align-items: center;
+    height: 28px;
+    margin-bottom: 6px;
+}
+
+/* Icon: placeholder square (C# adds background-image with real icon sprite) */
+.stat-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-right: 10px;
+    /* Figma icons are black line-art on transparent bg */
+    /* C# sets: icon.style.backgroundImage = iconTexture */
+}
+
+/* Colored square placeholder until real icons are added */
+.stat-icon--mood     { background-color: rgb(90, 190, 100); border-radius: 12px; }
+.stat-icon--comfort  { background-color: rgb(90, 190, 100); border-radius: 12px; }
+.stat-icon--patience { background-color: rgb(90, 190, 100); border-radius: 12px; }
+.stat-icon--wallet   { background-color: rgb(90, 190, 100); border-radius: 12px; }
+
+/* SEGMENTED BAR TRACK — flex container for segment shadows+pills */
+.stat-track {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    height: 29px;        /* трохи більше щоб тінь (2px вниз) не обрізалась */
+    margin-right: 6px;
+    overflow: visible;
+}
+
+/* Shadow wrapper — темний зсунутий прямокутник під сегментом */
+.stat-segment-shadow {
+    width: 11px;
+    height: 25px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    border-radius: 4px;
+    border-width: 2px;
+    border-color: rgba(33, 33, 33, 0.28);
+    background-color: rgba(0, 0, 0, 0.28);
+    translate: -2px 2px;      /* тінь: 2px вправо, 8px вниз */
+    margin-right: 2px;
+}
+.stat-segment-shadow.last {
+    margin-right: 0;
+}
+
+/* Сам сегмент — поверх shadow, зсунутий назад */
+.stat-segment {
+    width: 11px;
+    height: 25px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    border-radius: 5px;
+    border-width: 1px;
+    border-color: rgb(131, 131, 131);        /* пустий: темно-сірий бордер */
+    background-color: rgb(179, 179, 179); /* пустий: сірий */
+    translate: -3px -4px;
+}
+.stat-segment.last {
+    margin-right: 0;
+}
+
+/* Active: зелений фон + темно-зелений бордер — однаково для всіх статів */
+.stat-segment.active--mood,
+.stat-segment.active--comfort,
+.stat-segment.active--patience,
+.stat-segment.active--wallet {
+    background-color: rgb(80, 177, 92);
+    border-color: rgb(46, 140, 69);       /* темно-зелений бордер */
+}
+
+/* Low (<30%): червоний + темно-червоний бордер */
+.stat-segment.active--mood.low,
+.stat-segment.active--comfort.low,
+.stat-segment.active--patience.low,
+.stat-segment.active--wallet.low {
+    background-color: rgb(210, 60, 50);
+    border-color: rgb(120, 25, 20);
+}
+
+/* Trend arrow */
+.stat-trend {
+    font-size: 24px;
+    width: 26px;
+    rotate: 25deg; /* повернути стрілку вправо, а не вгору */
+    flex-shrink: 0;
+    -unity-text-align: middle-center;
+    color: rgba(0, 0, 0, 0);
+}
+.stat-trend.up   { color: rgb(80, 200, 90); }
+.stat-trend.down { color: rgb(210, 60, 50); }
+
+/* ===================================
+   GENRE CARDS ROW
+   Figma: великі світло-блакитні картки
+   з жирним текстом жанру, без темного фону
+=================================== */
+.genre-cards-row {
+    position: relative;  /* absolute дітям потрібен positioned батько */
+    overflow: visible;
+    height: 96px;
+    width: 260px;
+    margin-top: 8px;
+}
+
+/* Single genre card — ФІКСОВАНИЙ розмір */
+/* Wrapper: absolute, анімується через left, містить shadow + картку */
+.genre-card-wrapper {
+    position: absolute;
+    width: 72px;
+    height: 96px;
+    transition-property: left;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-out;
+}
+
+/* Shadow: темний прямокутник зсунутий вправо-вниз */
+.genre-card-shadow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 72px;
+    height: 96px;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.22);
+    translate: 4px 5px;
+}
+
+/* Сама картка поверх shadow */
+.genre-card {
+    position: absolute;
+    top: 0; left: 0;
+    width: 72px;
+    height: 96px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: rgba(140, 175, 210, 0.6);
+    background-color: rgba(185, 215, 240, 0.85);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-left: 8px;
+    padding-bottom: 10px;
+    overflow: hidden;
+
+    transition-property: translate;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+    translate: 0 0;
+}
+
+/* Hover: картка піднімається вгору, тінь залишається — ефект підйому */
+.genre-card-wrapper:hover .genre-card {
+    translate: 0 -6px;
+    border-color: rgba(100, 150, 210, 0.9);
+}
+
+/* Genre icon: top-left, placeholder */
+.genre-card__icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    background-color: rgba(100, 140, 180, 0.3);
+}
+
+/* Genre label: bold, dark text like Figma */
+.genre-card__label {
+    font-size: 13px;
+    color: rgb(25, 50, 90);
+    -unity-font-style: bold;
+    white-space: normal;
+    overflow: hidden;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.15s;
+    transition-delay: 0.08s;
+}
+.genre-card-wrapper.expanded .genre-card__label {
+    opacity: 1;
+}
+
+/* Fulfilled checkmark */
+.genre-card__check {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: 7px;
+    background-color: rgb(50, 180, 80);
+}
+
+/* Fulfilled state */
+.genre-card.fulfilled {
+    border-color: rgb(50, 160, 80);
+    border-width: 2px;
+}
+
+/* Genre color variants: tinted versions of light blue */
+.genre-card.genre--Classic   { background-color: rgba(230, 215, 180, 0.90); border-color: rgba(170, 146, 80, 0.5);  }
+.genre-card.genre--Fantasy   { background-color: rgba(210, 190, 240, 0.90); border-color: rgba(140, 80, 200, 0.5);  }
+.genre-card.genre--SciFi     { background-color: rgba(180, 220, 245, 0.90); border-color: rgba(60, 160, 210, 0.5);  }
+.genre-card.genre--Horror    { background-color: rgba(240, 190, 185, 0.90); border-color: rgba(200, 60, 60, 0.5);   }
+.genre-card.genre--Mystery   { background-color: rgba(185, 205, 240, 0.90); border-color: rgba(70, 110, 200, 0.5);  }
+.genre-card.genre--Biography { background-color: rgba(190, 235, 200, 0.90); border-color: rgba(60, 170, 90, 0.5);   }
+.genre-card.genre--Academic  { background-color: rgba(235, 225, 185, 0.90); border-color: rgba(180, 155, 50, 0.5);  }
+
+/* ===================================
+   TOOLTIP
+=================================== */
+.card-tooltip {
+    position: absolute;
+    background-color: rgba(10, 8, 4, 0.96);
+    border-width: 1px;
+    border-color: rgb(184, 144, 42);
+    border-radius: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-left: 10px;
+    padding-right: 10px;
+    min-width: 130px;
+    flex-direction: column;
+    transition-property: opacity;
+    transition-duration: 0.12s;
+    opacity: 1;
+}
+.card-tooltip.hidden {
+    opacity: 0;
+}
+.tooltip-title {
+    font-size: 11px;
+    color: rgb(240, 228, 200);
+    -unity-font-style: italic;
+    white-space: normal;
+    margin-bottom: 3px;
+}
+.tooltip-price {
+    font-size: 12px;
+    color: rgb(232, 196, 90);
+    -unity-font-style: bold;
+}

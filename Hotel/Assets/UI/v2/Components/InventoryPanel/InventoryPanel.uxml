@@ -1,0 +1,13 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/v2/Components/InventoryPanel/InventoryPanel.uss?fileID=7433441132597879392&amp;guid=b982739c14b634057aa93b7d1ea5e400&amp;type=3#InventoryPanel"/>
+    <ui:VisualElement name="InventoryPanel" picking-mode="Position" class="inv-panel hidden">
+        <ui:Button name="BtnClose" text="✕" picking-mode="Position" class="inv-close-btn"/>
+        <ui:VisualElement name="CategoryBar" picking-mode="Position" class="inv-category-bar"/>
+        <ui:VisualElement name="SubcategoryBar" picking-mode="Position" class="inv-subcategory-bar"/>
+        <ui:VisualElement picking-mode="Position" class="inv-search-row">
+            <ui:TextField name="SearchField" placeholder-text="..." picking-mode="Position" class="inv-search-field"/>
+            <ui:Button name="BtnSearch" picking-mode="Position" class="inv-search-btn"/>
+        </ui:VisualElement>
+        <ui:ScrollView name="BookGrid" mode="Vertical" mouse-wheel-scroll-size="60" picking-mode="Position" class="inv-book-grid"/>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,30 +1,43 @@
-<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/v2/EditHUD.uss?fileID=7433441132597879392&amp;guid=040856f741fcd4f96b51fc2a8390a141&amp;type=3#EditHUD"/>
-    <ui:VisualElement name="EditHUDRoot" picking-mode="Ignore" class="edit-hud-root">
-        <ui:VisualElement name="LeftPanel" picking-mode="Position" class="edit-left-panel edit-left-panel--hidden">
-            <ui:Button name="BtnClosePanel" text="✕" class="edit-close-btn"/>
-            <ui:VisualElement name="CategoryIconBar" class="category-icon-bar">
-                <ui:Button name="CatBtn_0" class="cat-icon-btn cat-icon-btn--active"/>
-                <ui:Button name="CatBtn_1" class="cat-icon-btn"/>
-                <ui:Button name="CatBtn_2" class="cat-icon-btn"/>
-                <ui:Button name="CatBtn_3" class="cat-icon-btn"/>
-                <ui:Button name="CatBtn_4" class="cat-icon-btn"/>
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <Style src="EditHUD.uss"/>
+
+    <!-- ROOT: Ignore — пропускає 3D кліки -->
+    <ui:VisualElement name="EditHUDRoot" class="edit-hud-root" picking-mode="Ignore">
+
+        <!-- LEFT PANEL: Position — інтерактивна панель -->
+        <ui:VisualElement name="LeftPanel" class="edit-left-panel edit-left-panel--hidden" picking-mode="Position">
+            <ui:Button name="BtnClosePanel" text="✕" class="edit-close-btn" picking-mode="Position"/>
+            <ui:VisualElement name="CategoryIconBar" class="category-icon-bar" picking-mode="Position">
+                <ui:Button name="CatBtn_0" class="cat-icon-btn cat-icon-btn--active" picking-mode="Position"/>
+                <ui:Button name="CatBtn_1" class="cat-icon-btn" picking-mode="Position"/>
+                <ui:Button name="CatBtn_2" class="cat-icon-btn" picking-mode="Position"/>
+                <ui:Button name="CatBtn_3" class="cat-icon-btn" picking-mode="Position"/>
+                <ui:Button name="CatBtn_4" class="cat-icon-btn" picking-mode="Position"/>
             </ui:VisualElement>
-            <ui:ScrollView name="SubcategoryRow" mode="Horizontal" mouse-wheel-scroll-size="120" class="subcategory-row"/>
-            <ui:VisualElement class="edit-search-row">
-                <ui:TextField name="SearchField" placeholder-text="..." class="edit-search-field"/>
-                <ui:Button name="BtnSearch" text="🔍" class="edit-search-btn"/>
+            <ui:ScrollView name="SubcategoryRow" class="subcategory-row" mode="Horizontal" mouse-wheel-scroll-size="120" picking-mode="Position"/>
+            <ui:VisualElement class="edit-search-row" picking-mode="Position">
+                <ui:TextField name="SearchField" class="edit-search-field" placeholder-text="..." picking-mode="Position"/>
+                <ui:Button name="BtnSearch" text="🔍" class="edit-search-btn" picking-mode="Position"/>
             </ui:VisualElement>
-            <ui:ScrollView name="ItemGrid" mode="Vertical" mouse-wheel-scroll-size="80" class="edit-item-grid"/>
+            <ui:ScrollView name="ItemGrid" class="edit-item-grid" mode="Vertical" mouse-wheel-scroll-size="80" picking-mode="Position"/>
         </ui:VisualElement>
-        <ui:VisualElement name="ContextToolbar" picking-mode="Position" class="context-toolbar context-toolbar--hidden">
-            <ui:VisualElement name="ToolbarItemIcon" class="ctx-item-icon"/>
-            <ui:VisualElement class="ctx-divider"/>
-            <ui:Button name="BtnMove" tooltip="Move" class="ctx-btn"/>
-            <ui:Button name="BtnDuplicate" tooltip="Duplicate" class="ctx-btn"/>
-            <ui:Button name="BtnDelete" tooltip="Delete" class="ctx-btn ctx-btn--danger"/>
-            <ui:Button name="BtnConfirm" tooltip="Confirm" class="ctx-btn ctx-btn--confirm"/>
-            <ui:Button name="BtnCancel" tooltip="Cancel" class="ctx-btn"/>
+
+        <!-- CONTEXT TOOLBAR: Position коли видима, Ignore коли прихована (керується C#) -->
+        <ui:VisualElement name="ContextToolbar" class="context-toolbar context-toolbar--hidden" picking-mode="Ignore">
+            <ui:VisualElement name="ToolbarItemIcon" class="ctx-item-icon" picking-mode="Ignore"/>
+            <ui:VisualElement class="ctx-divider" picking-mode="Ignore"/>
+            <ui:Button name="BtnMove"      class="ctx-btn"             picking-mode="Position" tooltip="Move"/>
+            <ui:Button name="BtnDuplicate" class="ctx-btn"             picking-mode="Position" tooltip="Duplicate"/>
+            <ui:Button name="BtnDelete"    class="ctx-btn ctx-btn--danger"  picking-mode="Position" tooltip="Delete"/>
+            <ui:Button name="BtnConfirm"   class="ctx-btn ctx-btn--confirm" picking-mode="Position" tooltip="Confirm"/>
+            <ui:Button name="BtnCancel"    class="ctx-btn"             picking-mode="Position" tooltip="Cancel"/>
         </ui:VisualElement>
+
     </ui:VisualElement>
+
 </ui:UXML>
