@@ -17,9 +17,9 @@
    ROOT — без фону, плавають над сценою
 =================================== */
 .npc-inspector {
-    position: absolute;   /* ЗАВЖДИ absolute — позиція керується ззовні через C# */
-    left: 70px;           /* дефолт, перезаписується GameHUDController */
-    bottom: 160px;        /* дефолт, перезаписується GameHUDController */
+    position: absolute;
+    left: 70px;
+    bottom: 160px;
 
     flex-direction: column;
     background-color: rgba(0, 0, 0, 0);
@@ -27,6 +27,7 @@
     padding: 0;
     min-width: 240px;
     width: 260px;
+    overflow: visible;    /* дозволяє хмаринці виходити за межі */
 
     transition-property: opacity, translate;
     transition-duration: 0.22s;
@@ -47,31 +48,37 @@
    коли NPC хоче щось сказати
 =================================== */
 .speech-bubble {
-    /* position: relative — в потоці flex колонки, перший елемент */
-    /* hidden через display:none щоб не займав місце коли прихований */
-    background-color: rgb(255, 255, 255);
-    border-radius: 10px;
+    position: absolute;
+    bottom: 100%;          /* над рядком mood */
+    left: 10;
+    margin-bottom: 15px;   /* відстань від полоски mood */
+
+    background-color: rgb(255, 255, 250);
+    border-radius: 7px;
     border-width: 2px;
     border-color: rgb(60, 55, 40);
     padding-top: 6px;
     padding-bottom: 6px;
     padding-left: 10px;
     padding-right: 10px;
-    min-width: 80px;
+    min-width: 120px;
     max-width: 200px;
-    margin-bottom: 8px;
     overflow: visible;
 
-    transition-property: opacity;
+    transition-property: opacity, translate;
     transition-duration: 0.2s;
     transition-timing-function: ease-out;
     opacity: 1;
+    translate: 0 0;
 }
 
 .speech-bubble.hidden {
-    /* display:none замість opacity:0 — не займає місце коли прихована */
-    display: none;
+    opacity: 0;
+    translate: 0 6px;
+    pointer-events: none;
 }
+
+ 
 
 .speech-bubble__text {
     font-size: 11px;
@@ -80,22 +87,7 @@
     -unity-text-align: middle-left;
 }
 
-/* Хвостик хмаринки — направлений вниз-ліво */
-.speech-bubble__tail {
-    position: absolute;
-    bottom: -10px;
-    left: 18px;
-    width: 14px;
-    height: 10px;
-    background-color: rgb(255, 255, 255);
-    /* Трикутник через border trick не підтримується в USS.
-       Використовуємо VisualElement з rotate як псевдо-трикутник */
-    border-radius: 2px;
-    border-width: 2px;
-    border-color: rgb(60, 55, 40);
-    rotate: 45deg;
-    translate: 0 -5px;
-}
+ 
 
 /* ===================================
    STAT BARS SECTION
@@ -111,6 +103,8 @@
     align-items: center;
     height: 28px;
     margin-bottom: 6px;
+    overflow: visible;     /* дозволяє speech-bubble виходити за межі */
+    position: relative;    /* speech-bubble позиціонується відносно цього */
 }
 
 /* Icon: placeholder square (C# adds background-image with real icon sprite) */
@@ -290,6 +284,21 @@
     transition-delay: 0.08s;
 }
 .genre-card-wrapper.expanded .genre-card__label {
+    opacity: 1;
+}
+
+/* Ціна книги — відображається після взяття книги */
+.genre-card__price {
+    font-size: 9px;
+    color: rgb(50, 80, 40);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    opacity: 0;
+    transition-property: opacity;
+    transition-duration: 0.15s;
+    transition-delay: 0.1s;
+}
+.genre-card-wrapper.expanded .genre-card__price {
     opacity: 1;
 }
 

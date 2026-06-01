@@ -3,11 +3,12 @@
 
 public enum NPCState
 {
-    Entering,         // Входить у крамницю → вітальна хмаринка
-    Browsing,         // Блукає між полицями (таймер видимий)
-    Inspecting,       // Стоїть біля полиці → крапки пошуку
-    Resting,          // [NEW] Сидить на меблях → Comfort росте, Patience відновлюється
-    WaitingForPlayer, // Не знайшов → хмаринка з запитом + drop-zone
-    Buying,           // Іде до каси
-    Leaving           // Виходить
+    Entering,
+    Browsing,
+    Inspecting,
+    CollectingBooks,   // [NEW v3] NPC взяв книгу, продовжує збирати решту
+    Resting,
+    WaitingForPlayer,
+    Buying,            // йде до каси
+    Leaving,
 }

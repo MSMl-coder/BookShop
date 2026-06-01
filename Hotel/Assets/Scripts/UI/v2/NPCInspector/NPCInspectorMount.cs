@@ -14,6 +14,16 @@ public class NPCInspectorMount : MonoBehaviour
     [Header("UXML asset")]
     [SerializeField] private VisualTreeAsset inspectorAsset;
 
+    [Header("Speech Bubble Sprite")]
+    [Tooltip("Спрайт для хмаринки. Якщо null — використовується CSS стиль.")]
+    [SerializeField] private Sprite speechBubbleSprite;
+
+    [Header("Speech Bubble Size & Position")]
+    [SerializeField] private float bubbleWidth    = 180f;
+    [SerializeField] private float bubbleHeight   = 80f;
+    [SerializeField] private float bubbleOffsetX  = 0f;
+    [SerializeField] private float bubbleOffsetY  = 12f;  // відступ над mood
+
     [Header("Testing")]
     [SerializeField] private bool showTestPreviewOnStart = false;
 
@@ -51,6 +61,9 @@ public class NPCInspectorMount : MonoBehaviour
         root.Add(el);
 
         _controller = new NPCInspectorController(el);
+
+        // Застосовуємо налаштування хмаринки
+        ApplySpeechBubbleSettings(el);
 
         if (showTestPreviewOnStart)
             _controller.ShowForPreview();
@@ -93,4 +106,61 @@ public class NPCInspectorMount : MonoBehaviour
 
     [ContextMenu("Hide")]
     public void HideFromMenu() => _controller?.Hide();
+
+    // ── Speech Bubble Settings ────────────────────────────────────
+
+    [ContextMenu("Apply Speech Bubble Settings")]
+    public void ApplySpeechBubbleSettings() => ApplySpeechBubbleSettings(null);
+
+    private void ApplySpeechBubbleSettings(VisualElement container)
+    {
+        var root = container ?? GetComponent<UIDocument>()?.rootVisualElement;
+        if (root == null) return;
+
+        var bubble = root.Q<VisualElement>("SpeechBubble");
+        if (bubble == null) return;
+
+        // Розмір
+        bubble.style.width  = bubbleWidth;
+        bubble.style.height = bubbleHeight;
+
+        // Позиція (відносно mood stat-row)
+        bubble.style.left        = bubbleOffsetX;
+        bubble.style.marginBottom = bubbleOffsetY;
+
+        // Спрайт якщо призначений
+        if (speechBubbleSprite != null)
+        {
+            bubble.style.backgroundImage   = new StyleBackground(speechBubbleSprite);
+            bubble.style.backgroundColor   = StyleKeyword.None;
+            bubble.style.borderTopWidth    = 0;
+            bubble.style.borderBottomWidth = 0;
+            bubble.style.borderLeftWidth   = 0;
+            bubble.style.borderRightWidth  = 0;
+            bubble.style.borderTopLeftRadius     = 0;
+            bubble.style.borderTopRightRadius    = 0;
+            bubble.style.borderBottomLeftRadius  = 0;
+            bubble.style.borderBottomRightRadius = 0;
+
+            // Текст поверх спрайту — padding для відступу від країв
+            var text = bubble.Q<Label>("SpeechBubbleText");
+            if (text != null)
+            {
+                text.style.position   = Position.Absolute;
+                text.style.top        = 10f;
+                text.style.left       = 14f;
+                text.style.right      = 14f;
+                text.style.bottom     = 16f;
+                text.style.whiteSpace = WhiteSpace.Normal;
+            }
+
+            // Хвостик ховаємо — він вже намальований на спрайті
+            var tail = bubble.Q<VisualElement>("speech-bubble__tail");
+            if (tail != null) tail.style.display = DisplayStyle.None;
+        }
+
+        Debug.Log($"[NPCInspectorMount] Bubble applied: {bubbleWidth}x{bubbleHeight} " +
+                  $"offset=({bubbleOffsetX},{bubbleOffsetY}) sprite={speechBubbleSprite?.name ?? "none"}");
+    }
+
 }

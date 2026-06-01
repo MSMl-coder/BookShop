@@ -2832,6 +2832,57 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2307711799988411888, guid: 9155a8d5d72765249b4e7611b36ad718, type: 3}
   m_PrefabInstance: {fileID: 2104268578}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &511920425
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 511920426}
+  - component: {fileID: 511920427}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &511920426
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511920425}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1243145967}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &511920427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511920425}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08f010d8c116b4df79e667ccbc7368aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCInspectorMount
+  inspectorAsset: {fileID: 9197481963319205126, guid: 824ce369464b04390a98c0d6b34da796, type: 3}
+  speechBubbleSprite: {fileID: 21300000, guid: 7b52c4560be03433a8218165a1c76f93, type: 3}
+  bubbleWidth: 180
+  bubbleHeight: 80
+  bubbleOffsetX: 0
+  bubbleOffsetY: 12
+  showTestPreviewOnStart: 1
 --- !u!1001 &513222621
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3434,7 +3485,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &652285983
 Transform:
   m_ObjectHideFlags: 0
@@ -3682,6 +3733,8 @@ GameObject:
   - component: {fileID: 754696641}
   - component: {fileID: 754696654}
   - component: {fileID: 754696653}
+  - component: {fileID: 754696667}
+  - component: {fileID: 754696668}
   - component: {fileID: 754696652}
   - component: {fileID: 754696651}
   - component: {fileID: 754696649}
@@ -3699,9 +3752,6 @@ GameObject:
   - component: {fileID: 754696661}
   - component: {fileID: 754696663}
   - component: {fileID: 754696662}
-  - component: {fileID: 754696666}
-  - component: {fileID: 754696665}
-  - component: {fileID: 754696664}
   m_Layer: 0
   m_Name: BookshopUI
   m_TagString: Untagged
@@ -4059,7 +4109,7 @@ MonoBehaviour:
   fadeInDuration: 0.4
   holdDuration: 1.6
   fadeOutDuration: 0.5
---- !u!114 &754696664
+--- !u!114 &754696667
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4068,43 +4118,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 754696640}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e00962e70b6d48a89a9d00519a0aedb, type: 3}
+  m_Script: {fileID: 11500000, guid: 0a09074e00c3d41b3b9608d7219df817, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryPanelMount
-  panelAsset: {fileID: 9197481963319205126, guid: 174319641c8bd4e00a1bde4a162f249c, type: 3}
-  posLeft: 70
-  posTop: 40
---- !u!114 &754696665
+  m_EditorClassIdentifier: Assembly-CSharp::V2HUDInjector
+  gameHUDAsset: {fileID: 9197481963319205126, guid: f21cc99aa648f4510b0f5a44963c38e8, type: 3}
+  npcInspectorAsset: {fileID: 9197481963319205126, guid: 824ce369464b04390a98c0d6b34da796, type: 3}
+  inventoryPanelAsset: {fileID: 9197481963319205126, guid: 174319641c8bd4e00a1bde4a162f249c, type: 3}
+--- !u!114 &754696668
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 754696640}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 08f010d8c116b4df79e667ccbc7368aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NPCInspectorMount
   inspectorAsset: {fileID: 9197481963319205126, guid: 824ce369464b04390a98c0d6b34da796, type: 3}
+  speechBubbleSprite: {fileID: 21300000, guid: 7b52c4560be03433a8218165a1c76f93, type: 3}
+  bubbleWidth: 180
+  bubbleHeight: 80
+  bubbleOffsetX: 0
+  bubbleOffsetY: 12
   showTestPreviewOnStart: 0
---- !u!114 &754696666
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 754696640}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5fb91f3581c6414ba9816013bf10e99, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GameHUDController
-  uiDocument: {fileID: 754696654}
-  npcInspectorAsset: {fileID: 9197481963319205126, guid: 824ce369464b04390a98c0d6b34da796, type: 3}
-  npcInspectorLeft: 135.7
-  npcInspectorBottom: 214.3
-  showNPCPreviewOnStart: 1
 --- !u!1001 &756194331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5975,6 +6013,7 @@ Transform:
   - {fileID: 517860150}
   - {fileID: 1073120670}
   - {fileID: 355829576}
+  - {fileID: 511920426}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1267760608

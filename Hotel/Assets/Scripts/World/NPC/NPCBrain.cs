@@ -1,8 +1,13 @@
-// Assets/Scripts/World/NPC/NPCBrain.cs  v8
-// ЗМІНИ:
-//   [1] Порожня полиця: InspectShelf виходить миттєво (0.3с) якщо shelf.GetBookCount() == 0
-//   [2] Shelf re-add: підписуємось на Shelf.OnBookPlaced → видаляємо з _visitedShelves
-//   [3] Shelf.OnBookPlaced патч (додати в Shelf.cs) описано в коментарях
+// Assets/Scripts/World/NPC/NPCBrain.cs  v9
+// ЗМІНИ v9 (нова механіка збору книг):
+//   [1] Новий стан CollectingBooks — NPC ходить по полицях збираючи книги
+//   [2] UpdateInspecting: книга одразу в Basket (TakeBookAt без резерву)
+//   [3] GoToCashier(): якщо Basket порожній → Leaving, інакше → Buying
+//   [4] CompletePurchase(): оплачує ВСІ книги з Basket
+//   [5] OnPatienceDepleted (через NPCStatsTicker): GoToCashier() замість Leaving
+//   [6] Новий event OnBookPickedUp для UI
+//   [7] WaitingForPlayer: якщо гравець не допоміг → GoToCashier() (не Leaving)
+//      виняток: якщо WantsToBuy==1 і Basket порожній → Leaving
 
 using System;
 using System.Collections;
@@ -14,6 +19,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NPCStatsTicker))]
 public class NPCBrain : MonoBehaviour
 {
+    // ── Public properties ──────────────────────────────────────────
     public NPCData        Data         { get; private set; }
     public NPCState       CurrentState { get; private set; }
     public BookGenre      DesiredGenre { get; private set; }
@@ -21,32 +27,35 @@ public class NPCBrain : MonoBehaviour
     public NPCPersonality Personality  { get; private set; }
     public NPCStatsTicker Ticker       { get; private set; }
 
+    // ── Events ────────────────────────────────────────────────────
     public event Action<NPCState>     OnStateChanged;
     public event Action<BookTemplate> OnBookFound;
+    public event Action<BookTemplate> OnBookPickedUp;   // [NEW] книга взята в кошик
     public event Action               OnPurchaseComplete;
     public event Action               OnNPCLeft;
 
+    // ── Private refs ──────────────────────────────────────────────
     private NavMeshAgent  _agent;
     private NPCWorldUI    _worldUI;
     private ShelfScanner  _scanner;
     private CashRegister  _cashRegister;
 
-    private float       _enteringTimer;
-    private bool        _isDestroyPending;
-    private List<Shelf> _visitedShelves = new List<Shelf>();
-    private HashSet<Shelf> _fullShelves = new HashSet<Shelf>();
-    private Shelf       _currentTargetShelf;
-    private bool        _isInitialized;
-    private bool        _inspectStarted;
-    private int         _playerOfferAttempts;
-    private Shelf[]     _cachedShelves;
+    // ── State data ────────────────────────────────────────────────
+    private float          _enteringTimer;
+    private bool           _isDestroyPending;
+    private List<Shelf>    _visitedShelves    = new List<Shelf>();
+    private HashSet<Shelf> _fullShelves       = new HashSet<Shelf>();
+    private Shelf          _currentTargetShelf;
+    private bool           _isInitialized;
+    private bool           _inspectStarted;
+    private int            _playerOfferAttempts;
+    private Shelf[]        _cachedShelves;
 
-    private Shelf  _reservedShelf;
-    private int    _reservedBookIndex = -1;
-
+    // [v9] Прибрано _reservedShelf/_reservedBookIndex —
+    // книга одразу забирається з полиці в Basket без резервування
     private bool        _restingArrived;
     private float       _restingTimer;
-    private const float MAX_REST_DURATION = 30f;
+    private const float MAX_REST_DURATION  = 30f;
 
     private float       _inspectingTimer;
     private const float INSPECTING_TIMEOUT = 5f;
@@ -54,7 +63,16 @@ public class NPCBrain : MonoBehaviour
     private float _waitingTimer;
     [SerializeField] private float waitingForPlayerTimeout = 30f;
 
-    // ── Init ────────────────────────────────────────────────────
+    // [STAY DURATION] Час перебування в крамниці — по закінченню бот іде незалежно від всього
+    private float _stayTimer;
+    private bool  _stayTimerStarted;
+
+    // ── Computed (для UI) ─────────────────────────────────────────
+    public float PatientNormalized =>
+        Ticker?.Stats == null ? 1f
+        : Mathf.InverseLerp(NPCStats.MIN, NPCStats.MAX, Ticker.Stats.Patience);
+
+    // ── Init ──────────────────────────────────────────────────────
     public void Initialize(NPCData data, CashRegister cashRegister)
     {
         Data          = data;
@@ -64,119 +82,100 @@ public class NPCBrain : MonoBehaviour
         _scanner      = GetComponent<ShelfScanner>();
         Ticker        = GetComponent<NPCStatsTicker>();
 
-        Personality  = NPCPersonality.Generate(data);
-        DesiredGenre = Personality.DesiredGenre;
+        Personality   = NPCPersonality.Generate(data);
+        DesiredGenre  = Personality.DesiredGenre;
+
         Ticker.Initialize(Personality);
 
-        _playerOfferAttempts = 0;
-        _inspectStarted      = false;
-        _enteringTimer       = 0f;
-        _inspectingTimer     = 0f;
-        _waitingTimer        = 0f;
-        _isDestroyPending    = false;
-        _reservedBookIndex   = -1;
-        _reservedShelf       = null;
-        _isInitialized       = true;
+        // [v9] NPCStatsTicker.Initialize підписується на Stats.OnPatienceDepleted
+        // і викликає _brain.ChangeState(Leaving) — перехоплюємо через OnStateChanged
+        // щоб замінити поведінку: якщо є книги → каса замість виходу.
 
-        int level = NPCLevelCalculator.Calculate(Personality);
-        GetComponent<NPCLevelBadge>()?.SetLevel(level);
+        // Використовуємо ShelfRegistry якщо є, інакше FindObjectsByType
+        var allShelves = ShelfRegistry.Instance != null
+            ? new List<Shelf>(ShelfRegistry.Instance.GetAll()).ToArray()
+            : FindObjectsByType<Shelf>(FindObjectsSortMode.None);
+        _cachedShelves = Shuffle(allShelves);
 
-        var all = FindObjectsByType<Shelf>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
-        _cachedShelves = Shuffle(System.Array.FindAll(all, s => s.ZoneType == ShopZoneType.Storefront));
-
-        // [FIX 2] Підписуємось на OnBookPlaced для кожної полиці
-        // Це дозволяє переглянути полицю знову якщо гравець поставив на неї книгу
-        foreach (var shelf in _cachedShelves)
-            if (shelf != null) shelf.OnBookPlaced += OnShelfBookAdded;
-
-        Debug.Log($"[NPC] {data.npcName} Lv{level}: {Personality.DebugString()} | shelves={_cachedShelves.Length}");
-
-        Vector3 entry = _cachedShelves.Length > 0
-            ? SampleNavMesh(_cachedShelves[0].transform.position + _cachedShelves[0].transform.forward * 1.5f)
-            : transform.position;
-        TrySetDestination(entry);
+        _isInitialized = true;
         ChangeState(NPCState.Entering);
-    }
-
-    private void OnEnable()
-    {
-        if (GameLoopManager.Instance != null)
-            GameLoopManager.Instance.OnStateChanged += OnGameStateChanged;
-    }
-
-    private void OnDisable()
-    {
-        if (GameLoopManager.Instance != null)
-            GameLoopManager.Instance.OnStateChanged -= OnGameStateChanged;
-
-        // Відписуємось від всіх полиць при знищенні
-        if (_cachedShelves != null)
-            foreach (var shelf in _cachedShelves)
-                if (shelf != null) shelf.OnBookPlaced -= OnShelfBookAdded;
+        TrySetDestination(SampleNavMesh(transform.position));
     }
 
     private void Update()
     {
-        if (!_isInitialized) return;
+        if (!_isInitialized || _isDestroyPending) return;
+        UpdateStayTimer();
         UpdateCurrentState();
     }
 
-    // ── [FIX 2] Коли гравець поставив книгу на полицю ────────────
-    // Shelf.cs має мати: public event Action OnBookPlaced;
-    // Викликати в PlaceBook(): OnBookPlaced?.Invoke();
-    private void OnShelfBookAdded(Shelf shelf)
+    private void UpdateStayTimer()
     {
-        if (shelf == null) return;
-        if (!_visitedShelves.Contains(shelf)) return;
+        if (!_stayTimerStarted) return;
+        // Не рахуємо час поки бот на касі або вже йде
+        if (CurrentState == NPCState.Buying || CurrentState == NPCState.Leaving) return;
 
-        // Видаляємо з відвіданих — бот зможе переглянути знову
-        _visitedShelves.Remove(shelf);
-        Debug.Log($"[NPC] {Data?.npcName}: shelf '{shelf.name}' got a book → re-added to visit list");
+        _stayTimer += Time.deltaTime;
+        float limit = Personality.StayDuration;
+        if (limit <= 0f) return;
+
+        if (_stayTimer >= limit)
+        {
+            _stayTimerStarted = false;
+            Debug.Log($"[NPCBrain] {Data?.npcName}: stayDuration {limit}s → GoToCashier");
+
+            // Повідомлення через UI
+            NPCInspectorMount.Instance?.Controller?.ShowSpeechBubble(
+                "У вас дуже цікаво, але мені вже час!", 4f);
+
+            // Невелика затримка щоб гравець побачив повідомлення
+            StartCoroutine(LeaveAfterSpeech(3f));
+        }
     }
 
-    private void OnGameStateChanged(GameState state)
+    private IEnumerator LeaveAfterSpeech(float delay)
     {
-        if ((state == GameState.DayStats || state == GameState.LootPhase)
-            && CurrentState != NPCState.Leaving && !_isDestroyPending)
-            ForceLeaveAndTakeBook();
+        yield return new WaitForSeconds(delay);
+        if (!_isDestroyPending) GoToCashier();
     }
 
-    // ── Public API ───────────────────────────────────────────────
-    public float GetRemainingTimeNormalized() =>
-        Ticker?.Stats == null ? 0f
-        : Mathf.InverseLerp(NPCStats.MIN, NPCStats.MAX, Ticker.Stats.Patience);
+    private void OnDestroy()
+    {
+        // NPCStatsTicker.Deactivate() знімає підписки сам
+    }
+
+    // ── Public API ────────────────────────────────────────────────
+    public void ChangeState(NPCState newState)
+    {
+        // [v9] Перехоплюємо Leaving що ініціюється NPCStatsTicker (patience=0):
+        // якщо є книги в кошику — замінюємо на GoToCashier
+        if (newState == NPCState.Leaving
+            && CurrentState != NPCState.Buying  // не перериваємо оплату
+            && Personality != null
+            && Personality.BasketNotEmpty
+            && !_isDestroyPending)
+        {
+            Debug.Log($"[NPCBrain] {Data?.npcName}: Leaving intercepted → GoToCashier (basket={Personality.Basket.Count})");
+            GoToCashier();
+            return;
+        }
+
+        CurrentState = newState;
+        OnStateChanged?.Invoke(newState);
+        _inspectStarted = false;
+        _waitingTimer   = 0f;
+        Debug.Log($"[NPCBrain] {Data?.npcName}: → {newState}");
+    }
 
     public void OnNPCClicked()
     {
-           Debug.Log($"[NPCBrain] OnNPCClicked: {Data?.npcName}");
- 
-    // Новий UI v2 — NPCInspectorMount
-    if (NPCInspectorMount.Instance != null)
-    {
-        NPCInspectorMount.Instance.Show(this);
-        return;
-    }
- 
-    // Fallback до старого UI якщо v2 не змонтований
-    NPCInspectorPanel.Instance?.Show(this);
-        }
-
-
-    public BookInstance ForceLeaveAndTakeBook()
-    {
-        BookInstance held = null;
-        if (_reservedShelf != null && _reservedBookIndex >= 0)
+        Debug.Log($"[NPCBrain] OnNPCClicked: {Data?.npcName}");
+        if (NPCInspectorMount.Instance != null)
         {
-            var e = _reservedShelf.GetBookData(_reservedBookIndex);
-            if (!string.IsNullOrEmpty(e.templateID)) held = new BookInstance(e.templateID);
-            _reservedShelf.TakeBookAt(_reservedBookIndex);
-            _reservedShelf = null; _reservedBookIndex = -1;
+            NPCInspectorMount.Instance.Show(this);
+            return;
         }
-        if (CurrentState == NPCState.Resting && _restingArrived) Ticker.StopResting();
-        SeatRegistry.Instance?.Release(Personality.UniqueID);
-        ReleaseCurrentShelf();
-        ChangeState(NPCState.Leaving);
-        return held;
+        NPCInspectorPanel.Instance?.Show(this);
     }
 
     // ── State Machine ─────────────────────────────────────────────
@@ -186,129 +185,100 @@ public class NPCBrain : MonoBehaviour
         {
             case NPCState.Entering:
                 _enteringTimer += Time.deltaTime;
-                if (_enteringTimer > 0.3f && AgentArrived()) ChangeState(NPCState.Browsing);
+                if (_enteringTimer > 0.3f && AgentArrived())
+                {
+                    _stayTimerStarted = true;
+                    ChangeState(NPCState.Browsing);
+                }
                 break;
-            case NPCState.Browsing:   UpdateBrowsing();   break;
-            case NPCState.Inspecting: UpdateInspecting(); break;
-            case NPCState.Resting:    UpdateResting();    break;
+
+            case NPCState.Browsing:
+            case NPCState.CollectingBooks:  // [NEW v9] — аналогічний Browsing
+                UpdateBrowsing();
+                break;
+
+            case NPCState.Inspecting:
+                UpdateInspecting();
+                break;
+
+            case NPCState.Resting:
+                UpdateResting();
+                break;
+
             case NPCState.WaitingForPlayer:
                 _waitingTimer += Time.deltaTime;
-                if (_waitingTimer >= waitingForPlayerTimeout) ChangeState(NPCState.Leaving);
+                if (_waitingTimer >= waitingForPlayerTimeout)
+                {
+                    // [v9] Час очікування вичерпано:
+                    // якщо вже є книги в кошику → йде на касу
+                    // якщо WantsToBuy==1 і кошик порожній → йде з магазину
+                    if (Personality.BasketNotEmpty)
+                        GoToCashier();
+                    else
+                        ChangeState(NPCState.Leaving);
+                }
                 break;
+
             case NPCState.Buying:
                 if (AgentArrived()) CompletePurchase();
                 break;
+
             case NPCState.Leaving:
-                if (_reservedShelf != null && _reservedBookIndex >= 0)
-                {
-                    _reservedShelf.UnreserveBook(_reservedBookIndex);
-                    _reservedShelf = null; _reservedBookIndex = -1;
-                }
                 if (AgentArrived()) DestroyNPC();
                 break;
         }
     }
 
-    // ── Browsing ─────────────────────────────────────────────────
+    // ── Browsing ──────────────────────────────────────────────────
     private void UpdateBrowsing()
     {
         if (!AgentArrived() && _currentTargetShelf != null) return;
         if (Ticker.WantsRest && TryBeginResting()) return;
 
         int limit = Data.shelvesToInspect + (Ticker.ExtraShelf ? 1 : 0);
-        if (_visitedShelves.Count >= limit)
-        {
-            _currentTargetShelf = null;
-            ChangeState(NPCState.WaitingForPlayer);
-            return;
-        }
-
         Shelf next = FindNextShelf(limit);
-        if (next == null)
+
+        if (next != null)
         {
-            if (_fullShelves.Count > 0) { _fullShelves.Clear(); return; }
-            _currentTargetShelf = null;
-            ChangeState(NPCState.WaitingForPlayer);
-            return;
+            _currentTargetShelf = next;
+            if (ShelfAccessRegistry.Instance != null)
+                ShelfAccessRegistry.Instance.TryClaim(_currentTargetShelf, Personality.UniqueID, out _);
+            _visitedShelves.Add(next);
+            TrySetDestination(SampleNavMesh(next.transform.position));
+            ChangeState(NPCState.Inspecting);
         }
-
-        if (!ShelfAccessRegistry.Instance.TryClaim(next, Personality.UniqueID, out Vector3 standPos))
+        else
         {
-            _fullShelves.Add(next);
-            return;
+            // [v9] Всі полиці переглянуто — йдемо на касу або з магазину
+            GoToCashier();
         }
-
-        _currentTargetShelf = next;
-        _visitedShelves.Add(next);
-        _fullShelves.Clear();
-        _inspectStarted  = false;
-        _inspectingTimer = 0f;
-
-        TrySetDestination(SampleNavMesh(standPos));
-        ChangeState(NPCState.Inspecting);
     }
 
     // ── Inspecting ────────────────────────────────────────────────
     private void UpdateInspecting()
     {
+        if (!AgentArrived()) return;
+
+        if (!_inspectStarted)
+        {
+            _inspectStarted  = true;
+            _inspectingTimer = 0f;
+
+            if (_currentTargetShelf != null && _currentTargetShelf.GetBookCount() == 0)
+            {
+                _fullShelves.Add(_currentTargetShelf);
+                ReleaseCurrentShelf();
+                ChangeState(CurrentState == NPCState.CollectingBooks
+                    ? NPCState.CollectingBooks
+                    : NPCState.Browsing);
+                return;
+            }
+        }
+
         _inspectingTimer += Time.deltaTime;
-        if ((_inspectingTimer >= INSPECTING_TIMEOUT || AgentArrived()) && !_inspectStarted)
-        {
-            _inspectStarted = true;
-            StartCoroutine(InspectShelf());
-        }
-    }
+        if (_inspectingTimer < Personality.GetInspectTime()) return;
 
-    // ── Resting ───────────────────────────────────────────────────
-    private bool TryBeginResting()
-    {
-        if (SeatRegistry.Instance == null) return false;
-        if (!SeatRegistry.Instance.TryClaim(Personality.UniqueID, out _, out Vector3 seatPos)) return false;
-        TrySetDestination(seatPos);
-        _restingArrived = false; _restingTimer = 0f;
-        ChangeState(NPCState.Resting);
-        return true;
-    }
-
-    private void UpdateResting()
-    {
-        if (!_restingArrived)
-        {
-            if (!AgentArrived()) return;
-            _restingArrived = true;
-            if (SeatRegistry.Instance.TryClaim(Personality.UniqueID, out PropTemplate prop, out _))
-                Ticker.BeginResting(prop.comfortForce, prop.patienceRestoreBonus);
-        }
-        _restingTimer += Time.deltaTime;
-        if (!Ticker.WantsRest || _restingTimer >= MAX_REST_DURATION)
-        {
-            Ticker.StopResting();
-            SeatRegistry.Instance?.Release(Personality.UniqueID);
-            _fullShelves.Clear();
-            ChangeState(NPCState.Browsing);
-        }
-    }
-
-    // ── InspectShelf ─────────────────────────────────────────────
-    private IEnumerator InspectShelf()
-    {
-        // [FIX 1] Якщо полиця ПОРОЖНЯ — не чекаємо, виходимо за ~0.3с
-        bool shelfIsEmpty = _currentTargetShelf == null
-                            || _currentTargetShelf.GetBookCount() == 0;
-
-        if (shelfIsEmpty)
-        {
-            yield return new WaitForSeconds(0.3f);
-            Debug.Log($"[NPC] {Data.npcName}: shelf '{_currentTargetShelf?.name}' is empty → skip");
-            ReleaseCurrentShelf();
-            ChangeState(NPCState.Browsing);
-            yield break;
-        }
-
-        // Полиця не порожня — стандартний огляд
-        yield return new WaitForSeconds(Personality.GetInspectTime());
-        if (CurrentState != NPCState.Inspecting) yield break;
-
+        // Час огляду вичерпано — шукаємо книгу
         var result = _scanner?.FindBook(_currentTargetShelf, Personality);
         ReleaseCurrentShelf();
 
@@ -318,85 +288,183 @@ public class NPCBrain : MonoBehaviour
             OnBookFound?.Invoke(FoundBook);
 
             float chance = Ticker.GetAdjustedBuyChance(Personality.BuyChance);
-            bool  buy    = UnityEngine.Random.value <= chance || Ticker.CanImpulseBuy;
+            // Якщо BuyChance >= 1 — гарантована покупка незалежно від Mood multiplier
+            bool  buy    = Personality.BuyChance >= 1f
+                        || UnityEngine.Random.value <= chance
+                        || Ticker.CanImpulseBuy;
 
             if (buy)
             {
-                _reservedShelf     = _currentTargetShelf;
-                _reservedBookIndex = result.Value.index;
-                _currentTargetShelf?.ReserveBook(result.Value.index, Personality.UniqueID);
-                ChangeState(NPCState.Buying);
+                // [v9] НОВА ЛОГІКА: книга одразу в кошик, без резервування
+                _currentTargetShelf?.TakeBookAt(result.Value.index);
+                Personality.AddToBasket(result.Value.template);
+                OnBookPickedUp?.Invoke(result.Value.template);
+
+                Debug.Log($"[NPCBrain] {Data?.npcName} взяв «{result.Value.template.title}» " +
+                           $"(кошик: {Personality.Basket.Count}/{Personality.WantsToBuy})");
+
+                // Хоче ще і бюджет є?
+                if (Personality.WantsMoreBooks && !Ticker.IsBudgetLow)
+                {
+                    // [FIX] НЕ скидаємо відвідані полиці — бот не повертається туди де вже був
+                    // Повернення можливе тільки якщо гравець поклав туди книгу (OnBookPlaced event)
+                    ChangeState(NPCState.CollectingBooks);
+                }
+                else
+                {
+                    // Все зібрав → каса
+                    GoToCashier();
+                }
             }
-            else { ChangeState(NPCState.Browsing); }
+            else
+            {
+                // Не хоче купувати цю книгу
+                ChangeState(CurrentState == NPCState.CollectingBooks
+                    ? NPCState.CollectingBooks
+                    : NPCState.Browsing);
+            }
         }
         else
         {
-            // Є книги, але не підходять по жанру/рарності/ціні
-            ChangeState(NPCState.Browsing);
+            // Книг потрібного жанру/рарності не знайшло
+            _fullShelves.Add(_currentTargetShelf ?? FindNextShelf(99));
+            ChangeState(CurrentState == NPCState.CollectingBooks
+                ? NPCState.CollectingBooks
+                : NPCState.Browsing);
         }
     }
 
-    // ── Purchase ─────────────────────────────────────────────────
+    // ── Resting ───────────────────────────────────────────────────
+    private void UpdateResting()
+    {
+        if (!_restingArrived)
+        {
+            if (!AgentArrived()) return;
+            _restingArrived = true;
+            _restingTimer   = 0f;
+            Ticker.BeginResting(0f, 0f);
+        }
+        _restingTimer += Time.deltaTime;
+        if (_restingTimer >= MAX_REST_DURATION || !Ticker.WantsRest)
+        {
+            Ticker.StopResting();
+            SeatRegistry.Instance?.Release(Personality.UniqueID);
+            _restingArrived = false;
+            ChangeState(Personality.BasketNotEmpty
+                ? NPCState.CollectingBooks
+                : NPCState.Browsing);
+        }
+    }
+
+    // ── GoToCashier (НОВА ЛОГІКА) ─────────────────────────────────
+    /// Вирішує: іти на касу чи покинути магазин.
+    private void GoToCashier()
+    {
+        if (!Personality.BasketNotEmpty)
+        {
+            // Нічого не знайшов взагалі → йде з магазину
+            Debug.Log($"[NPCBrain] {Data?.npcName}: кошик порожній → Leaving");
+            ChangeState(NPCState.Leaving);
+            TrySetDestination(SampleNavMesh(NPCSpawner.Instance?.ExitPoint?.position ?? transform.position));
+            return;
+        }
+
+        // Є книги → йде до каси
+        Debug.Log($"[NPCBrain] {Data?.npcName}: йде на касу з {Personality.Basket.Count} книгами");
+        if (_cashRegister != null)
+            TrySetDestination(SampleNavMesh(_cashRegister != null ? _cashRegister.transform.position : transform.position));
+        ChangeState(NPCState.Buying);
+    }
+
+    // ── CompletePurchase (оновлено) ───────────────────────────────
     private void CompletePurchase()
     {
-        if (FoundBook == null) return;
-        if (_reservedShelf != null && _reservedBookIndex >= 0)
+        // [v9] Оплачуємо ВСІ книги з кошика
+        float totalPrice = 0f;
+        foreach (var book in Personality.Basket)
         {
-            _reservedShelf.TakeBookAt(_reservedBookIndex);
-            _reservedShelf = null; _reservedBookIndex = -1;
+            EconomyManager.Instance?.RecordBookSold(book.sellPrice);
+            totalPrice += book.sellPrice;
         }
-        EconomyManager.Instance?.RecordBookSold(FoundBook.sellPrice);
-        Personality.BooksBought++;
-        Ticker.RegisterPurchase(FoundBook.sellPrice, Personality.MaxBudget);
+
+        Ticker.RegisterPurchase(totalPrice, Personality.MaxBudget);
         OnPurchaseComplete?.Invoke();
 
-        if (Personality.WantsMoreBooks && !Ticker.IsBudgetLow)
-        {
-            _visitedShelves.Clear(); _fullShelves.Clear();
-            ChangeState(NPCState.Browsing);
-        }
-        else { ChangeState(NPCState.Leaving); }
+        Debug.Log($"[NPCBrain] {Data?.npcName}: оплатив {Personality.Basket.Count} книги " +
+                  $"на суму ${totalPrice:F0}");
+
+        Personality.ClearBasket();
+        ChangeState(NPCState.Leaving);
+        TrySetDestination(SampleNavMesh(NPCSpawner.Instance?.ExitPoint?.position ?? transform.position));
     }
 
-    // ── Destroy ───────────────────────────────────────────────────
-    private void DestroyNPC()
+    // ── Player interaction ────────────────────────────────────────
+    public void ReceiveBookOffer(BookTemplate offeredBook)
     {
-        if (_isDestroyPending) return;
-        _isDestroyPending = true;
-        NPCInspectorPanel.Instance?.HideIfShowing(this);
+        if (CurrentState != NPCState.WaitingForPlayer) return;
+        _playerOfferAttempts++;
+
+        if (offeredBook != null
+            && Personality.AcceptsRarity(offeredBook.rarity)
+            && offeredBook.genre == Personality.DesiredGenre
+            && offeredBook.sellPrice <= Personality.MaxBudget * (Ticker.Stats.Wallet / 100f))
+        {
+            FoundBook = offeredBook;
+            OnBookFound?.Invoke(FoundBook);
+
+            // Книга від гравця → в кошик
+            Personality.AddToBasket(offeredBook);
+            OnBookPickedUp?.Invoke(offeredBook);
+
+            if (Personality.WantsMoreBooks && !Ticker.IsBudgetLow)
+                ChangeState(NPCState.CollectingBooks);
+            else
+                GoToCashier();
+        }
+        else
+        {
+            string reason = offeredBook == null          ? "Це не книга..."
+                : offeredBook.genre != Personality.DesiredGenre  ? "Не мій жанр."
+                : !Personality.AcceptsRarity(offeredBook.rarity) ? "Не та якість."
+                : "Задорого.";
+            _worldUI?.ShowRejectionFeedback(reason);
+
+            if (_playerOfferAttempts >= Data.maxPlayerOfferAttempts)
+                StartCoroutine(LeaveAfterDelay(2f));
+        }
+    }
+
+    private IEnumerator LeaveAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (CurrentState == NPCState.WaitingForPlayer)
+        {
+            // [v9] Якщо є книги → каса; якщо ні → йде
+            if (Personality.BasketNotEmpty) GoToCashier();
+            else ChangeState(NPCState.Leaving);
+        }
+    }
+
+    // ── ForceLeave ────────────────────────────────────────────────
+    public BookInstance ForceLeaveAndTakeBook()
+    {
+        if (CurrentState == NPCState.Resting && _restingArrived) Ticker.StopResting();
         SeatRegistry.Instance?.Release(Personality.UniqueID);
-        ShelfAccessRegistry.Instance?.ReleaseAll(Personality.UniqueID);
-        Ticker.Deactivate();
-        OnNPCLeft?.Invoke();
-        Destroy(gameObject);
-    }
+        ReleaseCurrentShelf();
+        _stayTimerStarted = false;
 
-    // ── ChangeState ───────────────────────────────────────────────
-    public void ChangeState(NPCState newState)
-    {
-        if (CurrentState == NPCState.Resting && newState != NPCState.Resting)
+        // [FIX] Якщо є книги в кошику — йде на касу, а не просто йде
+        if (Personality.BasketNotEmpty)
         {
-            if (_restingArrived) Ticker.StopResting();
-            SeatRegistry.Instance?.Release(Personality.UniqueID);
+            Debug.Log($"[NPCBrain] {Data?.npcName}: ForceLeave → GoToCashier (basket={Personality.Basket.Count})");
+            GoToCashier();
         }
-        if (CurrentState == NPCState.Inspecting && newState != NPCState.Inspecting)
-            ReleaseCurrentShelf();
-        if (newState == NPCState.WaitingForPlayer)
-            _waitingTimer = 0f;
-
-        CurrentState = newState;
-        OnStateChanged?.Invoke(newState);
-
-        switch (newState)
+        else
         {
-            case NPCState.Inspecting: _inspectingTimer = 0f; _inspectStarted = false; break;
-            case NPCState.Buying:
-                if (_cashRegister != null) TrySetDestination(_cashRegister.GetQueuePosition());
-                break;
-            case NPCState.Leaving:
-                TrySetDestination(NPCSpawner.Instance?.ExitPoint?.position ?? transform.position);
-                break;
+            Personality.ClearBasket();
+            ChangeState(NPCState.Leaving);
         }
+        return null;
     }
 
     // ── Helpers ───────────────────────────────────────────────────
@@ -405,6 +473,17 @@ public class NPCBrain : MonoBehaviour
         if (_currentTargetShelf == null) return;
         ShelfAccessRegistry.Instance?.Release(_currentTargetShelf, Personality.UniqueID);
         _currentTargetShelf = null;
+    }
+
+    private bool TryBeginResting()
+    {
+        if (SeatRegistry.Instance == null) return false;
+        if (!SeatRegistry.Instance.TryClaim(Personality.UniqueID, out _, out Vector3 seatPos)) 
+            return false;
+        _restingArrived = false;
+        TrySetDestination(SampleNavMesh(seatPos));
+        ChangeState(NPCState.Resting);
+        return true;
     }
 
     private Shelf FindNextShelf(int limit)
@@ -443,35 +522,12 @@ public class NPCBrain : MonoBehaviour
     private Vector3 SampleNavMesh(Vector3 pos) =>
         NavMesh.SamplePosition(pos, out NavMeshHit h, 2f, NavMesh.AllAreas) ? h.position : pos;
 
-    // ── Player interaction ─────────────────────────────────────────
-    public void ReceiveBookOffer(BookTemplate offeredBook)
+    private void DestroyNPC()
     {
-        if (CurrentState != NPCState.WaitingForPlayer) return;
-        _playerOfferAttempts++;
-        if (offeredBook != null
-            && Personality.AcceptsRarity(offeredBook.rarity)
-            && offeredBook.genre == Personality.DesiredGenre
-            && offeredBook.sellPrice <= Personality.MaxBudget * (Ticker.Stats.Wallet / 100f))
-        {
-            FoundBook = offeredBook;
-            OnBookFound?.Invoke(FoundBook);
-            ChangeState(NPCState.Buying);
-        }
-        else
-        {
-            string reason = offeredBook == null ? "Це не книга..."
-                : offeredBook.genre != Personality.DesiredGenre ? "Не мій жанр."
-                : !Personality.AcceptsRarity(offeredBook.rarity) ? "Не та якість."
-                : "Задорого.";
-            _worldUI?.ShowRejectionFeedback(reason);
-            if (_playerOfferAttempts >= Data.maxPlayerOfferAttempts)
-                StartCoroutine(LeaveAfterDelay(2f));
-        }
-    }
-
-    private IEnumerator LeaveAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (CurrentState == NPCState.WaitingForPlayer) ChangeState(NPCState.Leaving);
+        if (_isDestroyPending) return;
+        _isDestroyPending = true;
+        Ticker.Deactivate();
+        OnNPCLeft?.Invoke();
+        Destroy(gameObject, 0.1f);
     }
 }

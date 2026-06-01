@@ -132,10 +132,13 @@ public class NPCInspectorController
         RebuildGenreCards();
         RefreshBars();
         SetVisible(true);
-
-        // Реєструємо click-outside: клік поза панеллю закриває її.
-        // Реєструємо на HUDRoot (батьківський елемент всього HUD).
         RegisterClickOutside();
+
+        // Підписуємось на OnBookPickedUp (існує в NPCBrain після мінімального патчу)
+        // і на OnBookFound як fallback якщо патч ще не застосовано
+        _currentNPC.OnBookPickedUp += OnNPCPickedUpBook;
+        _currentNPC.OnBookFound    += OnNPCBookFound;
+        _currentNPC.OnNPCLeft      += OnNPCLeft;
     }
 
     public void Hide()
@@ -158,8 +161,7 @@ public class NPCInspectorController
         if (_speechBubbleText != null)
             _speechBubbleText.text = text;
 
-        // display:none -> flex (займає місце в flex колонці)
-        _speechBubble.style.display = DisplayStyle.Flex;
+        // Показуємо через opacity transition (position:absolute — не штовхає layout)
         _speechBubble.RemoveFromClassList(CLS_HIDDEN);
 
         _bubbleCts?.Cancel();
@@ -181,7 +183,6 @@ public class NPCInspectorController
     {
         _bubbleCts?.Cancel();
         if (_speechBubble == null) return;
-        _speechBubble.style.display = DisplayStyle.None;
         _speechBubble.AddToClassList(CLS_HIDDEN);
     }
 
@@ -336,29 +337,35 @@ public class NPCInspectorController
         _cardElements.Clear();
         _cardData.Clear();
 
-        int total  = _currentNPC.Personality?.WantsToBuy  ?? 1;
-        int bought = _currentNPC.Personality?.BooksBought ?? 0;
-        var genre  = _currentNPC.DesiredGenre;
+        if (_currentNPC == null) return;
 
-        // Будуємо дані в логічному порядку
+        int total    = _currentNPC.Personality?.WantsToBuy ?? 1;
+        var basket   = _currentNPC.Personality?.Basket;     // нові: зібрані книги
+        int inBasket = basket?.Count ?? 0;
+        var genre    = _currentNPC.DesiredGenre;
+
+        // Будуємо дані: якщо книга вже в кошику — fulfilled + показуємо назву/ціну
         for (int i = 0; i < total; i++)
         {
-            bool fulfilled = i < bought;
-            _cardData.Add(new CardData { Genre = genre, IsFulfilled = fulfilled });
-            _cards.Add(null); // placeholder
+            bool fulfilled = i < inBasket;
+            _cardData.Add(new CardData
+            {
+                Genre       = genre,
+                IsFulfilled = fulfilled,
+                BookTitle   = (fulfilled && basket != null) ? basket[i].title     : null,
+                Price       = (fulfilled && basket != null) ? basket[i].sellPrice : 0f
+            });
+            _cards.Add(null);
         }
 
-        // Додаємо в DOM у зворотньому порядку:
-        // UI Toolkit — останній дочірній = зверху.
-        // Картка 0 має бути зверху → додаємо її останньою.
+        // Додаємо в DOM у зворотньому порядку (картка 0 = зверху)
         for (int i = total - 1; i >= 0; i--)
         {
-            var card = BuildCard(genre, _cardData[i].IsFulfilled, i);
+            var card = BuildCard(_cardData[i], i);
             _cards[i] = card;
             _genreCardsRow.Add(card);
         }
 
-        // Встановлюємо collapsed позиції БЕЗ анімації (щоб не було стрибка)
         SnapToCollapsed();
     }
 
@@ -383,7 +390,7 @@ public class NPCInspectorController
         // Mystery додається останньою → малюється зверху
         for (int i = _cardData.Count - 1; i >= 0; i--)
         {
-            var card = BuildCard(_cardData[i].Genre, _cardData[i].IsFulfilled, i);
+            var card = BuildCard(_cardData[i], i);
             _cards[i] = card;
             _genreCardsRow.Add(card);
         }
@@ -394,9 +401,14 @@ public class NPCInspectorController
 
     /// Повертає wrapper (для _cards / style.left).
     /// Сама картка зберігається в _cardElements[index].
-    private VisualElement BuildCard(BookGenre genre, bool fulfilled, int index)
+    private VisualElement BuildCard(CardData data, int index)
     {
-        // ── Wrapper: анімується через style.left ──────────────────
+        var genre     = data.Genre;
+        var fulfilled = data.IsFulfilled;
+        var bookTitle = data.BookTitle;
+        var price     = data.Price;
+
+        // ── Wrapper ───────────────────────────────────────────────
         var wrapper = new VisualElement();
         wrapper.AddToClassList("genre-card-wrapper");
         wrapper.pickingMode = PickingMode.Position;
@@ -418,9 +430,19 @@ public class NPCInspectorController
         icon.AddToClassList("genre-card__icon");
         card.Add(icon);
 
-        var label = new Label(genre.ToString());
+        // Якщо книга взята — показуємо назву, інакше — жанр
+        var labelText = (!string.IsNullOrEmpty(bookTitle)) ? bookTitle : genre.ToString();
+        var label = new Label(labelText);
         label.AddToClassList("genre-card__label");
         card.Add(label);
+
+        // Ціна (показується якщо книга взята)
+        if (fulfilled && price > 0f)
+        {
+            var priceLabel = new Label($"${price:0}");
+            priceLabel.AddToClassList("genre-card__price");
+            card.Add(priceLabel);
+        }
 
         var check = new VisualElement();
         check.name = "CardCheck";
@@ -515,15 +537,12 @@ public class NPCInspectorController
 
     private void RegisterClickOutside()
     {
-        // Знаходимо HUDRoot або batьківський елемент
         var parent = _root.parent;
         while (parent != null && parent.name != "HUDRoot" && parent.parent != null)
             parent = parent.parent;
 
         if (parent == null) return;
 
-        // Реєструємо один раз — при повторному Show() старий callback залишається
-        // але перевіряємо _isVisible перед закриттям
         parent.RegisterCallback<PointerDownEvent>(OnClickOutside, TrickleDown.TrickleDown);
     }
 
@@ -531,23 +550,123 @@ public class NPCInspectorController
     {
         if (!_isVisible) return;
 
-        // Перевіряємо чи клік попав у нашу панель
+        // Не закриваємо якщо клік в межах нашої панелі
         var localPos = _root.WorldToLocal(evt.position);
         if (_root.ContainsPoint(localPos)) return;
 
-        // Клік поза панеллю — закриваємо
+        // Не закриваємо якщо клік потрапив на будь-який інший UI елемент
+        // (кнопки, меблі в UI, інвентар тощо)
+        // Перевіряємо через UIPointerChecker — якщо над UI → не закриваємо
+        if (UIPointerChecker.IsOverUI()) return;
+
+        // Не закриваємо якщо клік на 3D об'єкт (меблі, NPC, полиці)
+        // Перевіряємо через Physics raycast
+        if (IsPointerOver3DObject(evt.position)) return;
+
+        // Клік на порожній простір → закриваємо
         Hide();
     }
 
-    private void Detach()
+    private static bool IsPointerOver3DObject(Vector2 screenPos)
     {
-        if (_currentNPC != null) _currentNPC.OnStateChanged -= OnNPCStateChanged;
+        // Конвертуємо UI позицію в screen координати для Physics raycast
+        var camera = Camera.main;
+        if (camera == null) return false;
+
+        // UI координати: origin top-left. Physics raycast: origin bottom-left.
+        var ray = camera.ScreenPointToRay(
+            new Vector3(screenPos.x, Screen.height - screenPos.y, 0f));
+
+        return Physics.Raycast(ray, 100f);
+    }
+
+    private void OnNPCPickedUpBook(BookTemplate book)
+    {
+        // Книга взята в кошик → оновлюємо картки + хмаринка
+        RebuildGenreCards();
+        ShowSpeechBubble($"Беру «{book?.title ?? "..."}»!", 2.5f);
+    }
+
+    private void OnNPCBookFound(BookTemplate book)
+    {
+        // Fallback для v8: NPC знайшов книгу і йде до каси → позначаємо картку
+        // (OnBookPickedUp ще не існує — спрацьовує OnBookFound)
+        if (book == null) return;
+        MarkNextCardFulfilled(book);
+        ShowSpeechBubble($"Беру «{book.title}»!", 2.5f);
+    }
+
+    /// Знаходить першу незаповнену картку і заповнює її даними книги.
+    /// Fallback для старого NPCBrain без Basket.
+    public void MarkNextCardFulfilled(BookTemplate book)
+    {
+        if (book == null) return;
+        // При новому flow — просто перебудовуємо всі картки з актуального Basket
+        // При старому flow (fallback) — оновлюємо першу порожню картку вручну
+        if (_currentNPC?.Personality?.Basket != null)
+        {
+            RebuildGenreCards();
+            return;
+        }
+
+        // Fallback: старий NPCBrain без Basket
+        for (int i = 0; i < _cardData.Count; i++)
+        {
+            if (_cardData[i].IsFulfilled) continue;
+
+            _cardData[i].IsFulfilled = true;
+            _cardData[i].BookTitle   = book.title;
+            _cardData[i].Price       = book.sellPrice;
+
+            if (i < _cardElements.Count && _cardElements[i] != null)
+            {
+                var card = _cardElements[i];
+                card.AddToClassList(CLS_FULFILLED);
+                card.Q<VisualElement>("CardCheck")?.RemoveFromClassList(CLS_HIDDEN);
+                var lbl = card.Q<Label>("genre-card__label");
+                if (lbl != null) lbl.text = book.title;
+            }
+            Debug.Log($"[NPCInspector] Card {i} fulfilled: {book.title} ${book.sellPrice}");
+            return;
+        }
+    }
+
+        private void Detach()
+    {
+        if (_currentNPC != null)
+        {
+            _currentNPC.OnStateChanged  -= OnNPCStateChanged;
+            _currentNPC.OnBookPickedUp  -= OnNPCPickedUpBook;
+            _currentNPC.OnBookFound     -= OnNPCBookFound;
+            _currentNPC.OnNPCLeft       -= OnNPCLeft;
+        }
         _currentNPC = null;
     }
 
     private void OnNPCStateChanged(NPCState state)
     {
-        if (state == NPCState.Leaving) Hide();
+        // Не закриваємо при Leaving — чекаємо OnNPCLeft
+        switch (state)
+        {
+            case NPCState.Leaving:
+                ShowSpeechBubble("До побачення!", 99f); // залишається до закриття
+                break;
+            case NPCState.Buying:
+                ShowSpeechBubble("Йду на касу!", 3f);
+                break;
+            case NPCState.CollectingBooks:
+                ShowSpeechBubble("Пошукаю ще...", 2f);
+                break;
+            case NPCState.WaitingForPlayer:
+                ShowSpeechBubble("Чи є у вас щось для мене?", 99f);
+                break;
+        }
+    }
+
+    private void OnNPCLeft()
+    {
+        // NPC знищений зі сцени → тепер закриваємо вікно
+        Hide();
     }
 
     private static void RemoveGenreClasses(VisualElement el)

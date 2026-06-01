@@ -32,4 +32,30 @@ public class GameBootstrap : MonoBehaviour
             serializer?.ApplySaveData(data);
         }
     }
+
+    [ContextMenu("Fill Shelves Now")]
+    public void FillShelvesNow()
+    {
+        DefaultShelfFiller.FillAll();
+        Debug.Log("[Bootstrap] Shelves filled manually.");
+    }
+ 
+    /// Скинути прапор нової гри — при наступному запуску полиці заповняться автоматично.
+    [ContextMenu("Reset to New Game")]
+    public void ResetToNewGame()
+    {
+        PlayerPrefs.SetInt("IsNewGame", 1);
+        PlayerPrefs.Save();
+       // SaveSystem.DeleteSave(0);
+        Debug.Log("[Bootstrap] Save deleted. Next launch = new game with default shelves.");
+    }
+ 
+    /// Заповнити полиці і зберегти стан.
+    [ContextMenu("Fill Shelves + Save")]
+    public void FillShelvesAndSave()
+    {
+        DefaultShelfFiller.FillAll();
+        serializer?.QuickSave();
+        Debug.Log("[Bootstrap] Shelves filled and saved.");
+    }
 }

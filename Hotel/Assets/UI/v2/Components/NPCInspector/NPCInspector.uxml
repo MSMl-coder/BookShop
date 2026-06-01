@@ -3,16 +3,14 @@
     <Style src="project://database/Assets/UI/v2/Components/NPCInspector/NPCInspector.uss?fileID=7433441132597879392&amp;guid=6bb434f9ea251433683c2327f337a843&amp;type=3#NPCInspector"/>
     <ui:VisualElement name="NPCInspector" picking-mode="Position" class="npc-inspector" style="left: 140px; bottom: 240px;">
 
-        <!-- SpeechBubble: position:relative flow, з'являється ВНД стат барів зверху -->
-        <!-- bottom/left з inline style прибрані — позиція через USS (bottom: 100%) -->
-        <ui:VisualElement name="SpeechBubble" picking-mode="Ignore" class="speech-bubble hidden">
-            <ui:Label name="SpeechBubbleText" text="" class="speech-bubble__text"/>
-            <ui:VisualElement picking-mode="Ignore" class="speech-bubble__tail"/>
-        </ui:VisualElement>
-
         <ui:VisualElement name="StatBarsSection" class="stat-bars-section">
 
+            <!-- SpeechBubble всередині mood row — position:absolute відносно нього -->
             <ui:VisualElement class="stat-row">
+                <ui:VisualElement name="SpeechBubble" picking-mode="Ignore" class="speech-bubble hidden">
+                    <ui:Label name="SpeechBubbleText" text="" class="speech-bubble__text"/>
+                    <ui:VisualElement picking-mode="Ignore" class="speech-bubble__tail"/>
+                </ui:VisualElement>
                 <ui:VisualElement class="stat-icon stat-icon--mood"
                     style="background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/mood-swing.png?fileID=2800000&amp;guid=c5765f5efe9c047da8d830dd8f1f5d23&amp;type=3#mood-swing&quot;); background-color: rgb(229, 229, 229); width: 32px; height: 32px;"/>
                 <ui:VisualElement name="MoodTrack" class="stat-track"/>

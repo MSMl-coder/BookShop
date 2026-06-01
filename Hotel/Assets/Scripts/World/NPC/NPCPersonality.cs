@@ -1,12 +1,11 @@
 // Assets/Scripts/World/NPC/NPCPersonality.cs
-// ЗМІНИ v2:
-//   - Додано InitialMoodValue — початковий Mood для NPCStats (конвертується з enum Mood)
-//   - Додано InitialPatience — початкове терпіння для NPCStats
-//   - Додано UniqueID для SeatRegistry
-//   - StayDuration видалено з логіки — замінено на Patience (NPCStatsTicker)
-//
-// Решта логіки незмінна.
+// ЗМІНИ v3:
+//   - Додано Basket (List<BookTemplate>) — книги взяті з полиці але ще не оплачені
+//   - Додано BasketFull, BasketNotEmpty, AddToBasket(), ClearBasket()
+//   - BooksBought тепер = кількість книг в кошику (не оплачених)
+//   - WantsMoreBooks залишається: BooksBought < WantsToBuy
 
+using System.Collections.Generic;
 using UnityEngine;
 
 public class NPCPersonality
@@ -19,9 +18,22 @@ public class NPCPersonality
     public int        WantsToBuy    { get; private set; }
     public int        BooksBought   { get; set;         }
 
+    // ── [NEW v3] Кошик — книги взяті з полиць, ще не оплачені ──
+    public List<BookTemplate> Basket      { get; } = new List<BookTemplate>();
+    public bool               BasketFull  => Basket.Count >= WantsToBuy;
+    public bool               BasketNotEmpty => Basket.Count > 0;
+
+    public void AddToBasket(BookTemplate book)
+    {
+        Basket.Add(book);
+        BooksBought = Basket.Count; // синхронізуємо для сумісності
+    }
+
+    public void ClearBasket() => Basket.Clear();
+
     // ── Поведінка ───────────────────────────────────────────────
     public float BuyChance      { get; private set; }
-    public float StayDuration   { get; private set; } // залишено для сумісності
+    public float StayDuration   { get; private set; }
     public float InspectTimeMin { get; private set; }
     public float InspectTimeMax { get; private set; }
     public int   ShelvesToVisit { get; private set; }
@@ -30,15 +42,10 @@ public class NPCPersonality
     public enum Mood { Relaxed, Rushed, Picky, Impulsive }
     public Mood CurrentMood { get; private set; }
 
-    // ── [NEW] Початкові значення для NPCStats ───────────────────
-    /// Стартовий Mood у числовому вигляді (-100..+100) для NPCStats.Initialize().
-    public float InitialMoodValue    { get; private set; }
-
-    /// Стартове Patience (-100..+100) — визначається архетипом і Mood.
-    public float InitialPatience     { get; private set; }
-
-    // ── [NEW] Унікальний ID для SeatRegistry ────────────────────
-    public string UniqueID { get; private set; }
+    // ── Початкові значення для NPCStats ─────────────────────────
+    public float InitialMoodValue { get; private set; }
+    public float InitialPatience  { get; private set; }
+    public string UniqueID        { get; private set; }
 
     // ── Derived ──────────────────────────────────────────────────
     public bool WantsMoreBooks => BooksBought < WantsToBuy;
@@ -51,36 +58,31 @@ public class NPCPersonality
 
     public string DebugString() =>
         $"[{CurrentMood} mood={InitialMoodValue:F0} patience={InitialPatience:F0}] " +
-        $"Genre:{DesiredGenre} Rarity:[{MinRarity}–{MaxRarity}] " +
-        $"Budget:{MaxBudget:F0} Wants:{WantsToBuy} BuyChance:{BuyChance:P0} " +
-        $"Shelves:{ShelvesToVisit}";
+        $"Genre:{DesiredGenre} Rarity:[{MinRarity}-{MaxRarity}] " +
+        $"Budget:{MaxBudget:F0} Wants:{WantsToBuy} Basket:{Basket.Count} BuyChance:{BuyChance:P0}";
 
-    // ────────────────────────────────────────────────────────────
-    // Generation
-    // ────────────────────────────────────────────────────────────
-
+    // ── Generation ───────────────────────────────────────────────
     public static NPCPersonality Generate(NPCData data)
     {
         var p = new NPCPersonality();
-
         p.UniqueID = System.Guid.NewGuid().ToString();
 
-        // ── Жанр ────────────────────────────────────────────────
+        // Жанр
         if (data.preferredGenres != null && data.preferredGenres.Length > 0 && Random.value < 0.8f)
             p.DesiredGenre = data.preferredGenres[Random.Range(0, data.preferredGenres.Length)];
         else
             p.DesiredGenre = (BookGenre)Random.Range(0, System.Enum.GetValues(typeof(BookGenre)).Length);
 
-        // ── Рарність ────────────────────────────────────────────
+        // Рарність
         p.MinRarity = data.minAcceptableRarity;
         p.MaxRarity = data.maxAcceptableRarity;
 
-        // ── Бюджет ──────────────────────────────────────────────
+        // Бюджет
         float mult   = Random.Range(data.budgetMultiplierMin, data.budgetMultiplierMax);
         float budget = data.maxBudget * mult;
         p.MaxBudget  = Mathf.Max(Mathf.Round(budget / 5f) * 5f, 5f);
 
-        // ── К-ть книг ───────────────────────────────────────────
+        // К-ть книг
         float buyRoll = Random.value;
         int want;
         if      (buyRoll < 0.55f) want = 1;
@@ -90,10 +92,9 @@ public class NPCPersonality
         p.WantsToBuy  = Mathf.Clamp(want, data.minBooksToBuy, data.maxBooksToBuy);
         p.BooksBought = 0;
 
-        // ── Настрій ─────────────────────────────────────────────
+        // Настрій
         p.CurrentMood = RollMood(data);
 
-        // ── Поведінка залежно від настрою ───────────────────────
         switch (p.CurrentMood)
         {
             case Mood.Rushed:
@@ -103,7 +104,6 @@ public class NPCPersonality
                 p.InspectTimeMin = data.inspectTimeMin * 0.5f;
                 p.InspectTimeMax = data.inspectTimeMax * 0.6f;
                 break;
-
             case Mood.Relaxed:
                 p.BuyChance      = data.buyChance * Random.Range(0.85f, 1.05f);
                 p.StayDuration   = data.stayDuration * Random.Range(0.9f, 1.2f);
@@ -111,76 +111,51 @@ public class NPCPersonality
                 p.InspectTimeMin = data.inspectTimeMin;
                 p.InspectTimeMax = data.inspectTimeMax;
                 break;
-
             case Mood.Picky:
-                p.BuyChance      = Mathf.Clamp(data.buyChance * Random.Range(0.5f, 0.7f), 0f, 1f);
-                p.StayDuration   = data.stayDuration * Random.Range(0.7f, 0.9f);
-                p.ShelvesToVisit = data.shelvesToInspect + Random.Range(0, 2);
+                p.BuyChance      = data.buyChance * Random.Range(0.5f, 0.75f);
+                p.StayDuration   = data.stayDuration * Random.Range(1.1f, 1.5f);
+                p.ShelvesToVisit = data.shelvesToInspect + Random.Range(1, 3);
                 p.InspectTimeMin = data.inspectTimeMin * 1.2f;
                 p.InspectTimeMax = data.inspectTimeMax * 1.5f;
                 break;
-
             case Mood.Impulsive:
                 p.BuyChance      = Mathf.Clamp(data.buyChance * Random.Range(1.3f, 1.6f), 0f, 1f);
-                p.StayDuration   = data.stayDuration * Random.Range(0.5f, 0.8f);
-                p.ShelvesToVisit = Mathf.Max(1, data.shelvesToInspect - 1);
-                p.InspectTimeMin = data.inspectTimeMin * 0.4f;
-                p.InspectTimeMax = data.inspectTimeMax * 0.5f;
+                p.StayDuration   = data.stayDuration * Random.Range(0.6f, 0.9f);
+                p.ShelvesToVisit = data.shelvesToInspect;
+                p.InspectTimeMin = data.inspectTimeMin * 0.7f;
+                p.InspectTimeMax = data.inspectTimeMax * 0.8f;
                 break;
         }
 
-        // ── [NEW] Конвертація Mood enum → числові значення для NPCStats ──
-        p.InitialMoodValue = MoodToInitialValue(p.CurrentMood);
-        p.InitialPatience  = RollInitialPatience(p.CurrentMood, data);
+        // InitialMoodValue (-100..+100)
+        p.InitialMoodValue = p.CurrentMood switch
+        {
+            Mood.Relaxed   =>  Random.Range(20f,  60f),
+            Mood.Rushed    =>  Random.Range(-20f, 20f),
+            Mood.Picky     =>  Random.Range(-10f, 30f),
+            Mood.Impulsive =>  Random.Range(40f,  90f),
+            _              =>  0f
+        };
+
+        // InitialPatience залежить від BuyChance і Mood
+        p.InitialPatience = p.CurrentMood switch
+        {
+            Mood.Relaxed   => Random.Range(40f,  80f),
+            Mood.Rushed    => Random.Range(20f,  50f),
+            Mood.Picky     => Random.Range(60f,  90f),
+            Mood.Impulsive => Random.Range(30f,  70f),
+            _              => 50f
+        };
 
         return p;
     }
 
-    // ─────────────────────────────────────────────
-    // Private helpers
-    // ─────────────────────────────────────────────
-
     private static Mood RollMood(NPCData data)
     {
-        if (Random.value < data.impulsiveMoodChance) return Mood.Impulsive;
-
-        int totalWeight = 40; // Relaxed завжди
-        if (data.canBeRushed) totalWeight += 30;
-        if (data.canBePicky)  totalWeight += 30;
-
-        int roll = Random.Range(0, totalWeight);
-
-        if (data.canBeRushed && roll < 30)   return Mood.Rushed;
-        roll -= data.canBeRushed ? 30 : 0;
-        if (data.canBePicky  && roll < 30)   return Mood.Picky;
-
-        return Mood.Relaxed;
-    }
-
-    /// Конвертує enum Mood у стартовий числовий Mood для NPCStats.
-    private static float MoodToInitialValue(Mood mood) => mood switch
-    {
-        Mood.Relaxed   =>  Random.Range(10f,  35f),   // приємний настрій
-        Mood.Rushed    =>  Random.Range(-20f,  5f),   // злегка негативний
-        Mood.Picky     =>  Random.Range(-30f, -5f),   // незадоволений
-        Mood.Impulsive =>  Random.Range(35f,  60f),   // збуджений/ейфорія
-        _              =>  0f
-    };
-
-    /// Початкове Patience залежно від Mood та архетипу.
-    /// Rushed = мало часу → низьке Patience; Relaxed = багато → високе.
-    private static float RollInitialPatience(Mood mood, NPCData data)
-    {
-        // Базова patience з stayDuration (нормалізовано відносно 60с)
-        float baseFactor = Mathf.Clamp(data.stayDuration / 60f, 0.3f, 2f);
-
-        return mood switch
-        {
-            Mood.Relaxed   => Random.Range(40f, 70f) * baseFactor,
-            Mood.Rushed    => Random.Range(10f, 30f) * baseFactor,
-            Mood.Picky     => Random.Range(25f, 50f) * baseFactor,
-            Mood.Impulsive => Random.Range(20f, 45f) * baseFactor,
-            _              => 50f
-        };
+        float r = Random.value;
+        if      (r < 0.35f) return Mood.Relaxed;
+        else if (r < 0.60f) return Mood.Rushed;
+        else if (r < 0.80f) return Mood.Picky;
+        else                return Mood.Impulsive;
     }
 }
