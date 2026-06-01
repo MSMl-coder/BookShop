@@ -15,14 +15,14 @@ MonoBehaviour:
   npcName: "\u041F\u0440\u043E\u0444\u0435\u0441\u043E\u0440"
   portrait: {fileID: 0}
   prefab: {fileID: 1692468126580653705, guid: 6206c14b6fb53694cb6b0bb8a41fcb9c, type: 3}
-  stayDuration: 28.37
+  stayDuration: 240
   buyChance: 1
-  maxBudget: 80
+  maxBudget: 250
   shelvesToInspect: 8
-  inspectTimeMin: 12
-  inspectTimeMax: 25
+  inspectTimeMin: 10
+  inspectTimeMax: 30
   preferredGenres: 0600000005000000000000000400000002000000
-  minBooksToBuy: 1
+  minBooksToBuy: 2
   maxBooksToBuy: 5
   minAcceptableRarity: 1
   maxAcceptableRarity: 4

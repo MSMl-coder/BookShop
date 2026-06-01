@@ -1,62 +1,43 @@
-// ═══════════════════════════════════════════════════════════════════
-// FlipClockController.cs  v2 — matches fixed USS layout
-// Path: Assets/Scripts/UI/Bookshop/Controllers/FlipClockController.cs
+// Assets/Scripts/UI/Bookshop/Controllers/FlipClockController.cs
+// ФІКС: Годинник не скидався після закінчення дня.
+//   FlipClockController ніколи не підписувався на GameLoopManager.OnNewDayStarted —
+//   _totalMin продовжував накопичуватись між днями.
+//   Новий день починався з того часу де зупинився попередній (або ще пізніше).
 //
-// DIGIT STRUCTURE (matches BookshopUI.uss):
-//   .flip-digit
-//     .flip-digit__bottom  — permanent bottom half (current value)
-//       Label              — full 56px label, shifted up -28px to clip bottom
-//     .flip-digit__top     — permanent top half (next value)
-//       Label              — full 56px label at top: 0, clips to 28px
-//     .flip-digit__flap    — animated: starts at height 28px, shrinks to 0
-//       Label              — shows current value (folds away revealing top-next)
-//     .flip-digit__gap     — decorative center line
-//
-// ANIMATION per digit change (currentVal → nextVal):
-//   Step 1: set TopNext  = nextVal   (quietly, under flap)
-//   Step 2: animate Flap height 28 → 0  (flap folds down, next revealed in top)
-//   Step 3: set BottomCur = nextVal  (quietly, now bottom matches top)
-//           set Flap height back to 28, set FlapLabel = nextVal
-//   (No step 4 needed — bottom already updated)
-// ═══════════════════════════════════════════════════════════════════
+// ВИПРАВЛЕННЯ:
+//   [1] Підписка на GameLoopManager.OnNewDayStarted у Initialize
+//   [2] OnNewDayStarted → ResetToStartTime() → SetTime(startHour, startMinute)
+//   [3] Також підписка на OnDayReset (якщо потрібен скид при переходах між фазами)
+//   [4] Відписка в OnDestroy
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Collections;
 
 public class FlipClockController : MonoBehaviour
 {
-    // ─── Inner: one flip panel ───────────────────────────────────
+    // ─── Nested types ────────────────────────────────────────────
+
     private class Digit
     {
-        public readonly string     Id;
-        public readonly VisualElement Panel;
-        public readonly VisualElement Flap;
-        public readonly Label         FlapLabel;
-        public readonly Label         TopLabel;    // top half
-        public readonly Label         BottomLabel; // bottom half
-
-        public int  Current     = -1;
-        public bool Animating   = false;
-
-        public Digit(VisualElement root, string id)
-        {
-            Id     = id;
-            Panel  = root.Q<VisualElement>(id);
-            if (Panel == null) { Debug.LogWarning($"[FlipClock] Panel '{id}' not found"); return; }
-
-            var flap   = Panel.Q<VisualElement>(id + "Flap");
-            var top    = Panel.Q<VisualElement>(className: "flip-digit__top");
-            var bottom = Panel.Q<VisualElement>(className: "flip-digit__bottom");
-
-            Flap        = flap;
-            FlapLabel   = flap?.Q<Label>(id + "FlapLabel");
-            TopLabel    = top?.Q<Label>(id + "TopNext");
-            BottomLabel = bottom?.Q<Label>(id + "BottomCur");
-        }
+        public VisualElement Panel    { get; }
+        public VisualElement Flap     { get; }
+        public Label         FlapLabel { get; }
+        public Label         TopLabel  { get; }
+        public Label         BottomLabel { get; }
+        public int  Current   { get; set; } = -1;
+        public bool Animating { get; set; }
 
         public bool IsValid => Panel != null && Flap != null && FlapLabel != null;
+
+        public Digit(VisualElement root, string name)
+        {
+            Panel       = root.Q<VisualElement>(name);
+            Flap        = Panel?.Q<VisualElement>("Flap");
+            FlapLabel   = Flap?.Q<Label>();
+            TopLabel    = Panel?.Q<Label>("Top");
+            BottomLabel = Panel?.Q<Label>("Bottom");
+        }
 
         public void SetInstant(int value)
         {
@@ -65,12 +46,12 @@ public class FlipClockController : MonoBehaviour
             if (FlapLabel   != null) FlapLabel.text   = s;
             if (TopLabel    != null) TopLabel.text    = s;
             if (BottomLabel != null) BottomLabel.text = s;
-            // Reset flap to full height
             if (Flap != null) Flap.style.height = 28f;
         }
     }
 
     // ─── Config ──────────────────────────────────────────────────
+
     [Header("Time")]
     [SerializeField] private int   startHour   = 12;
     [SerializeField] private int   startMinute = 43;
@@ -80,6 +61,7 @@ public class FlipClockController : MonoBehaviour
     [SerializeField] private float flipDuration = 0.22f;
 
     // ─── State ───────────────────────────────────────────────────
+
     private Digit _h1, _h2, _m1, _m2;
     private float _totalMin;
     private float _speed  = 1f;
@@ -88,18 +70,19 @@ public class FlipClockController : MonoBehaviour
 
     private Button _btnPause, _btnPlay, _btnFast, _btnSettings;
 
-    // Public read for PhaseBarController
     public float TotalGameMinutes => _totalMin;
     public float Speed    => _paused ? 0f : _speed;
     public bool  IsPaused => _paused;
- 
+
     public static FlipClockController Instance { get; private set; }
 
-    // ─────────────────────────────────────────────────────────────
+    // ─── Initialize ──────────────────────────────────────────────
+
     public void Initialize(VisualElement root, BookshopUIController master)
     {
-         if (Instance == null) Instance = this;
-         else { Debug.LogWarning("[FlipClock] Multiple instances detected!"); }
+        if (Instance == null) Instance = this;
+        else Debug.LogWarning("[FlipClock] Multiple instances detected!");
+
         _totalMin = startHour * 60f + startMinute;
 
         _h1 = new Digit(root, "FlipH1");
@@ -118,8 +101,66 @@ public class FlipClockController : MonoBehaviour
         if (_btnSettings != null) _btnSettings.clicked += () =>
             Debug.Log("[FlipClock] Settings");
 
+        // ✅ ФІКС: підписуємось на початок нового дня → скидаємо годинник
+        if (GameLoopManager.Instance != null)
+        {
+            GameLoopManager.Instance.OnNewDayStarted += OnNewDayStarted;
+            GameLoopManager.Instance.OnDayReset       += OnDayReset;
+        }
+
         Refresh();
     }
+
+    private void OnDestroy()
+    {
+        // ✅ Відписуємось щоб уникнути memory leak
+        if (GameLoopManager.Instance != null)
+        {
+            GameLoopManager.Instance.OnNewDayStarted -= OnNewDayStarted;
+            GameLoopManager.Instance.OnDayReset       -= OnDayReset;
+        }
+
+        if (Instance == this) Instance = null;
+    }
+
+    // ─── Event handlers ──────────────────────────────────────────
+
+    /// ✅ ФІКС: скидаємо час на початку кожного нового дня.
+    /// OnNewDayStarted → LootPhase завершено, починається новий день (Preparation).
+    private void OnNewDayStarted(int day)
+    {
+        ResetToStartTime();
+        Debug.Log($"[FlipClock] День {day}: годинник скинуто → {startHour:D2}:{startMinute:D2}");
+    }
+
+    /// OnDayReset — додатковий guard на випадок якщо порядок подій зміниться.
+    private void OnDayReset()
+    {
+        // OnNewDayStarted вже скинув, але якщо раптом не спрацював — скидаємо тут
+        if (GameHour >= (GameLoopManager.Instance?.ShopCloseHour ?? 19))
+            ResetToStartTime();
+    }
+
+    // ─── Public API ──────────────────────────────────────────────
+
+    public int GameHour   => (int)(_totalMin / 60f) % 24;
+    public int GameMinute => (int)_totalMin % 60;
+
+    public void SetTime(int h, int m)
+    {
+        _totalMin = h * 60f + m;
+        Refresh();
+    }
+
+    /// Скинути до стартового часу (startHour:startMinute).
+    public void ResetToStartTime()
+    {
+        // Скидаємо час і паузуємо годинник (перезапуститься при відкритті магазину)
+        SetTime(startHour, startMinute);
+        // НЕ паузуємо тут — PhaseWidgetController або гравець відкриє магазин і запустить
+    }
+
+    // ─── Unity Update ─────────────────────────────────────────────
 
     private void Update()
     {
@@ -139,7 +180,8 @@ public class FlipClockController : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────────────────────────
+    // ─── Animations ──────────────────────────────────────────────
+
     private void TriggerFlips(int h, int m)
     {
         int h1 = h / 10, h2 = h % 10, m1 = m / 10, m2 = m % 10;
@@ -151,40 +193,29 @@ public class FlipClockController : MonoBehaviour
 
     private IEnumerator Flip(Digit d, int next)
     {
-        if (!d.IsValid || d.Animating) { d.SetInstant(next); yield break; }
+        if (!d.IsValid || d.Animating) yield break;
         d.Animating = true;
 
-        // Prepare: show next in top (under flap), keep current in bottom
-        if (d.TopLabel  != null) d.TopLabel.text  = next.ToString();
-        // Flap shows current value (it will fold away)
-        if (d.FlapLabel != null) d.FlapLabel.text = d.Current.ToString();
+        if (d.FlapLabel   != null) d.FlapLabel.text   = d.Current.ToString();
+        if (d.TopLabel    != null) d.TopLabel.text    = next.ToString();
+        if (d.BottomLabel != null) d.BottomLabel.text = d.Current.ToString();
 
-        // Animate flap: height 28 → 0 (fold down, revealing top with next)
         float elapsed = 0f;
         while (elapsed < flipDuration)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             float t = Mathf.Clamp01(elapsed / flipDuration);
-            float h = Mathf.Lerp(28f, 0f, t);
-            if (d.Flap != null) d.Flap.style.height = h;
-            // Darken flap as it folds
-            byte bright = (byte)Mathf.RoundToInt(Mathf.Lerp(24, 8, t));
-            if (d.Flap != null)
-                d.Flap.style.backgroundColor = new StyleColor(
-                    new Color32(bright, (byte)(bright + 14), (byte)(bright + 18), 255));
+            if (d.Flap != null) d.Flap.style.height = Mathf.Lerp(28f, 0f, t);
             yield return null;
         }
 
-        // Crossover: update bottom, restore flap (now showing next from top)
         d.Current = next;
         if (d.BottomLabel != null) d.BottomLabel.text = next.ToString();
-        if (d.FlapLabel   != null) d.FlapLabel.text   = next.ToString();
         if (d.Flap        != null)
         {
             d.Flap.style.height = 28f;
-            d.Flap.style.backgroundColor = StyleKeyword.Null; // reset to USS color
+            d.Flap.style.backgroundColor = StyleKeyword.Null;
         }
-
         d.Animating = false;
     }
 
@@ -192,44 +223,43 @@ public class FlipClockController : MonoBehaviour
     {
         int h = (int)(_totalMin / 60f) % 24;
         int m = (int)_totalMin % 60;
-        _h1.SetInstant(h / 10);
-        _h2.SetInstant(h % 10);
-        _m1.SetInstant(m / 10);
-        _m2.SetInstant(m % 10);
-        _lastH = h; _lastM = m;
+        _h1?.SetInstant(h / 10);
+        _h2?.SetInstant(h % 10);
+        _m1?.SetInstant(m / 10);
+        _m2?.SetInstant(m % 10);
+        _lastH = h;
+        _lastM = m;
     }
+
+    // ─── Speed control ────────────────────────────────────────────
 
     private void SetSpeed(int mode)
     {
         _btnPause?.RemoveFromClassList("active");
         _btnPlay?.RemoveFromClassList("active");
         _btnFast?.RemoveFromClassList("active");
- 
+
         switch (mode)
         {
             case 0:
                 _paused = true;
                 _speed  = 1f;
                 _btnPause?.AddToClassList("active");
-                Time.timeScale = 0f;      // ← ЗУПИНИТИ всю гру
+                Time.timeScale = 0f;
                 break;
             case 1:
                 _paused = false;
                 _speed  = 1f;
                 _btnPlay?.AddToClassList("active");
-                Time.timeScale = 1f;      // ← Нормальна швидкість
+                Time.timeScale = 1f;
                 break;
             case 2:
                 _paused = false;
                 _speed  = 3f;
                 _btnFast?.AddToClassList("active");
-                Time.timeScale = 3f;      // ← x3 — вся гра прискорена
+                Time.timeScale = 3f;
                 Debug.Log("[FlipClock] Speed x3");
                 break;
         }
     }
-
-    public int GameHour   => (int)(_totalMin / 60f) % 24;
-    public int GameMinute => (int)_totalMin % 60;
-    public void SetTime(int h, int m) { _totalMin = h * 60f + m; Refresh(); }
 }

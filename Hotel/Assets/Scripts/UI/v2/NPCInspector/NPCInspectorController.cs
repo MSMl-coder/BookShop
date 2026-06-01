@@ -348,16 +348,22 @@ public class NPCInspectorController
         for (int i = 0; i < total; i++)
         {
             bool fulfilled = i < inBasket;
+ 
+            // ✅ ЗМІНА: жанр з ShoppingList[i] — кожна картка свого кольору/жанру
+            BookGenre slotGenre = (_currentNPC.Personality?.ShoppingList != null
+                                   && i < _currentNPC.Personality.ShoppingList.Length)
+                ? _currentNPC.Personality.ShoppingList[i]
+                : _currentNPC.DesiredGenre; // fallback
+ 
             _cardData.Add(new CardData
             {
-                Genre       = genre,
+                Genre       = slotGenre,
                 IsFulfilled = fulfilled,
                 BookTitle   = (fulfilled && basket != null) ? basket[i].title     : null,
                 Price       = (fulfilled && basket != null) ? basket[i].sellPrice : 0f
             });
             _cards.Add(null);
         }
-
         // Додаємо в DOM у зворотньому порядку (картка 0 = зверху)
         for (int i = total - 1; i >= 0; i--)
         {

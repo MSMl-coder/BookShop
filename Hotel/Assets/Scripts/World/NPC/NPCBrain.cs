@@ -58,7 +58,7 @@ public class NPCBrain : MonoBehaviour
     private const float MAX_REST_DURATION  = 30f;
 
     private float       _inspectingTimer;
-    private const float INSPECTING_TIMEOUT = 5f;
+    private float _inspectTargetTime;  // ← кешований час огляду (один раз при _inspectStarted)
 
     private float _waitingTimer;
     [SerializeField] private float waitingForPlayerTimeout = 30f;
@@ -66,6 +66,8 @@ public class NPCBrain : MonoBehaviour
     // [STAY DURATION] Час перебування в крамниці — по закінченню бот іде незалежно від всього
     private float _stayTimer;
     private bool  _stayTimerStarted;
+
+    private float _leavingTimer;
 
     // ── Computed (для UI) ─────────────────────────────────────────
     public float PatientNormalized =>
@@ -83,7 +85,7 @@ public class NPCBrain : MonoBehaviour
         Ticker        = GetComponent<NPCStatsTicker>();
 
         Personality   = NPCPersonality.Generate(data);
-        DesiredGenre  = Personality.DesiredGenre;
+        DesiredGenre  = Personality.CurrentDesiredGenre;
 
         Ticker.Initialize(Personality);
 
@@ -149,12 +151,14 @@ public class NPCBrain : MonoBehaviour
     {
         // [v9] Перехоплюємо Leaving що ініціюється NPCStatsTicker (patience=0):
         // якщо є книги в кошику — замінюємо на GoToCashier
-        if (newState == NPCState.Leaving
-            && CurrentState != NPCState.Buying  // не перериваємо оплату
-            && Personality != null
-            && Personality.BasketNotEmpty
-            && !_isDestroyPending)
+        if (newState == NPCState.Leaving)
         {
+            _leavingTimer = 0f;
+            if (CurrentState != NPCState.Buying  // не перериваємо оплату
+                && Personality != null
+                && Personality.BasketNotEmpty
+                && !_isDestroyPending)
+            {
             Debug.Log($"[NPCBrain] {Data?.npcName}: Leaving intercepted → GoToCashier (basket={Personality.Basket.Count})");
             GoToCashier();
             return;
@@ -165,6 +169,7 @@ public class NPCBrain : MonoBehaviour
         _inspectStarted = false;
         _waitingTimer   = 0f;
         Debug.Log($"[NPCBrain] {Data?.npcName}: → {newState}");
+    }
     }
 
     public void OnNPCClicked()
@@ -181,6 +186,7 @@ public class NPCBrain : MonoBehaviour
     // ── State Machine ─────────────────────────────────────────────
     private void UpdateCurrentState()
     {
+        
         switch (CurrentState)
         {
             case NPCState.Entering:
@@ -223,9 +229,12 @@ public class NPCBrain : MonoBehaviour
                 if (AgentArrived()) CompletePurchase();
                 break;
 
-            case NPCState.Leaving:
-                if (AgentArrived()) DestroyNPC();
-                break;
+              case NPCState.Leaving:
+            _leavingTimer += Time.deltaTime;
+            // ✅ ФІКС: мінімум 0.5с перед перевіркою arrival
+            // Без цього — NPC миттєво зникає якщо ExitPoint = null
+            if (_leavingTimer >= 0.5f && AgentArrived()) DestroyNPC();
+            break;
         }
     }
 
@@ -249,21 +258,38 @@ public class NPCBrain : MonoBehaviour
         }
         else
         {
-            // [v9] Всі полиці переглянуто — йдемо на касу або з магазину
-            GoToCashier();
+            // ✅ [v10] Всі полиці для поточного слоту переглянуто без успіху.
+            // Переходимо до наступного слоту (з іншим жанром) якщо є.
+            // Тільки якщо всі слоти вичерпані — йдемо на касу.
+            bool moreSlots = Personality.AdvanceToNextBook();
+            if (moreSlots)
+            {
+                ResetForNextBook(); // свіжі полиці + новий жанр
+                // Лишаємось у поточному стані (Browsing або CollectingBooks)
+                // — наступний кадр UpdateBrowsing() почне новий пошук
+            }
+            else
+            {
+                GoToCashier();
+            }
         }
     }
 
     // ── Inspecting ────────────────────────────────────────────────
-    private void UpdateInspecting()
+       private void UpdateInspecting()
     {
         if (!AgentArrived()) return;
-
+ 
         if (!_inspectStarted)
         {
-            _inspectStarted  = true;
-            _inspectingTimer = 0f;
-
+            _inspectStarted    = true;
+            _inspectingTimer   = 0f;
+            // ✅ Обчислюємо цільовий час огляду ОДИН РАЗ
+            _inspectTargetTime = Personality.GetInspectTime();
+ 
+            Debug.Log($"[NPCBrain] {Data?.npcName}: Inspecting {_currentTargetShelf?.name}, " +
+                      $"genre={DesiredGenre}, time={_inspectTargetTime:F1}s");
+ 
             if (_currentTargetShelf != null && _currentTargetShelf.GetBookCount() == 0)
             {
                 _fullShelves.Add(_currentTargetShelf);
@@ -274,60 +300,68 @@ public class NPCBrain : MonoBehaviour
                 return;
             }
         }
-
+ 
         _inspectingTimer += Time.deltaTime;
-        if (_inspectingTimer < Personality.GetInspectTime()) return;
-
-        // Час огляду вичерпано — шукаємо книгу
+        // ✅ Порівнюємо з кешованим значенням, не з новим рандомом
+        if (_inspectingTimer < _inspectTargetTime) return;
+ 
+        // ── Час огляду вичерпано — шукаємо книгу ─────────────────────
         var result = _scanner?.FindBook(_currentTargetShelf, Personality);
         ReleaseCurrentShelf();
-
+ 
         if (result.HasValue)
         {
             FoundBook = result.Value.template;
             OnBookFound?.Invoke(FoundBook);
-
+ 
             float chance = Ticker.GetAdjustedBuyChance(Personality.BuyChance);
-            // Якщо BuyChance >= 1 — гарантована покупка незалежно від Mood multiplier
             bool  buy    = Personality.BuyChance >= 1f
                         || UnityEngine.Random.value <= chance
                         || Ticker.CanImpulseBuy;
-
+ 
             if (buy)
             {
-                // [v9] НОВА ЛОГІКА: книга одразу в кошик, без резервування
                 _currentTargetShelf?.TakeBookAt(result.Value.index);
                 Personality.AddToBasket(result.Value.template);
                 OnBookPickedUp?.Invoke(result.Value.template);
-
+ 
                 Debug.Log($"[NPCBrain] {Data?.npcName} взяв «{result.Value.template.title}» " +
                            $"(кошик: {Personality.Basket.Count}/{Personality.WantsToBuy})");
-
-                // Хоче ще і бюджет є?
-                if (Personality.WantsMoreBooks && !Ticker.IsBudgetLow)
+ 
+                // ✅ [v10] Переходимо до наступного слоту покупки
+                bool moreSlots = Personality.AdvanceToNextBook();
+                if (moreSlots && !Ticker.IsBudgetLow)
                 {
-                    // [FIX] НЕ скидаємо відвідані полиці — бот не повертається туди де вже був
-                    // Повернення можливе тільки якщо гравець поклав туди книгу (OnBookPlaced event)
+                    ResetForNextBook(); // нові полиці + новий жанр
                     ChangeState(NPCState.CollectingBooks);
                 }
                 else
                 {
-                    // Все зібрав → каса
                     GoToCashier();
                 }
             }
             else
             {
-                // Не хоче купувати цю книгу
-                ChangeState(CurrentState == NPCState.CollectingBooks
-                    ? NPCState.CollectingBooks
-                    : NPCState.Browsing);
+                // Не хоче купувати → пропускаємо і йдемо до наступного слоту
+                bool moreSlots = Personality.AdvanceToNextBook();
+                if (moreSlots)
+                {
+                    ResetForNextBook();
+                    ChangeState(CurrentState == NPCState.CollectingBooks
+                        ? NPCState.CollectingBooks
+                        : NPCState.Browsing);
+                }
+                else
+                {
+                    GoToCashier();
+                }
             }
         }
         else
         {
-            // Книг потрібного жанру/рарності не знайшло
-            _fullShelves.Add(_currentTargetShelf ?? FindNextShelf(99));
+            // Книга не знайдена на цій полиці — додаємо в "порожні" і продовжуємо
+            if (_currentTargetShelf != null)
+                _fullShelves.Add(_currentTargetShelf);
             ChangeState(CurrentState == NPCState.CollectingBooks
                 ? NPCState.CollectingBooks
                 : NPCState.Browsing);
@@ -358,23 +392,44 @@ public class NPCBrain : MonoBehaviour
 
     // ── GoToCashier (НОВА ЛОГІКА) ─────────────────────────────────
     /// Вирішує: іти на касу чи покинути магазин.
-    private void GoToCashier()
+   private void GoToCashier()
     {
         if (!Personality.BasketNotEmpty)
         {
-            // Нічого не знайшов взагалі → йде з магазину
             Debug.Log($"[NPCBrain] {Data?.npcName}: кошик порожній → Leaving");
             ChangeState(NPCState.Leaving);
-            TrySetDestination(SampleNavMesh(NPCSpawner.Instance?.ExitPoint?.position ?? transform.position));
+ 
+            // ✅ ФІКС: якщо ExitPoint null — не встановлюємо destination взагалі,
+            // щоб уникнути миттєвого "arrival" до поточної позиції.
+            var exitPos = NPCSpawner.Instance?.ExitPoint?.position;
+            if (exitPos.HasValue)
+                TrySetDestination(SampleNavMesh(exitPos.Value));
+            else
+            {
+                // Немає exit point — затримуємо знищення через корутину
+                Debug.LogWarning($"[NPCBrain] {Data?.npcName}: ExitPoint не призначений! " +
+                                 "Додайте ExitPoint у NPCSpawner. Бот зникне через 3с.");
+                StartCoroutine(DelayedDestroy(3f));
+            }
             return;
         }
-
-        // Є книги → йде до каси
+ 
         Debug.Log($"[NPCBrain] {Data?.npcName}: йде на касу з {Personality.Basket.Count} книгами");
         if (_cashRegister != null)
-            TrySetDestination(SampleNavMesh(_cashRegister != null ? _cashRegister.transform.position : transform.position));
+            TrySetDestination(SampleNavMesh(_cashRegister.transform.position));
+        else
+            Debug.LogWarning($"[NPCBrain] {Data?.npcName}: _cashRegister не призначений!");
+ 
         ChangeState(NPCState.Buying);
     }
+ 
+    /// Знищити NPC після затримки (fallback коли ExitPoint відсутній).
+    private IEnumerator DelayedDestroy(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (!_isDestroyPending) DestroyNPC();
+    }
+ 
 
     // ── CompletePurchase (оновлено) ───────────────────────────────
     private void CompletePurchase()
@@ -395,7 +450,11 @@ public class NPCBrain : MonoBehaviour
 
         Personality.ClearBasket();
         ChangeState(NPCState.Leaving);
-        TrySetDestination(SampleNavMesh(NPCSpawner.Instance?.ExitPoint?.position ?? transform.position));
+        var exitPoint = NPCSpawner.Instance?.ExitPoint?.position;
+        if (exitPoint.HasValue)
+            TrySetDestination(SampleNavMesh(exitPoint.Value));
+        else
+            StartCoroutine(DelayedDestroy(3f));
     }
 
     // ── Player interaction ────────────────────────────────────────
@@ -406,7 +465,7 @@ public class NPCBrain : MonoBehaviour
 
         if (offeredBook != null
             && Personality.AcceptsRarity(offeredBook.rarity)
-            && offeredBook.genre == Personality.DesiredGenre
+            && offeredBook.genre == DesiredGenre
             && offeredBook.sellPrice <= Personality.MaxBudget * (Ticker.Stats.Wallet / 100f))
         {
             FoundBook = offeredBook;
@@ -424,7 +483,7 @@ public class NPCBrain : MonoBehaviour
         else
         {
             string reason = offeredBook == null          ? "Це не книга..."
-                : offeredBook.genre != Personality.DesiredGenre  ? "Не мій жанр."
+                : offeredBook.genre != Personality.CurrentDesiredGenre  ? "Не мій жанр."
                 : !Personality.AcceptsRarity(offeredBook.rarity) ? "Не та якість."
                 : "Задорого.";
             _worldUI?.ShowRejectionFeedback(reason);
@@ -521,6 +580,33 @@ public class NPCBrain : MonoBehaviour
 
     private Vector3 SampleNavMesh(Vector3 pos) =>
         NavMesh.SamplePosition(pos, out NavMeshHit h, 2f, NavMesh.AllAreas) ? h.position : pos;
+
+
+
+ private void ResetForNextBook()
+    {
+        // Скидаємо список відвіданих полиць — кожна книга отримує свіжі спроби
+        _visitedShelves.Clear();
+        _fullShelves.Clear();  // полиці "без потрібного жанру" — теж скидаємо (жанр змінився)
+ 
+        // Переперемішуємо порядок полиць — NPC не ходить тим самим маршрутом
+        if (_cachedShelves != null)
+            _cachedShelves = Shuffle(_cachedShelves);
+ 
+        // Скидаємо стан інспекції
+        _inspectStarted    = false;
+        _inspectingTimer   = 0f;
+        _inspectTargetTime = 0f;
+ 
+        // Оновлюємо DesiredGenre з нового слоту ShoppingList
+        DesiredGenre = Personality.CurrentDesiredGenre;
+ 
+        Debug.Log($"[NPCBrain] {Data?.npcName}: → книга {Personality.CurrentBookIndex + 1}/" +
+                  $"{Personality.WantsToBuy} ({DesiredGenre}). " +
+                  $"Кошик: {Personality.Basket.Count}");
+    }
+
+
 
     private void DestroyNPC()
     {

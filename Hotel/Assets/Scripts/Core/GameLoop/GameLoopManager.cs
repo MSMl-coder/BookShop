@@ -1,9 +1,8 @@
 // Assets/Scripts/Core/GameLoop/GameLoopManager.cs
-// ОНОВЛЕНО (Фаза 2):
-//   - EndWorkDay() → ApplyDailyRent() → DayStats
-//   - OnBankruptcy: зупиняє гру (заглушка — TODO: екран банкрутства)
-//   - FinishDayStats() → LootPhase
-//   - ShopCloseHour = 19
+// ФІКС: Додано DEBUG_SetDay() — безпечна заміна рефлексії в DebugGameController.SetStartDay()
+//   і відновлення дня в GameStateSerializer.ApplySaveData().
+//   Рефлексія typeof(GameLoopManager).GetProperty("CurrentDay")?.SetValue(...) ЛАМАЛА
+//   IL2CPP build (AOT не підтримує SetValue на private setter).
 
 using UnityEngine;
 using System;
@@ -36,7 +35,6 @@ public class GameLoopManager : MonoBehaviour
 
     private void Start()
     {
-        // Підписуємось на банкрутство від EconomyManager
         if (EconomyManager.Instance != null)
             EconomyManager.Instance.OnBankruptcy += HandleBankruptcy;
 
@@ -60,7 +58,7 @@ public class GameLoopManager : MonoBehaviour
 
     // ── Цикл дня ─────────────────────────────────────────────────
 
-    /// Preparation → WorkDay (вручну: гравець відкриває крамницю)
+    /// Preparation → WorkDay
     public void StartWorkDay()
     {
         if (CurrentState != GameState.Preparation)
@@ -72,8 +70,6 @@ public class GameLoopManager : MonoBehaviour
     }
 
     /// WorkDay → DayStats
-    /// Спочатку списуємо оренду, потім переходимо в DayStats.
-    /// Якщо банкрутство — HandleBankruptcy зупинить цикл.
     public void EndWorkDay()
     {
         if (CurrentState != GameState.WorkDay)
@@ -84,16 +80,10 @@ public class GameLoopManager : MonoBehaviour
 
         OnDayEnded?.Invoke(CurrentDay);
 
-        // Списуємо оренду — якщо банкрутство, HandleBankruptcy викличеться через подію
         var result = EconomyManager.Instance?.ApplyDailyRent();
-
-        // Якщо банкрутство — не переходимо далі (HandleBankruptcy вже спрацював)
         if (result.HasValue && result.Value.IsBankrupt) return;
 
         ChangeState(GameState.DayStats);
-
-        // DayStatsController слухає OnStateChanged і показує екран.
-        // Гравець натискає "Далі" → FinishDayStats() викликається звідти.
     }
 
     /// DayStats → LootPhase
@@ -135,12 +125,21 @@ public class GameLoopManager : MonoBehaviour
     {
         Debug.LogError("[GameLoop] БАНКРУТСТВО — гра зупинена.");
         OnBankruptcy?.Invoke();
-        // TODO: показати екран банкрутства
-        // Поки просто зупиняємо Time
         Time.timeScale = 0f;
     }
 
-    // ── Debug ────────────────────────────────────────────────────
+    // ── Debug API ────────────────────────────────────────────────
+
+    /// ✅ ФІКС: Замінює небезпечну рефлексію в DebugGameController і GameStateSerializer.
+    /// В production build — лише для відновлення дня при завантаженні збереження.
+    /// В Editor / Development Build — також для тестування через DebugGameController.
+    public void DEBUG_SetDay(int day)
+    {
+        CurrentDay = Mathf.Max(1, day);
+        Debug.Log($"[GameLoop] Day встановлено: {CurrentDay}");
+    }
+
+    // ── ContextMenu test helpers ─────────────────────────────────
 
     [ContextMenu("Test: End Work Day")]
     public void TestEndDay()
@@ -152,8 +151,10 @@ public class GameLoopManager : MonoBehaviour
     [ContextMenu("Test: Force Bankruptcy")]
     public void TestBankruptcy()
     {
-        EconomyManager.Instance?.SetMoney(-(EconomyManager.Instance.DailyRent * EconomyManager.Instance.DebtDaysAllowed + 1));
+        if (EconomyManager.Instance == null) return;
+        EconomyManager.Instance.SetMoney(
+            -(EconomyManager.Instance.DailyRent * EconomyManager.Instance.DebtDaysAllowed + 1));
         for (int i = 0; i < EconomyManager.Instance.DebtDaysAllowed; i++)
-            EconomyManager.Instance?.ApplyDailyRent();
+            EconomyManager.Instance.ApplyDailyRent();
     }
 }

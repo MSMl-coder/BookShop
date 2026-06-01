@@ -1,12 +1,12 @@
 // Assets/Scripts/World/Interaction/InteractionRouter.cs
-// v3.1 — Без легасі, з підтримкою book+shelf в одному кліку
+// v3.2 — ФІКС: кешування UIDocument[]
 //
-// ЗМІНИ vs оригінал:
-//   • Пріоритет 1Б (shelf math) тепер НЕ робить ранній return після матеріалізації ghost.
-//     Замість цього відразу викликає ShowForBook через BookWorldItem з ghost.
-//   • Пріоритет 3 (Cabinet) спрацьовує навіть коли книга вже знайдена через shelf math
-//     НЕ потрібен — ShowForBook сам додає кнопку "Переглянути полицю" через parentShelf.
-//   • BookshopUIBridge — ВИДАЛЕНО, не використовується.
+// ФІКС: IsPointerOverUIToolkit() раніше викликала FindObjectsByType<UIDocument>
+//   при кожному кліку — O(n) сканування сцени для кожного mouseDown.
+//   Тепер UIDocuments кешуються в _cachedUIDocs і оновлюються через
+//   RefreshUIDocumentCache() (виклик з GameHUDController або при зміні сцени).
+//
+// Всі інші зміни vs v3.1 — відсутні.
 
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -22,6 +22,9 @@ public class InteractionRouter : MonoBehaviour
     [SerializeField] private LayerMask interactionLayer;
     [SerializeField] private float     maxDistance = 100f;
 
+    // ✅ ФІКС: кеш UIDocuments — оновлюється при ініціалізації та через API
+    private UIDocument[] _cachedUIDocs = System.Array.Empty<UIDocument>();
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -31,6 +34,7 @@ public class InteractionRouter : MonoBehaviour
     private void Start()
     {
         if (mainCamera == null) mainCamera = Camera.main;
+        RefreshUIDocumentCache();
     }
 
     private void Update()
@@ -43,6 +47,14 @@ public class InteractionRouter : MonoBehaviour
         if (IsPointerOverUIToolkit()) return;
 
         HandleClick(mouse.position.ReadValue());
+    }
+
+    /// Оновити кеш UIDocuments. Викликати при появі/зникненні UI панелей.
+    /// GameHUDController, LootPanelUI тощо можуть викликати це після ініціалізації.
+    public void RefreshUIDocumentCache()
+    {
+        _cachedUIDocs = Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude);
+        Debug.Log($"[InteractionRouter] UIDocument кеш оновлено: {_cachedUIDocs.Length} документів.");
     }
 
     public void SimulateClick(Vector2 screenPos) => HandleClick(screenPos);
@@ -59,7 +71,6 @@ public class InteractionRouter : MonoBehaviour
 
         if (hits.Length == 0)
         {
-            // Діагностика без маски
             RaycastHit[] allHits = Physics.RaycastAll(ray, maxDistance, ~0,
                                                       QueryTriggerInteraction.Collide);
             if (allHits.Length > 0)
@@ -92,24 +103,23 @@ public class InteractionRouter : MonoBehaviour
             }
         }
 
-        
-            // ── Пріоритет 1: NPC — WorkDay будь-який стан ────────────────
-    foreach (var hit in hits)
-    {
-        var npc = hit.collider.GetComponentInParent<NPCBrain>();
-        if (npc == null) continue;
-
-        if (state != GameState.WorkDay)
+        // ── Пріоритет 1: NPC — тільки WorkDay ────────────────────────────
+        foreach (var hit in hits)
         {
-            Debug.Log($"[InteractionRouter] NPC click ignored: state={state} (потрібен WorkDay)");
-            break;
-        }
+            var npc = hit.collider.GetComponentInParent<NPCBrain>();
+            if (npc == null) continue;
 
-        Debug.Log($"[InteractionRouter] NPC clicked: {npc.Data?.npcName} → OnNPCClicked()");
-        ContextMenuUI.Instance?.Hide();
-        npc.OnNPCClicked();
+            if (state != GameState.WorkDay)
+            {
+                Debug.Log($"[InteractionRouter] NPC click ignored: state={state} (потрібен WorkDay)");
+                break;
+            }
+
+            Debug.Log($"[InteractionRouter] NPC clicked: {npc.Data?.npcName} → OnNPCClicked()");
+            ContextMenuUI.Instance?.Hide();
+            npc.OnNPCClicked();
             return;
-    }
+        }
 
         // ── Пріоритет 2А: BookWorldItem через collider (ghost вже є) ──────
         foreach (var hit in hits)
@@ -118,7 +128,6 @@ public class InteractionRouter : MonoBehaviour
             if (bookItem != null)
             {
                 Debug.Log($"[InteractionRouter] Book (collider): {hit.collider.name}");
-                // ShowForBook сам додає кнопку полиці через bookItem.parentShelf
                 ContextMenuUI.Instance?.ShowForBook(bookItem, hit.point, state);
                 return;
             }
@@ -135,27 +144,24 @@ public class InteractionRouter : MonoBehaviour
 
             Debug.Log($"[InteractionRouter] Book (shelf math): {shelf.name}[{bookIdx}]");
 
-            // Матеріалізуємо ghost і отримуємо BookWorldItem
             var ghost = shelf.GetOrMaterializeBookForInteraction(bookIdx);
             if (ghost != null)
             {
                 var bookItem = ghost.GetComponent<BookWorldItem>();
                 if (bookItem != null)
                 {
-                    // parentShelf вже встановлений в ghost → ShowForBook додасть кнопку полиці
                     ContextMenuUI.Instance?.ShowForBook(bookItem, hit.point, state);
                     return;
                 }
             }
 
-            // Ghost без BookWorldItem — показуємо меню шафи
             var cabinet = shelf.GetComponentInParent<Cabinet>();
             if (cabinet != null)
                 ContextMenuUI.Instance?.ShowForCabinet(cabinet, hit.point, state);
             return;
         }
 
-        // ── Пріоритет 3: Cabinet (якщо книги немає) ───────────────────────
+        // ── Пріоритет 3: Cabinet ──────────────────────────────────────────
         foreach (var hit in hits)
         {
             var cabinet = hit.collider.GetComponentInParent<Cabinet>();
@@ -172,14 +178,15 @@ public class InteractionRouter : MonoBehaviour
 
     // ── UIToolkit перевірка ────────────────────────────────────────────────
 
-    private static bool IsPointerOverUIToolkit()
+    private bool IsPointerOverUIToolkit()
     {
         var mouse = Mouse.current;
         if (mouse == null) return false;
 
         Vector2 screenPos = mouse.position.ReadValue();
 
-        foreach (var doc in Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude))
+        // ✅ ФІКС: використовуємо кешований масив замість FindObjectsByType
+        foreach (var doc in _cachedUIDocs)
         {
             if (doc == null || doc.rootVisualElement == null) continue;
             var panel = doc.rootVisualElement.panel;

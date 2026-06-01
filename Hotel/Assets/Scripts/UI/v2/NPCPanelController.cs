@@ -191,21 +191,24 @@ public class NPCPanelController : MonoBehaviour
     private void BuildGenreCards(NPCBrain npc)
     {
         var cards = new System.Collections.Generic.List<GenreCardData>();
-
-        // NPCBrain має ONE DesiredGenre (BookGenre), не список.
-        // Якщо NPC хоче кілька книг (WantsToBuy > 1) — всі одного жанру.
-        int count = npc.Personality?.WantsToBuy ?? 1;
+ 
+        int total  = npc.Personality?.WantsToBuy ?? 1;
         int bought = npc.Personality?.BooksBought ?? 0;
-
-        for (int i = 0; i < count; i++)
+ 
+        for (int i = 0; i < total; i++)
         {
-            var card = new GenreCardData(npc.DesiredGenre, npc.DesiredGenre.ToString())
+            // ✅ ЗМІНА: кожен слот отримує СВІЙ жанр з ShoppingList
+            var genre = (npc.Personality?.ShoppingList != null && i < npc.Personality.ShoppingList.Length)
+                ? npc.Personality.ShoppingList[i]
+                : npc.DesiredGenre; // fallback на поточний жанр brain
+ 
+            var card = new GenreCardData(genre, genre.ToString())
             {
                 IsFulfilled = i < bought
             };
             cards.Add(card);
         }
-
+ 
         _genreCards?.BuildCards(cards);
     }
 

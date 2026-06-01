@@ -1,3 +1,8 @@
+// Assets/Scripts/Core/Bootstrap/GameBootstrap.cs
+// ФІКС: IsNewGame тепер скидається в 0 після першого запуску.
+//   До виправлення — PlayerPrefs.GetInt("IsNewGame", 1) завжди повертав 1,
+//   тому збереження НІКОЛИ не завантажувалось.
+
 using UnityEngine;
 
 public class GameBootstrap : MonoBehaviour
@@ -6,56 +11,76 @@ public class GameBootstrap : MonoBehaviour
 
     private void Awake()
     {
-        // Обмеження FPS до 60
         Application.targetFrameRate = 60;
-        QualitySettings.vSyncCount  = 0; // vSync вимикаємо щоб targetFrameRate працював
+        QualitySettings.vSyncCount  = 0;
     }
+
     private void Start()
     {
-        // FIX: assertions moved to Start() — all Awake() have completed by now,
-        // including BookDatabaseLoader.Awake() which sets BookDatabase.Instance.
-        Debug.Assert(GameLoopManager.Instance != null, "GameLoopManager missing!");
-        Debug.Assert(EconomyManager.Instance != null, "EconomyManager missing!");
+        // Assertions у Start() — всі Awake() вже виконались (включно з BookDatabaseLoader)
+        Debug.Assert(GameLoopManager.Instance  != null, "GameLoopManager missing!");
+        Debug.Assert(EconomyManager.Instance   != null, "EconomyManager missing!");
         Debug.Assert(InventoryManager.Instance != null, "InventoryManager missing!");
-        Debug.Assert(BookDatabase.Instance != null, "BookDatabase missing!");
+        Debug.Assert(BookDatabase.Instance     != null, "BookDatabase missing!");
 
         bool isNewGame = PlayerPrefs.GetInt("IsNewGame", 1) == 1;
+
         if (isNewGame)
         {
-            Debug.Log("[Bootstrap] Starting new game.");
+            Debug.Log("[Bootstrap] Нова гра — заповнюємо полиці.");
+
+            // ✅ ФІКС: Скидаємо прапор щоб наступний запуск завантажував збереження
+            PlayerPrefs.SetInt("IsNewGame", 0);
+            PlayerPrefs.Save();
+
+            DefaultShelfFiller.FillAll();
             TutorialManager.Instance?.TryTrigger(TutorialTrigger.OnGameStart);
+
+            // Зберігаємо одразу щоб новий стан не загубився
+            serializer?.QuickSave();
         }
         else
         {
-            Debug.Log("[Bootstrap] Loading saved game.");
+            Debug.Log("[Bootstrap] Завантажуємо збереження (слот 0).");
             SaveData data = SaveSystem.Load(0);
-            serializer?.ApplySaveData(data);
+
+            if (data != null)
+                serializer?.ApplySaveData(data);
+            else
+            {
+                // Збереження пошкоджено або відсутнє — стартуємо як нова гра
+                Debug.LogWarning("[Bootstrap] Слот 0 порожній — починаємо нову гру.");
+                DefaultShelfFiller.FillAll();
+                TutorialManager.Instance?.TryTrigger(TutorialTrigger.OnGameStart);
+                serializer?.QuickSave();
+            }
         }
     }
+
+    // ── ContextMenu helpers ────────────────────────────────────────────
 
     [ContextMenu("Fill Shelves Now")]
     public void FillShelvesNow()
     {
         DefaultShelfFiller.FillAll();
-        Debug.Log("[Bootstrap] Shelves filled manually.");
+        Debug.Log("[Bootstrap] Полиці заповнені вручну.");
     }
- 
-    /// Скинути прапор нової гри — при наступному запуску полиці заповняться автоматично.
+
+    /// Скинути до нової гри — наступний запуск стартує з нуля.
     [ContextMenu("Reset to New Game")]
     public void ResetToNewGame()
     {
         PlayerPrefs.SetInt("IsNewGame", 1);
         PlayerPrefs.Save();
-       // SaveSystem.DeleteSave(0);
-        Debug.Log("[Bootstrap] Save deleted. Next launch = new game with default shelves.");
+        Debug.Log("[Bootstrap] Прапор нової гри встановлено. Наступний запуск = нова гра.");
     }
- 
-    /// Заповнити полиці і зберегти стан.
+
+    /// Заповнити полиці і зберегти.
     [ContextMenu("Fill Shelves + Save")]
     public void FillShelvesAndSave()
     {
         DefaultShelfFiller.FillAll();
         serializer?.QuickSave();
-        Debug.Log("[Bootstrap] Shelves filled and saved.");
+        Debug.Log("[Bootstrap] Полиці заповнені та збережені.");
     }
 }
