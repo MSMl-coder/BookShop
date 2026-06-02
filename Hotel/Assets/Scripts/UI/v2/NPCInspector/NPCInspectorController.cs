@@ -586,20 +586,22 @@ public class NPCInspectorController
         return Physics.Raycast(ray, 100f);
     }
 
-    private void OnNPCPickedUpBook(BookTemplate book)
+      private void OnNPCPickedUpBook(BookTemplate book)
     {
-        // Книга взята в кошик → оновлюємо картки + хмаринка
         RebuildGenreCards();
-        ShowSpeechBubble($"Беру «{book?.title ?? "..."}»!", 2.5f);
+        var data = _currentNPC?.Data;
+        ShowSpeechBubble(
+            data?.GetPickupMessage(book?.title) ?? $"Беру «{book?.title ?? "..."}»!",
+            data?.bookPickup.duration ?? 2.5f);
     }
 
     private void OnNPCBookFound(BookTemplate book)
     {
-        // Fallback для v8: NPC знайшов книгу і йде до каси → позначаємо картку
-        // (OnBookPickedUp ще не існує — спрацьовує OnBookFound)
-        if (book == null) return;
-        MarkNextCardFulfilled(book);
-        ShowSpeechBubble($"Беру «{book.title}»!", 2.5f);
+          if (book == null) return;
+        var data = _currentNPC?.Data;
+        ShowSpeechBubble(
+            data?.GetRandomBookFound() ?? "...",
+            data?.bookFound.duration ?? 1.5f);
     }
 
     /// Знаходить першу незаповнену картку і заповнює її даними книги.
@@ -650,25 +652,38 @@ public class NPCInspectorController
     }
 
     private void OnNPCStateChanged(NPCState state)
-    {
-        // Не закриваємо при Leaving — чекаємо OnNPCLeft
-        switch (state)
         {
-            case NPCState.Leaving:
-                ShowSpeechBubble("До побачення!", 99f); // залишається до закриття
-                break;
-            case NPCState.Buying:
-                ShowSpeechBubble("Йду на касу!", 3f);
-                break;
-            case NPCState.CollectingBooks:
-                ShowSpeechBubble("Пошукаю ще...", 2f);
-                break;
-            case NPCState.WaitingForPlayer:
-                ShowSpeechBubble("Чи є у вас щось для мене?", 99f);
-                break;
+            var data = _currentNPC?.Data;
+    
+            switch (state)
+            {
+                case NPCState.Leaving:
+                    ShowSpeechBubble(
+                        data?.GetRandomLeaving() ?? "До побачення!",
+                        data?.leaving.duration ?? 0f);   // 0 = до закриття панелі
+                    break;
+    
+                case NPCState.Buying:
+                    ShowSpeechBubble(
+                        data?.GetRandomBuying() ?? "Йду на касу!",
+                        data?.buying.duration ?? 3f);
+                    break;
+    
+                case NPCState.CollectingBooks:
+                    ShowSpeechBubble(
+                        data?.GetRandomCollecting() ?? "Пошукаю ще...",
+                        data?.collecting.duration ?? 2f);
+                    break;
+    
+                case NPCState.WaitingForPlayer:
+                    ShowSpeechBubble(
+                        data?.GetRandomWaiting() ?? "Чи є у вас щось?",
+                        data?.waiting.duration ?? 0f);    // 0 = до відповіді гравця
+                    break;
+            }
         }
-    }
-
+ 
+ 
     private void OnNPCLeft()
     {
         // NPC знищений зі сцени → тепер закриваємо вікно

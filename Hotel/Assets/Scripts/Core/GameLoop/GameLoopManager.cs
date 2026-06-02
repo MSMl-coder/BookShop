@@ -59,13 +59,22 @@ public class GameLoopManager : MonoBehaviour
     // ── Цикл дня ─────────────────────────────────────────────────
 
     /// Preparation → WorkDay
-    public void StartWorkDay()
+     public void StartWorkDay()
     {
         if (CurrentState != GameState.Preparation)
         {
             Debug.LogWarning($"[GameLoop] StartWorkDay ігнорується: стан {CurrentState}");
             return;
         }
+ 
+        // ✅ Failsafe: гравець міг залишити гру на паузі і натиснути "Відкрити магазин"
+        // FlipClock.SetSpeed(0) ставить timeScale=0 — відновлюємо тут
+        if (Time.timeScale < 0.01f)
+        {
+            Time.timeScale = 1f;
+            Debug.Log("[GameLoop] StartWorkDay: відновлено timeScale=1 (було на паузі)");
+        }
+ 
         ChangeState(GameState.WorkDay);
     }
 
