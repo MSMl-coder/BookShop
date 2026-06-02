@@ -64,7 +64,7 @@ public class BookshopUIController : MonoBehaviour
     public VisualTreeAsset DecorItemCardTemplate        => decorItemCardTemplate;
     public BookInfoController BookInfo                  => bookInfoCtrl;
     public ToastController    Toast                     => toastCtrl;
-
+public UIDocument GetUIDocument() => uiDocument;
     // ─────────────────────────────────────────────
     #region Lifecycle
     // ─────────────────────────────────────────────

@@ -24,8 +24,8 @@ public class PlacementController : MonoBehaviour
     [SerializeField] private Color validColor      = new Color(0.4f, 0.9f, 0.5f, 0.4f);
 
     private PlacementPhantom  _phantom;
-    private FurnitureInstance _currentInstance;
-    private FurnitureTemplate _currentTemplate;
+    private PropInstance _currentInstance;
+    private PropTemplate _currentTemplate;
     private bool              _isPlacing;
     private bool              _isEnabled;
     private bool              _freePlacement;
@@ -173,12 +173,12 @@ public class PlacementController : MonoBehaviour
     #region Placement
     // ─────────────────────────────────────────────
 
-    public void BeginPlacement(FurnitureTemplate template)
+    public void BeginPlacement(PropTemplate template)
     {
-        var instance = InventoryManager.Instance?.GetFirstUnplaced(template.furnitureID);
+        var instance = InventoryManager.Instance?.GetFirstUnplaced(template.propID);
         if (instance == null)
         {
-            Debug.LogWarning($"[Placement] Немає доступних екземплярів: {template.furnitureName}");
+            Debug.LogWarning($"[Placement] Немає доступних екземплярів: {template.propName}");
             return;
         }
         BeginPlacementInternal(template, instance, Vector3.zero, Quaternion.identity, fromInventory: true);
@@ -228,7 +228,7 @@ public class PlacementController : MonoBehaviour
         Debug.Log($"[Placement] Повернуто в інвентар: templateID={obj.Instance.templateID}");
 
         // Оновлюємо панель якщо відкрита
-        DecorationPanelUI.Instance?.BuildGridPublic();
+      //  DecorationPanelUI.Instance?.BuildGridPublic();
     }
 
     /// Витягує всі книги з Cabinet компонента і повертає в інвентар
@@ -254,8 +254,8 @@ public class PlacementController : MonoBehaviour
     }
 
     private void BeginPlacementInternal(
-        FurnitureTemplate template,
-        FurnitureInstance instance,
+        PropTemplate template,
+        PropInstance instance,
         Vector3 pos, Quaternion rot,
         bool fromInventory)
     {

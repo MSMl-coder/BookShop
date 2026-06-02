@@ -44,14 +44,14 @@ public class EditModeManager : MonoBehaviour
 
         IsEditMode = true;
         Debug.Log("[EditMode] Увійшли в режим редагування");
-        DecorationPanelUI.Instance?.Open();
+        //DecorationPanelUI.Instance?.Open();
     }
 
     public void ExitEditMode()
     {
         IsEditMode = false;
         Debug.Log("[EditMode] Вийшли з режиму редагування");
-        DecorationPanelUI.Instance?.Close();
+        //DecorationPanelUI.Instance?.Close();
     }
 
     // ── Static helper для ContextMenuUI / InteractionRouter ────

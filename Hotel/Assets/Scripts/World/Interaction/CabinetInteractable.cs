@@ -1,8 +1,12 @@
 // Assets/Scripts/World/Interaction/CabinetInteractable.cs
+// ФІКС: OnInteract() тіло було закоментоване —
+//   натискання на шафу в грі не відкривало жодного UI.
+//   Тепер підключено до ShelfManagerPanelController.Open(cabinet).
+
 using UnityEngine;
 
 /// Додається на той самий GameObject що Cabinet.
-/// Обробляє відкриття інвентарю шафи.
+/// Обробляє відкриття менеджера полиць при натисканні на шафу.
 /// В EditMode — заблокований (CanInteract = false).
 [RequireComponent(typeof(Cabinet))]
 public class CabinetInteractable : MonoBehaviour, IInteractable
@@ -18,7 +22,6 @@ public class CabinetInteractable : MonoBehaviour, IInteractable
     {
         get
         {
-            // В EditMode — завжди заблокований
             if (EditModeManager.Instance != null && EditModeManager.Instance.IsEditMode)
                 return false;
 
@@ -31,7 +34,25 @@ public class CabinetInteractable : MonoBehaviour, IInteractable
 
     public void OnInteract()
     {
-        Debug.Log($"[CabinetInteractable] Відкриваємо: {_cabinet.cabinetName}");
-        ShopUIManager.Instance?.OpenCabinetUI(_cabinet);
+        if (_cabinet == null)
+        {
+            Debug.LogWarning("[CabinetInteractable] Cabinet компонент не знайдено.");
+            return;
+        }
+
+        Debug.Log($"[CabinetInteractable] Відкриваємо менеджер полиць: {_cabinet.cabinetName}");
+
+        // ✅ ФІКС: підключено до ShelfManagerPanelController
+        if (ShelfManagerPanelController.Instance != null)
+        {
+            ShelfManagerPanelController.Instance.Open(_cabinet);
+        }
+        else
+        {
+            // Fallback: відкриваємо загальний інвентар якщо менеджер недоступний
+            Debug.LogWarning("[CabinetInteractable] ShelfManagerPanelController відсутній — " +
+                             "відкриваємо загальний інвентар.");
+            BookshopUIController.Instance?.OpenInventoryFromShelf(_cabinet.cabinetName);
+        }
     }
 }

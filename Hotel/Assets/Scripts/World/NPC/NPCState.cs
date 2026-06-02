@@ -1,13 +1,14 @@
-// NPCState.cs
-// ЗМІНИ: видалено ShowingHint (дублював WaitingForPlayer).
-// WaitingForPlayer тепер єдиний стан "жду допомоги гравця".
+// Assets/Scripts/World/NPC/NPCState.cs
+// ЗМІНИ: додано стан Resting між Browsing та Buying.
 
 public enum NPCState
 {
-    Entering,         // Входить у крамницю → вітальна хмаринка
-    Browsing,         // Блукає між полицями (без хмаринки)
-    Inspecting,       // Стоїть біля полиці → хмаринка з крапками
-    WaitingForPlayer, // Не знайшов → хмаринка з запитом + drop-zone
-    Buying,           // Іде до каси → хмаринка згортається
-    Leaving           // Виходить без покупки → хмаринка зникає
+    Entering,
+    Browsing,
+    Inspecting,
+    CollectingBooks,   // [NEW v3] NPC взяв книгу, продовжує збирати решту
+    Resting,
+    WaitingForPlayer,
+    Buying,            // йде до каси
+    Leaving,
 }

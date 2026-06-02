@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ui:UXML
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ui="UnityEngine.UIElements"
+    xsi:noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd"
+>
+    <ui:VisualElement name="GenreCardRoot" class="genre-card" picking-mode="Position">
+        <ui:VisualElement name="GenreIcon"    class="genre-card__icon"/>
+        <ui:Label         name="GenreName"    text="Fantasy" class="genre-card__label"/>
+        <ui:VisualElement name="FulfilledMark" class="genre-card__fulfilled hidden"/>
+    </ui:VisualElement>
+</ui:UXML>

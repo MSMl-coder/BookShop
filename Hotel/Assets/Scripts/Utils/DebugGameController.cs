@@ -535,19 +535,15 @@ public class DebugGameController : MonoBehaviour
         if (data != null)
             GameStateSerializer.Instance?.ApplySaveData(data);
     }
-
-
-
-
-
     [ContextMenu("Day / Set Start Day")]
     public void SetStartDay()
     {
         if (!CheckManager(GameLoopManager.Instance, "GameLoopManager")) return;
-        // Рефлексія або internal метод — залежно від доступу
-        typeof(GameLoopManager)
-            .GetProperty("CurrentDay")
-            ?.SetValue(GameLoopManager.Instance, startFromDay);
+ 
+        // ✅ ФІКС: використовуємо DEBUG_SetDay() замість рефлексії.
+        // typeof(...).GetProperty("CurrentDay")?.SetValue() ЛАМАЛО IL2CPP build —
+        // AOT не підтримує SetValue на властивостях з private setter.
+        GameLoopManager.Instance.DEBUG_SetDay(startFromDay);
         Debug.Log($"[Debug] 📅 День встановлено: {startFromDay}");
     }
     

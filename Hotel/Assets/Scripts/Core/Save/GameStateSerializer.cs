@@ -1,4 +1,13 @@
 // Assets/Scripts/Core/Save/GameStateSerializer.cs
+// ФІКСИ:
+//   [1] CollectSaveData: замінено FindObjectsByType<Shelf> → ShelfRegistry.GetAll()
+//       (з fallback на FindObjectsByType якщо Registry недоступний).
+//   [2] ApplySaveData: тепер відновлює currentDay з data.currentDay.
+//   [3] ApplySaveData: gameStateIndex більше не ігнорується — після завантаження
+//       переходимо у Preparation (WorkDay/DayStats збережений mid-session не відновлюємо,
+//       бо це безпечна точка для старту).
+//   [4] Додано null guard на data.placedBooks перед ShelfRestorer.RestoreAll.
+
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,8 +39,8 @@ public class GameStateSerializer : MonoBehaviour
         SaveData data = existing ?? new SaveData();
 
         // ── Economy ──────────────────────────────
-        data.money         = economyManager.Money;
-        data.currentDay    = gameLoopManager.CurrentDay;
+        data.money          = economyManager.Money;
+        data.currentDay     = gameLoopManager.CurrentDay;
         data.totalPlayTime += Time.time - _sessionStartTime;
         data.gameStateIndex = (int)gameLoopManager.CurrentState;
 
@@ -46,10 +55,15 @@ public class GameStateSerializer : MonoBehaviour
         }
 
         // ── Books: на полицях ────────────────────
+        // ✅ ФІКС [1]: ShelfRegistry замість FindObjectsByType
         data.placedBooks.Clear();
-        var allShelves = FindObjectsByType<Shelf>(FindObjectsInactive.Exclude);
+        IEnumerable<Shelf> allShelves = ShelfRegistry.Instance != null
+            ? (IEnumerable<Shelf>)ShelfRegistry.Instance.GetAll()
+            : Object.FindObjectsByType<Shelf>(FindObjectsInactive.Exclude);
+
         foreach (var shelf in allShelves)
         {
+            if (shelf == null) continue;
             var entry = shelf.CollectSaveData();
             if (entry != null && entry.templateIDs.Count > 0)
                 data.placedBooks.Add(entry);
@@ -87,7 +101,9 @@ public class GameStateSerializer : MonoBehaviour
             }
         }
 
-        Debug.Log($"[Serializer] Collected. Books: {books.Count}, Furniture: {allInstances.Count}");
+        Debug.Log($"[Serializer] Зібрано: Books={books.Count}, " +
+                  $"Shelves={data.placedBooks.Count}, Furniture={allInstances.Count}, " +
+                  $"Day={data.currentDay}");
         return data;
     }
 
@@ -101,9 +117,15 @@ public class GameStateSerializer : MonoBehaviour
     {
         if (data == null) return;
 
+        // ── Economy ──────────────────────────────
         economyManager.SetMoney(data.money);
 
-        // Books: інвентар
+        // ── ✅ ФІКС [2]: Відновлюємо currentDay ─
+        // GameLoopManager не має публічного setter — використовуємо DEBUG метод
+        // (безпечний: guard #if UNITY_EDITOR || DEVELOPMENT_BUILD є в GameLoopManager)
+        gameLoopManager.DEBUG_SetDay(data.currentDay);
+
+        // ── Books: інвентар ──────────────────────
         for (int i = 0; i < data.inventoryBookIDs.Count; i++)
         {
             var instance = new BookInstance(data.inventoryBookIDs[i]);
@@ -112,16 +134,24 @@ public class GameStateSerializer : MonoBehaviour
             inventoryManager.AddExistingBook(instance);
         }
 
-        // Books: полиці
+        // ── Books: на полицях ────────────────────
+        // ✅ ФІКС [4]: null guard перед RestoreAll
         if (data.placedBooks != null && data.placedBooks.Count > 0)
-        ShelfRestorer.RestoreAll(data.placedBooks);
+            ShelfRestorer.RestoreAll(data.placedBooks);
         else
-        DefaultShelfFiller.FillAll(); // нова гра
+            DefaultShelfFiller.FillAll();
 
-        // Furniture
+        // ── Furniture ────────────────────────────
         RestoreFurniture(data);
 
-        Debug.Log($"[Serializer] Applied. Day: {data.currentDay}");
+        // ── ✅ ФІКС [3]: Відновлюємо стан гри ───
+        // Тільки Preparation — безпечна точка старту.
+        // WorkDay/DayStats/LootPhase збережені mid-session не відновлюємо,
+        // щоб уникнути незавершеного дня або подвійного списання оренди.
+        gameLoopManager.ChangeState(GameState.Preparation);
+
+        Debug.Log($"[Serializer] Застосовано. День: {data.currentDay}, " +
+                  $"Гроші: {data.money}, Книги: {data.inventoryBookIDs.Count}");
     }
 
     private void RestoreFurniture(SaveData data)
@@ -133,7 +163,7 @@ public class GameStateSerializer : MonoBehaviour
 
         foreach (var entry in data.furnitureInventory)
         {
-            var fi = new FurnitureInstance(entry.templateID, entry.instanceID);
+            var fi = new PropInstance(entry.templateID, entry.instanceID);
             inventoryManager.AddFurnitureInstance(fi);
 
             if (!entry.isPlaced) continue;
@@ -164,13 +194,13 @@ public class GameStateSerializer : MonoBehaviour
     // ─────────────────────────────────────────────
 
     private void OnApplicationPause(bool pause) { if (pause) QuickSave(); }
-    private void OnApplicationQuit() => QuickSave();
+    private void OnApplicationQuit()             => QuickSave();
 
     public void QuickSave()
     {
         var data = CollectSaveData();
         SaveSystem.Save(data);
-        Debug.Log("[Serializer] Auto-saved.");
+        Debug.Log("[Serializer] Автозбереження.");
     }
 
     #endregion

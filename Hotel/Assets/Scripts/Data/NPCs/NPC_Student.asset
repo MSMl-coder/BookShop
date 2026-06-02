@@ -15,15 +15,24 @@ MonoBehaviour:
   npcName: "\u0421\u0442\u0443\u0434\u0435\u043D\u0442"
   portrait: {fileID: 0}
   prefab: {fileID: 1692468126580653705, guid: 6206c14b6fb53694cb6b0bb8a41fcb9c, type: 3}
-  stayDuration: 11
-  buyChance: 0.8
-  maxBudget: 25
-  preferredGenres: 010000000200000003000000
+  stayDuration: 240
+  buyChance: 1
+  maxBudget: 50
   shelvesToInspect: 6
-  inspectTimeMin: 12
-  inspectTimeMax: 25
-  greetingDuration: 2.5
-  acceptMessageDuration: 2
+  inspectTimeMin: 10
+  inspectTimeMax: 30
+  preferredGenres: 0100000002000000030000000600000000000000
+  minBooksToBuy: 1
+  maxBooksToBuy: 3
+  minAcceptableRarity: 0
+  maxAcceptableRarity: 4
+  budgetMultiplierMin: 0.6
+  budgetMultiplierMax: 1.4
+  canBePicky: 1
+  canBeRushed: 1
+  impulsiveMoodChance: 0.15
+  greetingDuration: 5
+  acceptMessageDuration: 5
   maxPlayerOfferAttempts: 3
   greetingMessages:
   - "\u041E, \u043D\u043E\u0432\u0456 \u043A\u043D\u0438\u0433\u0438!"

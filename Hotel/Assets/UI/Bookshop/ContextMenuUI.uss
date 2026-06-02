@@ -1,0 +1,56 @@
+:root {
+ 
+
+    .ctx-panel {
+        position: absolute;
+        bottom: 100px;
+        left: 50%;
+        translate: -50% 0;
+        min-width: 220px;
+        background-color: rgb(20, 32, 42);
+        border-width: 1px;
+        border-color: rgb(160, 120, 50);
+        border-radius: 6px;
+        padding: 4px 6px;
+        display: none;
+    }
+
+    .ctx-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .ctx-btn {
+        min-width: 160px;
+        height: 36px;
+        background-color: rgba(0,0,0,0);
+        border-width: 0;
+        border-radius: 4px;
+        color: rgb(232, 210, 148);
+        font-size: 12px;
+        -unity-text-align: middle-left;
+        padding-left: 10px;
+        padding-right: 10px;
+        margin: 2px 3px;
+        cursor: link;
+    }
+
+    .ctx-btn:hover {
+        background-color: rgba(160, 120, 50, 0.18);
+        color: rgb(245, 220, 160);
+    }
+
+    .ctx-btn--disabled {
+        color: rgb(100, 85, 55);
+        cursor: arrow;
+    }
+    .ctx-btn--disabled:hover {
+        background-color: rgba(0,0,0,0);
+        color: rgb(100, 85, 55);
+    }
+
+    ПРИМІТКА: bottom: 100px — відступ від низу, щоб не перекривати FuncBar.
+    Якщо FuncBar має іншу висоту — скоригуй.
+ 
+}

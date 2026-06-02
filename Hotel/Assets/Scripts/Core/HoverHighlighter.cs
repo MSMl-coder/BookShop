@@ -109,7 +109,9 @@ public class HoverHighlighter : MonoBehaviour
                 if (npc != null &&
                     (npc.CurrentState == NPCState.Browsing      ||
               //       npc.CurrentState == NPCState.ShowingHint   ||
-                     npc.CurrentState == NPCState.WaitingForPlayer))
+                    npc.CurrentState == NPCState.WaitingForPlayer||
+                    npc.CurrentState != NPCState.Leaving  ||
+                    npc.CurrentState != NPCState.Buying))
                     return GetOrAdd(npc.gameObject);
             }
 

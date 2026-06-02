@@ -88,21 +88,8 @@ public class WorldHoverInfoTrigger : MonoBehaviour
         BookInfoCardController.Instance?.Hide();
     }
 
+ 
+ 
     private static bool IsPointerOverUI()
-    {
-        var mouse = Mouse.current;
-        if (mouse == null) return false;
-        Vector2 pos = mouse.position.ReadValue();
-        foreach (var doc in Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Exclude))
-        {
-            if (doc?.rootVisualElement?.panel == null) continue;
-            var panelPos = RuntimePanelUtils.ScreenToPanel(
-                doc.rootVisualElement.panel,
-                new Vector2(pos.x, Screen.height - pos.y));
-            var picked = doc.rootVisualElement.panel.Pick(panelPos);
-            if (picked != null && picked.pickingMode != PickingMode.Ignore)
-                return true;
-        }
-        return false;
-    }
-}
+        => UIPointerChecker.IsOverUI();
+}   

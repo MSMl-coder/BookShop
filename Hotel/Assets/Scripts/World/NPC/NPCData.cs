@@ -1,166 +1,254 @@
-// NPCData.cs
-// ЗМІНИ v2: додано блок "Personality Ranges" — діапазони для NPCPersonality.Generate().
-// NPCData = архетип (Студент/Турист/Професор), задає МЕЖІ рандомізації.
-// NPCPersonality = конкретна особа, генерується один раз при спавні.
+// Assets/Scripts/Data/NPCs/NPCData.cs
+// v3 — NPCMessageGroup struct: повідомлення + таймер — завжди разом в Inspector.
 //
-// Поля Behavior (stayDuration, buyChance, maxBudget, shelvesToInspect)
-// тепер є BASE значеннями — NPCPersonality множить їх на рандомний коефіцієнт.
+// Кожна категорія — один блок з масивом рядків і float duration поруч.
+// duration = 0 → хмаринка не закривається автоматично (WaitingForPlayer, Leaving).
+// {0} в тексті → замінюється на назву книги (bookPickup).
 
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NPC_", menuName = "Bookstore/NPC Data")]
+// ══════════════════════════════════════════════════════════════════
+/// Група повідомлень + тривалість показу. Редагується в Inspector.
+/// Один блок замість окремих масивів і float-полів.
+// ══════════════════════════════════════════════════════════════════
+[System.Serializable]
+public struct NPCMessageGroup
+{
+    [Tooltip("Варіанти тексту — обирається рандомно")]
+    public string[] messages;
+
+    [Min(0f)]
+    [Tooltip("Секунд показу хмаринки. 0 = не закривається автоматично")]
+    public float duration;
+
+    /// Рандомний рядок з масиву, або fallback якщо масив порожній.
+    public string GetRandom(string fallback = "") =>
+        messages is { Length: > 0 }
+            ? messages[UnityEngine.Random.Range(0, messages.Length)]
+            : fallback;
+
+    /// Замінює {0} на arg0. Використовується для "Беру «{0}»!".
+    public string GetFormatted(string fallback, string arg0)
+    {
+        string raw = GetRandom(fallback);
+        return raw.Replace("{0}", arg0 ?? "...");
+    }
+
+    /// Чи є хоча б один рядок.
+    public bool HasMessages => messages is { Length: > 0 };
+}
+
+// ══════════════════════════════════════════════════════════════════
+[CreateAssetMenu(menuName = "Bookstore/NPC Data")]
 public class NPCData : ScriptableObject
 {
     // ─────────────────────────────────────────────
     [Header("Identity")]
     // ─────────────────────────────────────────────
-
-    public string     npcName = "Visitor";
-    public Sprite     portrait;
-    public GameObject prefab;
+    public string      npcName;
+    public Sprite      portrait;
+    public GameObject  prefab;
 
     // ─────────────────────────────────────────────
-    [Header("Behavior — базові значення для рандомізації")]
+    [Header("Behavior")]
     // ─────────────────────────────────────────────
-
-    [Tooltip("Базовий час перебування в крамниці (секунди). " +
-             "NPCPersonality множить на коефіцієнт залежно від Mood.")]
+    [Tooltip("Базовий час перебування (сек). Множиться на коефіцієнт настрою.")]
     public float stayDuration = 60f;
 
-    [Tooltip("Базовий шанс купити книгу якщо жанр знайдено (0–1). " +
-             "NPCPersonality коригує залежно від Mood.")]
     [Range(0f, 1f)]
-    public float buyChance = 0.75f;
+    public float buyChance = 0.8f;
 
-    [Tooltip("Базова максимальна ціна. " +
-             "NPCPersonality варіює ±40% від цього значення.")]
-    public float maxBudget = 50f;
+    public float maxBudget = 40f;
 
-    [Tooltip("Базова к-ть полиць для огляду. " +
-             "NPCPersonality коригує залежно від Mood.")]
-    [Range(1, 8)]
+    [Range(1, 10)]
     public int shelvesToInspect = 3;
 
-    [Tooltip("Час огляду однієї полиці — рандом між min і max")]
-    public float inspectTimeMin = 2f;
-    public float inspectTimeMax = 5f;
+    public float inspectTimeMin = 1.5f;
+    public float inspectTimeMax = 4f;
 
-    // ─────────────────────────────────────────────
-    [Header("Preferences — жанри архетипу")]
-    // ─────────────────────────────────────────────
-
-    [Tooltip("Жанри які цей архетип шукає з підвищеною ймовірністю (80%). " +
-             "З 20% ймовірністю обирається будь-який жанр з БД.")]
+    [Tooltip("Жанри яким NPC надає перевагу (80% шанс вибрати з них)")]
     public BookGenre[] preferredGenres;
 
-    // ─────────────────────────────────────────────
-    [Header("Personality Ranges — межі рандомізації особистості")]
-    // ─────────────────────────────────────────────
+    [Range(1, 3)]  public int minBooksToBuy = 1;
+    [Range(1, 8)]  public int maxBooksToBuy = 3;
 
-    [Tooltip("Мінімальна кількість книг яку NPC планує купити за візит.")]
-    [Range(1, 3)]
-    public int minBooksToBuy = 1;
-
-    [Tooltip("Максимальна кількість книг яку NPC планує купити за візит.")]
-    [Range(1, 8)]
-    public int maxBooksToBuy = 3;
-
-    [Tooltip("Мінімальна рарність книги яка цікавить цей архетип. " +
-             "Студент = Common, Колекціонер = Rare.")]
     public BookRarity minAcceptableRarity = BookRarity.Common;
-
-    [Tooltip("Максимальна рарність яку NPC може собі дозволити / хоче. " +
-             "Обмежує пошук зверху.")]
     public BookRarity maxAcceptableRarity = BookRarity.Legendary;
 
-    [Tooltip("Бюджетний коефіцієнт MIN — наскільки бюджет може бути нижчим від базового. " +
-             "0.6 = може прийти з 60% від maxBudget.")]
-    [Range(0.3f, 1.0f)]
-    public float budgetMultiplierMin = 0.6f;
+    [Range(0.3f, 1.0f)] public float budgetMultiplierMin = 0.6f;
+    [Range(1.0f, 2.5f)] public float budgetMultiplierMax = 1.4f;
 
-    [Tooltip("Бюджетний коефіцієнт MAX — наскільки бюджет може бути вищим від базового. " +
-             "1.4 = може прийти з 140% від maxBudget.")]
-    [Range(1.0f, 2.5f)]
-    public float budgetMultiplierMax = 1.4f;
-
-    [Tooltip("Чи може цей архетип прийти в поганому настрої (Mood.Picky/Rushed)?")]
     public bool canBePicky  = true;
     public bool canBeRushed = true;
 
-    [Tooltip("Ймовірність що NPC прийде в імпульсивному настрої (Mood.Impulsive). " +
-             "0 =ніколи, 1 = завжди.")]
     [Range(0f, 0.5f)]
     public float impulsiveMoodChance = 0.15f;
 
-    // ─────────────────────────────────────────────
-    [Header("UI Behavior")]
-    // ─────────────────────────────────────────────
-
-    [Tooltip("Скільки секунд показується вітальна хмаринка при вході")]
-    public float greetingDuration = 2.5f;
-
-    [Tooltip("Скільки секунд показується хмаринка подяки після прийняття книги")]
-    public float acceptMessageDuration = 2f;
-
-    [Tooltip("Скільки разів гравець може запропонувати книгу до відмови")]
     [Range(1, 5)]
+    [Tooltip("Скільки разів гравець може запропонувати книгу до відмови")]
     public int maxPlayerOfferAttempts = 3;
 
-    // ─────────────────────────────────────────────
-    [Header("Greeting Messages")]
-    // ─────────────────────────────────────────────
+    // ══════════════════════════════════════════════
+    // ПОВІДОМЛЕННЯ — всі редагуються в Inspector.
+    // Кожна група = масив рядків + тривалість показу.
+    // ══════════════════════════════════════════════
 
-    [Tooltip("Варіанти вітального тексту — обирається рандомно")]
-    public string[] greetingMessages =
+    [Header("💬 Вітання (при вході в магазин)")]
+    public NPCMessageGroup greeting = new NPCMessageGroup
     {
-        "О, нові книги!",
-        "Цікаво, що тут є...",
-        "Давно хотів зайти!",
-        "Може знайду щось цікаве?"
+        duration = 2.5f,
+        messages = new[]
+        {
+            "О, нові книги!",
+            "Цікаво, що тут є...",
+            "Давно хотів зайти!",
+            "Може знайду щось цікаве?"
+        }
     };
 
-    // ─────────────────────────────────────────────
-    [Header("Accept Messages")]
-    // ─────────────────────────────────────────────
-
-    [Tooltip("Варіанти тексту при прийнятті книги — обирається рандомно")]
-    public string[] acceptMessages =
+    [Header("📖 Знайшов книгу (до рішення купити)")]
+    public NPCMessageGroup bookFound = new NPCMessageGroup
     {
-        "Дуже цікаво, дякую!",
-        "Саме те що шукав!",
-        "Чудова рекомендація!",
-        "Обов'язково прочитаю!"
+        duration = 1.5f,
+        messages = new[]
+        {
+            "Цікаво...",
+            "Гм, подивимось...",
+            "А це що?",
+            "О, непогано...",
+        }
     };
 
-    // ─────────────────────────────────────────────
-    [Header("Reject Messages")]
-    // ─────────────────────────────────────────────
-
-    [Tooltip("Варіанти тексту при відмові від книги — обирається рандомно")]
-    public string[] rejectMessages =
+    [Header("🛒 Бере книгу ({0} = назва)")]
+    public NPCMessageGroup bookPickup = new NPCMessageGroup
     {
-        "Ні, це не те...",
-        "Не зовсім мій жанр.",
-        "Трохи дорогувато.",
-        "Може щось інше?"
+        duration = 2.5f,
+        messages = new[]
+        {
+            "Беру «{0}»!",
+            "О, саме те! «{0}»",
+            "«{0}» — давно шукав!",
+            "Чудово, «{0}» мій!",
+        }
     };
 
-    // ─────────────────────────────────────────────
-    // Helpers
-    // ─────────────────────────────────────────────
+    [Header("🔍 Шукає ще (CollectingBooks)")]
+    public NPCMessageGroup collecting = new NPCMessageGroup
+    {
+        duration = 2f,
+        messages = new[]
+        {
+            "Пошукаю ще...",
+            "Може є щось інше?",
+            "Продовжую шукати...",
+            "Ще не все знайшов!",
+        }
+    };
 
-    public string GetRandomGreeting() =>
-        greetingMessages is { Length: > 0 }
-            ? greetingMessages[Random.Range(0, greetingMessages.Length)]
-            : "";
+    [Header("💰 Іде на касу (Buying)")]
+    public NPCMessageGroup buying = new NPCMessageGroup
+    {
+        duration = 3f,
+        messages = new[]
+        {
+            "Йду на касу!",
+            "Все знайшов, платити!",
+            "Беру це все!",
+            "До каси!",
+        }
+    };
 
-    public string GetRandomAccept() =>
-        acceptMessages is { Length: > 0 }
-            ? acceptMessages[Random.Range(0, acceptMessages.Length)]
-            : "";
+    [Header("👋 Виходить (Leaving) [0 = не закривати]")]
+    public NPCMessageGroup leaving = new NPCMessageGroup
+    {
+        duration = 0f,   // 0 = залишається до закриття панелі
+        messages = new[]
+        {
+            "До побачення!",
+            "Повернуся ще!",
+            "Дякую, до зустрічі!",
+            "Чудовий магазин!",
+        }
+    };
 
-    public string GetRandomReject() =>
-        rejectMessages is { Length: > 0 }
-            ? rejectMessages[Random.Range(0, rejectMessages.Length)]
-            : "";
+    [Header("🤔 Чекає на гравця (WaitingForPlayer) [0 = не закривати]")]
+    public NPCMessageGroup waiting = new NPCMessageGroup
+    {
+        duration = 0f,   // 0 = залишається поки гравець не відреагує
+        messages = new[]
+        {
+            "Чи є у вас щось для мене?",
+            "Може порекомендуєте?",
+            "Допоможіть знайти!",
+            "Нічого не підходить...",
+        }
+    };
+
+    [Header("⏰ Час вийшов (stayDuration / кінець дня)")]
+    public NPCMessageGroup stayEnd = new NPCMessageGroup
+    {
+        duration = 4f,
+        messages = new[]
+        {
+            "Мені вже час, до побачення!",
+            "На жаль, треба йти...",
+            "Повернуся наступного разу!",
+            "Шкода що не вистачило часу!",
+        }
+    };
+
+    [Header("✅ Приймає книгу від гравця")]
+    public NPCMessageGroup accept = new NPCMessageGroup
+    {
+        duration = 2f,
+        messages = new[]
+        {
+            "Дуже цікаво, дякую!",
+            "Саме те що шукав!",
+            "Чудова рекомендація!",
+            "Обов'язково прочитаю!"
+        }
+    };
+
+    [Header("❌ Відмовляється від книги / кінець дня без покупки")]
+    public NPCMessageGroup reject = new NPCMessageGroup
+    {
+        duration = 3f,
+        messages = new[]
+        {
+            "Ні, це не те...",
+            "Не зовсім мій жанр.",
+            "Трохи дорогувато.",
+            "Може щось інше?"
+        }
+    };
+
+    // ══════════════════════════════════════════════
+    // Helpers — єдина точка для отримання повідомлень.
+    // Використовуйте їх у коді, а не звертайтесь до масивів напряму.
+    // ══════════════════════════════════════════════
+
+    public string GetRandomGreeting()   => greeting.GetRandom();
+    public string GetRandomBookFound()  => bookFound.GetRandom("...");
+    public string GetRandomCollecting() => collecting.GetRandom("Шукаю...");
+    public string GetRandomBuying()     => buying.GetRandom("Йду на касу!");
+    public string GetRandomLeaving()    => leaving.GetRandom("До побачення!");
+    public string GetRandomWaiting()    => waiting.GetRandom("Чи є щось?");
+    public string GetRandomStayEnd()    => stayEnd.GetRandom("Мені вже час!");
+    public string GetRandomAccept()     => accept.GetRandom("Дякую!");
+    public string GetRandomReject()     => reject.GetRandom("Не те...");
+
+    /// Повідомлення при підніятті книги. {0} → назва книги.
+    public string GetPickupMessage(string bookTitle) =>
+        bookPickup.GetFormatted("Беру «{0}»!", bookTitle);
+
+    // ── Backward compat: окремі float що були раніше ──────────────
+    // (для коду що ще використовує старі назви)
+    public float GreetingDuration        => greeting.duration;
+    public float AcceptMessageDuration   => accept.duration;
+
+    // Legacy — для коду що не оновлений
+    public string[] greetingMessages   => greeting.messages;
+    public string[] acceptMessages     => accept.messages;
+    public string[] rejectMessages     => reject.messages;
 }

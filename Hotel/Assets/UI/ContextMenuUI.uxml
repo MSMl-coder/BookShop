@@ -1,6 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
-    <ui:VisualElement name="ContextMenu" class="ctx-panel"
-        style="position: absolute">
-        <ui:VisualElement name="ContextMenuContainer" class="ctx-container" />
-    </ui:VisualElement>
-</ui:UXML>

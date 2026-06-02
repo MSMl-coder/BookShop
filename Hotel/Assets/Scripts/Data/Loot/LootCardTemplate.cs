@@ -12,7 +12,7 @@ public class LootCardTemplate : ScriptableObject
     public bool isGold; // For legendary 5% drop rate
 
     [Header("Payload")]
-    public FurnitureTemplate furniturePayload;
+    public PropTemplate furniturePayload;
     public int moneyPayload;
 
     [Header("Economics")]

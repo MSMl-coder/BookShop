@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 08f010d8c116b4df79e667ccbc7368aa
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - inspectorAsset: {fileID: 9197481963319205126, guid: 824ce369464b04390a98c0d6b34da796, type: 3}
+  - speechBubbleSprite: {fileID: 21300000, guid: 7b52c4560be03433a8218165a1c76f93, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
