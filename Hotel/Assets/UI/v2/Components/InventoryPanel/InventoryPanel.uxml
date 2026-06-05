@@ -1,13 +1,35 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/UI/v2/Components/InventoryPanel/InventoryPanel.uss?fileID=7433441132597879392&amp;guid=b982739c14b634057aa93b7d1ea5e400&amp;type=3#InventoryPanel"/>
+
+    <!-- Shared resources (переюзабельні для інших панелей) -->
+    <Style src="project://database/Assets/UI/v2/Shared/CustomScrollbar.uss"/>
+    <Style src="project://database/Assets/UI/v2/Shared/BookCard.uss"/>
+
+    <!-- Panel-specific styles -->
+    <Style src="project://database/Assets/UI/v2/Components/InventoryPanel/InventoryPanel.uss"/>
+
     <ui:VisualElement name="InventoryPanel" picking-mode="Position" class="inv-panel hidden">
+
+        <!-- Кнопка закриття: абсолютна позиція, візуально окремо -->
         <ui:Button name="BtnClose" text="✕" picking-mode="Position" class="inv-close-btn"/>
+
+        <!-- 7 квадратів-плейсхолдерів для іконок жанрів
+             (заповнюються контролером через BuildCategoryBar) -->
         <ui:VisualElement name="CategoryBar" picking-mode="Position" class="inv-category-bar"/>
-        <ui:VisualElement name="SubcategoryBar" picking-mode="Position" class="inv-subcategory-bar"/>
-        <ui:VisualElement picking-mode="Position" class="inv-search-row">
-            <ui:TextField name="SearchField" placeholder-text="..." picking-mode="Position" class="inv-search-field"/>
-            <ui:Button name="BtnSearch" picking-mode="Position" class="inv-search-btn"/>
+
+        <!-- Заголовок -->
+        <ui:Label text="INVENTORY" class="inv-title"/>
+
+        <!-- Пошук -->
+        <ui:VisualElement name="SearchRow" picking-mode="Position" class="inv-search-row">
+            <ui:TextField name="SearchField" placeholder-text="...." picking-mode="Position" class="inv-search-field"/>
+            <ui:Button name="BtnSearch" text="🔍" picking-mode="Position" class="inv-search-btn"/>
         </ui:VisualElement>
-        <ui:ScrollView name="BookGrid" mode="Vertical" mouse-wheel-scroll-size="60" picking-mode="Position" class="inv-book-grid"/>
+
+        <!-- Subcategory bar — A/B sort + rarity filters -->
+        <ui:VisualElement name="SubcategoryBar" picking-mode="Position" class="inv-subcategory-bar"/>
+
+        <!-- Сітка слотів з кастомним скролбаром на лівому боці -->
+        <ui:ScrollView name="BookGrid" mode="Vertical" mouse-wheel-scroll-size="80" picking-mode="Position" class="inv-book-grid custom-scrollbar custom-scrollbar--left"/>
+
     </ui:VisualElement>
 </ui:UXML>

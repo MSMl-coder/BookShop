@@ -1,297 +1,261 @@
 /*
-    InventoryPanel.uss
-    Path: Assets/UI/Components/InventoryPanel/InventoryPanel.uss
+    InventoryPanel.uss — V5 (refactored, shared resources extracted)
+    Path: Assets/UI/v2/Components/InventoryPanel/InventoryPanel.uss
+
+    ЗАЛЕЖНОСТІ (підвантажуються у InventoryPanel.uxml через <Style src>):
+    · Assets/UI/v2/Shared/CustomScrollbar.uss  — стилі скролбара
+    · Assets/UI/v2/Shared/BookCard.uss         — стилі картки книги
+
+    ЦЕЙ ФАЙЛ МІСТИТЬ ЛИШЕ:
+    · позиціонування панелі
+    · ряд категорій + плейсхолдери
+    · кнопку X
+    · заголовок INVENTORY
+    · пошук
+    · grid container (без стилів самої картки)
+    · section letters
 */
 
-/* ===================================
-   ROOT PANEL
-=================================== */
+
+/* ════════════════════════════════════════
+   ROOT — позиція й розмір з 2го фото
+   2/3 висоти екрана + посунуто вправо
+════════════════════════════════════════ */
 .inv-panel {
     position: absolute;
-    left: 68px;
-    top: 40px;        /* під TopBar */
-    width: 420px;
-    bottom: 0;
-    background-color: rgb(238, 234, 218);
-    border-right-width: 1px;
-    border-right-color: rgba(180, 170, 130, 0.35);
+    left: 300px;
+    top: 30px;
+    width: 360px;
+    bottom: 33%;             /* ≈ 2/3 висоти екрана */
+
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
+    padding: 0;
+
     transition-property: opacity, translate;
     transition-duration: 0.25s;
     transition-timing-function: ease-out;
-    padding-top: 4px;  /* невеликий відступ зверху */
 }
 
 .inv-panel.hidden {
     opacity: 0;
     translate: -20px 0;
-}
-
-/* ===================================
-   CLOSE BUTTON
-=================================== */
-.inv-close-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 26px;
-    height: 26px;
-    border-radius: 13px;
-    background-color: rgba(100, 90, 60, 0.12);
-    border-width: 0;
-    font-size: 13px;
-    color: rgb(80, 70, 50);
-    -unity-text-align: middle-center;
-    padding: 0;
-    transition-property: background-color;
-    transition-duration: 0.15s;
-}
-.inv-close-btn:hover {
-    background-color: rgba(180, 50, 50, 0.75);
-    color: white;
-}
-
-/* ===================================
-   CATEGORY ICON BAR
-=================================== */
-.inv-category-bar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding-top: 10px;
-    padding-left: 10px;
-    padding-right: 40px;
-    padding-bottom: 8px;
-    flex-shrink: 0;
-    border-bottom-width: 1px;
-    border-bottom-color: rgba(180, 170, 130, 0.25);
-}
-
-.inv-cat-btn {
-    width: 36px;
-    height: 36px;
-    background-color: rgba(196, 191, 165, 0.6);
-    border-width: 1px;
-    border-color: rgba(160, 150, 110, 0.2);
-    border-radius: 6px;
-    margin-right: 5px;
-    margin-bottom: 0;
-    padding: 0;
-    transition-property: background-color;
-    transition-duration: 0.12s;
-}
-.inv-cat-btn:hover      { background-color: rgba(168, 162, 130, 0.75); }
-.inv-cat-btn--active    { background-color: rgb(130, 120, 80); border-color: rgb(100, 92, 55); border-width: 2px; }
-
-/* ===================================
-   SUBCATEGORY BAR
-=================================== */
-.inv-subcategory-bar {
-    flex-direction: row;
-    align-items: center;
-    padding-top: 5px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 5px;
-    flex-shrink: 0;
-    border-bottom-width: 1px;
-    border-bottom-color: rgba(180, 170, 130, 0.2);
-}
-
-.inv-subcat-btn {
-    min-width: 28px;
-    height: 26px;
-    background-color: rgba(196, 191, 165, 0.4);
-    border-width: 1px;
-    border-color: rgba(160, 150, 110, 0.25);
-    border-radius: 5px;
-    padding-left: 8px;
-    padding-right: 8px;
-    margin-right: 4px;
-    font-size: 11px;
-    -unity-font-style: bold;
-    color: rgb(70, 62, 40);
-    -unity-text-align: middle-center;
-    transition-property: background-color;
-    transition-duration: 0.12s;
-}
-.inv-subcat-btn:hover   { background-color: rgba(168, 162, 130, 0.65); }
-.inv-subcat-btn--active { background-color: rgb(130, 120, 80); color: rgb(240, 236, 216); border-color: rgb(100, 92, 55); }
-
-.inv-badge-btn {
-    width: 26px;
-    height: 26px;
-    background-color: rgba(196, 191, 165, 0.4);
-    border-width: 1px;
-    border-color: rgba(160, 150, 110, 0.2);
-    border-radius: 5px;
-    margin-right: 4px;
-    padding: 0;
-    font-size: 10px;
-    color: rgb(70, 62, 40);
-    -unity-text-align: middle-center;
-    transition-property: background-color;
-    transition-duration: 0.12s;
-}
-.inv-badge-btn:hover   { background-color: rgba(168, 162, 130, 0.65); }
-.inv-badge-btn--active { background-color: rgb(130, 120, 80); color: rgb(240, 236, 216); }
-
-/* ===================================
-   SEARCH ROW
-=================================== */
-.inv-search-row {
-    flex-direction: row;
-    align-items: center;
-    padding-top: 6px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 6px;
-    flex-shrink: 0;
-}
-
-.inv-search-field {
-    flex-grow: 1;
-    height: 30px;
-    background-color: rgb(248, 246, 236);
-    border-width: 1px;
-    border-color: rgba(160, 150, 110, 0.35);
-    border-radius: 15px;
-    padding-left: 14px;
-    font-size: 11px;
-    color: rgb(60, 52, 30);
-}
-.inv-search-field:focus { border-color: rgba(120, 110, 70, 0.7); }
-
-.inv-search-btn {
-    width: 28px;
-    height: 28px;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-    margin-left: 4px;
-    padding: 0;
-    color: rgb(100, 90, 60);
-    font-size: 15px;
-}
-.inv-search-btn:hover { color: rgb(50, 42, 20); }
-
-/* ===================================
-   BOOK GRID
-   КРИТИЧНО: padding йде на content-container,
-   НЕ на ScrollView — інакше картки зрізаються
-=================================== */
-.inv-book-grid {
-    flex-grow: 1;
-    /* Фон від батьківського .inv-panel — прозорий ScrollView */
-}
-
-/* Тонкий скролбар */
-.inv-book-grid #unity-vertical-scroller {
-    width: 8px;
-    background-color: rgba(0,0,0,0);
-    border-width: 0;
-}
-.inv-book-grid #unity-vertical-scroller #unity-tracker {
-    border-radius: 4px;
-    background-color: rgba(180, 170, 130, 0.25);
-    border-width: 0;
-}
-.inv-book-grid #unity-vertical-scroller #unity-dragger {
-    border-radius: 4px;
-    background-color: rgba(130, 120, 80, 0.55);
-    min-height: 24px;
-    border-width: 0;
-}
-.inv-book-grid #unity-vertical-scroller .unity-base-slider__high-button,
-.inv-book-grid #unity-vertical-scroller .unity-base-slider__low-button {
     display: none;
 }
 
-/* Flex-wrap container */
-.inv-book-grid #unity-content-container {
+
+/* ════════════════════════════════════════
+   КАТЕГОРІЇ — ряд із 7 плейсхолдерів
+════════════════════════════════════════ */
+.inv-category-bar {
     flex-direction: row;
-    flex-wrap: wrap;
-    padding-top: 8px;
-    padding-left: 10px;
-    padding-right: 2px;
-    padding-bottom: 12px;
-    /*ї НЕ задаємо background-color — прозорий, фон від .inv-panel */
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+
+    padding-top: 16px;
+    padding-left: 16px;
+    padding-right: 60px;     /* залишає простір під X */
+    padding-bottom: 8px;
+
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
 }
 
-/* ===================================
-   BOOK CARD — 3 колонки в 420px панелі
-   Математика:
-     panel 420 - scrollbar 8 = 412px viewport
-     padding-left 10 + padding-right 2 = 12px
-     usable = 412 - 12 = 400px
-     3 cards + 2 gaps: 3*118 + 2*8 = 354 + 16 = 370px (вміщується)
-=================================== */
-.inv-book-card {
-    width: 118px;
-    height: 145px;
+.inv-cat-btn {
+    width: 32px;
+    height: 32px;
+    background-color: rgb(225, 225, 225);
+
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 3px;
+    border-bottom-color: rgba(140, 140, 140, 0.4);
+
+    border-radius: 9px;
+    margin-right: 6px;
+    margin-bottom: 4px;
+    padding: 0;
     flex-shrink: 0;
-    flex-grow: 0;
-    border-radius: 12px;
-    border-width: 1px;
-    border-color: rgba(145, 160, 112, 0.45);
-    background-color: rgb(163, 180, 136);
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 6px;
-    overflow: hidden;
-    cursor: link;
-    margin-right: 8px;
-    margin-bottom: 10px;
-    transition-property: translate, border-color;
+
+    transition-property: scale, background-color, translate;
     transition-duration: 0.15s;
     transition-timing-function: ease-out;
     translate: 0 0;
 }
-.inv-book-card:hover {
-    translate: 0 -4px;
-    border-color: rgba(95, 128, 65, 0.8);
-}
-.inv-book-card--selected {
-    border-color: rgb(75, 118, 48);
-    border-width: 2px;
+.inv-cat-btn:hover {
+    background-color: rgb(238, 238, 238);
     translate: 0 -2px;
 }
-
-.inv-book-card__cover {
-    flex-grow: 1;
-    width: 100%;
-    background-color: rgba(138, 156, 110, 0.5);
+.inv-cat-btn--active {
+    background-color: rgb(195, 200, 220);
+    border-bottom-color: rgba(120, 125, 150, 0.45);
 }
 
-.inv-book-card__rarity {
+
+/* ════════════════════════════════════════
+   КНОПКА X — абсолютна позиція, окремо
+════════════════════════════════════════ */
+.inv-close-btn {
     position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-}
-.inv-book-card__rarity.common    { background-color: rgb(178, 176, 160); }
-.inv-book-card__rarity.uncommon  { background-color: rgb(72, 168, 84);   }
-.inv-book-card__rarity.rare      { background-color: rgb(56, 118, 210);  }
-.inv-book-card__rarity.epic      { background-color: rgb(155, 56, 210);  }
-.inv-book-card__rarity.legendary { background-color: rgb(218, 162, 28);  }
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
 
-.inv-book-card__title {
-    font-size: 9px;
-    color: rgb(32, 28, 16);
-    -unity-text-align: middle-center;
-    white-space: nowrap;
-    overflow: hidden;
-    -unity-text-overflow-position: end;
-    width: 108px;
+    background-color: rgb(255, 255, 255);
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(150, 150, 150, 0.3);
+
+    font-size: 16px;
     -unity-font-style: bold;
-    margin-top: 3px;
+    color: rgb(70, 70, 70);
+    -unity-text-align: middle-center;
+    padding: 0;
+
+    transition-property: background-color, scale, color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+}
+.inv-close-btn:hover {
+    background-color: rgb(252, 230, 230);
+    color: rgb(180, 50, 50);
+    scale: 1.05 1.05;
 }
 
-.inv-book-card__price {
-    font-size: 9px;
-    color: rgb(52, 72, 28);
-    -unity-text-align: middle-center;
-    margin-top: 1px;
+
+/* ════════════════════════════════════════
+   ЗАГОЛОВОК INVENTORY
+════════════════════════════════════════ */
+.inv-title {
+    font-size: 24px;
+    -unity-font-style: bold;
+    color: rgb(248, 235, 235);
+    -unity-text-align: middle-left;
+    letter-spacing: 5px;
+
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(218, 195, 195, 0.85);
+
+    margin-top: 8px;
+    margin-left: 24px;
+    margin-bottom: 12px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+
+/* ════════════════════════════════════════
+   ПОШУК — абсолютна позиція справа під X
+════════════════════════════════════════ */
+.inv-search-row {
+    position: absolute;
+    top: 62px;
+    right: 14px;
+    height: 32px;
+    width: 160px;
+
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(255, 255, 255);
+    border-radius: 16px;
+
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(150, 150, 150, 0.3);
+
+    padding-left: 14px;
+    padding-right: 4px;
+}
+
+.inv-search-field {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    font-size: 12px;
+    color: rgb(80, 80, 80);
+    -unity-text-align: middle-left;
+    padding: 0;
+    margin: 0;
+}
+.inv-search-field > .unity-base-text-field__input,
+.inv-search-field .unity-text-element {
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+    color: rgb(80, 80, 80);
+    font-size: 12px;
+}
+
+.inv-search-btn {
+    width: 24px;
+    height: 24px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    color: rgb(60, 60, 60);
+    font-size: 14px;
+    padding: 0;
+    margin-left: 2px;
+}
+.inv-search-btn:hover { color: rgb(20, 20, 20); }
+
+
+/* ════════════════════════════════════════
+   SUBCATEGORY — схована (на макеті відсутня)
+════════════════════════════════════════ */
+.inv-subcategory-bar {
+    display: none;
+}
+
+
+/* ════════════════════════════════════════
+   GRID CONTAINER — стилі картки у Shared/BookCard.uss
+════════════════════════════════════════ */
+.inv-book-grid {
+    flex-grow: 1;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    margin-top: 4px;
+}
+
+/* Контейнер контенту: flex-wrap для 3-х колонок */
+.inv-book-grid #unity-content-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding-top: 8px;
+    padding-left: 22px;
+    padding-right: 12px;
+    padding-bottom: 24px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+
+/* ════════════════════════════════════════
+   SECTION LETTERS — контролер додає Label.inv-section-letter
+   між картками за алфавітом. flex-basis: 100% → новий рядок.
+════════════════════════════════════════ */
+.inv-section-letter {
+    flex-basis: 100%;
+    width: 100%;
+    font-size: 13px;
+    -unity-font-style: bold;
+    color: rgb(140, 125, 90);
+    -unity-text-align: middle-left;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    padding-left: 2px;
+    flex-shrink: 0;
+    flex-grow: 0;
 }

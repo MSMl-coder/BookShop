@@ -15,14 +15,37 @@
                 <ui:Button name="SpeedBtn3" text="&gt;&gt;&gt;" class="speed-btn"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="LeftNav" picking-mode="Position" class="left-nav" style="top: 485px; bottom: 485px; left: initial;">
-            <ui:Button name="BtnAwards" tooltip="Awards" class="nav-btn" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;"/>
-            <ui:Button name="BtnBookHunters" tooltip="Book Hunters" class="nav-btn" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;"/>
-            <ui:Button name="BtnDecorations" tooltip="Decorations" class="nav-btn nav-btn--active" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;">
-                <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/Assets/3b5e67b9eff90f2f0d678a217b7e3123%201.png?fileID=2800000&amp;guid=7b52c4560be03433a8218165a1c76f93&amp;type=3#3b5e67b9eff90f2f0d678a217b7e3123 1&quot;); width: 42px; position: absolute; height: 36px; top: 3px; left: 33px;"/>
-            </ui:Button>
-            <ui:Button name="BtnCatalog" tooltip="Catalog" class="nav-btn" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;"/>
-            <ui:Button name="BtnInventory" tooltip="Inventory" class="nav-btn" style="width: 100px; height: 42px; margin-bottom: 3px; background-color: rgb(69, 89, 148); margin-top: 3px; margin-left: 0;"/>
+        <ui:VisualElement name="LeftNav" picking-mode="Position" class="left-nav">
+            <ui:VisualElement class="nav-btn-wrap">
+                <ui:VisualElement picking-mode="Ignore" class="nav-btn__shadow"/>
+                <ui:Button name="BtnAwards" tooltip="Awards" class="nav-btn">
+                    <ui:VisualElement class="nav-btn__icon"/>
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:VisualElement class="nav-btn-wrap">
+                <ui:VisualElement picking-mode="Ignore" class="nav-btn__shadow"/>
+                <ui:Button name="BtnBookHunters" tooltip="Book Hunters" class="nav-btn">
+                    <ui:VisualElement class="nav-btn__icon"/>
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:VisualElement class="nav-btn-wrap nav-btn-wrap--active">
+                <ui:VisualElement picking-mode="Ignore" class="nav-btn__shadow"/>
+                <ui:Button name="BtnDecorations" tooltip="Decorations" class="nav-btn">
+                    <ui:VisualElement class="nav-btn__icon" style="background-image: url(&quot;project://database/Assets/Assets/3b5e67b9eff90f2f0d678a217b7e3123%201.png?fileID=2800000&amp;guid=7b52c4560be03433a8218165a1c76f93&amp;type=3#3b5e67b9eff90f2f0d678a217b7e3123 1&quot;);"/>
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:VisualElement class="nav-btn-wrap">
+                <ui:VisualElement picking-mode="Ignore" class="nav-btn__shadow"/>
+                <ui:Button name="BtnCatalog" tooltip="Catalog" class="nav-btn">
+                    <ui:VisualElement class="nav-btn__icon" style="background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/%D1%88%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD_%D0%9C%D0%BE%D0%BD%D1%82%D0%B0%D0%B6%D0%BD%D0%B0%20%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C%201%20-%20%D0%BA%D0%BE%D0%BF%D1%96%D1%8F%203%20(2).png?fileID=2800000&amp;guid=bb9ce38902f804293ab8ebb9a0f1d012&amp;type=3#шаблон_Монтажна область 1 - копія 3 (2)&quot;);"/>
+                </ui:Button>
+            </ui:VisualElement>
+            <ui:VisualElement class="nav-btn-wrap">
+                <ui:VisualElement picking-mode="Ignore" class="nav-btn__shadow"/>
+                <ui:Button name="BtnInventory" tooltip="Inventory" class="nav-btn">
+                    <ui:VisualElement class="nav-btn__icon"/>
+                </ui:Button>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="BottomLeftCluster" picking-mode="Ignore" class="bottom-left-cluster">
             <ui:VisualElement name="NPCInspectorPanel" picking-mode="Ignore" class="npc-panel hidden" style="position: absolute; top: -172px; left: 358px; height: 274px; display: none;">
@@ -77,12 +100,14 @@
             <ui:VisualElement name="CharacterDock" picking-mode="Position" class="character-dock">
                 <ui:VisualElement name="CharCard_Max" class="char-card" style="margin-right: 0;">
                     <ui:VisualElement name="VisualElement" class="char-card__portrait char-card__portrait--placeholder" style="height: 135px; width: 100px; background-color: rgb(231, 245, 253);">
-                        <ui:Label name="CharName_Max" text="Max" class="char-card__name" style="color: rgb(0, 0, 139);"/>
+                        <ui:VisualElement style="flex-grow: 1; right: 9px; left: 9px; width: 76px; height: auto; padding-bottom: 7px; margin-bottom: 11px; background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/6e599501252c23bcf02658617b29c894.jpg?fileID=2800000&amp;guid=46a9de13121f1402dad8f39a4eca2bf2&amp;type=3#6e599501252c23bcf02658617b29c894&quot;); padding-top: 4px; top: 9px; bottom: auto;"/>
+                        <ui:Label name="CharName_Max" text="Max" class="char-card__name" style="color: rgb(0, 0, 139); margin-bottom: 4px; height: auto; margin-top: 4px; bottom: 3px; position: relative; width: 90px; font-size: 16px; -unity-font-style: bold;"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement name="CharCard_Vika" class="char-card" style="height: 113px; width: 87px;">
                     <ui:VisualElement class="char-card__portrait char-card__portrait--placeholder" style="height: 113px; width: 82px; background-color: rgb(231, 245, 253);">
-                        <ui:Label name="CharName_Vika" text="Vika" class="char-card__name" style="bottom: 0; justify-content: flex-start; align-items: auto; margin-bottom: 0; color: rgb(0, 0, 139); margin-left: 0; padding-left: 0;"/>
+                        <ui:VisualElement style="flex-grow: 1; background-image: url(&quot;project://database/Assets/UI/v2/New%20Folder/1b2e314e767a957a44ed8f992c6d9098.jpg?fileID=2800000&amp;guid=56af9a297f6214d41b34018f6136db33&amp;type=3#1b2e314e767a957a44ed8f992c6d9098&quot;); padding-right: 8px; padding-left: 8px; padding-bottom: 8px; padding-top: 8px; top: 8px; bottom: 13px; right: 8px; left: 8px; width: 62px; height: auto;"/>
+                        <ui:Label name="CharName_Vika" text="Vika" class="char-card__name" style="bottom: 3px; justify-content: flex-start; align-items: auto; margin-bottom: 3px; color: rgb(0, 0, 139); margin-left: 0; padding-left: 0; -unity-font-style: bold; font-size: 17px; margin-top: 14px;"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
             </ui:VisualElement>

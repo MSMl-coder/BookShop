@@ -1,0 +1,8 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/v2/GameHUD.uss?fileID=7433441132597879392&amp;guid=f5d1f5d4f7cd94c76beda558f1b1be36&amp;type=3#GameHUD"/>
+    <ui:VisualElement name="GenreCardRoot" picking-mode="Position" class="genre-card">
+        <ui:VisualElement name="GenreIcon" class="genre-card__icon"/>
+        <ui:Label name="GenreName" text="Fantasy" class="genre-card__label"/>
+        <ui:VisualElement name="FulfilledMark" class="genre-card__fulfilled hidden"/>
+    </ui:VisualElement>
+</ui:UXML>

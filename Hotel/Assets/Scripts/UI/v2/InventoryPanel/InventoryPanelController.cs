@@ -9,9 +9,8 @@
 //   Hide()  — закрити
 //   Toggle()— перемкнути
 //
-// ПІДКЛЮЧЕННЯ:
-//   Так само як NPCInspectorMount — окремий UXML компонент,
-//   монтується в GameHUDController.
+// V2 (5 червня): картки тепер у wrapper-структурі з drop-shadow
+// (як genre-card у NPCInspector). Класи: book-card-wrap → shadow + card.
 
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +21,7 @@ public class InventoryPanelController
 {
     private const string CLS_HIDDEN   = "hidden";
     private const string CLS_ACTIVE   = "inv-cat-btn--active";
-    private const string CLS_SELECTED = "inv-book-card--selected";
+    private const string CLS_SELECTED = "book-card--selected";   // NEW: book-card not inv-book-card
 
     // ── UI refs ───────────────────────────────────────────────────
     private readonly VisualElement _root;
@@ -191,7 +190,6 @@ public class InventoryPanelController
         var inventory = InventoryManager.Instance?.GetSortedInventory(SortType.ByTitle);
         if (inventory == null) return Enumerable.Empty<BookTemplate>();
 
-        // Збираємо унікальні шаблони
         var templates = inventory
             .Select(b => BookDatabase.Instance?.GetBook(b.templateID))
             .Where(t => t != null)
@@ -208,44 +206,73 @@ public class InventoryPanelController
         return templates;
     }
 
+    // ════════════════════════════════════════════════════════════════
+    //  WRAPPER-СТРУКТУРА як у genre-card з NPCInspector
+    //
+    //  <book-card-wrap>           ← positioning context (relative)
+    //    <book-card-shadow/>      ← absolute, translate 4px 5px (тінь)
+    //    <book-card>              ← absolute, поверх тіні
+    //      <book-card__icon/>
+    //      <book-card__dot/>      ← клас рарності визначає колір
+    //      <book-card__title/>
+    //      <book-card__price/>
+    //  </book-card-wrap>
+    //
+    //  Стилі — у Shared/BookCard.uss (всі класи .book-card*).
+    //  Click & hover — на самій card (shadow має pickingMode=Ignore).
+    //  Повертається WRAPPER (це flex-item у grid).
+    // ════════════════════════════════════════════════════════════════
     private VisualElement BuildBookCardWrapper(BookTemplate tpl)
     {
-        // Одна картка без wrapper — простіше і правильно для flex-wrap
-        var card = new VisualElement();
-        card.AddToClassList("inv-book-card");
-        card.pickingMode = PickingMode.Position;
+        // ── wrapper ── flex-item у сітці, positioning context для shadow+card
+        var wrap = new VisualElement();
+        wrap.AddToClassList("book-card-wrap");
+        wrap.pickingMode = PickingMode.Position;
 
-        // Cover area
+        // ── shadow ── ідентично .genre-card-shadow з NPCInspector.uss
+        var shadow = new VisualElement();
+        shadow.AddToClassList("book-card-shadow");
+        shadow.pickingMode = PickingMode.Ignore;
+        wrap.Add(shadow);                          // ПЕРШИЙ → рендериться ЗА карткою
+
+        // ── card ── видима кремова коробка
+        var card = new VisualElement();
+        card.AddToClassList("book-card");
+        card.pickingMode = PickingMode.Position;
+        wrap.Add(card);                            // ДРУГИЙ → поверх shadow
+
+        // Слот обкладинки/іконки (опційно — заповнити через style.backgroundImage)
         var cover = new VisualElement();
-        cover.AddToClassList("inv-book-card__cover");
+        cover.AddToClassList("book-card__icon");
         cover.pickingMode = PickingMode.Ignore;
-        // TODO: cover.style.backgroundImage = new StyleBackground(tpl.coverSprite)
         card.Add(cover);
 
-        // Rarity dot
-        var rarity = new VisualElement();
-        rarity.AddToClassList("inv-book-card__rarity");
-        rarity.AddToClassList(GetRarityClass(tpl.rarity));
-        rarity.pickingMode = PickingMode.Ignore;
-        card.Add(rarity);
+        // Крапка рарності (клас визначає колір через .book-card__dot.uncommon etc)
+        var dot = new VisualElement();
+        dot.AddToClassList("book-card__dot");
+        dot.AddToClassList(GetRarityClass(tpl.rarity));
+        dot.pickingMode = PickingMode.Ignore;
+        card.Add(dot);
 
-        // Title
+        // Назва (труncується через white-space:nowrap у CSS)
         var title = new Label(tpl.title ?? "");
-        title.AddToClassList("inv-book-card__title");
+        title.AddToClassList("book-card__title");
         title.pickingMode = PickingMode.Ignore;
         card.Add(title);
 
-        // Price
+        // Ціна
         var price = new Label($"${tpl.sellPrice:0}");
-        price.AddToClassList("inv-book-card__price");
+        price.AddToClassList("book-card__price");
         price.pickingMode = PickingMode.Ignore;
         card.Add(price);
 
-        // Interactions
+        // Interactions — реєструємо на CARD, не на wrap.
+        // Так hover/click спрацьовують лише на видимій частині (а не на ширшому
+        // bounding box wrapper'а, який включає margin-right/bottom для тіні).
         UIHoverSound.RegisterHover(card);
         card.RegisterCallback<ClickEvent>(_ => SelectCard(card, tpl));
 
-        return card;
+        return wrap;
     }
 
     private void SelectCard(VisualElement card, BookTemplate tpl)
@@ -276,7 +303,7 @@ public class InventoryPanelController
     {
         if (Time.unscaledTime - _lastScrollSoundTime < SCROLL_SOUND_COOLDOWN) return;
         _lastScrollSoundTime = Time.unscaledTime;
-        UIHoverSound.PlayHover(); // використовуємо той же звук, можна замінити на окремий
+        UIHoverSound.PlayHover();
     }
 
     // ── Helpers ───────────────────────────────────────────────────

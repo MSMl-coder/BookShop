@@ -1,0 +1,121 @@
+/*
+    CustomScrollbar.uss — переюзабельний скрол
+    Path: Assets/UI/v2/Shared/CustomScrollbar.uss
+
+    ВИКОРИСТАННЯ:
+    1. Імпорт у UXML панелі (через UI Builder — інакше GUID не лінкується!):
+       <Style src="project://database/Assets/UI/v2/Shared/CustomScrollbar.uss"/>
+    2. Додати клас .custom-scrollbar до ScrollView:
+       <ui:ScrollView class="custom-scrollbar" mode="Vertical"/>
+    3. Опційно --left modifier для скролу на лівому боці.
+
+    ОСОБЛИВОСТІ:
+    · Тонка пігулка 8px без стрілок
+    · Світла track + темніший dragger
+    · Hover темнить dragger
+*/
+
+
+/* ── Vertical scrollbar ── */
+.custom-scrollbar #unity-vertical-scroller {
+    width: 8px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    margin-left: 10px;
+    margin-right: 4px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.custom-scrollbar #unity-vertical-scroller #unity-tracker {
+    border-radius: 4px;
+    background-color: rgb(232, 228, 215);
+    border-width: 0;
+}
+
+.custom-scrollbar #unity-vertical-scroller #unity-dragger {
+    border-radius: 4px;
+    background-color: rgb(168, 162, 148);
+    min-height: 36px;
+    border-width: 0;
+
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
+
+.custom-scrollbar #unity-vertical-scroller #unity-dragger:hover {
+    background-color: rgb(140, 135, 120);
+}
+
+
+/* ════════════════════════════════════════════════
+   Сховати стрілки — НА Unity 6 кнопки можуть мати РІЗНІ
+   імена/класи залежно від builds. Покриваємо ВСІ варіанти:
+════════════════════════════════════════════════ */
+.custom-scrollbar #unity-vertical-scroller .unity-base-slider__low-button,
+.custom-scrollbar #unity-vertical-scroller .unity-base-slider__high-button,
+.custom-scrollbar #unity-vertical-scroller .unity-scroller__low-button,
+.custom-scrollbar #unity-vertical-scroller .unity-scroller__high-button,
+.custom-scrollbar #unity-vertical-scroller #unity-low-button,
+.custom-scrollbar #unity-vertical-scroller #unity-high-button,
+.custom-scrollbar #unity-low-button,
+.custom-scrollbar #unity-high-button {
+    display: none;
+    height: 0;
+    width: 0;
+    min-height: 0;
+    min-width: 0;
+    max-height: 0;
+    max-width: 0;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    opacity: 0;
+}
+
+
+/* ── Horizontal scrollbar (симетрично) ── */
+.custom-scrollbar #unity-horizontal-scroller {
+    height: 8px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 6px;
+    margin-right: 6px;
+}
+
+.custom-scrollbar #unity-horizontal-scroller #unity-tracker {
+    border-radius: 4px;
+    background-color: rgb(232, 228, 215);
+    border-width: 0;
+}
+
+.custom-scrollbar #unity-horizontal-scroller #unity-dragger {
+    border-radius: 4px;
+    background-color: rgb(168, 162, 148);
+    min-width: 36px;
+    border-width: 0;
+
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
+
+.custom-scrollbar #unity-horizontal-scroller #unity-dragger:hover {
+    background-color: rgb(140, 135, 120);
+}
+
+.custom-scrollbar #unity-horizontal-scroller .unity-base-slider__low-button,
+.custom-scrollbar #unity-horizontal-scroller .unity-base-slider__high-button,
+.custom-scrollbar #unity-horizontal-scroller .unity-scroller__low-button,
+.custom-scrollbar #unity-horizontal-scroller .unity-scroller__high-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+
+/* ── Modifier: --left — скрол на лівому боці ── */
+.custom-scrollbar--left > .unity-scroll-view__content-and-vertical-scroll-container {
+    flex-direction: row-reverse;
+}
