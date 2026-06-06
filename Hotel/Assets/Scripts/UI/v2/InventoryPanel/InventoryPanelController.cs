@@ -9,8 +9,9 @@
 //   Hide()  — закрити
 //   Toggle()— перемкнути
 //
-// V2 (5 червня): картки тепер у wrapper-структурі з drop-shadow
-// (як genre-card у NPCInspector). Класи: book-card-wrap → shadow + card.
+// ПІДКЛЮЧЕННЯ:
+//   Так само як NPCInspectorMount — окремий UXML компонент,
+//   монтується в GameHUDController.
 
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ public class InventoryPanelController
 {
     private const string CLS_HIDDEN   = "hidden";
     private const string CLS_ACTIVE   = "inv-cat-btn--active";
-    private const string CLS_SELECTED = "book-card--selected";   // NEW: book-card not inv-book-card
+    private const string CLS_SELECTED = "book-card--selected";   // book-card (not inv-book-card)
 
     // ── UI refs ───────────────────────────────────────────────────
     private readonly VisualElement _root;
@@ -36,6 +37,7 @@ public class InventoryPanelController
     private string    _searchQuery = "";
     private BookTemplate _selectedTemplate;
     private VisualElement _selectedCard;
+    private VisualElement _searchDots;   // 4 dots placeholder — hidden when typing
 
     // Scroll sound throttle
     private float _lastScrollSoundTime = -1f;
@@ -50,6 +52,13 @@ public class InventoryPanelController
         _subcategoryBar = _root.Q<VisualElement>("SubcategoryBar");
         _searchField    = _root.Q<TextField>("SearchField");
         _bookGrid       = _root.Q<ScrollView>("BookGrid");
+        if (_bookGrid != null)
+        {
+            _bookGrid.verticalScrollerVisibility = ScrollerVisibility.AlwaysVisible;
+            _bookGrid.RegisterCallback<GeometryChangedEvent>(_ => ApplyScrollbarStyles());
+        }
+
+        _searchDots = _root.Q<VisualElement>("SearchDots");
 
         var closeBtn = _root.Q<Button>("BtnClose");
         closeBtn?.RegisterCallback<ClickEvent>(_ => Hide());
@@ -58,6 +67,8 @@ public class InventoryPanelController
         {
             _searchQuery = evt.newValue ?? "";
             RefreshGrid();
+            // Dots: show when empty, hide when typing
+            _searchDots?.EnableInClassList("hidden", !string.IsNullOrEmpty(evt.newValue));
         });
 
         // Scroll sound
@@ -190,6 +201,7 @@ public class InventoryPanelController
         var inventory = InventoryManager.Instance?.GetSortedInventory(SortType.ByTitle);
         if (inventory == null) return Enumerable.Empty<BookTemplate>();
 
+        // Збираємо унікальні шаблони
         var templates = inventory
             .Select(b => BookDatabase.Instance?.GetBook(b.templateID))
             .Where(t => t != null)
@@ -207,54 +219,43 @@ public class InventoryPanelController
     }
 
     // ════════════════════════════════════════════════════════════════
-    //  WRAPPER-СТРУКТУРА як у genre-card з NPCInspector
-    //
-    //  <book-card-wrap>           ← positioning context (relative)
-    //    <book-card-shadow/>      ← absolute, translate 4px 5px (тінь)
-    //    <book-card>              ← absolute, поверх тіні
-    //      <book-card__icon/>
-    //      <book-card__dot/>      ← клас рарності визначає колір
-    //      <book-card__title/>
-    //      <book-card__price/>
-    //  </book-card-wrap>
-    //
-    //  Стилі — у Shared/BookCard.uss (всі класи .book-card*).
-    //  Click & hover — на самій card (shadow має pickingMode=Ignore).
-    //  Повертається WRAPPER (це flex-item у grid).
+    //  WRAPPER-СТРУКТУРА: book-card-wrap → shadow + card
+    //  Тінь ідентична genre-card-shadow з NPCInspector.uss.
+    //  Стилі: Shared/BookCard.uss (всі .book-card* класи).
     // ════════════════════════════════════════════════════════════════
     private VisualElement BuildBookCardWrapper(BookTemplate tpl)
     {
-        // ── wrapper ── flex-item у сітці, positioning context для shadow+card
+        // Wrapper — flex-item у сітці, positioning context для shadow і card
         var wrap = new VisualElement();
         wrap.AddToClassList("book-card-wrap");
         wrap.pickingMode = PickingMode.Position;
 
-        // ── shadow ── ідентично .genre-card-shadow з NPCInspector.uss
+        // Shadow — рендериться ПЕРШИМ (за карткою)
         var shadow = new VisualElement();
         shadow.AddToClassList("book-card-shadow");
         shadow.pickingMode = PickingMode.Ignore;
-        wrap.Add(shadow);                          // ПЕРШИЙ → рендериться ЗА карткою
+        wrap.Add(shadow);
 
-        // ── card ── видима кремова коробка
+        // Card — поверх shadow
         var card = new VisualElement();
         card.AddToClassList("book-card");
         card.pickingMode = PickingMode.Position;
-        wrap.Add(card);                            // ДРУГИЙ → поверх shadow
+        wrap.Add(card);
 
-        // Слот обкладинки/іконки (опційно — заповнити через style.backgroundImage)
+        // Іконка жанру (слот, заповнити через style.backgroundImage)
         var cover = new VisualElement();
         cover.AddToClassList("book-card__icon");
         cover.pickingMode = PickingMode.Ignore;
         card.Add(cover);
 
-        // Крапка рарності (клас визначає колір через .book-card__dot.uncommon etc)
+        // Крапка рарності
         var dot = new VisualElement();
         dot.AddToClassList("book-card__dot");
         dot.AddToClassList(GetRarityClass(tpl.rarity));
         dot.pickingMode = PickingMode.Ignore;
         card.Add(dot);
 
-        // Назва (труncується через white-space:nowrap у CSS)
+        // Назва
         var title = new Label(tpl.title ?? "");
         title.AddToClassList("book-card__title");
         title.pickingMode = PickingMode.Ignore;
@@ -266,13 +267,11 @@ public class InventoryPanelController
         price.pickingMode = PickingMode.Ignore;
         card.Add(price);
 
-        // Interactions — реєструємо на CARD, не на wrap.
-        // Так hover/click спрацьовують лише на видимій частині (а не на ширшому
-        // bounding box wrapper'а, який включає margin-right/bottom для тіні).
+        // Hover та click на card (не на wrap — щоб не зачіпати shadow-відступ)
         UIHoverSound.RegisterHover(card);
         card.RegisterCallback<ClickEvent>(_ => SelectCard(card, tpl));
 
-        return wrap;
+        return wrap;  // ← wrap є flex-item у BookGrid
     }
 
     private void SelectCard(VisualElement card, BookTemplate tpl)
@@ -303,10 +302,59 @@ public class InventoryPanelController
     {
         if (Time.unscaledTime - _lastScrollSoundTime < SCROLL_SOUND_COOLDOWN) return;
         _lastScrollSoundTime = Time.unscaledTime;
-        UIHoverSound.PlayHover();
+        UIHoverSound.PlayHover(); // використовуємо той же звук, можна замінити на окремий
     }
 
     // ── Helpers ───────────────────────────────────────────────────
+
+    // ── Scrollbar — inline C# стилі (надійніше ніж USS при GUID-проблемах) ──
+    private void ApplyScrollbarStyles()
+    {
+        var scroller = _bookGrid?.Q<VisualElement>("unity-vertical-scroller");
+        if (scroller == null) return;
+
+        scroller.style.width   = scroller.style.minWidth = scroller.style.maxWidth = 10f;
+        scroller.style.marginLeft  = 8f;  scroller.style.marginRight = 4f;
+        scroller.style.marginTop   = scroller.style.marginBottom = 10f;
+        scroller.style.borderTopWidth = scroller.style.borderBottomWidth =
+        scroller.style.borderLeftWidth = scroller.style.borderRightWidth = 0;
+        scroller.style.backgroundColor = StyleKeyword.None;
+
+        var tracker = scroller.Q<VisualElement>("unity-tracker");
+        if (tracker != null)
+        {
+            tracker.style.backgroundColor = new StyleColor(new Color(218/255f, 213/255f, 200/255f));
+            tracker.style.borderTopLeftRadius    = tracker.style.borderTopRightRadius    =
+            tracker.style.borderBottomLeftRadius = tracker.style.borderBottomRightRadius = 3f;
+            tracker.style.borderTopWidth = tracker.style.borderBottomWidth =
+            tracker.style.borderLeftWidth = tracker.style.borderRightWidth = 0;
+            tracker.style.width = 6f;
+        }
+
+        var dragger = scroller.Q<VisualElement>("unity-dragger");
+        if (dragger != null)
+        {
+            dragger.style.backgroundColor = new StyleColor(new Color(150/255f, 144/255f, 132/255f));
+            dragger.style.borderTopLeftRadius    = dragger.style.borderTopRightRadius    =
+            dragger.style.borderBottomLeftRadius = dragger.style.borderBottomRightRadius = 3f;
+            dragger.style.borderTopWidth = dragger.style.borderBottomWidth =
+            dragger.style.borderLeftWidth = dragger.style.borderRightWidth = 0;
+            dragger.style.minHeight = 36f;
+            dragger.style.width = 6f;
+        }
+
+        foreach (var btn in scroller.Query<Button>().Build())
+        {
+            btn.style.display  = DisplayStyle.None;
+            btn.style.width    = btn.style.height    = 0;
+            btn.style.minWidth = btn.style.minHeight = 0;
+            btn.style.maxWidth = btn.style.maxHeight = 0;
+            btn.style.marginTop = btn.style.marginBottom = 
+            btn.style.marginLeft = btn.style.marginRight = 0;
+            btn.style.paddingTop = btn.style.paddingBottom = 
+            btn.style.paddingLeft = btn.style.paddingRight = 0;
+        }
+    }
 
     private static string GetRarityClass(BookRarity rarity) => rarity switch
     {

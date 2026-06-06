@@ -48,6 +48,13 @@ public class NPCInspectorController
     private readonly List<VisualElement> _cards        = new(); // wrappers — для left
     private readonly List<VisualElement> _cardElements = new(); // самі картки — для класів
     private readonly List<CardData>      _cardData     = new();
+    private readonly List<VisualElement> _glowRings    = new(); // ring-елементи для glow
+    private readonly List<int>           _visualOrder  = new(); // visualPos → logicalIdx
+
+    // Glow animation
+    private bool  _glowState;
+    private float _lastGlowToggle;
+    private const float GLOW_INTERVAL = 0.5f;
 
     // ── Constructor ──────────────────────────────────────────────
     public NPCInspectorController(VisualElement templateContainer)
@@ -195,6 +202,36 @@ public class NPCInspectorController
     {
         if (!_isVisible || _currentNPC == null) return;
         RefreshBars();
+        TickSearchingGlow();
+    }
+
+    /// Пульсуюча золота рамка на картці яку NPC зараз шукає.
+    private void TickSearchingGlow()
+    {
+        int idx = _currentNPC?.Personality?.CurrentBookIndex ?? -1;
+        if (idx < 0 || idx >= _glowRings.Count || _glowRings[idx] == null) return;
+
+        float now = Time.unscaledTime;
+        if (now - _lastGlowToggle < GLOW_INTERVAL) return;
+
+        _lastGlowToggle = now;
+        _glowState      = !_glowState;
+
+        // Скидаємо glow на всіх ring-ах (тільки searching має glow)
+        for (int i = 0; i < _glowRings.Count; i++)
+        {
+            if (_glowRings[i] == null) continue;
+            if (i == idx)
+            {
+                _glowRings[i].EnableInClassList("glow-on",  _glowState);
+                _glowRings[i].EnableInClassList("glow-off", !_glowState);
+            }
+            else
+            {
+                _glowRings[i].RemoveFromClassList("glow-on");
+                _glowRings[i].RemoveFromClassList("glow-off");
+            }
+        }
     }
 
     public void MarkCardFulfilled(int index)
@@ -336,25 +373,26 @@ public class NPCInspectorController
         _cards.Clear();
         _cardElements.Clear();
         _cardData.Clear();
+        _glowRings.Clear();
+        _visualOrder.Clear();
 
         if (_currentNPC == null) return;
 
-        int total    = _currentNPC.Personality?.WantsToBuy ?? 1;
-        var basket   = _currentNPC.Personality?.Basket;     // нові: зібрані книги
-        int inBasket = basket?.Count ?? 0;
-        var genre    = _currentNPC.DesiredGenre;
+        int total      = _currentNPC.Personality?.WantsToBuy ?? 1;
+        var basket     = _currentNPC.Personality?.Basket;
+        int inBasket   = basket?.Count ?? 0;
+        // Картка що ЗАРАЗ шукається — йде першою у візуальному порядку
+        int searchIdx  = _currentNPC.Personality?.CurrentBookIndex ?? 0;
+        searchIdx      = Mathf.Clamp(searchIdx, 0, total - 1);
 
-        // Будуємо дані: якщо книга вже в кошику — fulfilled + показуємо назву/ціну
+        // Будуємо дані
         for (int i = 0; i < total; i++)
         {
             bool fulfilled = i < inBasket;
- 
-            // ✅ ЗМІНА: жанр з ShoppingList[i] — кожна картка свого кольору/жанру
             BookGenre slotGenre = (_currentNPC.Personality?.ShoppingList != null
                                    && i < _currentNPC.Personality.ShoppingList.Length)
                 ? _currentNPC.Personality.ShoppingList[i]
-                : _currentNPC.DesiredGenre; // fallback
- 
+                : _currentNPC.DesiredGenre;
             _cardData.Add(new CardData
             {
                 Genre       = slotGenre,
@@ -364,11 +402,24 @@ public class NPCInspectorController
             });
             _cards.Add(null);
         }
-        // Додаємо в DOM у зворотньому порядку (картка 0 = зверху)
-        for (int i = total - 1; i >= 0; i--)
+
+        // _visualOrder: searching першою, решта в зворотньому порядку (останні = на задньому плані)
+        // DOM order: першим ← задній план; останнім ← передній план (рендериться зверху)
+        // Тому в _visualOrder: [1, 2, ..., searchIdx(front)]
+        // Додаємо в DOM у порядку _visualOrder (searching = останній = зверху)
+        // _visualOrder[0] = searching (front, left=0)
+        // [1..] = решта у ЛОГІЧНОМУ порядку ShoppingList (не reversed!)
+        _visualOrder.Add(searchIdx);
+        for (int i = 0; i < total; i++)
+            if (i != searchIdx) _visualOrder.Add(i);
+
+        // DOM: додаємо у ЗВОРОТНОМУ до _visualOrder порядку
+        // (останній у _visualOrder = searching = добавляємо ОСТАННІМ = рендер зверху)
+        for (int vi = _visualOrder.Count - 1; vi >= 0; vi--)
         {
-            var card = BuildCard(_cardData[i], i);
-            _cards[i] = card;
+            int li   = _visualOrder[vi];
+            var card = BuildCard(_cardData[li], li);
+            _cards[li] = card;
             _genreCardsRow.Add(card);
         }
 
@@ -382,8 +433,10 @@ public class NPCInspectorController
         _cards.Clear();
         _cardElements.Clear();
         _cardData.Clear();
+        _glowRings.Clear();
+        _visualOrder.Clear();
 
-        // Логічний порядок: 0=Mystery (front), 1=Fantasy, 2=SciFi (back)
+        // Preview: 0=Mystery (searching, front), 1=Fantasy, 2=SciFi (back)
         _cardData.Add(new CardData { Genre = BookGenre.Mystery, IsFulfilled = true,  BookTitle = "Ім'я Рози", Price = 48f });
         _cardData.Add(new CardData { Genre = BookGenre.Fantasy, IsFulfilled = false });
         _cardData.Add(new CardData { Genre = BookGenre.SciFi,   IsFulfilled = false });
@@ -392,16 +445,20 @@ public class NPCInspectorController
         _cards.Add(null);
         _cards.Add(null);
 
-        // Додаємо в DOM у зворотньому порядку (SciFi → Fantasy → Mystery)
-        // Mystery додається останньою → малюється зверху
-        for (int i = _cardData.Count - 1; i >= 0; i--)
+        // _visualOrder для preview: searching=0 перший
+        _visualOrder.Add(0);   // Mystery (front)
+        _visualOrder.Add(2);   // SciFi (back in DOM)
+        _visualOrder.Add(1);   // Fantasy (mid in DOM)
+
+        // DOM: зворотний до _visualOrder (searching = останній = зверху)
+        for (int vi = _visualOrder.Count - 1; vi >= 0; vi--)
         {
-            var card = BuildCard(_cardData[i], i);
-            _cards[i] = card;
+            int li   = _visualOrder[vi];
+            var card = BuildCard(_cardData[li], li);
+            _cards[li] = card;
             _genreCardsRow.Add(card);
         }
 
-        // Встановлюємо collapsed позиції БЕЗ анімації
         SnapToCollapsed();
     }
 
@@ -424,6 +481,14 @@ public class NPCInspectorController
         shadow.AddToClassList("genre-card-shadow");
         shadow.pickingMode = PickingMode.Ignore;
         wrapper.Add(shadow);
+
+        // ── Searching ring — золота пульсуюча рамка (glow-on / glow-off через Tick) ──
+        var ring = new VisualElement();
+        ring.AddToClassList("genre-card__searching-ring");
+        ring.pickingMode = PickingMode.Ignore;
+        wrapper.Add(ring);                              // між shadow і карткою
+        while (_glowRings.Count <= index) _glowRings.Add(null);
+        _glowRings[index] = ring;
 
         // ── Card ──────────────────────────────────────────────────
         var card = new VisualElement();
@@ -488,32 +553,31 @@ public class NPCInspectorController
     {
         _cardsExpanded = expanded;
 
-        for (int i = 0; i < _cards.Count; i++)
+        // Ітеруємо за _visualOrder щоб searching card завжди
+        // мала позицію 0 (collapsed) або 0px (expanded).
+        for (int vi = 0; vi < _visualOrder.Count; vi++)
         {
-            var card = _cards[i];
+            int li   = _visualOrder[vi];
+            var card = _cards[li];
+            if (card == null) continue;
             card.EnableInClassList(CLS_EXPANDED, expanded);
 
-            // Позиціонуємо через style.left (USS transition: left 0.25s).
-            // Картка 0 ЗАВЖДИ на left=0 — не рухається.
-            // Collapsed: кожна наступна виступає на CARD_PEEK (12px).
-            // Expanded:  рівні відступи (72+5)px між картками.
             float left = expanded
-                ? i * (CARD_WIDTH + CARD_GAP_EXPANDED)
-                : i * CARD_PEEK;
+                ? vi * (CARD_WIDTH + CARD_GAP_EXPANDED)
+                : vi * CARD_PEEK;
 
             card.style.left = left;
         }
     }
 
     /// Встановити позиції БЕЗ анімації (при першому показі).
+    /// searching card завжди на позиції 0 (front).
     private void SnapToCollapsed()
     {
-        // Встановлюємо left одразу — без transition.
-        // style.left не анімується до першого reflow,
-        // тому просто ставимо значення і USS transition почне
-        // працювати тільки при НАСТУПНІЙ зміні.
-        for (int i = 0; i < _cards.Count; i++)
-            _cards[i].style.left = i * CARD_PEEK;
+        // _visualOrder[vi] = logicalIndex картки на візуальній позиції vi
+        // vi=0 → searching card → left=0 (front)
+        for (int vi = 0; vi < _visualOrder.Count; vi++)
+            _cards[_visualOrder[vi]].style.left = vi * CARD_PEEK;
     }
 
     // ── Tooltip ───────────────────────────────────────────────────

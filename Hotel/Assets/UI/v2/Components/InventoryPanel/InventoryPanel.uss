@@ -227,6 +227,7 @@
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
     margin-top: 4px;
+    overflow: hidden;       /* НЕ пропускати overflow за межі grid */
 }
 
 /* Контейнер контенту: flex-wrap для 3-х колонок */
@@ -258,4 +259,293 @@
     padding-left: 2px;
     flex-shrink: 0;
     flex-grow: 0;
+}
+
+/* ═══════════════════════════════════════
+   CustomScrollbar (merged — GUID import ненадійний)
+═══════════════════════════════════════ */
+/*
+    CustomScrollbar.uss — переюзабельний скрол
+    Path: Assets/UI/v2/Shared/CustomScrollbar.uss
+    v3 — Fixed: explicit sizes, pill shape, always-visible friendly
+*/
+
+/* ── Vertical scroller container ── */
+.custom-scrollbar #unity-vertical-scroller {
+    width: 10px;
+    min-width: 10px;
+    max-width: 10px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    margin-left: 8px;
+    margin-right: 4px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0;
+}
+
+/* Track — заокруглена тонка смуга */
+.custom-scrollbar #unity-vertical-scroller #unity-tracker {
+    width: 6px;
+    border-radius: 3px;
+    background-color: rgb(218, 213, 200);
+    border-width: 0;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+}
+
+/* Dragger — фіксований розмір, pill */
+.custom-scrollbar #unity-vertical-scroller #unity-dragger {
+    width: 6px;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    border-radius: 3px;
+    background-color: rgb(150, 144, 132);
+    border-width: 0;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    
+    transition-property: background-color;
+    transition-duration: 0.15s;
+}
+
+.custom-scrollbar #unity-vertical-scroller #unity-dragger:hover {
+    background-color: rgb(118, 112, 100);
+}
+
+/* Сховати стрілки — всі варіанти Unity 6 */
+.custom-scrollbar #unity-vertical-scroller .unity-base-slider__low-button,
+.custom-scrollbar #unity-vertical-scroller .unity-base-slider__high-button,
+.custom-scrollbar #unity-vertical-scroller .unity-scroller__low-button,
+.custom-scrollbar #unity-vertical-scroller .unity-scroller__high-button,
+.custom-scrollbar #unity-vertical-scroller #unity-low-button,
+.custom-scrollbar #unity-vertical-scroller #unity-high-button,
+.custom-scrollbar #unity-low-button,
+.custom-scrollbar #unity-high-button {
+    display: none;
+    height: 0;
+    width: 0;
+    min-height: 0;
+    min-width: 0;
+    max-height: 0;
+    max-width: 0;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+}
+
+
+/* ── --left modifier: скрол на лівому боці ── */
+.custom-scrollbar--left > .unity-scroll-view__content-and-vertical-scroll-container {
+    flex-direction: row-reverse;
+}
+
+
+/* ── Horizontal ── */
+.custom-scrollbar #unity-horizontal-scroller {
+    height: 10px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    margin: 4px 8px;
+}
+.custom-scrollbar #unity-horizontal-scroller #unity-tracker {
+    border-radius: 3px;
+    background-color: rgb(218, 213, 200);
+    border-width: 0;
+}
+.custom-scrollbar #unity-horizontal-scroller #unity-dragger {
+    border-radius: 3px;
+    background-color: rgb(150, 144, 132);
+    min-width: 36px;
+    max-width: 36px;
+    border-width: 0;
+}
+.custom-scrollbar #unity-horizontal-scroller .unity-base-slider__low-button,
+.custom-scrollbar #unity-horizontal-scroller .unity-base-slider__high-button {
+    display: none;
+}
+
+
+/* ═══════════════════════════════════════
+   BookCard (merged — GUID import ненадійний)
+═══════════════════════════════════════ */
+/*
+    BookCard.uss — переюзабельна картка книги
+    Path: Assets/UI/v2/Shared/BookCard.uss
+
+    ПРИЗНАЧЕННЯ: спільний візуальний стиль для картки книги.
+    Використовується в Inventory, Catalog, Awards, Lootbox, тощо.
+
+    ВИКОРИСТАННЯ:
+    1. Імпорт USS у вашому UXML:
+       <Style src="project://database/Assets/UI/v2/Shared/BookCard.uss"/>
+    2. Інстанціювати шаблон BookCard.uxml:
+       VisualTreeAsset bookCard = ...;
+       container.Add(bookCard.Instantiate().ElementAt(0));
+
+    РОЗМІРИ: 71 × 81px, border-radius 11, border 3px темно-сірий.
+    Колір кремовий rgb(247,244,230) — як на макеті інвентаря.
+
+    ДВА РЕЖИМИ:
+    1. БЕЗ wrapper'а — додати .book-card напряму в flex-grid:
+         <ui:VisualElement class="book-card">...</ui:VisualElement>
+       Картка у normal flow, БЕЗ drop-shadow (тільки border).
+
+    2. З wrapper'ом — drop-shadow ідентичний genre-card з NPCInspector:
+         <ui:VisualElement class="book-card-wrap">
+           <ui:VisualElement class="book-card-shadow" picking-mode="Ignore"/>
+           <ui:VisualElement class="book-card">...</ui:VisualElement>
+         </ui:VisualElement>
+
+    КЛАСИ:
+    .book-card-wrap         — контейнер з drop-shadow
+    .book-card-shadow       — затемнений дубль за карткою (offset 4,5)
+    .book-card              — сама картка
+    .book-card__icon        — слот для обкладинки/іконки (опційно)
+    .book-card__dot         — крапка статусу в правому верхньому куті
+       .common / .uncommon / .rare / .epic / .legendary
+    .book-card__title       — назва (труncується)
+    .book-card__price       — ціна
+*/
+
+
+/* ════════════════════════════════════════
+   WRAPPER — контейнер з drop-shadow
+════════════════════════════════════════ */
+.book-card-wrap {
+    position: relative;     /* positioning context для absolute дітей */
+    width: 72px;
+    height: 96px;
+    margin-right: 16px;     /* gap між колонками у grid */
+    margin-bottom: 18px;    /* місце для тіні (5px) + gap між рядами */
+    overflow: visible;      /* тінь виходить за межі wrapper'а */
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+/* Тінь — патерн з genre-card-shadow (NPCInspector.uss) */
+.book-card-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 72px;
+    height: 96px;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.22);
+    translate: 4px 5px;      /* offset 4 вправо, 5 вниз */
+}
+
+
+/* ════════════════════════════════════════
+   КАРТКА — основний стиль
+   У normal flow без wrapper'а працює як flex-item
+   У wrapper'і — absolute поверх shadow
+════════════════════════════════════════ */
+.book-card {
+    width: 72px;
+    height: 96px;
+    border-radius: 5px;
+    border-width: 3px;
+    border-color: rgb(211, 209, 209);     /* темно-сірий як stat-segment */
+    background-color: rgb(247, 244, 230); /* кремовий */
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 4px;
+    margin-right: 16px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    cursor: link;
+    flex-shrink: 0;
+    flex-grow: 0;
+
+    transition-property: translate, background-color, border-color;
+    transition-duration: 0.15s;
+    transition-timing-function: ease-out;
+    translate: 0 0;
+}
+
+/* Override: всередині wrapper'а використати absolute для накладання поверх shadow */
+.book-card-wrap > .book-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+}
+
+/* Hover */
+.book-card:hover,
+.book-card-wrap:hover .book-card {
+    translate: 0 -3px;
+    background-color: rgb(252, 250, 238);
+    border-color: rgb(79, 177, 92);
+}
+
+/* Selected */
+.book-card--selected,
+.book-card-wrap.selected .book-card {
+    border-color: rgb(79, 177, 92);
+    border-width: 3px;
+    background-color: rgb(242, 238, 218);
+}
+
+
+/* ════════════════════════════════════════
+   ВНУТРІШНІ ЕЛЕМЕНТИ
+════════════════════════════════════════ */
+
+/* Слот для обкладинки/іконки (верхня частина картки) */
+.book-card__icon {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    height: 42px;
+    background-color: rgba(0, 0, 0, 0);
+    /* Заповнити через C#: icon.style.backgroundImage = ... */
+}
+
+/* Крапка статусу/рарності у правому верхньому куті */
+.book-card__dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background-color: rgb(178, 176, 160);  /* common default */
+}
+.book-card__dot.common    { background-color: rgb(178, 176, 160); }
+.book-card__dot.uncommon  { background-color: rgb(72, 168, 84);   }
+.book-card__dot.rare      { background-color: rgb(56, 118, 210);  }
+.book-card__dot.epic      { background-color: rgb(155, 56, 210);  }
+.book-card__dot.legendary { background-color: rgb(218, 162, 28);  }
+
+/* Назва книги */
+.book-card__title {
+    font-size: 9px;
+    color: rgb(45, 42, 30);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    -unity-text-overflow-position: end;
+    width: 58px;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 1px;
+}
+
+/* Ціна */
+.book-card__price {
+    font-size: 9px;
+    color: rgb(95, 85, 60);
+    -unity-text-align: middle-center;
+    margin: 0;
+    padding: 0;
 }

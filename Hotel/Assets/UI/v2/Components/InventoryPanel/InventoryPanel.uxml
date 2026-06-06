@@ -1,8 +1,6 @@
 <ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
 
     <!-- Shared resources (переюзабельні для інших панелей) -->
-    <Style src="project://database/Assets/UI/v2/Shared/CustomScrollbar.uss"/>
-    <Style src="project://database/Assets/UI/v2/Shared/BookCard.uss"/>
 
     <!-- Panel-specific styles -->
     <Style src="project://database/Assets/UI/v2/Components/InventoryPanel/InventoryPanel.uss"/>
@@ -12,9 +10,16 @@
         <!-- Кнопка закриття: абсолютна позиція, візуально окремо -->
         <ui:Button name="BtnClose" text="✕" picking-mode="Position" class="inv-close-btn"/>
 
-        <!-- 7 квадратів-плейсхолдерів для іконок жанрів
-             (заповнюються контролером через BuildCategoryBar) -->
-        <ui:VisualElement name="CategoryBar" picking-mode="Position" class="inv-category-bar"/>
+        <!-- 7 квадратів-плейсхолдерів для іконок жанрів -->
+        <ui:VisualElement name="CategoryBar" picking-mode="Position" class="inv-category-bar">
+            <ui:VisualElement name="CatSlot0" picking-mode="Position" class="inv-cat-btn"/>
+            <ui:VisualElement name="CatSlot1" picking-mode="Position" class="inv-cat-btn"/>
+            <ui:VisualElement name="CatSlot2" picking-mode="Position" class="inv-cat-btn"/>
+            <ui:VisualElement name="CatSlot3" picking-mode="Position" class="inv-cat-btn"/>
+            <ui:VisualElement name="CatSlot4" picking-mode="Position" class="inv-cat-btn"/>
+            <ui:VisualElement name="CatSlot5" picking-mode="Position" class="inv-cat-btn"/>
+            <ui:VisualElement name="CatSlot6" picking-mode="Position" class="inv-cat-btn"/>
+        </ui:VisualElement>
 
         <!-- Заголовок -->
         <ui:Label text="INVENTORY" class="inv-title"/>
@@ -25,11 +30,11 @@
             <ui:Button name="BtnSearch" text="🔍" picking-mode="Position" class="inv-search-btn"/>
         </ui:VisualElement>
 
-        <!-- Subcategory bar — A/B sort + rarity filters -->
-        <ui:VisualElement name="SubcategoryBar" picking-mode="Position" class="inv-subcategory-bar"/>
+        <!-- Subcategory (для сумісності, схована) -->
+        <ui:VisualElement name="SubcategoryBar" picking-mode="Ignore" class="inv-subcategory-bar"/>
 
         <!-- Сітка слотів з кастомним скролбаром на лівому боці -->
-        <ui:ScrollView name="BookGrid" mode="Vertical" mouse-wheel-scroll-size="80" picking-mode="Position" class="inv-book-grid custom-scrollbar custom-scrollbar--left"/>
+        <ui:ScrollView name="BookGrid" mode="Vertical" mouse-wheel-scroll-size="80" vertical-scroller-visibility="AlwaysVisible" picking-mode="Position" class="inv-book-grid custom-scrollbar custom-scrollbar--left"/>
 
     </ui:VisualElement>
 </ui:UXML>

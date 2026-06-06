@@ -215,6 +215,7 @@
     position: absolute;
     width: 72px;
     height: 96px;
+    overflow: visible;          /* ПОТРІБНО: ring виходить за межі wrapper'а на 3px */
     transition-property: left;
     transition-duration: 0.25s;
     transition-timing-function: ease-out;
@@ -257,7 +258,7 @@
 /* Hover: картка піднімається вгору, тінь залишається — ефект підйому */
 .genre-card-wrapper:hover .genre-card {
     translate: 0 -6px;
-    border-color: rgba(100, 150, 210, 0.9);
+    border-color: rgba(140, 175, 210, 0.6);
 }
 
 /* Genre icon: top-left, placeholder */
@@ -320,13 +321,13 @@
 }
 
 /* Genre color variants: tinted versions of light blue */
-.genre-card.genre--Classic   { background-color: rgb(230, 215, 180); border-color: rgba(170, 146, 80, 0.5);  }
-.genre-card.genre--Fantasy   { background-color: rgb(210, 190, 240); border-color: rgba(140, 80, 200, 0.5);  }
-.genre-card.genre--SciFi     { background-color: rgb(180, 220, 245); border-color: rgba(60, 160, 210, 0.5);  }
-.genre-card.genre--Horror    { background-color: rgb(240, 190, 185); border-color: rgba(200, 60, 60, 0.5);   }
-.genre-card.genre--Mystery   { background-color: rgb(185, 205, 240); border-color: rgba(70, 110, 200, 0.5);  }
-.genre-card.genre--Biography { background-color: rgb(190, 235, 200); border-color: rgba(60, 170, 90, 0.5);   }
-.genre-card.genre--Academic  { background-color: rgb(235, 225, 185); border-color: rgba(180, 155, 50, 0.5);  }
+.genre-card.genre--Classic   { background-color: rgb(112, 135, 76); border-color: rgb(211, 209, 209);  }
+.genre-card.genre--Fantasy   { background-color: rgb(96, 121, 124); border-color: rgb(211, 209, 209);  }
+.genre-card.genre--SciFi     { background-color: rgb(81, 104, 145); border-color: rgb(211, 209, 209);  }
+.genre-card.genre--Horror    { background-color: rgb(150, 43, 39); border-color: rgb(211, 209, 209);   }
+.genre-card.genre--Mystery   { background-color: rgb(113, 73, 129); border-color: rgb(211, 209, 209);  }
+.genre-card.genre--Biography { background-color: rgb(183, 140, 43); border-color: rgb(211, 209, 209);   }
+.genre-card.genre--Academic  { background-color: rgb(157, 96, 49); border-color: rgb(211, 209, 209);  }
 
 /* ===================================
    TOOLTIP
@@ -361,4 +362,64 @@
     font-size: 12px;
     color: rgb(232, 196, 90);
     -unity-font-style: bold;
+}
+
+/* ═══════════════════════════════════════
+   CENTERED GENRE ICON — у центрі картки
+═══════════════════════════════════════ */
+.genre-card__genre-icon {
+    position: absolute;
+    left: 20px;   /* (72 - 32) / 2 = 20 */
+    top: 16px;    /* верхня третина картки */
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.30);
+    /* background-image встановлюється з C# за жанром */
+}
+
+
+/* ═══════════════════════════════════════
+   GOLD SEARCHING RING — пульсуюча рамка
+   Алгоритм: C# toggle glow-on/glow-off кожні 0.5 сек
+   CSS transition 0.45s → плавна пульсація
+═══════════════════════════════════════ */
+.genre-card__searching-ring {
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    width: 78px;   /* 72 + 3*2 */
+    height: 102px; /* 96 + 3*2 */
+    border-radius: 15px;
+    border-width: 3px;
+    border-color: rgba(218, 165, 32, 0);  /* gold, прозорий за замовчуванням */
+    background-color: rgba(0, 0, 0, 0);
+
+    transition-property: border-color, background-color;
+    transition-duration: 0.45s;
+    transition-timing-function: ease-in-out;
+}
+
+/* Яскраво — ON фаза */
+.genre-card__searching-ring.glow-on {
+    border-color: rgba(218, 165, 32, 0.92);
+    background-color: rgba(218, 165, 32, 0.04);
+}
+
+/* Тьмяно — OFF фаза */
+.genre-card__searching-ring.glow-off {
+    border-color: rgba(218, 165, 32, 0.18);
+    background-color: rgba(0, 0, 0, 0);
+}
+
+
+/* ═══════════════════════════════════════
+   SEARCHING card: wrapper набуває класу .searching
+   через C# (GenreCardController.SetSearching(true))
+═══════════════════════════════════════ */
+/* .genre-card-wrapper.searching .genre-card — стилі прибрано */
+
+/* Назва жанру завжди видна на картці що шукається */
+.genre-card-wrapper.searching .genre-card__label {
+    opacity: 1;
 }

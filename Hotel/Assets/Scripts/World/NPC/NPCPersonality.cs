@@ -57,11 +57,16 @@ public class NPCPersonality
     /// Чи всі слоти пройдені (незалежно від того чи знайдені).
     public bool AllSlotsProcessed => CurrentBookIndex >= WantsToBuy;
 
+    /// Спрацьовує коли CurrentBookIndex змінюється.
+    /// NPCInspectorController підписується щоб перебудувати картки одразу.
+    public event System.Action<int> OnBookIndexChanged;
+
     /// Переходимо до наступного слоту покупки.
     /// Повертає true якщо є ще невідпрацьовані слоти.
     public bool AdvanceToNextBook()
     {
         CurrentBookIndex++;
+        OnBookIndexChanged?.Invoke(CurrentBookIndex);
         return CurrentBookIndex < WantsToBuy;
     }
 

@@ -2,7 +2,7 @@
     <Style src="project://database/Assets/UI/Bookshop/BookshopUI.uss?fileID=7433441132597879392&amp;guid=6ad77ad8555184da6ad2a4f6d868a39d&amp;type=3#BookshopUI"/>
     <ui:VisualElement name="Root" picking-mode="Ignore" class="root">
         <ui:VisualElement name="HUD" picking-mode="Ignore" class="hud">
-            <ui:VisualElement name="ClubCard" picking-mode="Position" class="club-card" style="display: flex;">
+            <ui:VisualElement name="ClubCard" picking-mode="Position" class="club-card" style="display: none;">
                 <ui:VisualElement picking-mode="Ignore" class="club-card__cord"/>
                 <ui:VisualElement name="ClubCardFront" picking-mode="Position" class="club-card__face club-card__face--front">
                     <ui:VisualElement class="club-card__name-row" style="width: 131px; height: 54px;">
@@ -165,7 +165,7 @@
                 <ui:VisualElement class="phase-widget__sep"/>
                 <ui:Label name="PhaseTimer" text="" class="phase-timer"/>
             </ui:VisualElement>
-            <ui:VisualElement name="FuncBar" picking-mode="Position" class="func-bar">
+            <ui:VisualElement name="FuncBar" picking-mode="Position" class="func-bar" style="display: none;">
                 <ui:Button name="BtnInventory" class="func-btn tag">
                     <ui:VisualElement picking-mode="Ignore" class="tag-cord tilt-left"/>
                     <ui:VisualElement picking-mode="Ignore" class="tag-ring"/>
