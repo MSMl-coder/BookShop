@@ -258,7 +258,8 @@
 /* Hover: картка піднімається вгору, тінь залишається — ефект підйому */
 .genre-card-wrapper:hover .genre-card {
     translate: 0 -6px;
-    border-color: rgba(140, 175, 210, 0.6);
+     border-width: 3px;
+    border-color: rgb(211, 209, 209);  
 }
 
 /* Genre icon: top-left, placeholder */
